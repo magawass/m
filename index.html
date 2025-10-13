@@ -16,6 +16,7 @@ input, textarea { width:100%; max-width:400px; padding:8px; margin:6px 0; }
 .btn { background:#004466; color:white; border:none; padding:10px 20px; margin-top:10px; border-radius:5px; cursor:pointer;}
 .btn:hover { background:#007799; }
 #student-area, #admin-area { display:none; }
+footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; margin-top:40px; }
 </style>
 </head>
 <body>
@@ -28,6 +29,7 @@ input, textarea { width:100%; max-width:400px; padding:8px; margin:6px 0; }
 <nav>
   <button onclick="showSection('home')">Home</button>
   <button onclick="showSection('about')">About</button>
+  <button onclick="showSection('admissions')">Admissions</button>
   <button onclick="showSection('student')">Student Portal</button>
   <button onclick="showSection('admin')">Admin</button>
 </nav>
@@ -41,14 +43,20 @@ input, textarea { width:100%; max-width:400px; padding:8px; margin:6px 0; }
 <!-- ABOUT -->
 <section id="about">
   <h2>About Us</h2>
-  <p id="about-text">Welcome to Magawa Secondary School. We nurture disciplined, knowledgeable, and responsible learners.</p>
+  <p id="about-text">Loading content...</p>
+</section>
+
+<!-- ADMISSIONS -->
+<section id="admissions">
+  <h2>Admissions</h2>
+  <p id="admissions-text">Loading content...</p>
 </section>
 
 <!-- STUDENT PORTAL -->
 <section id="student">
   <h2>Student Portal</h2>
   <div id="student-login">
-    <label>Enter Exam Number:</label>
+    <label for="examNumber">Enter Exam Number:</label>
     <input type="text" id="examNumber" placeholder="e.g. 1001">
     <button class="btn" onclick="studentLogin()">Login</button>
   </div>
@@ -63,7 +71,7 @@ input, textarea { width:100%; max-width:400px; padding:8px; margin:6px 0; }
 <section id="admin">
   <h2>Admin Portal</h2>
   <div id="admin-login">
-    <label>Admin Password:</label>
+    <label for="adminPass">Admin Password:</label>
     <input type="password" id="adminPass">
     <button class="btn" onclick="adminLogin()">Login</button>
   </div>
@@ -96,7 +104,8 @@ input, textarea { width:100%; max-width:400px; padding:8px; margin:6px 0; }
 </footer>
 
 <script>
-let adminPassword = 'admin123'; // change this to your own password
+// --- ADMIN PASSWORD ---
+const adminPassword = 'M@gawa#2025!Admin'; // ⚠️ CHANGE THIS to your own strong password
 
 // --- Navigation ---
 function showSection(id) {
@@ -115,6 +124,7 @@ function adminLogin() {
 function adminLogout(){
   document.getElementById('admin-area').style.display='none';
   document.getElementById('admin-login').style.display='block';
+  document.getElementById('githubToken').value = '';
 }
 
 // --- Student Login ---
@@ -142,9 +152,8 @@ function studentLogout(){
 async function githubPut(path, contentBase64){
   const token = document.getElementById('githubToken').value.trim();
   if(!token) return alert('Enter GitHub token');
-  const repo = '<USERNAME>/<REPO>'; // change this to your GitHub username and repo
-  const branch = 'main'; // or 'master'
-  // Get current file SHA (if exists)
+  const repo = 'magawass/m'; // Username and repo incorporated
+  const branch = 'main';
   let sha = null;
   const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
     headers:{'Authorization':'token '+token}
@@ -153,18 +162,24 @@ async function githubPut(path, contentBase64){
     const data = await resp.json();
     sha = data.sha;
   }
-  // Put request
   const putResp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
     method:'PUT',
-    headers:{'Authorization':'token '+token},
+    headers:{
+      'Authorization':'token '+token,
+      'Content-Type':'application/json'
+    },
     body:JSON.stringify({
       message:`Update ${path}`,
       content:contentBase64,
       branch,
-      sha
+      ...(sha ? {sha} : {})
     })
   });
-  if(putResp.ok) alert(`${path} uploaded successfully`); else alert(`Failed to upload ${path}`);
+  if(putResp.ok) alert(`${path} uploaded successfully`);
+  else {
+    const err = await putResp.json();
+    alert(`Failed to upload ${path}: ${err.message || putResp.status}`);
+  }
 }
 
 // --- Upload PDF ---
@@ -199,6 +214,33 @@ function saveContentToGitHub(){
   const admissions = document.getElementById('edit-admissions').value.trim();
   if(about) githubPut('about.txt', btoa(unescape(encodeURIComponent(about))));
   if(admissions) githubPut('admissions.txt', btoa(unescape(encodeURIComponent(admissions))));
+}
+
+// --- Load About/Admissions from GitHub ---
+async function loadGitHubContent(){
+  const repo = 'magawass/m'; // Username and repo incorporated
+  const branch = 'main';
+  const baseURL = `https://api.github.com/repos/${repo}/contents`;
+
+  async function fetchText(file){
+    try {
+      const resp = await fetch(`${baseURL}/${file}?ref=${branch}`);
+      if(resp.ok){
+        const data = await resp.json();
+        return decodeURIComponent(escape(atob(data.content)));
+      } else return null;
+    } catch { return null; }
+  }
+
+  const about = await fetchText('about.txt');
+  const admissions = await fetchText('admissions.txt');
+  if(about) document.getElementById('about-text').innerText = about;
+  if(admissions) document.getElementById('admissions-text').innerText = admissions;
+}
+
+// Call on page load
+window.onload = ()=>{
+  loadGitHubContent();
 }
 </script>
 
