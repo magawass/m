@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Magawa Secondary School</title>
 <style>
+/* (Keep your CSS unchanged) */
 body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f9; }
 header { background:#004466; color:white; padding:15px; text-align:center; }
 nav { background:#007799; padding:10px; display:flex; justify-content:center; flex-wrap:wrap; }
@@ -44,6 +45,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 <section id="about">
   <h2>About Us</h2>
   <p id="about-text">Loading content...</p>
+  <div id="about-images"></div> <!-- Container for About Us images -->
 </section>
 
 <!-- ADMISSIONS -->
@@ -85,14 +87,19 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
     <textarea id="edit-admissions" rows="4" placeholder="Admissions text"></textarea>
     <button class="btn" onclick="saveContentToGitHub()">Save Content to GitHub</button>
 
-    <h3>Upload PDF Result</h3>
-    <input type="file" id="pdfFile" accept="application/pdf">
-    <input type="text" id="pdfExamNumber" placeholder="Exam Number">
-    <button class="btn" onclick="uploadPDFToGitHub()">Upload PDF</button>
+    <h3>Upload PDF Results (multiple)</h3>
+    <input type="file" id="pdfFiles" accept="application/pdf" multiple>
+    <textarea id="pdfExamNumbers" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
+    <button class="btn" onclick="uploadPDFsToGitHub()">Upload PDFs</button>
 
     <h3>Upload Logo</h3>
     <input type="file" id="logoFile" accept="image/*">
     <button class="btn" onclick="uploadLogoToGitHub()">Upload Logo</button>
+
+    <h3>About Us Images</h3>
+    <input type="file" id="aboutImages" accept="image/*" multiple>
+    <button class="btn" onclick="uploadAboutImagesToGitHub()">Upload About Images</button>
+    <small>Upload one or more images for the About Us section.</small>
 
     <br><br>
     <button class="btn" onclick="adminLogout()">Logout</button>
@@ -182,21 +189,29 @@ async function githubPut(path, contentBase64){
   }
 }
 
-// --- Upload PDF ---
-function uploadPDFToGitHub(){
-  const file = document.getElementById('pdfFile').files[0];
-  let exam = document.getElementById('pdfExamNumber').value.trim();
-  if(!file || !exam) return alert('Select file and enter exam number');
-  exam = parseInt(exam,10).toString().padStart(4,'0');
-  const reader = new FileReader();
-  reader.onload = e=>{
-    const content = e.target.result.split(',')[1];
-    githubPut(`results/${exam}.pdf`,content);
+// --- Upload multiple PDFs ---
+function uploadPDFsToGitHub(){
+  const files = document.getElementById('pdfFiles').files;
+  let examNumbers = document.getElementById('pdfExamNumbers').value.trim();
+  if(!files.length || !examNumbers) return alert('Select files and enter exam numbers');
+  // Accept comma or newline separation
+  examNumbers = examNumbers.split(/[\n,]+/).map(e=>parseInt(e.trim(),10).toString().padStart(4,'0')).filter(e=>!!e);
+  if(examNumbers.length !== files.length) {
+    alert('Number of files must match number of exam numbers.');
+    return;
   }
-  reader.readAsDataURL(file);
+  Array.from(files).forEach((file, idx)=>{
+    const exam = examNumbers[idx];
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const content = e.target.result.split(',')[1];
+      githubPut(`results/${exam}.pdf`,content);
+    }
+    reader.readAsDataURL(file);
+  });
 }
 
-// --- Upload Logo ---
+// --- Upload Logo (unchanged) ---
 function uploadLogoToGitHub(){
   const file = document.getElementById('logoFile').files[0];
   if(!file) return alert('Select logo file');
@@ -208,7 +223,23 @@ function uploadLogoToGitHub(){
   reader.readAsDataURL(file);
 }
 
-// --- Save About/Admissions ---
+// --- Upload About Images ---
+function uploadAboutImagesToGitHub() {
+  const files = document.getElementById('aboutImages').files;
+  if(!files.length) return alert('Select images to upload');
+  Array.from(files).forEach((file, idx)=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const content = e.target.result.split(',')[1];
+      // Save as images/about-1.jpg, images/about-2.jpg, etc.
+      let ext = file.name.split('.').pop();
+      githubPut(`images/about-${Date.now()}-${idx}.${ext}`, content);
+    }
+    reader.readAsDataURL(file);
+  });
+}
+
+// --- Save About/Admissions (unchanged) ---
 function saveContentToGitHub(){
   const about = document.getElementById('edit-about').value.trim();
   const admissions = document.getElementById('edit-admissions').value.trim();
@@ -216,7 +247,7 @@ function saveContentToGitHub(){
   if(admissions) githubPut('admissions.txt', btoa(unescape(encodeURIComponent(admissions))));
 }
 
-// --- Load About/Admissions from GitHub ---
+// --- Load About/Admissions and About Images from GitHub ---
 async function loadGitHubContent(){
   const repo = 'magawass/m'; // Username and repo incorporated
   const branch = 'main';
@@ -232,10 +263,30 @@ async function loadGitHubContent(){
     } catch { return null; }
   }
 
+  // Load about/admissions text
   const about = await fetchText('about.txt');
   const admissions = await fetchText('admissions.txt');
   if(about) document.getElementById('about-text').innerText = about;
   if(admissions) document.getElementById('admissions-text').innerText = admissions;
+
+  // Load images for About Us section
+  try {
+    const resp = await fetch(`${baseURL}/images?ref=${branch}`);
+    if(resp.ok){
+      const data = await resp.json();
+      // Filter for files matching about-*.jpg/png/jpeg
+      const aboutImgs = data.filter(f=>/^about-.*\.(jpg|jpeg|png|gif)$/i.test(f.name));
+      const container = document.getElementById('about-images');
+      container.innerHTML = '';
+      aboutImgs.forEach(img=>{
+        const imgTag = document.createElement('img');
+        imgTag.src = img.download_url;
+        imgTag.style.maxWidth = '200px';
+        imgTag.style.margin = '8px';
+        container.appendChild(imgTag);
+      });
+    }
+  } catch(e) {}
 }
 
 // Call on page load
