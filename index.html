@@ -10,13 +10,12 @@ header { background:#004466; color:white; padding:15px; text-align:center; }
 nav { background:#007799; padding:10px; display:flex; justify-content:center; flex-wrap:wrap; }
 nav button { background:white; border:none; margin:5px; padding:10px 20px; cursor:pointer; font-weight:bold; color:#004466; border-radius:6px; transition:0.3s; }
 nav button:hover { background:#cce7ff; }
-section { display:none; padding:20px; background:white; max-width:900px; margin:20px auto; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+section { display:none; padding:20px; background:white; max-width:900px; margin:20px auto; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
 section.active { display:block; }
 input, textarea { width:100%; max-width:400px; padding:8px; margin:6px 0; }
 .btn { background:#004466; color:white; border:none; padding:10px 20px; margin-top:10px; border-radius:5px; cursor:pointer;}
 .btn:hover { background:#007799; }
 #student-area, #admin-area { display:none; }
-footer { background:#004466; color:white; text-align:center; padding:10px; margin-top:20px; }
 </style>
 </head>
 <body>
@@ -29,7 +28,6 @@ footer { background:#004466; color:white; text-align:center; padding:10px; margi
 <nav>
   <button onclick="showSection('home')">Home</button>
   <button onclick="showSection('about')">About</button>
-  <button onclick="showSection('admissions')">Admissions</button>
   <button onclick="showSection('student')">Student Portal</button>
   <button onclick="showSection('admin')">Admin</button>
 </nav>
@@ -43,13 +41,7 @@ footer { background:#004466; color:white; text-align:center; padding:10px; margi
 <!-- ABOUT -->
 <section id="about">
   <h2>About Us</h2>
-  <p id="about-text">Loading content...</p>
-</section>
-
-<!-- ADMISSIONS -->
-<section id="admissions">
-  <h2>Admissions</h2>
-  <p id="admissions-text">Loading content...</p>
+  <p id="about-text">Welcome to Magawa Secondary School. We nurture disciplined, knowledgeable, and responsible learners.</p>
 </section>
 
 <!-- STUDENT PORTAL -->
@@ -104,21 +96,20 @@ footer { background:#004466; color:white; text-align:center; padding:10px; margi
 </footer>
 
 <script>
-// --- ADMIN PASSWORD ---
-let adminPassword = 'M@gawa#2025!Admin';
+let adminPassword = 'admin123'; // change this to your own password
 
 // --- Navigation ---
 function showSection(id) {
-  document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+  document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
 // --- Admin Login ---
 function adminLogin() {
   const pass = document.getElementById('adminPass').value.trim();
-  if (pass === adminPassword) {
-    document.getElementById('admin-login').style.display = 'none';
-    document.getElementById('admin-area').style.display = 'block';
+  if(pass === adminPassword){
+    document.getElementById('admin-login').style.display='none';
+    document.getElementById('admin-area').style.display='block';
   } else alert('Wrong password');
 }
 function adminLogout(){
@@ -131,14 +122,14 @@ function studentLogin() {
   let examNumber = document.getElementById('examNumber').value.trim();
   if(!examNumber) return alert('Enter Exam Number');
   examNumber = parseInt(examNumber,10).toString().padStart(4,'0');
-  const fileUrl = `https://magawass.github.io/m/results/${examNumber}.pdf`;
+  const fileUrl = `results/${examNumber}.pdf`;
   fetch(fileUrl,{method:'HEAD'}).then(res=>{
     if(res.ok){
       document.getElementById('student-login').style.display='none';
       document.getElementById('student-area').style.display='block';
       document.getElementById('student-welcome').innerText = `Welcome Candidate No: ${examNumber}`;
       document.getElementById('result-link').href = fileUrl;
-    } else alert('Result not found. Please confirm your exam number.');
+    } else alert('Result not found.');
   }).catch(()=>alert('Error checking result.'));
 }
 function studentLogout(){
@@ -151,8 +142,9 @@ function studentLogout(){
 async function githubPut(path, contentBase64){
   const token = document.getElementById('githubToken').value.trim();
   if(!token) return alert('Enter GitHub token');
-  const repo = 'magawass/m'; // your real repo
-  const branch = 'main';
+  const repo = '<USERNAME>/<REPO>'; // change this to your GitHub username and repo
+  const branch = 'main'; // or 'master'
+  // Get current file SHA (if exists)
   let sha = null;
   const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
     headers:{'Authorization':'token '+token}
@@ -161,6 +153,7 @@ async function githubPut(path, contentBase64){
     const data = await resp.json();
     sha = data.sha;
   }
+  // Put request
   const putResp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
     method:'PUT',
     headers:{'Authorization':'token '+token},
@@ -171,8 +164,7 @@ async function githubPut(path, contentBase64){
       sha
     })
   });
-  if(putResp.ok) alert(`${path} uploaded successfully`);
-  else alert(`Failed to upload ${path}`);
+  if(putResp.ok) alert(`${path} uploaded successfully`); else alert(`Failed to upload ${path}`);
 }
 
 // --- Upload PDF ---
@@ -208,28 +200,6 @@ function saveContentToGitHub(){
   if(about) githubPut('about.txt', btoa(unescape(encodeURIComponent(about))));
   if(admissions) githubPut('admissions.txt', btoa(unescape(encodeURIComponent(admissions))));
 }
-
-// --- Load About/Admissions ---
-async function loadGitHubContent(){
-  const repo = 'magawass/m';
-  const branch = 'main';
-  const baseURL = `https://api.github.com/repos/${repo}/contents`;
-  async function fetchText(file){
-    try {
-      const resp = await fetch(`${baseURL}/${file}?ref=${branch}`);
-      if(resp.ok){
-        const data = await resp.json();
-        return decodeURIComponent(escape(atob(data.content)));
-      } else return null;
-    } catch { return null; }
-  }
-  const about = await fetchText('about.txt');
-  const admissions = await fetchText('admissions.txt');
-  if(about) document.getElementById('about-text').innerText = about;
-  if(admissions) document.getElementById('admissions-text').innerText = admissions;
-}
-
-window.onload = ()=>loadGitHubContent();
 </script>
 
 </body>
