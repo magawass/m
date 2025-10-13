@@ -104,7 +104,7 @@ input, textarea { width:100%; max-width:400px; padding:8px; margin:6px 0; }
 
 <script>
 // --- ADMIN PASSWORD ---
-let adminPassword = 'M@gawa#2025!Admin'; // ⚠️ CHANGE THIS to your own strong password
+let adminPassword = 'M@gawa#2025!Admin'; // ✅ You can change this anytime
 
 // --- Navigation ---
 function showSection(id) {
@@ -130,7 +130,7 @@ function studentLogin() {
   let examNumber = document.getElementById('examNumber').value.trim();
   if(!examNumber) return alert('Enter Exam Number');
   examNumber = parseInt(examNumber,10).toString().padStart(4,'0');
-  const fileUrl = `results/${examNumber}.pdf`;
+  const fileUrl = `https://chikumbutsolubaini-cpu.github.io/m/results/${examNumber}.pdf`;
   fetch(fileUrl,{method:'HEAD'}).then(res=>{
     if(res.ok){
       document.getElementById('student-login').style.display='none';
@@ -150,7 +150,7 @@ function studentLogout(){
 async function githubPut(path, contentBase64){
   const token = document.getElementById('githubToken').value.trim();
   if(!token) return alert('Enter GitHub token');
-  const repo = '<USERNAME>/<REPO>'; // ⚠️ CHANGE to your GitHub username/repo
+  const repo = 'chikumbutsolubaini-cpu/m';
   const branch = 'main';
   let sha = null;
   const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
@@ -209,7 +209,7 @@ function saveContentToGitHub(){
 
 // --- Load About/Admissions from GitHub ---
 async function loadGitHubContent(){
-  const repo = '<magawass>/<m>'; // ⚠️ CHANGE to your GitHub username/repo
+  const repo = 'chikumbutsolubaini-cpu/m';
   const branch = 'main';
   const baseURL = `https://api.github.com/repos/${repo}/contents`;
 
@@ -230,11 +230,8 @@ async function loadGitHubContent(){
 }
 
 // Call on page load
-window.onload = ()=>{
-  loadGitHubContent();
-}
+window.onload = ()=>{ loadGitHubContent(); }
 </script>
 
 </body>
 </html>
-
