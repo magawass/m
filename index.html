@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Magawa Secondary School</title>
 <style>
-/* (Keep your CSS unchanged) */
 body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f9; }
 header { background:#004466; color:white; padding:15px; text-align:center; }
 nav { background:#007799; padding:10px; display:flex; justify-content:center; flex-wrap:wrap; }
@@ -45,7 +44,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 <section id="about">
   <h2>About Us</h2>
   <p id="about-text">Loading content...</p>
-  <div id="about-images"></div> <!-- Container for About Us images -->
+  <div id="about-images"></div>
 </section>
 
 <!-- ADMISSIONS -->
@@ -112,7 +111,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 
 <script>
 // --- ADMIN PASSWORD ---
-const adminPassword = 'M@gawa#2025!Admin'; // ⚠️ CHANGE THIS to your own strong password
+const adminPassword = 'M@gawa#2025!Admin';
 
 // --- Navigation ---
 function showSection(id) {
@@ -155,37 +154,53 @@ function studentLogout(){
   document.getElementById('student-area').style.display='none';
 }
 
+// --- Unicode base64 encode/decode (safe for all text) ---
+function toBase64(str) {
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+    return String.fromCharCode('0x'+p1);
+  }));
+}
+function fromBase64(str) {
+  return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+}
+
 // --- GitHub API helper ---
 async function githubPut(path, contentBase64){
-  const token = document.getElementById('githubToken').value.trim();
-  if(!token) return alert('Enter GitHub token');
-  const repo = 'magawass/m'; // Username and repo incorporated
-  const branch = 'main';
-  let sha = null;
-  const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
-    headers:{'Authorization':'token '+token}
-  });
-  if(resp.status===200){
-    const data = await resp.json();
-    sha = data.sha;
-  }
-  const putResp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
-    method:'PUT',
-    headers:{
-      'Authorization':'token '+token,
-      'Content-Type':'application/json'
-    },
-    body:JSON.stringify({
-      message:`Update ${path}`,
-      content:contentBase64,
-      branch,
-      ...(sha ? {sha} : {})
-    })
-  });
-  if(putResp.ok) alert(`${path} uploaded successfully`);
-  else {
-    const err = await putResp.json();
-    alert(`Failed to upload ${path}: ${err.message || putResp.status}`);
+  try {
+    const token = document.getElementById('githubToken').value.trim();
+    if(!token) return alert('Enter GitHub token');
+    const repo = 'magawass/m';
+    const branch = 'main';
+    let sha = null;
+    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+      headers:{'Authorization':'token '+token}
+    });
+    if(resp.status===200){
+      const data = await resp.json();
+      sha = data.sha;
+    }
+    const putResp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+      method:'PUT',
+      headers:{
+        'Authorization':'token '+token,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        message:`Update ${path}`,
+        content:contentBase64,
+        branch,
+        ...(sha ? {sha} : {})
+      })
+    });
+    if(putResp.ok) alert(`${path} uploaded successfully`);
+    else {
+      const err = await putResp.json();
+      alert(`Failed to upload ${path}: ${err.message || putResp.status}`);
+    }
+  } catch (err) {
+    alert(`Unexpected error uploading ${path}`);
   }
 }
 
@@ -194,8 +209,10 @@ function uploadPDFsToGitHub(){
   const files = document.getElementById('pdfFiles').files;
   let examNumbers = document.getElementById('pdfExamNumbers').value.trim();
   if(!files.length || !examNumbers) return alert('Select files and enter exam numbers');
-  // Accept comma or newline separation
-  examNumbers = examNumbers.split(/[\n,]+/).map(e=>parseInt(e.trim(),10).toString().padStart(4,'0')).filter(e=>!!e);
+  examNumbers = examNumbers.split(/[\n,]+/)
+    .map(e=>parseInt(e.trim(),10))
+    .filter(e=>!isNaN(e))
+    .map(e=>e.toString().padStart(4,'0'));
   if(examNumbers.length !== files.length) {
     alert('Number of files must match number of exam numbers.');
     return;
@@ -211,7 +228,7 @@ function uploadPDFsToGitHub(){
   });
 }
 
-// --- Upload Logo (unchanged) ---
+// --- Upload Logo ---
 function uploadLogoToGitHub(){
   const file = document.getElementById('logoFile').files[0];
   if(!file) return alert('Select logo file');
@@ -231,7 +248,7 @@ function uploadAboutImagesToGitHub() {
     const reader = new FileReader();
     reader.onload = e=>{
       const content = e.target.result.split(',')[1];
-      // Save as images/about-1.jpg, images/about-2.jpg, etc.
+      // Save as images/about-<timestamp>-<idx>.<ext>
       let ext = file.name.split('.').pop();
       githubPut(`images/about-${Date.now()}-${idx}.${ext}`, content);
     }
@@ -239,17 +256,17 @@ function uploadAboutImagesToGitHub() {
   });
 }
 
-// --- Save About/Admissions (unchanged) ---
+// --- Save About/Admissions ---
 function saveContentToGitHub(){
   const about = document.getElementById('edit-about').value.trim();
   const admissions = document.getElementById('edit-admissions').value.trim();
-  if(about) githubPut('about.txt', btoa(unescape(encodeURIComponent(about))));
-  if(admissions) githubPut('admissions.txt', btoa(unescape(encodeURIComponent(admissions))));
+  if(about) githubPut('about.txt', toBase64(about));
+  if(admissions) githubPut('admissions.txt', toBase64(admissions));
 }
 
 // --- Load About/Admissions and About Images from GitHub ---
 async function loadGitHubContent(){
-  const repo = 'magawass/m'; // Username and repo incorporated
+  const repo = 'magawass/m';
   const branch = 'main';
   const baseURL = `https://api.github.com/repos/${repo}/contents`;
 
@@ -258,7 +275,7 @@ async function loadGitHubContent(){
       const resp = await fetch(`${baseURL}/${file}?ref=${branch}`);
       if(resp.ok){
         const data = await resp.json();
-        return decodeURIComponent(escape(atob(data.content)));
+        return fromBase64(data.content);
       } else return null;
     } catch { return null; }
   }
@@ -274,7 +291,7 @@ async function loadGitHubContent(){
     const resp = await fetch(`${baseURL}/images?ref=${branch}`);
     if(resp.ok){
       const data = await resp.json();
-      // Filter for files matching about-*.jpg/png/jpeg
+      // Filter for files matching about-*.jpg/png/jpeg/gif
       const aboutImgs = data.filter(f=>/^about-.*\.(jpg|jpeg|png|gif)$/i.test(f.name));
       const container = document.getElementById('about-images');
       container.innerHTML = '';
@@ -289,10 +306,8 @@ async function loadGitHubContent(){
   } catch(e) {}
 }
 
-// Call on page load
-window.onload = ()=>{
-  loadGitHubContent();
-}
+// Run content loader on page ready
+document.addEventListener('DOMContentLoaded', loadGitHubContent);
 </script>
 
 </body>
