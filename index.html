@@ -1,3 +1,4 @@
+<!-- Change: Results Portal - "Enter Exam Number" is now under the "Select Class" dropdown for improved layout -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,17 +7,7 @@
 <title>Magawa Secondary School</title>
 <style>
 body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f9; }
-header { background:#004466; color:white; padding:15px; display: flex; align-items: center; }
-.header-logo {
-  height: 60px;
-  width: 60px;
-  object-fit: contain;
-  margin-right: 18px;
-  border-radius: 12px;
-  background: white;
-  border: 2px solid #007799;
-}
-.header-content { flex: 1; text-align: left; }
+header { background:#004466; color:white; padding:15px; text-align:center; }
 nav { background:#007799; padding:10px; display:flex; justify-content:center; flex-wrap:wrap; }
 nav button { background:white; border:none; margin:5px; padding:10px 20px; cursor:pointer; font-weight:bold; color:#004466; border-radius:6px; transition:0.3s; }
 nav button:hover { background:#cce7ff; }
@@ -29,18 +20,13 @@ input, textarea, select { width:100%; max-width:400px; padding:8px; margin:6px 0
 footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; margin-top:40px; }
 .upload-section { border:1px solid #eee; border-radius:8px; margin-bottom:20px; padding:16px; background:#f8fafd; }
 .upload-section h4 { margin-top:0; }
-#about-images img { display:inline-block; max-width:200px; margin:8px; border-radius:6px; box-shadow:0 1px 6px rgba(0,0,0,0.08);}
 </style>
 </head>
 <body>
 
 <header>
-  <img src="images/logo.png" alt="School Logo" class="header-logo" id="logo-img"
-    onerror="this.src='https://via.placeholder.com/60x60.png?text=Logo';">
-  <div class="header-content">
-    <h1>Magawa Secondary School</h1>
-    <p>Official Student Portal</p>
-  </div>
+  <h1>Magawa Secondary School</h1>
+  <p>Official Student Portal</p>
 </header>
 
 <nav>
@@ -54,7 +40,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 <!-- HOME -->
 <section id="home" class="active">
   <h2>Welcome to Magawa Secondary School</h2>
-  <p id="home-text">This is the official online portal. Students can view their results here.</p>
+  <p>This is the official online portal. Students can view their results here.</p>
 </section>
 
 <!-- ABOUT -->
@@ -64,7 +50,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
   <div id="about-images"></div>
 </section>
 
-<!-- PUBLIC -->
+<!-- ADMISSIONS -->
 <section id="public">
   <h2>Public</h2>
   <p id="public-text">Loading content...</p>
@@ -107,8 +93,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
     <h3>GitHub Token (manual entry)</h3>
     <input type="password" id="githubToken" placeholder="Enter GitHub Personal Access Token">
 
-    <h3>Edit Home/About/Public</h3>
-    <textarea id="edit-home" rows="2" placeholder="Home text"></textarea>
+    <h3>Edit About/Public</h3>
     <textarea id="edit-about" rows="4" placeholder="About text"></textarea>
     <textarea id="edit-public" rows="4" placeholder="Public text"></textarea>
     <button class="btn" onclick="saveContentToGitHub()">Save Content to GitHub</button>
@@ -157,7 +142,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 </section>
 
 <footer>
-  <p>&copy; 2025 Magawa Secondary School. Designed by Chiku Lubaini</p>
+  <p>&copy; 2025 Magawa Secondary School.     Designed by Chiku Lubaini</p>
 </footer>
 
 <script>
@@ -226,7 +211,7 @@ async function githubPut(path, contentBase64){
     const repo = 'magawass/m';
     const branch = 'main';
     let sha = null;
-    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`,{
+    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
       headers:{'Authorization':'token '+token}
     });
     if(resp.status===200){
@@ -246,15 +231,13 @@ async function githubPut(path, contentBase64){
         ...(sha ? {sha} : {})
       })
     });
-    if(putResp.ok) return true;
+    if(putResp.ok) alert(`${path} uploaded successfully`);
     else {
       const err = await putResp.json();
       alert(`Failed to upload ${path}: ${err.message || putResp.status}`);
-      return false;
     }
   } catch (err) {
     alert(`Unexpected error uploading ${path}`);
-    return false;
   }
 }
 
@@ -287,12 +270,9 @@ function uploadLogoToGitHub(){
   const file = document.getElementById('logoFile').files[0];
   if(!file) return alert('Select logo file');
   const reader = new FileReader();
-  reader.onload = async e=>{
+  reader.onload = e=>{
     const content = e.target.result.split(',')[1];
-    const success = await githubPut(`images/logo.png`,content);
-    if(success) {
-      document.getElementById('logo-img').src = 'images/logo.png?' + Date.now(); // cache-bust
-    }
+    githubPut(`images/logo.png`,content);
   }
   reader.readAsDataURL(file);
 }
@@ -303,85 +283,60 @@ function uploadAboutImagesToGitHub() {
   if(!files.length) return alert('Select images to upload');
   Array.from(files).forEach((file, idx)=>{
     const reader = new FileReader();
-    reader.onload = async e=>{
+    reader.onload = e=>{
       const content = e.target.result.split(',')[1];
+      // Save as images/about-<timestamp>-<idx>.<ext>
       let ext = file.name.split('.').pop();
-      const fileName = `images/about-${Date.now()}-${idx}.${ext}`;
-      await githubPut(fileName, content);
-      await loadAboutImages(); // refresh images after upload
+      githubPut(`images/about-${Date.now()}-${idx}.${ext}`, content);
     }
     reader.readAsDataURL(file);
   });
 }
 
-// --- Save Home/About/Public ---
-async function saveContentToGitHub(){
-  const home = document.getElementById('edit-home').value.trim();
+// --- Save About/Public ---
+function saveContentToGitHub(){
   const about = document.getElementById('edit-about').value.trim();
-  const publicText = document.getElementById('edit-public').value.trim();
-
-  let reloadNeeded = false;
-  if(home) {
-    let success = await githubPut('home.txt', toBase64(home));
-    if(success) reloadNeeded = true;
-  }
-  if(about) {
-    let success = await githubPut('about.txt', toBase64(about));
-    if(success) reloadNeeded = true;
-  }
-  if(publicText) {
-    let success = await githubPut('public.txt', toBase64(publicText));
-    if(success) reloadNeeded = true;
-  }
-  document.getElementById('edit-home').value = '';
-  document.getElementById('edit-about').value = '';
-  document.getElementById('edit-public').value = '';
-  if(reloadNeeded) await loadGitHubContent();
+  const public = document.getElementById('edit-public').value.trim();
+  if(about) githubPut('about.txt', toBase64(about));
+  if(public) githubPut('public.txt', toBase64(public));
 }
 
-// --- Load Home/About/Public and About Images from GitHub ---
+// --- Load About/Public and About Images from GitHub ---
 async function loadGitHubContent(){
   const repo = 'magawass/m';
   const branch = 'main';
   const baseURL = `https://api.github.com/repos/${repo}/contents`;
 
-  async function fetchText(file, elemId){
+  async function fetchText(file){
     try {
       const resp = await fetch(`${baseURL}/${file}?ref=${branch}`);
       if(resp.ok){
         const data = await resp.json();
-        document.getElementById(elemId).innerText = fromBase64(data.content);
-      }
-    } catch { /* ignore */ }
+        return fromBase64(data.content);
+      } else return null;
+    } catch { return null; }
   }
 
-  // Load home/about/public text
-  await fetchText('home.txt', 'home-text');
-  await fetchText('about.txt', 'about-text');
-  await fetchText('public.txt', 'public-text');
+  // Load about/public text
+  const about = await fetchText('about.txt');
+  const Public = await fetchText('public.txt');
+  if(about) document.getElementById('about-text').innerText = about;
+  if(public) document.getElementById('public-text').innerText = public;
 
-  await loadAboutImages();
-
-  // Load logo (cache busting)
-  document.getElementById('logo-img').src = 'images/logo.png?' + Date.now();
-}
-
-// --- Load images for About Us section ---
-async function loadAboutImages() {
-  const repo = 'magawass/m';
-  const branch = 'main';
-  const baseURL = `https://api.github.com/repos/${repo}/contents/images?ref=${branch}`;
+  // Load images for About Us section
   try {
-    const resp = await fetch(baseURL);
+    const resp = await fetch(`${baseURL}/images?ref=${branch}`);
     if(resp.ok){
       const data = await resp.json();
-      const aboutImgs = data.filter(f=>/^about-.*\.(jpg|jpeg|png|gif|webp)$/i.test(f.name));
+      // Filter for files matching about-*.jpg/png/jpeg/gif
+      const aboutImgs = data.filter(f=>/^about-.*\.(jpg|jpeg|png|gif)$/i.test(f.name));
       const container = document.getElementById('about-images');
       container.innerHTML = '';
       aboutImgs.forEach(img=>{
         const imgTag = document.createElement('img');
         imgTag.src = img.download_url;
-        imgTag.alt = "About image";
+        imgTag.style.maxWidth = '200px';
+        imgTag.style.margin = '8px';
         container.appendChild(imgTag);
       });
     }
