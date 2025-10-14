@@ -6,7 +6,17 @@
 <title>Magawa Secondary School</title>
 <style>
 body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f9; }
-header { background:#004466; color:white; padding:15px; text-align:center; }
+header { background:#004466; color:white; padding:15px; display: flex; align-items: center; }
+.header-logo {
+  height: 60px;
+  width: 60px;
+  object-fit: contain;
+  margin-right: 18px;
+  border-radius: 12px;
+  background: white;
+  border: 2px solid #007799;
+}
+.header-content { flex: 1; text-align: left; }
 nav { background:#007799; padding:10px; display:flex; justify-content:center; flex-wrap:wrap; }
 nav button { background:white; border:none; margin:5px; padding:10px 20px; cursor:pointer; font-weight:bold; color:#004466; border-radius:6px; transition:0.3s; }
 nav button:hover { background:#cce7ff; }
@@ -25,8 +35,12 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 <body>
 
 <header>
-  <h1>Magawa Secondary School</h1>
-  <p>Official Student Portal</p>
+  <img src="images/logo.png" alt="School Logo" class="header-logo" id="logo-img"
+    onerror="this.src='https://via.placeholder.com/60x60.png?text=Logo';">
+  <div class="header-content">
+    <h1>Magawa Secondary School</h1>
+    <p>Official Student Portal</p>
+  </div>
 </header>
 
 <nav>
@@ -273,9 +287,12 @@ function uploadLogoToGitHub(){
   const file = document.getElementById('logoFile').files[0];
   if(!file) return alert('Select logo file');
   const reader = new FileReader();
-  reader.onload = e=>{
+  reader.onload = async e=>{
     const content = e.target.result.split(',')[1];
-    githubPut(`images/logo.png`,content);
+    const success = await githubPut(`images/logo.png`,content);
+    if(success) {
+      document.getElementById('logo-img').src = 'images/logo.png?' + Date.now(); // cache-bust
+    }
   }
   reader.readAsDataURL(file);
 }
@@ -286,10 +303,12 @@ function uploadAboutImagesToGitHub() {
   if(!files.length) return alert('Select images to upload');
   Array.from(files).forEach((file, idx)=>{
     const reader = new FileReader();
-    reader.onload = e=>{
+    reader.onload = async e=>{
       const content = e.target.result.split(',')[1];
       let ext = file.name.split('.').pop();
-      githubPut(`images/about-${Date.now()}-${idx}.${ext}`, content);
+      const fileName = `images/about-${Date.now()}-${idx}.${ext}`;
+      await githubPut(fileName, content);
+      await loadAboutImages(); // refresh images after upload
     }
     reader.readAsDataURL(file);
   });
@@ -341,9 +360,19 @@ async function loadGitHubContent(){
   await fetchText('about.txt', 'about-text');
   await fetchText('public.txt', 'public-text');
 
-  // Load images for About Us section
+  await loadAboutImages();
+
+  // Load logo (cache busting)
+  document.getElementById('logo-img').src = 'images/logo.png?' + Date.now();
+}
+
+// --- Load images for About Us section ---
+async function loadAboutImages() {
+  const repo = 'magawass/m';
+  const branch = 'main';
+  const baseURL = `https://api.github.com/repos/${repo}/contents/images?ref=${branch}`;
   try {
-    const resp = await fetch(`${baseURL}/images?ref=${branch}`);
+    const resp = await fetch(baseURL);
     if(resp.ok){
       const data = await resp.json();
       const aboutImgs = data.filter(f=>/^about-.*\.(jpg|jpeg|png|gif|webp)$/i.test(f.name));
