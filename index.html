@@ -7,15 +7,7 @@
 <style>
 body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f9; }
 header { background:#004466; color:white; padding:15px; display: flex; align-items: center; }
-.header-logo {
-  height: 60px;
-  width: 60px;
-  object-fit: contain;
-  margin-right: 18px;
-  border-radius: 12px;
-  background: white;
-  border: 2px solid #007799;
-}
+.header-logo { height: 60px; width: 60px; object-fit: contain; margin-right: 18px; border-radius: 12px; background: white; border: 2px solid #007799; }
 .header-content { flex: 1; text-align: left; }
 nav { background:#007799; padding:10px; display:flex; justify-content:center; flex-wrap:wrap; }
 nav button { background:white; border:none; margin:5px; padding:10px 20px; cursor:pointer; font-weight:bold; color:#004466; border-radius:6px; transition:0.3s; }
@@ -51,26 +43,22 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
   <button onclick="showSection('admin')">Admin</button>
 </nav>
 
-<!-- HOME -->
 <section id="home" class="active">
   <h2>Welcome to Magawa Secondary School</h2>
   <p id="home-text">This is the official online portal. Students can view their results here.</p>
 </section>
 
-<!-- ABOUT -->
 <section id="about">
   <h2>About Us</h2>
   <p id="about-text">Loading content...</p>
   <div id="about-images"></div>
 </section>
 
-<!-- PUBLIC -->
 <section id="public">
   <h2>Public</h2>
   <p id="public-text">Loading content...</p>
 </section>
 
-<!-- RESULTS PORTAL (STUDENT) -->
 <section id="student">
   <h2>Results Portal</h2>
   <div id="student-login">
@@ -90,7 +78,6 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
   <div id="student-area">
     <h3 id="student-welcome"></h3>
     <a id="result-link" href="#" target="_blank" class="btn">Download Result PDF</a><br><br>
-    <!-- PDF Viewer -->
     <div id="pdf-viewer" style="display:none; margin-top:20px;">
       <iframe id="pdf-iframe" width="100%" height="600px" style="border:1px solid #007799; border-radius:8px;"></iframe>
     </div>
@@ -98,7 +85,6 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
   </div>
 </section>
 
-<!-- ADMIN PORTAL -->
 <section id="admin">
   <h2>Admin Portal</h2>
   <div id="admin-login">
@@ -108,34 +94,36 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
   </div>
 
   <div id="admin-area">
-    <h3>GitHub Token (manual entry)</h3>
+    <h3>GitHub Token</h3>
     <input type="password" id="githubToken" placeholder="Enter GitHub Personal Access Token">
 
-    <h3>Edit Home/About/Public</h3>
+    <h3>Edit Content</h3>
     <textarea id="edit-home" rows="2" placeholder="Home text"></textarea>
     <textarea id="edit-about" rows="4" placeholder="About text"></textarea>
     <textarea id="edit-public" rows="4" placeholder="Public text"></textarea>
-    <button class="btn" onclick="saveContentToGitHub()">Save Content to GitHub</button>
+    <button class="btn" onclick="saveContentToGitHub()">Save Content</button>
 
-    <!-- Form Uploads -->
     <div class="upload-section"><h4>Upload Results for Form 1</h4>
       <input type="file" id="pdfFiles-form1" accept="application/pdf" multiple>
-      <textarea id="pdfExamNumbers-form1" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
+      <textarea id="pdfExamNumbers-form1" rows="2" placeholder="Exam Numbers (comma/newline)"></textarea>
       <button class="btn" onclick="uploadPDFsToGitHub('form1')">Upload PDFs</button>
     </div>
+
     <div class="upload-section"><h4>Upload Results for Form 2</h4>
       <input type="file" id="pdfFiles-form2" accept="application/pdf" multiple>
-      <textarea id="pdfExamNumbers-form2" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
+      <textarea id="pdfExamNumbers-form2" rows="2" placeholder="Exam Numbers"></textarea>
       <button class="btn" onclick="uploadPDFsToGitHub('form2')">Upload PDFs</button>
     </div>
+
     <div class="upload-section"><h4>Upload Results for Form 3</h4>
       <input type="file" id="pdfFiles-form3" accept="application/pdf" multiple>
-      <textarea id="pdfExamNumbers-form3" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
+      <textarea id="pdfExamNumbers-form3" rows="2" placeholder="Exam Numbers"></textarea>
       <button class="btn" onclick="uploadPDFsToGitHub('form3')">Upload PDFs</button>
     </div>
+
     <div class="upload-section"><h4>Upload Results for Form 4</h4>
       <input type="file" id="pdfFiles-form4" accept="application/pdf" multiple>
-      <textarea id="pdfExamNumbers-form4" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
+      <textarea id="pdfExamNumbers-form4" rows="2" placeholder="Exam Numbers"></textarea>
       <button class="btn" onclick="uploadPDFsToGitHub('form4')">Upload PDFs</button>
     </div>
 
@@ -143,11 +131,9 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
     <input type="file" id="logoFile" accept="image/*">
     <button class="btn" onclick="uploadLogoToGitHub()">Upload Logo</button>
 
-    <h3>About Us Images</h3>
+    <h3>About Images</h3>
     <input type="file" id="aboutImages" accept="image/*" multiple>
     <button class="btn" onclick="uploadAboutImagesToGitHub()">Upload About Images</button>
-    <small>Upload one or more images for the About Us section.</small>
-
     <br><br>
     <button class="btn" onclick="adminLogout()">Logout</button>
   </div>
@@ -158,19 +144,16 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 </footer>
 
 <script>
-// --- CONFIG ---
 const adminPassword = 'M@gawa#2025!Admin';
 const baseRepo = 'magawass/m';
 const branch = 'main';
 const siteBaseURL = 'https://magawass.github.io/m/';
 
-// --- Navigation ---
 function showSection(id) {
-  document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// --- Admin Login/Logout ---
 function adminLogin() {
   const pass = document.getElementById('adminPass').value.trim();
   if (pass === adminPassword) {
@@ -184,25 +167,23 @@ function adminLogout() {
   document.getElementById('githubToken').value = '';
 }
 
-// --- Student Login ---
 function studentLogin() {
-  let examNumber = document.getElementById('examNumber').value.trim();
-  let studentClass = document.getElementById('student-class').value;
-  if (!examNumber) return alert('Enter Exam Number');
-  examNumber = parseInt(examNumber, 10).toString().padStart(4, '0');
-  const fileUrl = `${siteBaseURL}results/${studentClass}/${examNumber}.pdf`;
-
-  fetch(fileUrl, { method: 'HEAD' }).then(res => {
-    if (res.ok) {
+  const exam = document.getElementById('examNumber').value.trim();
+  const cls = document.getElementById('student-class').value;
+  if (!exam) return alert('Enter Exam Number');
+  const examNo = parseInt(exam, 10).toString().padStart(4, '0');
+  const pdf = `${siteBaseURL}results/${cls}/${examNo}.pdf?${Date.now()}`;
+  fetch(pdf, { method: 'HEAD' }).then(r => {
+    if (r.ok) {
       document.getElementById('student-login').style.display = 'none';
       document.getElementById('student-area').style.display = 'block';
       document.getElementById('student-welcome').innerText =
-        `Welcome Candidate No: ${examNumber} (${studentClass.replace('form', 'Form ')})`;
-      document.getElementById('result-link').href = fileUrl;
+        `Welcome Candidate No: ${examNo} (${cls.replace('form', 'Form ')})`;
+      document.getElementById('result-link').href = pdf;
+      document.getElementById('pdf-iframe').src = pdf;
       document.getElementById('pdf-viewer').style.display = 'block';
-      document.getElementById('pdf-iframe').src = fileUrl;
     } else alert('Result not found.');
-  }).catch(() => alert('Error checking result.'));
+  }).catch(() => alert('Error accessing result.'));
 }
 
 function studentLogout() {
@@ -213,157 +194,112 @@ function studentLogout() {
   document.getElementById('pdf-iframe').src = '';
 }
 
-// --- Base64 Encoding ---
-function toBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
-function fromBase64(str) { return decodeURIComponent(escape(atob(str))); }
+function toBase64(str){return btoa(unescape(encodeURIComponent(str)));}
+function fromBase64(str){return decodeURIComponent(escape(atob(str)));}
 
-// --- GitHub API PUT ---
-async function githubPut(path, contentBase64) {
+async function githubPut(path, content) {
+  const token = document.getElementById('githubToken').value.trim();
+  if (!token) return alert('Enter GitHub token');
+  const url = `https://api.github.com/repos/${baseRepo}/contents/${encodeURIComponent(path)}`;
   try {
-    const token = document.getElementById('githubToken').value.trim();
-    if (!token) return alert('Enter GitHub token');
-    const apiUrl = `https://api.github.com/repos/${baseRepo}/contents/${path}`;
-    let sha = null;
-    const resp = await fetch(`${apiUrl}?ref=${branch}`, {
-      headers: { 'Authorization': 'token ' + token }
+    const check = await fetch(`${url}?ref=${branch}`, {headers:{Authorization:'token '+token}});
+    let sha=null;
+    if (check.ok) sha=(await check.json()).sha;
+    const res = await fetch(url, {
+      method:'PUT',
+      headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({message:`Upload ${path}`,content,branch,...(sha?{sha}:{})})
     });
-    if (resp.status === 200) {
-      const data = await resp.json(); sha = data.sha;
-    }
-    const putResp = await fetch(apiUrl, {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: `Update ${path}`,
-        content: contentBase64,
-        branch,
-        ...(sha ? { sha } : {})
-      })
-    });
-    if (putResp.ok) return true;
-    const err = await putResp.json();
-    alert(`Failed to upload ${path}: ${err.message || putResp.status}`);
-    return false;
-  } catch (err) {
-    alert(`Unexpected error uploading ${path}: ${err}`);
-    return false;
-  }
+    if (res.ok) return true;
+    const err=await res.json(); alert('Upload failed: '+(err.message||res.status)); return false;
+  } catch(e){alert('Error uploading: '+e);return false;}
 }
 
-// --- Upload PDFs ---
-function uploadPDFsToGitHub(formClass) {
-  const files = document.getElementById(`pdfFiles-${formClass}`).files;
-  let examNumbers = document.getElementById(`pdfExamNumbers-${formClass}`).value.trim();
-  if (!files.length || !examNumbers) return alert('Select files and enter exam numbers');
-  examNumbers = examNumbers.split(/[\n,]+/)
-    .map(e => parseInt(e.trim(), 10))
-    .filter(e => !isNaN(e))
-    .map(e => e.toString().padStart(4, '0'));
-  if (examNumbers.length !== files.length) {
-    alert('Number of files must match number of exam numbers.');
-    return;
-  }
-  Array.from(files).forEach((file, idx) => {
-    const exam = examNumbers[idx];
-    const reader = new FileReader();
-    reader.onload = e => {
-      const content = e.target.result.split(',')[1];
-      githubPut(`results/${formClass}/${exam}.pdf`, content);
+async function uploadPDFsToGitHub(form) {
+  const files=document.getElementById(`pdfFiles-${form}`).files;
+  const nums=document.getElementById(`pdfExamNumbers-${form}`).value.trim().split(/[\n,]+/);
+  if(!files.length||!nums.length)return alert('Select files and enter exam numbers');
+  if(files.length!==nums.length)return alert('Mismatch in count');
+  for(let i=0;i<files.length;i++){
+    const n=parseInt(nums[i],10).toString().padStart(4,'0');
+    const reader=new FileReader();
+    reader.onload=async e=>{
+      const ok=await githubPut(`results/${form}/${n}.pdf`,e.target.result.split(',')[1]);
+      if(ok) console.log(`✅ Uploaded ${form}/${n}.pdf`);
     };
-    reader.readAsDataURL(file);
-  });
+    reader.readAsDataURL(files[i]);
+    await new Promise(r=>setTimeout(r,1000)); // delay avoids API rate limits
+  }
+  alert('Uploads completed!');
 }
 
-// --- Upload Logo ---
 function uploadLogoToGitHub() {
-  const file = document.getElementById('logoFile').files[0];
-  if (!file) return alert('Select logo file');
-  const reader = new FileReader();
-  reader.onload = async e => {
-    const content = e.target.result.split(',')[1];
-    const success = await githubPut(`images/logo.png`, content);
-    if (success) {
-      document.getElementById('logo-img').src = siteBaseURL + 'images/logo.png?' + Date.now();
-    }
+  const f=document.getElementById('logoFile').files[0];
+  if(!f)return alert('Select logo file');
+  const r=new FileReader();
+  r.onload=async e=>{
+    const ok=await githubPut('images/logo.png',e.target.result.split(',')[1]);
+    if(ok)document.getElementById('logo-img').src=siteBaseURL+'images/logo.png?'+Date.now();
   };
-  reader.readAsDataURL(file);
+  r.readAsDataURL(f);
 }
 
-// --- Upload About Images ---
 function uploadAboutImagesToGitHub() {
-  const files = document.getElementById('aboutImages').files;
-  if (!files.length) return alert('Select images to upload');
-  Array.from(files).forEach((file, idx) => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      const content = e.target.result.split(',')[1];
-      const ext = file.name.split('.').pop();
-      const fileName = `images/about-${Date.now()}-${idx}.${ext}`;
-      await githubPut(fileName, content);
-      await loadAboutImages();
+  const fs=document.getElementById('aboutImages').files;
+  if(!fs.length)return alert('Select images');
+  Array.from(fs).forEach((f,i)=>{
+    const r=new FileReader();
+    r.onload=async e=>{
+      const ext=f.name.split('.').pop();
+      const ok=await githubPut(`images/about-${Date.now()}-${i}.${ext}`,e.target.result.split(',')[1]);
+      if(ok)loadAboutImages();
     };
-    reader.readAsDataURL(file);
+    r.readAsDataURL(f);
   });
 }
 
-// --- Save Editable Text ---
 async function saveContentToGitHub() {
-  const home = document.getElementById('edit-home').value.trim();
-  const about = document.getElementById('edit-about').value.trim();
-  const publicText = document.getElementById('edit-public').value.trim();
-
-  let reloadNeeded = false;
-  if (home && await githubPut('home.txt', toBase64(home))) reloadNeeded = true;
-  if (about && await githubPut('about.txt', toBase64(about))) reloadNeeded = true;
-  if (publicText && await githubPut('public.txt', toBase64(publicText))) reloadNeeded = true;
-
-  document.getElementById('edit-home').value = '';
-  document.getElementById('edit-about').value = '';
-  document.getElementById('edit-public').value = '';
-  if (reloadNeeded) await loadGitHubContent();
+  const home=document.getElementById('edit-home').value.trim();
+  const about=document.getElementById('edit-about').value.trim();
+  const pub=document.getElementById('edit-public').value.trim();
+  if(home)await githubPut('home.txt',toBase64(home));
+  if(about)await githubPut('about.txt',toBase64(about));
+  if(pub)await githubPut('public.txt',toBase64(pub));
+  loadGitHubContent();
 }
 
-// --- Load Content ---
-async function loadGitHubContent() {
-  async function fetchText(file, elemId) {
-    try {
-      const resp = await fetch(`https://api.github.com/repos/${baseRepo}/contents/${file}?ref=${branch}`);
-      if (resp.ok) {
-        const data = await resp.json();
-        document.getElementById(elemId).innerText = fromBase64(data.content);
-      }
-    } catch {}
+async function loadGitHubContent(){
+  async function fetchText(file,id){
+    try{
+      const r=await fetch(`https://api.github.com/repos/${baseRepo}/contents/${file}?ref=${branch}`);
+      if(r.ok){const d=await r.json();document.getElementById(id).innerText=fromBase64(d.content);}
+    }catch{}
   }
-  await fetchText('home.txt', 'home-text');
-  await fetchText('about.txt', 'about-text');
-  await fetchText('public.txt', 'public-text');
-  await loadAboutImages();
-  document.getElementById('logo-img').src = siteBaseURL + 'images/logo.png?' + Date.now();
+  await fetchText('home.txt','home-text');
+  await fetchText('about.txt','about-text');
+  await fetchText('public.txt','public-text');
+  loadAboutImages();
+  document.getElementById('logo-img').src=siteBaseURL+'images/logo.png?'+Date.now();
 }
 
-// --- Load About Images ---
-async function loadAboutImages() {
-  try {
-    const resp = await fetch(`https://api.github.com/repos/${baseRepo}/contents/images?ref=${branch}`);
-    if (resp.ok) {
-      const data = await resp.json();
-      const imgs = data.filter(f => /^about-.*\.(jpg|jpeg|png|gif|webp)$/i.test(f.name));
-      const container = document.getElementById('about-images');
-      container.innerHTML = '';
-      imgs.forEach(img => {
-        const tag = document.createElement('img');
-        tag.src = img.download_url;
-        tag.alt = "About image";
-        container.appendChild(tag);
+async function loadAboutImages(){
+  try{
+    const r=await fetch(`https://api.github.com/repos/${baseRepo}/contents/images?ref=${branch}`);
+    if(r.ok){
+      const data=await r.json();
+      const imgs=data.filter(f=>/^about-.*\.(jpg|jpeg|png|gif|webp)$/i.test(f.name));
+      const cont=document.getElementById('about-images');
+      cont.innerHTML='';
+      imgs.forEach(f=>{
+        const img=document.createElement('img');
+        img.src=f.download_url+'?'+Date.now();
+        cont.appendChild(img);
       });
     }
-  } catch {}
+  }catch{}
 }
 
-document.addEventListener('DOMContentLoaded', loadGitHubContent);
+document.addEventListener('DOMContentLoaded',loadGitHubContent);
 </script>
 </body>
 </html>
