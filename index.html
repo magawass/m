@@ -1,4 +1,3 @@
-<!-- Change: Results Portal - "Enter Exam Number" is now under the "Select Class" dropdown for improved layout -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,7 +31,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 <nav>
   <button onclick="showSection('home')">Home</button>
   <button onclick="showSection('about')">About</button>
-  <button onclick="showSection('public')">Public</button>
+  <button onclick="showSection('admissions')">Admissions</button>
   <button onclick="showSection('student')">Results Portal</button>
   <button onclick="showSection('admin')">Admin</button>
 </nav>
@@ -51,9 +50,9 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 </section>
 
 <!-- ADMISSIONS -->
-<section id="public">
-  <h2>Public</h2>
-  <p id="public-text">Loading content...</p>
+<section id="admissions">
+  <h2>Admissions</h2>
+  <p id="admissions-text">Loading content...</p>
 </section>
 
 <!-- RESULTS PORTAL (STUDENT) -->
@@ -67,10 +66,8 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
       <option value="form3">Form 3</option>
       <option value="form4">Form 4</option>
     </select>
-    <div style="margin-top:10px;">
-      <label for="examNumber">Enter Exam Number:</label>
-      <input type="text" id="examNumber" placeholder="e.g. 1001">
-    </div>
+    <label for="examNumber">Enter Exam Number:</label>
+    <input type="text" id="examNumber" placeholder="e.g. 1001">
     <button class="btn" onclick="studentLogin()">Login</button>
   </div>
   <div id="student-area">
@@ -93,9 +90,9 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
     <h3>GitHub Token (manual entry)</h3>
     <input type="password" id="githubToken" placeholder="Enter GitHub Personal Access Token">
 
-    <h3>Edit About/Public</h3>
+    <h3>Edit About/Admissions</h3>
     <textarea id="edit-about" rows="4" placeholder="About text"></textarea>
-    <textarea id="edit-public" rows="4" placeholder="Public text"></textarea>
+    <textarea id="edit-admissions" rows="4" placeholder="Admissions text"></textarea>
     <button class="btn" onclick="saveContentToGitHub()">Save Content to GitHub</button>
 
     <!-- Form 1 Upload Area -->
@@ -142,7 +139,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 </section>
 
 <footer>
-  <p>&copy; 2025 Magawa Secondary School.     Designed by Chiku Lubaini</p>
+  <p>&copy; 2025 Magawa Secondary School</p>
 </footer>
 
 <script>
@@ -293,15 +290,15 @@ function uploadAboutImagesToGitHub() {
   });
 }
 
-// --- Save About/Public ---
+// --- Save About/Admissions ---
 function saveContentToGitHub(){
   const about = document.getElementById('edit-about').value.trim();
-  const public = document.getElementById('edit-public').value.trim();
+  const admissions = document.getElementById('edit-admissions').value.trim();
   if(about) githubPut('about.txt', toBase64(about));
-  if(public) githubPut('public.txt', toBase64(public));
+  if(admissions) githubPut('admissions.txt', toBase64(admissions));
 }
 
-// --- Load About/Public and About Images from GitHub ---
+// --- Load About/Admissions and About Images from GitHub ---
 async function loadGitHubContent(){
   const repo = 'magawass/m';
   const branch = 'main';
@@ -317,11 +314,11 @@ async function loadGitHubContent(){
     } catch { return null; }
   }
 
-  // Load about/public text
+  // Load about/admissions text
   const about = await fetchText('about.txt');
-  const Public = await fetchText('public.txt');
+  const admissions = await fetchText('admissions.txt');
   if(about) document.getElementById('about-text').innerText = about;
-  if(public) document.getElementById('public-text').innerText = public;
+  if(admissions) document.getElementById('admissions-text').innerText = admissions;
 
   // Load images for About Us section
   try {
