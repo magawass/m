@@ -12,11 +12,14 @@ nav button { background:white; border:none; margin:5px; padding:10px 20px; curso
 nav button:hover { background:#cce7ff; }
 section { display:none; padding:20px; background:white; max-width:900px; margin:20px auto; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
 section.active { display:block; }
-input, textarea { width:100%; max-width:400px; padding:8px; margin:6px 0; }
+input, textarea, select { width:100%; max-width:400px; padding:8px; margin:6px 0; }
 .btn { background:#004466; color:white; border:none; padding:10px 20px; margin-top:10px; border-radius:5px; cursor:pointer;}
 .btn:hover { background:#007799; }
 #student-area, #admin-area { display:none; }
 footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; margin-top:40px; }
+.upload-section { border:1px solid #eee; border-radius:8px; margin-bottom:20px; padding:16px; background:#f8fafd; }
+.upload-section h4 { margin-top:0; }
+#about-images img { display:inline-block; max-width:200px; margin:8px; border-radius:6px; box-shadow:0 1px 6px rgba(0,0,0,0.08);}
 </style>
 </head>
 <body>
@@ -29,15 +32,15 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 <nav>
   <button onclick="showSection('home')">Home</button>
   <button onclick="showSection('about')">About</button>
-  <button onclick="showSection('admissions')">Admissions</button>
-  <button onclick="showSection('student')">Student Portal</button>
+  <button onclick="showSection('public')">Public</button>
+  <button onclick="showSection('student')">Results Portal</button>
   <button onclick="showSection('admin')">Admin</button>
 </nav>
 
 <!-- HOME -->
 <section id="home" class="active">
   <h2>Welcome to Magawa Secondary School</h2>
-  <p>This is the official online portal. Students can view their results here.</p>
+  <p id="home-text">This is the official online portal. Students can view their results here.</p>
 </section>
 
 <!-- ABOUT -->
@@ -47,18 +50,27 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
   <div id="about-images"></div>
 </section>
 
-<!-- ADMISSIONS -->
-<section id="admissions">
-  <h2>Admissions</h2>
-  <p id="admissions-text">Loading content...</p>
+<!-- PUBLIC -->
+<section id="public">
+  <h2>Public</h2>
+  <p id="public-text">Loading content...</p>
 </section>
 
-<!-- STUDENT PORTAL -->
+<!-- RESULTS PORTAL (STUDENT) -->
 <section id="student">
-  <h2>Student Portal</h2>
+  <h2>Results Portal</h2>
   <div id="student-login">
-    <label for="examNumber">Enter Exam Number:</label>
-    <input type="text" id="examNumber" placeholder="e.g. 1001">
+    <label for="student-class">Select Class:</label>
+    <select id="student-class">
+      <option value="form1">Form 1</option>
+      <option value="form2">Form 2</option>
+      <option value="form3">Form 3</option>
+      <option value="form4">Form 4</option>
+    </select>
+    <div style="margin-top:10px;">
+      <label for="examNumber">Enter Exam Number:</label>
+      <input type="text" id="examNumber" placeholder="e.g. 1001">
+    </div>
     <button class="btn" onclick="studentLogin()">Login</button>
   </div>
   <div id="student-area">
@@ -81,15 +93,40 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
     <h3>GitHub Token (manual entry)</h3>
     <input type="password" id="githubToken" placeholder="Enter GitHub Personal Access Token">
 
-    <h3>Edit About/Admissions</h3>
+    <h3>Edit Home/About/Public</h3>
+    <textarea id="edit-home" rows="2" placeholder="Home text"></textarea>
     <textarea id="edit-about" rows="4" placeholder="About text"></textarea>
-    <textarea id="edit-admissions" rows="4" placeholder="Admissions text"></textarea>
+    <textarea id="edit-public" rows="4" placeholder="Public text"></textarea>
     <button class="btn" onclick="saveContentToGitHub()">Save Content to GitHub</button>
 
-    <h3>Upload PDF Results (multiple)</h3>
-    <input type="file" id="pdfFiles" accept="application/pdf" multiple>
-    <textarea id="pdfExamNumbers" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
-    <button class="btn" onclick="uploadPDFsToGitHub()">Upload PDFs</button>
+    <!-- Form 1 Upload Area -->
+    <div class="upload-section">
+      <h4>Upload Results for Form 1</h4>
+      <input type="file" id="pdfFiles-form1" accept="application/pdf" multiple>
+      <textarea id="pdfExamNumbers-form1" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
+      <button class="btn" onclick="uploadPDFsToGitHub('form1')">Upload PDFs</button>
+    </div>
+    <!-- Form 2 Upload Area -->
+    <div class="upload-section">
+      <h4>Upload Results for Form 2</h4>
+      <input type="file" id="pdfFiles-form2" accept="application/pdf" multiple>
+      <textarea id="pdfExamNumbers-form2" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
+      <button class="btn" onclick="uploadPDFsToGitHub('form2')">Upload PDFs</button>
+    </div>
+    <!-- Form 3 Upload Area -->
+    <div class="upload-section">
+      <h4>Upload Results for Form 3</h4>
+      <input type="file" id="pdfFiles-form3" accept="application/pdf" multiple>
+      <textarea id="pdfExamNumbers-form3" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
+      <button class="btn" onclick="uploadPDFsToGitHub('form3')">Upload PDFs</button>
+    </div>
+    <!-- Form 4 Upload Area -->
+    <div class="upload-section">
+      <h4>Upload Results for Form 4</h4>
+      <input type="file" id="pdfFiles-form4" accept="application/pdf" multiple>
+      <textarea id="pdfExamNumbers-form4" rows="2" placeholder="Enter Exam Numbers (comma or newline separated)"></textarea>
+      <button class="btn" onclick="uploadPDFsToGitHub('form4')">Upload PDFs</button>
+    </div>
 
     <h3>Upload Logo</h3>
     <input type="file" id="logoFile" accept="image/*">
@@ -106,7 +143,7 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
 </section>
 
 <footer>
-  <p>&copy; 2025 Magawa Secondary School</p>
+  <p>&copy; 2025 Magawa Secondary School. Designed by Chiku Lubaini</p>
 </footer>
 
 <script>
@@ -136,14 +173,15 @@ function adminLogout(){
 // --- Student Login ---
 function studentLogin() {
   let examNumber = document.getElementById('examNumber').value.trim();
+  let studentClass = document.getElementById('student-class').value;
   if(!examNumber) return alert('Enter Exam Number');
   examNumber = parseInt(examNumber,10).toString().padStart(4,'0');
-  const fileUrl = `results/${examNumber}.pdf`;
+  const fileUrl = `results/${studentClass}/${examNumber}.pdf`;
   fetch(fileUrl,{method:'HEAD'}).then(res=>{
     if(res.ok){
       document.getElementById('student-login').style.display='none';
       document.getElementById('student-area').style.display='block';
-      document.getElementById('student-welcome').innerText = `Welcome Candidate No: ${examNumber}`;
+      document.getElementById('student-welcome').innerText = `Welcome Candidate No: ${examNumber} (${studentClass.replace('form','Form ')})`;
       document.getElementById('result-link').href = fileUrl;
     } else alert('Result not found.');
   }).catch(()=>alert('Error checking result.'));
@@ -174,7 +212,7 @@ async function githubPut(path, contentBase64){
     const repo = 'magawass/m';
     const branch = 'main';
     let sha = null;
-    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`,{
       headers:{'Authorization':'token '+token}
     });
     if(resp.status===200){
@@ -194,20 +232,22 @@ async function githubPut(path, contentBase64){
         ...(sha ? {sha} : {})
       })
     });
-    if(putResp.ok) alert(`${path} uploaded successfully`);
+    if(putResp.ok) return true;
     else {
       const err = await putResp.json();
       alert(`Failed to upload ${path}: ${err.message || putResp.status}`);
+      return false;
     }
   } catch (err) {
     alert(`Unexpected error uploading ${path}`);
+    return false;
   }
 }
 
-// --- Upload multiple PDFs ---
-function uploadPDFsToGitHub(){
-  const files = document.getElementById('pdfFiles').files;
-  let examNumbers = document.getElementById('pdfExamNumbers').value.trim();
+// --- Upload multiple PDFs by class ---
+function uploadPDFsToGitHub(formClass){
+  const files = document.getElementById('pdfFiles-'+formClass).files;
+  let examNumbers = document.getElementById('pdfExamNumbers-'+formClass).value.trim();
   if(!files.length || !examNumbers) return alert('Select files and enter exam numbers');
   examNumbers = examNumbers.split(/[\n,]+/)
     .map(e=>parseInt(e.trim(),10))
@@ -222,7 +262,7 @@ function uploadPDFsToGitHub(){
     const reader = new FileReader();
     reader.onload = e=>{
       const content = e.target.result.split(',')[1];
-      githubPut(`results/${exam}.pdf`,content);
+      githubPut(`results/${formClass}/${exam}.pdf`,content);
     }
     reader.readAsDataURL(file);
   });
@@ -248,7 +288,6 @@ function uploadAboutImagesToGitHub() {
     const reader = new FileReader();
     reader.onload = e=>{
       const content = e.target.result.split(',')[1];
-      // Save as images/about-<timestamp>-<idx>.<ext>
       let ext = file.name.split('.').pop();
       githubPut(`images/about-${Date.now()}-${idx}.${ext}`, content);
     }
@@ -256,50 +295,64 @@ function uploadAboutImagesToGitHub() {
   });
 }
 
-// --- Save About/Admissions ---
-function saveContentToGitHub(){
+// --- Save Home/About/Public ---
+async function saveContentToGitHub(){
+  const home = document.getElementById('edit-home').value.trim();
   const about = document.getElementById('edit-about').value.trim();
-  const admissions = document.getElementById('edit-admissions').value.trim();
-  if(about) githubPut('about.txt', toBase64(about));
-  if(admissions) githubPut('admissions.txt', toBase64(admissions));
+  const publicText = document.getElementById('edit-public').value.trim();
+
+  let reloadNeeded = false;
+  if(home) {
+    let success = await githubPut('home.txt', toBase64(home));
+    if(success) reloadNeeded = true;
+  }
+  if(about) {
+    let success = await githubPut('about.txt', toBase64(about));
+    if(success) reloadNeeded = true;
+  }
+  if(publicText) {
+    let success = await githubPut('public.txt', toBase64(publicText));
+    if(success) reloadNeeded = true;
+  }
+  document.getElementById('edit-home').value = '';
+  document.getElementById('edit-about').value = '';
+  document.getElementById('edit-public').value = '';
+  if(reloadNeeded) await loadGitHubContent();
 }
 
-// --- Load About/Admissions and About Images from GitHub ---
+// --- Load Home/About/Public and About Images from GitHub ---
 async function loadGitHubContent(){
   const repo = 'magawass/m';
   const branch = 'main';
   const baseURL = `https://api.github.com/repos/${repo}/contents`;
 
-  async function fetchText(file){
+  async function fetchText(file, elemId){
     try {
       const resp = await fetch(`${baseURL}/${file}?ref=${branch}`);
       if(resp.ok){
         const data = await resp.json();
-        return fromBase64(data.content);
-      } else return null;
-    } catch { return null; }
+        document.getElementById(elemId).innerText = fromBase64(data.content);
+      }
+    } catch { /* ignore */ }
   }
 
-  // Load about/admissions text
-  const about = await fetchText('about.txt');
-  const admissions = await fetchText('admissions.txt');
-  if(about) document.getElementById('about-text').innerText = about;
-  if(admissions) document.getElementById('admissions-text').innerText = admissions;
+  // Load home/about/public text
+  await fetchText('home.txt', 'home-text');
+  await fetchText('about.txt', 'about-text');
+  await fetchText('public.txt', 'public-text');
 
   // Load images for About Us section
   try {
     const resp = await fetch(`${baseURL}/images?ref=${branch}`);
     if(resp.ok){
       const data = await resp.json();
-      // Filter for files matching about-*.jpg/png/jpeg/gif
-      const aboutImgs = data.filter(f=>/^about-.*\.(jpg|jpeg|png|gif)$/i.test(f.name));
+      const aboutImgs = data.filter(f=>/^about-.*\.(jpg|jpeg|png|gif|webp)$/i.test(f.name));
       const container = document.getElementById('about-images');
       container.innerHTML = '';
       aboutImgs.forEach(img=>{
         const imgTag = document.createElement('img');
         imgTag.src = img.download_url;
-        imgTag.style.maxWidth = '200px';
-        imgTag.style.margin = '8px';
+        imgTag.alt = "About image";
         container.appendChild(imgTag);
       });
     }
