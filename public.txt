@@ -1,1 +1,5 @@
-Testing Magawa Students Portal
+Exam Results can be accessed through the Students Portal.
+
+Select Class e.g Form 1
+Then Enter Examination Number then hit Login.
+You can download the pdf if you want.
