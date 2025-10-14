@@ -89,7 +89,11 @@ footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; marg
   </div>
   <div id="student-area">
     <h3 id="student-welcome"></h3>
-    <a id="result-link" href="#" target="_blank" class="btn">View/Download Result</a><br><br>
+    <a id="result-link" href="#" target="_blank" class="btn">Download Result PDF</a><br><br>
+    <!-- PDF Viewer -->
+    <div id="pdf-viewer" style="display:none; margin-top:20px;">
+      <iframe id="pdf-iframe" width="100%" height="600px" style="border:1px solid #007799; border-radius:8px;"></iframe>
+    </div>
     <button class="btn" onclick="studentLogout()">Logout</button>
   </div>
 </section>
@@ -197,6 +201,9 @@ function studentLogin() {
       document.getElementById('student-area').style.display='block';
       document.getElementById('student-welcome').innerText = `Welcome Candidate No: ${examNumber} (${studentClass.replace('form','Form ')})`;
       document.getElementById('result-link').href = fileUrl;
+      // Show and set PDF Viewer
+      document.getElementById('pdf-viewer').style.display = 'block';
+      document.getElementById('pdf-iframe').src = fileUrl;
     } else alert('Result not found.');
   }).catch(()=>alert('Error checking result.'));
 }
@@ -204,6 +211,8 @@ function studentLogout(){
   document.getElementById('examNumber').value='';
   document.getElementById('student-login').style.display='block';
   document.getElementById('student-area').style.display='none';
+  document.getElementById('pdf-viewer').style.display='none';
+  document.getElementById('pdf-iframe').src = '';
 }
 
 // --- Unicode base64 encode/decode (safe for all text) ---
