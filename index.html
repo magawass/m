@@ -17,9 +17,9 @@
     .btn:hover { background:#007799; }
     #student-area, #admin-area { display:none; }
     footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; margin-top:40px; }
-    .file-entry { display:flex; justify-content:space-between; align-items:center; margin:5px 0; padding:5px; background:#eef; border-radius:5px; }
-    .file-entry button { margin-left:10px; background:#c00; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; }
-    .file-entry button:hover { background:#900; }
+    .file-entry { display:flex; align-items:center; justify-content:space-between; margin:5px 0; padding:5px; background:#eef; border-radius:5px; }
+    .file-entry input[type="checkbox"] { margin-right:10px; }
+    .file-entry a { flex-grow:1; }
   </style>
 </head>
 <body>
@@ -111,6 +111,12 @@
       <option value="form3">Form 3</option>
       <option value="form4">Form 4</option>
     </select>
+
+    <div style="margin-top:10px;">
+      <label><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"> Select All</label>
+      <button class="btn" onclick="deleteSelectedPDFs()">Delete Selected</button>
+    </div>
+
     <div id="pdf-list" style="margin-top:10px;"></div>
 
     <br><br>
@@ -190,17 +196,6 @@ function uploadMultiplePDFs() {
     reader.onload = async e => {
       const content = e.target.result.split(',')[1];
       const path = `results/${formClass}/${file.name}`;
-      let sha = null;
-
-      try {
-        const check = await fetch(`https://api.github.com/repos/magawass/m/contents/${path}`, {
-          headers: { 'Authorization': 'token ' + token }
-        });
-        if (check.ok) {
-          const data = await check.json();
-          sha = data.sha;
-        }
-      } catch {}
 
       await fetch(`https://api.github.com/repos/magawass/m/contents/${path}`, {
         method: 'PUT',
@@ -211,8 +206,7 @@ function uploadMultiplePDFs() {
         body: JSON.stringify({
           message: `Upload ${file.name}`,
           content,
-          branch: 'main',
-          ...(sha ? { sha } : {})
+          branch: 'main'
         })
       });
       loadPDFList();
@@ -236,8 +230,8 @@ function loadPDFList() {
             const entry = document.createElement('div');
             entry.className = 'file-entry';
             entry.innerHTML = `
+              <input type="checkbox" class="pdf-checkbox" data-name="${file.name}">
               <a href="${file.download_url}" target="_blank">${file.name}</a>
-              <button onclick="deletePDF('${formClass}', '${file.name}')">Delete</button>
             `;
             listContainer.appendChild(entry);
           }
@@ -251,34 +245,45 @@ function loadPDFList() {
     });
 }
 
-function deletePDF(formClass, filename) {
-  const token = document.getElementById('githubToken').value.trim();
-  if (!token) return;
-  const path = `results/${formClass}/${filename}`;
-  const repo = 'magawass/m';
-  const branch = 'main';
+function toggleSelectAll() {
+  const checked = document.getElementById('selectAll').checked;
+  document.querySelectorAll('.pdf-checkbox').forEach(cb => cb.checked = checked);
+}
 
-  fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-    headers: { 'Authorization': 'token ' + token }
-  })
-  .then(resp => resp.ok ? resp.json() : Promise.reject('File not found'))
-  .then(data => {
-    const sha = data.sha;
-    return fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: `Delete ${path}`,
-        sha,
-        branch
-      })
-    });
-  })
-  .then(() => loadPDFList())
-  .catch(err => alert(err));
+function deleteSelectedPDFs() {
+  const token = document.getElementById('githubToken').value.trim();
+  const formClass = document.getElementById('listClass').value;
+  if (!token) return;
+
+  const selected = Array.from(document.querySelectorAll('.pdf-checkbox:checked'));
+  selected.forEach(cb => {
+    const filename = cb.getAttribute('data-name');
+    const path = `results/${formClass}/${filename}`;
+    const repo = 'magawass/m';
+    const branch = 'main';
+
+    fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      headers: { 'Authorization': 'token ' + token }
+    })
+    .then(resp => resp.ok ? resp.json() : Promise.reject('File not found'))
+    .then(data => {
+      const sha = data.sha;
+      return fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'token ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `Delete ${path}`,
+          sha,
+          branch
+        })
+      });
+    })
+    .then(() => loadPDFList())
+    .catch(err => console.error(err));
+  });
 }
 
 function toBase64(str) {
@@ -294,17 +299,6 @@ async function githubPut(path, contentBase64) {
   if (!token) return;
   const repo = 'magawass/m';
   const branch = 'main';
-  let sha = null;
-
-  try {
-    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-      headers: { 'Authorization': 'token ' + token }
-    });
-    if (resp.ok) {
-      const data = await resp.json();
-      sha = data.sha;
-    }
-  } catch {}
 
   await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
     method: 'PUT',
@@ -315,8 +309,7 @@ async function githubPut(path, contentBase64) {
     body: JSON.stringify({
       message: `Update ${path}`,
       content: contentBase64,
-      branch,
-      ...(sha ? { sha } : {})
+      branch
     })
   });
 }
