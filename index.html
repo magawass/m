@@ -54,10 +54,8 @@
       <option value="form3">Form 3</option>
       <option value="form4">Form 4</option>
     </select>
-    <div style="margin-top:10px;">
-      <label for="examNumber">Enter Exam Number:</label>
-      <input type="text" id="examNumber" placeholder="e.g. 1001">
-    </div>
+    <label for="examNumber">Enter Exam Number:</label>
+    <input type="text" id="examNumber" placeholder="e.g. 1001">
     <button class="btn" onclick="studentLogin()">Login</button>
   </div>
   <div id="student-area">
@@ -162,15 +160,39 @@ async function studentLogin() {
 function uploadMultiplePDFs() {
   const files = document.getElementById('pdfFiles').files;
   const formClass = document.getElementById('pdfClass').value;
-  if (!files.length) return alert('Select one or more PDF files');
   const token = document.getElementById('githubToken').value.trim();
-  if (!token) return alert('Enter GitHub token');
+  if (!files.length || !token) return;
 
   Array.from(files).forEach(file => {
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = async e => {
       const content = e.target.result.split(',')[1];
-      githubPut(`results/${formClass}/${file.name}`, content);
+      const path = `results/${formClass}/${file.name}`;
+      let sha = null;
+
+      try {
+        const check = await fetch(`https://api.github.com/repos/magawass/m/contents/${path}`, {
+          headers: { 'Authorization': 'token ' + token }
+        });
+        if (check.ok) {
+          const data = await check.json();
+          sha = data.sha;
+        }
+      } catch {}
+
+      await fetch(`https://api.github.com/repos/magawass/m/contents/${path}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `Upload ${file.name}`,
+          content,
+          branch: 'main',
+          ...(sha ? { sha } : {})
+        })
+      });
     };
     reader.readAsDataURL(file);
   });
@@ -179,7 +201,7 @@ function uploadMultiplePDFs() {
 function deleteFileFromGitHub() {
   const path = document.getElementById('deletePath').value.trim();
   const token = document.getElementById('githubToken').value.trim();
-  if (!path || !token) return alert('Enter file path and GitHub token');
+  if (!path || !token) return;
   const repo = 'magawass/m';
   const branch = 'main';
 
@@ -219,20 +241,22 @@ function fromBase64(str) {
 
 async function githubPut(path, contentBase64) {
   const token = document.getElementById('githubToken').value.trim();
-  if (!token) return alert('Enter GitHub token');
+  if (!token) return;
   const repo = 'magawass/m';
   const branch = 'main';
   let sha = null;
 
-  const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-    headers: { 'Authorization': 'token ' + token }
-  });
-  if (resp.status === 200) {
-    const data = await resp.json();
-    sha = data.sha;
-  }
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      headers: { 'Authorization': 'token ' + token }
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      sha = data.sha;
+    }
+  } catch {}
 
-  const putResp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+  await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
     method: 'PUT',
     headers: {
       'Authorization': 'token ' + token,
@@ -245,12 +269,6 @@ async function githubPut(path, contentBase64) {
       ...(sha ? { sha } : {})
     })
   });
-
-  if (putResp.ok) alert(`${path} uploaded successfully`);
-  else {
-    const err = await putResp.json();
-    alert(`Failed to upload ${path}: ${err.message || putResp.status}`);
-  }
 }
 
 function saveHomeText() {
