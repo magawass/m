@@ -86,16 +86,15 @@
     <textarea id="edit-public" rows="4" placeholder="Announcements text"></textarea>
     <button class="btn" onclick="saveContentToGitHub()">Save Announcements</button>
 
-    <h3>Upload PDF Result</h3>
-    <input type="file" id="pdfFile" accept=".pdf">
+    <h3>Upload Multiple PDF Results</h3>
+    <input type="file" id="pdfFiles" accept=".pdf" multiple>
     <select id="pdfClass">
       <option value="form1">Form 1</option>
       <option value="form2">Form 2</option>
       <option value="form3">Form 3</option>
       <option value="form4">Form 4</option>
     </select>
-    <input type="text" id="pdfExam" placeholder="Exam Number (e.g. 1001)">
-    <button class="btn" onclick="uploadPDFToGitHub()">Upload PDF</button>
+    <button class="btn" onclick="uploadMultiplePDFs()">Upload PDFs</button>
 
     <h3>Delete File</h3>
     <input type="text" id="deletePath" placeholder="e.g. results/form1/1001.pdf">
@@ -160,18 +159,21 @@ async function studentLogin() {
   }
 }
 
-function uploadPDFToGitHub() {
-  const file = document.getElementById('pdfFile').files[0];
+function uploadMultiplePDFs() {
+  const files = document.getElementById('pdfFiles').files;
   const formClass = document.getElementById('pdfClass').value;
-  const examNumber = document.getElementById('pdfExam').value.trim();
-  if (!file || !examNumber) return alert('Select PDF file and enter exam number');
-  const paddedExam = parseInt(examNumber, 10).toString().padStart(4, '0');
-  const reader = new FileReader();
-  reader.onload = e => {
-    const content = e.target.result.split(',')[1];
-    githubPut(`results/${formClass}/${paddedExam}.pdf`, content);
-  };
-  reader.readAsDataURL(file);
+  if (!files.length) return alert('Select one or more PDF files');
+  const token = document.getElementById('githubToken').value.trim();
+  if (!token) return alert('Enter GitHub token');
+
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const content = e.target.result.split(',')[1];
+      githubPut(`results/${formClass}/${file.name}`, content);
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function deleteFileFromGitHub() {
