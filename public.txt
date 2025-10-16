@@ -1,7 +1,7 @@
 Hello Everyone
 Magawa Students portal is now operational. 
 Parents, Guardians and Students can view exam results through the Results portal on the menu.
-Here is how to go about:
+Here is how to go about it:
 1-Go to the Results Portal
 2-Select Form 1, 2, 3 or 4 by clicking against the Form.
 3-Enter students exam number in the text box for Exam Numbers.
