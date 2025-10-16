@@ -63,7 +63,6 @@
   </div>
   <div id="student-area">
     <h3 id="student-welcome"></h3>
-    <a id="result-link" href="#" target="_blank" class="btn">View/Download Result</a><br><br>
     <button class="btn" onclick="studentLogout()">Logout</button>
     <div id="student-results" style="margin-top:20px;"></div>
   </div>
@@ -155,42 +154,37 @@ async function studentLogin() {
   if (!examNumber) return alert('Enter Exam Number');
   examNumber = parseInt(examNumber, 10).toString().padStart(4, '0');
 
-  const fileUrl = `results/${studentClass}/${examNumber}.pdf`;
   const excelUrl = `https://raw.githubusercontent.com/magawass/m/main/results/${studentClass}/results.xlsx`;
 
   try {
-    const res = await fetch(fileUrl, { method: 'HEAD' });
-    if (res.ok) {
-      document.getElementById('student-login').style.display = 'none';
-      document.getElementById('student-area').style.display = 'block';
-      document.getElementById('student-welcome').innerText = `Welcome Candidate No: ${examNumber} (${studentClass.replace('form', 'Form ')})`;
-      document.getElementById('result-link').href = fileUrl;
+    document.getElementById('student-login').style.display = 'none';
+    document.getElementById('student-area').style.display = 'block';
+    document.getElementById('student-welcome').innerText = `Welcome Candidate No: ${examNumber} (${studentClass.replace('form', 'Form ')})`;
 
-      const excelRes = await fetch(excelUrl);
-      const blob = await excelRes.blob();
-      const reader = new FileReader();
-      reader.onload = e => {
-        const workbook = XLSX.read(e.target.result, { type: 'binary' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(sheet);
-        const subjects = ["Agriculture", "Bible Knowledge", "Biology", "Chemistry", "Chichewa", "English", "Geography", "History", "Mathematics", "Physics", "Social/Life Skills"];
-        const studentResults = data.filter(row => {
-          const rowExam = String(row["Exam Number"]).padStart(4, '0');
-          return rowExam === examNumber;
-        });
-        const container = document.getElementById('student-results');
-        container.innerHTML = '<h4>Subject Scores</h4>';
-        subjects.forEach(sub => {
-          const score = studentResults.find(r => r.Subject === sub);
-          if (score) {
-            container.innerHTML += `<div><strong>${sub}:</strong> ${score.Score}</div>`;
-          }
-        });
-      };
-      reader.readAsBinaryString(blob);
-    } else alert('Result not found.');
+    const excelRes = await fetch(excelUrl);
+    const blob = await excelRes.blob();
+    const reader = new FileReader();
+    reader.onload = e => {
+      const workbook = XLSX.read(e.target.result, { type: 'binary' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(sheet);
+      const subjects = ["Agriculture", "Bible Knowledge", "Biology", "Chemistry", "Chichewa", "English", "Geography", "History", "Mathematics", "Physics", "Social/Life Skills"];
+      const studentResults = data.filter(row => {
+        const rowExam = String(row["Exam Number"]).padStart(4, '0');
+        return rowExam === examNumber;
+      });
+      const container = document.getElementById('student-results');
+      container.innerHTML = '<h4>Subject Scores</h4>';
+      subjects.forEach(sub => {
+        const score = studentResults.find(r => r.Subject === sub);
+        if (score) {
+          container.innerHTML += `<div><strong>${sub}:</strong> ${score.Score}</div>`;
+        }
+      });
+    };
+    reader.readAsBinaryString(blob);
   } catch {
-    alert('Error checking result.');
+    alert('Error loading results.');
   }
 }
 
