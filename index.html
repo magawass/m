@@ -172,7 +172,10 @@ async function studentLogin() {
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const data = XLSX.utils.sheet_to_json(sheet);
         const subjects = ["Agriculture", "Bible Knowledge", "Biology", "Chemistry", "Chichewa", "English", "Geography", "History", "Mathematics", "Physics", "Social/Life Skills"];
-        const studentResults = data.filter(row => row["Exam Number"] === examNumber);
+   const studentResults = data.filter(row => {
+  const rowExam = String(row["Exam Number"]).padStart(4, '0');
+  return rowExam === examNumber;
+});
         const container = document.getElementById('student-results');
         container.innerHTML = '<h4>Subject Scores</h4>';
         subjects.forEach(sub => {
