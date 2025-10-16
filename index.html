@@ -18,7 +18,6 @@
     #student-area, #admin-area { display:none; }
     footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; margin-top:40px; }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -64,7 +63,6 @@
   <div id="student-area">
     <h3 id="student-welcome"></h3>
     <button class="btn" onclick="studentLogout()">Logout</button>
-    <div id="student-results" style="margin-top:20px;"></div>
   </div>
 </section>
 
@@ -88,27 +86,19 @@
     <textarea id="edit-public" rows="4" placeholder="Announcements text"></textarea>
     <button class="btn" onclick="saveContentToGitHub()">Save Announcements</button>
 
-    <h3>Upload Excel Results</h3>
-    <input type="file" id="excelFile" accept=".xlsx">
-    <select id="excelClass">
+    <h3>Upload PDF Result</h3>
+    <input type="file" id="pdfFile" accept=".pdf">
+    <select id="pdfClass">
       <option value="form1">Form 1</option>
       <option value="form2">Form 2</option>
       <option value="form3">Form 3</option>
       <option value="form4">Form 4</option>
     </select>
-    <button class="btn" onclick="uploadExcelToGitHub()">Upload Excel</button>
-
-    <h3>Upload Logo</h3>
-    <input type="file" id="logoFile" accept="image/*">
-    <button class="btn" onclick="uploadLogoToGitHub()">Upload Logo</button>
-    <button class="btn" onclick="deleteFileFromGitHubPath('images/logo.png')">Remove Logo</button>
-
-    <h3>Clear Uploaded File</h3>
-    <input type="text" id="clearPath" placeholder="e.g. results/form1/results.xlsx">
-    <button class="btn" onclick="deleteFileFromGitHubPath(document.getElementById('clearPath').value.trim())">Clear File</button>
+    <input type="text" id="pdfExam" placeholder="Exam Number (e.g. 1001)">
+    <button class="btn" onclick="uploadPDFToGitHub()">Upload PDF</button>
 
     <h3>Delete File</h3>
-    <input type="text" id="deletePath" placeholder="e.g. images/logo.png or results/form1/1001.pdf">
+    <input type="text" id="deletePath" placeholder="e.g. results/form1/1001.pdf">
     <button class="btn" onclick="deleteFileFromGitHub()">Delete File</button>
 
     <br><br>
@@ -145,7 +135,6 @@ function studentLogout() {
   document.getElementById('examNumber').value = '';
   document.getElementById('student-login').style.display = 'block';
   document.getElementById('student-area').style.display = 'none';
-  document.getElementById('student-results').innerHTML = '';
 }
 
 async function studentLogin() {
@@ -154,101 +143,68 @@ async function studentLogin() {
   if (!examNumber) return alert('Enter Exam Number');
   examNumber = parseInt(examNumber, 10).toString().padStart(4, '0');
 
-  const excelUrl = `https://raw.githubusercontent.com/magawass/m/main/results/${studentClass}/results.xlsx`;
+  const fileUrl = `https://magawass.github.io/m/results/${studentClass}/${examNumber}.pdf`;
 
   try {
-    document.getElementById('student-login').style.display = 'none';
-    document.getElementById('student-area').style.display = 'block';
-    document.getElementById('student-welcome').innerText = `Welcome Candidate No: ${examNumber} (${studentClass.replace('form', 'Form ')})`;
-
-    const excelRes = await fetch(excelUrl);
-    const blob = await excelRes.blob();
-    const reader = new FileReader();
-    reader.onload = e => {
-      const workbook = XLSX.read(e.target.result, { type: 'binary' });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(sheet);
-      const subjects = ["Agriculture", "Bible Knowledge", "Biology", "Chemistry", "Chichewa", "English", "Geography", "History", "Mathematics", "Physics", "Social/Life Skills"];
-      const studentResults = data.filter(row => {
-        const rowExam = String(row["Exam Number"]).padStart(4, '0');
-        return rowExam === examNumber;
-      });
-      const container = document.getElementById('student-results');
-      container.innerHTML = '<h4>Subject Scores</h4>';
-      subjects.forEach(sub => {
-        const score = studentResults.find(r => r.Subject === sub);
-        if (score) {
-          container.innerHTML += `<div><strong>${sub}:</strong> ${score.Score}</div>`;
-        }
-      });
-    };
-    reader.readAsBinaryString(blob);
+    const res = await fetch(fileUrl, { method: 'HEAD' });
+    if (res.ok) {
+      document.getElementById('student-login').style.display = 'none';
+      document.getElementById('student-area').style.display = 'block';
+      document.getElementById('student-welcome').innerText = `Welcome Candidate No: ${examNumber} (${studentClass.replace('form', 'Form ')})`;
+      window.open(fileUrl, '_blank');
+    } else {
+      alert('Result PDF not found.');
+    }
   } catch {
-    alert('Error loading results.');
+    alert('Error checking result.');
   }
 }
 
-function uploadExcelToGitHub() {
-  const file = document.getElementById('excelFile').files[0];
-  const formClass = document.getElementById('excelClass').value;
-  if (!file) return alert('Select Excel file');
+function uploadPDFToGitHub() {
+  const file = document.getElementById('pdfFile').files[0];
+  const formClass = document.getElementById('pdfClass').value;
+  const examNumber = document.getElementById('pdfExam').value.trim();
+  if (!file || !examNumber) return alert('Select PDF file and enter exam number');
+  const paddedExam = parseInt(examNumber, 10).toString().padStart(4, '0');
   const reader = new FileReader();
   reader.onload = e => {
     const content = e.target.result.split(',')[1];
-    githubPut(`results/${formClass}/results.xlsx`, content);
+    githubPut(`results/${formClass}/${paddedExam}.pdf`, content);
   };
   reader.readAsDataURL(file);
 }
 
-function uploadLogoToGitHub() {
-  const file = document.getElementById('logoFile').files[0];
-  if (!file) return alert('Select logo file');
-  const reader = new FileReader();
-  reader.onload = e => {
-    const content = e.target.result.split(',')[1];
-    githubPut(`images/logo.png`, content);
-  };
-  reader.readAsDataURL(file);
-}
-
-function deleteFileFromGitHubPath(path) {
-  document.getElementById('deletePath').value = path;
-  deleteFileFromGitHub();
-}
-
-async function deleteFileFromGitHub() {
+function deleteFileFromGitHub() {
   const path = document.getElementById('deletePath').value.trim();
-  if (!path) return alert('Enter file path to delete');
   const token = document.getElementById('githubToken').value.trim();
-  if (!token) return alert('Enter GitHub token');
+  if (!path || !token) return alert('Enter file path and GitHub token');
   const repo = 'magawass/m';
   const branch = 'main';
 
-  try {
-    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-      headers: { 'Authorization': 'token ' + token }
+  fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+    headers: { 'Authorization': 'token ' + token }
+  })
+  .then(resp => resp.ok ? resp.json() : Promise.reject('File not found'))
+  .then(data => {
+    const sha = data.sha;
+    return fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': 'token ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: `Delete ${path}`,
+        sha,
+        branch
+      })
     });
-    if (resp.ok) {
-      const data = await resp.json();
-      const sha = data.sha;
-      const delResp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'token ' + token,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: `Delete ${path}`,
-          sha,
-          branch
-        })
-      });
-      if (delResp.ok) alert(`${path} deleted successfully`);
-      else alert(`Failed to delete ${path}`);
-    } else alert('File not found');
-  } catch (err) {
-    alert('Error deleting file');
-  }
+  })
+  .then(delResp => {
+    if (delResp.ok) alert(`${path} deleted successfully`);
+    else alert(`Failed to delete ${path}`);
+  })
+  .catch(err => alert(err));
 }
 
 function toBase64(str) {
@@ -260,39 +216,38 @@ function fromBase64(str) {
 }
 
 async function githubPut(path, contentBase64) {
-  try {
-    const token = document.getElementById('githubToken').value.trim();
-    if (!token) return alert('Enter GitHub token');
-    const repo = 'magawass/m';
-    const branch = 'main';
-    let sha = null;
-    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-      headers: { 'Authorization': 'token ' + token }
-    });
-    if (resp.status === 200) {
-      const data = await resp.json();
-      sha = data.sha;
-    }
-    const putResp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: `Update ${path}`,
-        content: contentBase64,
-        branch,
-        ...(sha ? { sha } : {})
-      })
-    });
-    if (putResp.ok) alert(`${path} uploaded successfully`);
-    else {
-      const err = await putResp.json();
-      alert(`Failed to upload ${path}: ${err.message || putResp.status}`);
-    }
-  } catch (err) {
-    alert(`Unexpected error uploading ${path}`);
+  const token = document.getElementById('githubToken').value.trim();
+  if (!token) return alert('Enter GitHub token');
+  const repo = 'magawass/m';
+  const branch = 'main';
+  let sha = null;
+
+  const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+    headers: { 'Authorization': 'token ' + token }
+  });
+  if (resp.status === 200) {
+    const data = await resp.json();
+    sha = data.sha;
+  }
+
+  const putResp = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'token ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      message: `Update ${path}`,
+      content: contentBase64,
+      branch,
+      ...(sha ? { sha } : {})
+    })
+  });
+
+  if (putResp.ok) alert(`${path} uploaded successfully`);
+  else {
+    const err = await putResp.json();
+    alert(`Failed to upload ${path}: ${err.message || putResp.status}`);
   }
 }
 
