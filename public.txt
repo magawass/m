@@ -1,5 +1,6 @@
 Hello Everyone
 Magawa Students portal is now operational. 
+We are still working on it, so result uploaded are for testing purposes, thank you.
 Parents, Guardians and Students can view exam results through the Results portal on the menu.
 Here is how to go about it:
 1-Go to the Results Portal
