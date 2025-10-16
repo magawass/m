@@ -17,6 +17,9 @@
     .btn:hover { background:#007799; }
     #student-area, #admin-area { display:none; }
     footer { background:#f4f4f9; text-align:center; padding:10px 0; color:#777; margin-top:40px; }
+    .file-entry { display:flex; justify-content:space-between; align-items:center; margin:5px 0; padding:5px; background:#eef; border-radius:5px; }
+    .file-entry button { margin-left:10px; background:#c00; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; }
+    .file-entry button:hover { background:#900; }
   </style>
 </head>
 <body>
@@ -47,19 +50,26 @@
 <section id="student">
   <h2>Results Portal</h2>
   <div id="student-login">
-    <label for="student-class">Select Class:</label>
-    <select id="student-class">
-      <option value="form1">Form 1</option>
-      <option value="form2">Form 2</option>
-      <option value="form3">Form 3</option>
-      <option value="form4">Form 4</option>
-    </select>
-    <label for="examNumber">Enter Exam Number:</label>
-    <input type="text" id="examNumber" placeholder="e.g. 1001">
-    <button class="btn" onclick="studentLogin()">Login</button>
+    <div style="display: flex; flex-direction: column; gap: 15px; max-width: 400px;">
+      <div>
+        <label for="student-class">Select Class:</label><br>
+        <select id="student-class">
+          <option value="form1">Form 1</option>
+          <option value="form2">Form 2</option>
+          <option value="form3">Form 3</option>
+          <option value="form4">Form 4</option>
+        </select>
+      </div>
+      <div>
+        <label for="examNumber">Enter Exam Number:</label><br>
+        <input type="text" id="examNumber" placeholder="e.g. 1001">
+      </div>
+      <button class="btn" onclick="studentLogin()">Login</button>
+    </div>
   </div>
   <div id="student-area">
     <h3 id="student-welcome"></h3>
+    <button class="btn" onclick="viewStudentPDF()">View/Download Result</button>
     <button class="btn" onclick="studentLogout()">Logout</button>
   </div>
 </section>
@@ -94,9 +104,14 @@
     </select>
     <button class="btn" onclick="uploadMultiplePDFs()">Upload PDFs</button>
 
-    <h3>Delete File</h3>
-    <input type="text" id="deletePath" placeholder="e.g. results/form1/1001.pdf">
-    <button class="btn" onclick="deleteFileFromGitHub()">Delete File</button>
+    <h3>Manage Uploaded PDFs</h3>
+    <select id="listClass" onchange="loadPDFList()">
+      <option value="form1">Form 1</option>
+      <option value="form2">Form 2</option>
+      <option value="form3">Form 3</option>
+      <option value="form4">Form 4</option>
+    </select>
+    <div id="pdf-list" style="margin-top:10px;"></div>
 
     <br><br>
     <button class="btn" onclick="adminLogout()">Logout</button>
@@ -108,6 +123,7 @@
 </footer>
 <script>
 const adminPassword = 'M@gawa#2025!Admin';
+let studentPDFUrl = '';
 
 function showSection(id) {
   document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
@@ -119,6 +135,7 @@ function adminLogin() {
   if (pass === adminPassword) {
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-area').style.display = 'block';
+    loadPDFList();
   } else alert('Wrong password');
 }
 
@@ -132,6 +149,7 @@ function studentLogout() {
   document.getElementById('examNumber').value = '';
   document.getElementById('student-login').style.display = 'block';
   document.getElementById('student-area').style.display = 'none';
+  studentPDFUrl = '';
 }
 
 async function studentLogin() {
@@ -145,16 +163,20 @@ async function studentLogin() {
   try {
     const res = await fetch(fileUrl, { method: 'HEAD' });
     if (res.ok) {
+      studentPDFUrl = fileUrl;
       document.getElementById('student-login').style.display = 'none';
       document.getElementById('student-area').style.display = 'block';
       document.getElementById('student-welcome').innerText = `Welcome Candidate No: ${examNumber} (${studentClass.replace('form', 'Form ')})`;
-      window.open(fileUrl, '_blank');
     } else {
       alert('Result PDF not found.');
     }
   } catch {
     alert('Error checking result.');
   }
+}
+
+function viewStudentPDF() {
+  if (studentPDFUrl) window.open(studentPDFUrl, '_blank');
 }
 
 function uploadMultiplePDFs() {
@@ -193,15 +215,46 @@ function uploadMultiplePDFs() {
           ...(sha ? { sha } : {})
         })
       });
+      loadPDFList();
     };
     reader.readAsDataURL(file);
   });
 }
 
-function deleteFileFromGitHub() {
-  const path = document.getElementById('deletePath').value.trim();
+function loadPDFList() {
+  const formClass = document.getElementById('listClass').value;
+  const listContainer = document.getElementById('pdf-list');
+  listContainer.innerHTML = 'Loading...';
+
+  fetch(`https://api.github.com/repos/magawass/m/contents/results/${formClass}`)
+    .then(res => res.ok ? res.json() : [])
+    .then(data => {
+      listContainer.innerHTML = '';
+      if (Array.isArray(data)) {
+        data.forEach(file => {
+          if (file.name.endsWith('.pdf')) {
+            const entry = document.createElement('div');
+            entry.className = 'file-entry';
+            entry.innerHTML = `
+              <a href="${file.download_url}" target="_blank">${file.name}</a>
+              <button onclick="deletePDF('${formClass}', '${file.name}')">Delete</button>
+            `;
+            listContainer.appendChild(entry);
+          }
+        });
+      } else {
+        listContainer.innerHTML = 'No files found.';
+      }
+    })
+    .catch(() => {
+      listContainer.innerHTML = 'Error loading files.';
+    });
+}
+
+function deletePDF(formClass, filename) {
   const token = document.getElementById('githubToken').value.trim();
-  if (!path || !token) return;
+  if (!token) return;
+  const path = `results/${formClass}/${filename}`;
   const repo = 'magawass/m';
   const branch = 'main';
 
@@ -224,10 +277,7 @@ function deleteFileFromGitHub() {
       })
     });
   })
-  .then(delResp => {
-    if (delResp.ok) alert(`${path} deleted successfully`);
-    else alert(`Failed to delete ${path}`);
-  })
+  .then(() => loadPDFList())
   .catch(err => alert(err));
 }
 
