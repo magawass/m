@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Magawa Results Viewer</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>MAGAWA SECONDARY SCHOOL</h1>
+    <h2>STUDENT RESULTS PORTAL</h2>
+    <label for="classSelect">Select Class</label>
+    <select id="classSelect">
+      <option value="Form1">Form 1</option>
+      <option value="Form2">Form 2</option>
+      <option value="Form3">Form 3</option>
+      <option value="Form4">Form 4</option>
+    </select>
+    <button onclick="loadResults()">View Results</button>
+    <div id="resultsContainer"></div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
