@@ -1,6 +1,6 @@
 ﻿function loadResults() {
   const className = document.getElementById('classSelect').value;
-  const csvUrl = `https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/results/${className}.csv`;
+ const csvUrl = `https://raw.githubusercontent.com/magawass/m/main/results/${className}.csv`;
 
   Papa.parse(csvUrl, {
     download: true,
@@ -50,3 +50,4 @@ function displayResults(data) {
   table.appendChild(tbody);
   container.appendChild(table);
 }
+
