@@ -59,26 +59,17 @@
     h2 { font-size: 1.8em; margin-bottom: 15px;}
     h3 { font-size: 1.4em; }
 
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 15px;
-      margin-top: 15px;
-    }
-
+    /* --- Default styles (Mobile-First) for elements ABOVE table --- */
     .result-header {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column; /* Stack by default for mobile */
+      align-items: center;    /* Center align by default */
       gap: 15px;
       margin-bottom: 20px;
     }
 
     .school-info {
-      text-align: right;
-      flex: 1;
+      text-align: center; /* Center school info by default */
     }
 
     .school-info h2 {
@@ -95,17 +86,32 @@
     .progress-title {
       font-family: 'Agency FB', sans-serif;
       margin-top: 25px;
-      text-align: left;
+      text-align: center; /* Center title by default */
       font-size: 1.5em;
     }
 
+    .row { /* For student name/form details */
+      display: flex;
+      flex-direction: column; /* Stack details by default for mobile */
+      align-items: center;    /* Center align by default */
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .row p { /* Individual detail paragraphs */
+      width: 100%;
+      text-align: center; /* Center text in detail paragraphs by default */
+      margin-bottom: 10px;
+    }
+
+    /* --- Styles for the TABLE and BELOW --- */
     table {
       width: 100%;
       max-width: 100%;
       border-collapse: collapse;
       margin: 25px auto;
       font-size: 1.1em;
-      overflow-x: auto;
+      overflow-x: auto; /* Enable horizontal scroll for tables on small screens */
       display: table;
     }
 
@@ -245,7 +251,7 @@
         display: none !important;
       }
 
-      /* Replicate the on-screen logo placement and header layout for print */
+      /* --- Styles for PRINT/PDF TEMPLATE ELEMENTS (Desktop-like layout) --- */
       #resultPagePrint .logo, #resultPagePDF .logo {
         width: auto;
         max-width: 160px;
@@ -254,7 +260,7 @@
       }
 
       #resultPagePrint .result-header, #resultPagePDF .result-header {
-        display: flex;
+        display: flex; /* Desktop layout */
         flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
@@ -263,7 +269,7 @@
       }
 
       #resultPagePrint .school-info, #resultPagePDF .school-info {
-        text-align: right;
+        text-align: right; /* Desktop alignment */
         flex: 1;
       }
 
@@ -286,12 +292,12 @@
       #resultPagePrint .progress-title, #resultPagePDF .progress-title {
         font-family: 'Agency FB', sans-serif;
         margin-top: 25px;
-        text-align: left;
+        text-align: left; /* Desktop alignment */
         font-size: 1.5em;
       }
 
       #resultPagePrint .row, #resultPagePDF .row {
-        display: flex;
+        display: flex; /* Desktop layout */
         flex-wrap: wrap;
         justify-content: space-between;
         gap: 15px;
@@ -302,6 +308,7 @@
         font-size: 0.9em;
         margin: 0;
         color: #555;
+        text-align: left; /* Desktop alignment */
       }
 
       #resultPagePrint table, #resultPagePDF table {
@@ -343,8 +350,38 @@
       .summary-section td { width: 25%; }
     }
 
-    /* Responsive adjustments for smaller screens */
-    @media (max-width: 768px) {
+    /* --- Responsive adjustments for LARGER screens (Desktop-like layout for top elements) --- */
+    @media (min-width: 768px) {
+      /* Revert .result-header, .row, and .progress-title to desktop layout */
+      .result-header {
+        flex-direction: row; /* Side-by-side */
+        justify-content: space-between; /* Distribute space */
+        align-items: center;
+        text-align: initial; /* Use default text-align */
+      }
+      .school-info {
+        text-align: right; /* Right-align school info */
+      }
+      .progress-title {
+        text-align: left; /* Left-align title */
+      }
+      .row {
+        flex-direction: row; /* Side-by-side */
+        justify-content: space-between;
+        align-items: flex-start; /* Align items at the top */
+        text-align: initial;
+      }
+      .row p {
+        width: auto; /* Allow paragraphs to size to content */
+        text-align: left; /* Left-align text in paragraphs */
+        margin-bottom: 0; /* Remove bottom margin when side-by-side */
+      }
+    }
+
+    /* --- Smaller Mobile adjustments (if needed, can override larger screen styles) --- */
+    @media (max-width: 767px) { /* This will handle devices smaller than 768px */
+      /* Default mobile-first styles for these elements will apply here */
+      /* If you need any further adjustments for very small screens, add them here */
       .page {
         margin: 10px;
         padding: 20px;
@@ -356,26 +393,7 @@
       .logo { max-width: 150px; }
       .logo-line { margin: 10px 0 15px 0; }
 
-      .row {
-        flex-direction: column;
-        align-items: center;
-      }
-      .row p {
-        width: 100%;
-        text-align: center;
-        margin-bottom: 10px;
-      }
-
-      .result-header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-      }
-      .school-info { text-align: center; }
-      .school-info h2 { font-size: 1.4em; }
-
-      .progress-title { text-align: center; font-size: 1.3em;}
-
+      /* Table remains scrollable */
       table {
         font-size: 1em;
         display: block;
@@ -507,7 +525,6 @@
 </div>
 
 <!-- Hidden Template for Print/PDF -->
-<!-- This will be populated by JavaScript -->
 <div id="printPdfTemplate" style="display:none;">
     <div id="resultPagePrint" class="page">
         <div class="result-header">
@@ -528,7 +545,6 @@
             <p><strong>Term:</strong> <span id="printPdfStudentTerm">Term 1</span></p>
         </div>
         <div id="printPdfResultsContainer"></div>
-        <!-- No buttons here, they are handled by the caller -->
     </div>
 </div>
 
@@ -706,16 +722,19 @@ function loadResults() {
 
 // --- Function to populate the hidden template ---
 function populatePrintPdfTemplate(studentData) {
-    // Clear existing content
+    // Populate the template elements
     document.getElementById('printPdfStudentName').textContent = studentData.name;
     document.getElementById('printPdfStudentID').textContent = studentData.id;
     document.getElementById('printPdfStudentForm').textContent = studentData.form;
     document.getElementById('printPdfStudentTerm').textContent = studentData.term;
     document.getElementById('printPdfResultsContainer').innerHTML = studentData.resultsHtml;
 
-    // Update logo source if it's different or needs to be explicitly set for template
-    // For simplicity, assuming it's handled by the main page's CSS, but you can add:
-    // document.querySelector('#printPdfTemplate .logo').src = document.querySelector('#resultPage .logo').src;
+    // Ensure the logo source is correctly set in the template if it's dynamic
+    // If your logo path is dynamic or you have different logos, uncomment and adjust:
+    // const logoImg = document.querySelector('#resultPagePrint .logo');
+    // if (logoImg) {
+    //     logoImg.src = document.querySelector('#resultPage .logo').src;
+    // }
 }
 
 // --- PDF Download Functionality ---
@@ -736,7 +755,7 @@ function openPdfView() {
     // Populate the hidden template
     populatePrintPdfTemplate(studentData);
 
-    // Now, target the template's content for PDF generation
+    // Target the template's content for PDF generation
     const elementToConvert = document.getElementById('resultPagePrint');
 
     alert("Generating PDF. This might take a moment on mobile...");
@@ -745,11 +764,6 @@ function openPdfView() {
         scale: 1.5,
         useCORS: true,
         logging: false,
-        ignoreElements: (element) => {
-            // The template does NOT have the buttons, so no need to ignore anything specific here
-            // If buttons were in the template, we'd target them.
-            return false; // Render all elements in the template
-        }
     }).then(canvas => {
         const imgData = canvas.toDataURL('image/png', 0.8);
         const pdf = new window.jspdf.jsPDF({
@@ -804,12 +818,7 @@ function openPrintView() {
     populatePrintPdfTemplate(studentData);
 
     // Use the @media print styles defined in CSS
-    // The CSS ensures only #resultPagePrint is visible and formatted correctly.
     window.print();
-
-    // Optional: Clean up the template after printing (though it's hidden, good practice)
-    // You might also want to re-hide the template if it somehow became visible.
-    // document.getElementById('printPdfTemplate').style.display = 'none';
 }
 </script>
 </body>
