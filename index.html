@@ -552,7 +552,6 @@ function uploadCSV() {
     alert("Please select a class and a CSV file.");
     return;
   }
-  // In a real application, you would send this file to a server for processing.
   alert(`Simulated upload of ${file.name} for ${selectedClass}.`);
 }
 
@@ -563,7 +562,6 @@ function deleteCSV() {
     alert("Please enter a filename and select a class.");
     return;
   }
-  // In a real application, you would send a request to a server to delete the file.
   alert(`Simulated deletion of ${filename} from ${selectedClass}.`);
 }
 
@@ -590,7 +588,7 @@ function getRemark(score) {
 function loadResults() {
   const form = document.getElementById("formSelect").value;
   const studentNumber = document.getElementById("studentNumber").value.trim().toUpperCase();
-  const csvUrl = `https://raw.githubusercontent.com/magawass/ui/main/${form}.csv`; // *** Double check this URL ***
+  const csvUrl = `https://raw.githubusercontent.com/magawass/ui/main/${form}.csv`;
 
   fetch(csvUrl)
     .then(response => {
@@ -727,17 +725,26 @@ function downloadAsPDF() {
     const elementToConvert = document.getElementById('resultPage');
     const studentName = document.getElementById('studentName').textContent || 'student';
     const studentID = document.getElementById('studentID').textContent || 'exam_number';
-    const fileName = `${studentName.replace(/\s+/g, '_')}_${studentID}_results.pdf`; // Sanitize filename
+    const fileName = `${studentName.replace(/\s+/g, '_')}_${studentID}_results.pdf`;
 
-    // Show a loading indicator or message
+    // Find the element containing the buttons to ignore
+    const buttonsContainer = document.querySelector('.actions');
+
     alert("Generating PDF. This might take a moment on mobile...");
 
     html2canvas(elementToConvert, {
-        scale: 1.5, // Slightly reduced scale for potentially faster generation and smaller file size on mobile
+        scale: 1.5,
         useCORS: true,
-        logging: false
+        logging: false,
+        // Ignore the entire .actions div which contains all buttons
+        ignoreElements: (element) => {
+            if (element === buttonsContainer) {
+                return true; // Tell html2canvas to ignore this element
+            }
+            return false; // Otherwise, render the element
+        }
     }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png', 0.8); // Reduce image quality slightly for smaller file size
+        const imgData = canvas.toDataURL('image/png', 0.8);
 
         const pdf = new window.jspdf.jsPDF({
             orientation: 'portrait',
@@ -750,7 +757,6 @@ function downloadAsPDF() {
         const imgWidth = canvas.width;
         const imgHeight = canvas.height;
 
-        // Calculate aspect ratio to fit image within PDF, adding margins
         const margin = 10; // mm
         const availableWidth = pdfWidth - 2 * margin;
         const availableHeight = pdfHeight - 2 * margin;
@@ -760,17 +766,13 @@ function downloadAsPDF() {
         const finalImgWidth = imgWidth * ratio;
         const finalImgHeight = imgHeight * ratio;
 
-        // Center the image on the page if it doesn't fill it completely
         const startX = (pdfWidth - finalImgWidth) / 2;
         const startY = (pdfHeight - finalImgHeight) / 2;
 
         pdf.addImage(imgData, 'PNG', startX, startY, finalImgWidth, finalImgHeight);
 
         try {
-            // Attempt to save the PDF
             pdf.save(fileName);
-            // Optionally, provide a success message after save is initiated
-            // alert("PDF download should have started!");
         } catch (e) {
             console.error("Error saving PDF:", e);
             alert("Could not automatically download PDF. Please try printing instead or check browser settings.");
