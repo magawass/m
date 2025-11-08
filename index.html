@@ -5,6 +5,11 @@
   <title>Magawa Secondary Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Essential for mobile responsiveness -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <!-- jsPDF and html2canvas Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
     /* Universal Box Sizing */
     * { box-sizing: border-box; }
@@ -733,8 +738,49 @@ function loadResults() {
     });
 }
 
+
+// --- PDF Download Functionality ---
 function downloadAsPDF() {
-  window.print();
+    // Get the element to be converted to PDF
+    const elementToConvert = document.getElementById('resultPage');
+    const studentName = document.getElementById('studentName').textContent || 'student';
+    const studentID = document.getElementById('studentID').textContent || 'exam_number';
+
+    // Use html2canvas to capture the element as an image
+    html2canvas(elementToConvert, {
+        scale: 2, // Increase scale for better resolution
+        useCORS: true, // If you have external images, this might help
+        logging: false // Disable logging to console
+    }).then(canvas => {
+        // Get the image data as a PNG
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new window.jspdf.jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        // Calculate PDF dimensions and image placement
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+
+        // Calculate aspect ratio to fit image within PDF
+        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+
+        // Add image to PDF
+        // The coordinates (0, 0) are for the top-left corner of the PDF.
+        // We adjust it by 10mm margin on all sides for a better look.
+        const margin = 10; // mm
+        pdf.addImage(imgData, 'PNG', margin, margin, imgWidth * ratio, imgHeight * ratio);
+
+        // Save the PDF
+        pdf.save(`${studentName}_${studentID}_results.pdf`);
+    }).catch(err => {
+        console.error("Error generating PDF:", err);
+        alert("Failed to generate PDF. Please try again.");
+    });
 }
 </script>
 </body>
