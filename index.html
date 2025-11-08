@@ -24,7 +24,7 @@
       display: none;
       width: 100%;
       max-width: 650px;
-      padding: 30px;
+      padding: 20px;
       background: white;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -33,7 +33,7 @@
     #initialPage { display: block; text-align: center; }
 
     .logo {
-      max-width: 100px;
+      max-width: 90px;
       height: auto;
     }
 
@@ -71,46 +71,62 @@
 
     button:hover { background-color: #0056b3; }
 
-    /* Result Page Layout */
+    /* --- PROGRESS OF RESULTS LAYOUT --- */
     .header-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
+      align-items: flex-start;
     }
 
-    .header-row h2 {
+    .header-text {
+      text-align: right;
+      line-height: 1.2;
+    }
+
+    .header-text h2 {
       margin: 0;
       color: #004080;
-      font-size: 1.5em;
-      text-align: right;
+      font-size: 1.4em;
+    }
+
+    .header-text p {
+      margin: 0;
+      font-size: 9px;
+      color: #333;
+    }
+
+    .divider-line {
+      border: none;
+      border-top: 2px solid #004080;
+      margin: 8px 0 12px 0;
+      width: 100%;
     }
 
     .progress-title {
       font-family: "Agency FB", sans-serif;
-      font-size: 1.2em;  /* Smaller than school name */
+      font-size: 1.2em;
       color: #000;
-      margin: 10px 0 20px 0;
+      margin: 5px 0 10px 0;
       text-align: left;
     }
 
     .info-row {
       display: flex;
       justify-content: space-between;
-      font-size: 1.05em;
-      margin-bottom: 6px;
+      font-size: 1em;
+      margin-bottom: 4px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
+      margin-top: 10px;
+      font-size: 0.95em;
     }
 
     th, td {
       border: 1px solid #ccc;
-      padding: 8px;
-      font-size: 1em;
+      padding: 6px;
     }
 
     th {
@@ -122,28 +138,29 @@
     td:not(:first-child) { text-align: center; }
 
     .summary-section {
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     .summary-section table {
       width: 100%;
       border: 1px solid #ccc;
+      font-size: 0.95em;
     }
 
     .summary-section th, .summary-section td {
       border: 1px solid #ccc;
-      padding: 10px;
+      padding: 8px;
       text-align: center;
     }
 
     .actions {
-      margin-top: 25px;
+      margin-top: 15px;
       text-align: center;
     }
 
     .actions button {
       width: 45%;
-      margin: 8px 5px;
+      margin: 5px;
     }
   </style>
 </head>
@@ -175,14 +192,19 @@
 <div id="resultPage" class="page">
   <div class="header-row">
     <img src="" alt="School Logo" class="logo">
-    <h2>MAGAWA SECONDARY SCHOOL</h2>
+    <div class="header-text">
+      <h2>MAGAWA SEC SCHOOL</h2>
+      <p>Private Bag 17, Magawa, Mchinji</p>
+    </div>
   </div>
+
+  <hr class="divider-line">
 
   <div class="progress-title">PROGRESS OF RESULTS</div>
 
   <div class="info-row">
-    <p><strong>Student Name:</strong> <span id="studentName"></span></p>
-    <p><strong>Exam Number:</strong> <span id="studentID"></span></p>
+    <p><strong>Name:</strong> <span id="studentName"></span></p>
+    <p><strong>Exam No:</strong> <span id="studentID"></span></p>
   </div>
 
   <div class="info-row">
