@@ -59,14 +59,7 @@
     h2 { font-size: 1.8em; margin-bottom: 15px;}
     h3 { font-size: 1.4em; }
 
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 15px;
-      margin-top: 15px;
-    }
-
+    /* Styles for the elements above the table */
     .result-header {
       display: flex;
       flex-wrap: wrap;
@@ -95,9 +88,22 @@
     .progress-title {
       font-family: 'Agency FB', sans-serif;
       margin-top: 25px;
-      text-align: left;
+      text-align: left; /* Keep left-aligned */
       font-size: 1.5em;
     }
+
+    .row { /* For student name/form details */
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .row p { /* Individual detail paragraphs */
+        /* No specific changes needed here, inherit from general */
+    }
+
 
     table {
       width: 100%;
@@ -290,20 +296,22 @@
         font-size: 1.5em;
       }
 
+      /* --- Overrides for Print/PDF Template Elements --- */
+      /* Make the top rows (student details) behave like desktop */
       #resultPagePrint .row, #resultPagePDF .row {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
+        display: flex; /* Revert to flex */
+        flex-wrap: wrap; /* Allow wrapping on smaller screens if needed */
+        justify-content: space-between; /* Distribute space */
         gap: 15px;
         margin-top: 15px;
       }
-
+      /* Ensure text within these rows is also not centered if it was by default */
       #resultPagePrint .row p, #resultPagePDF .row p {
-        font-size: 0.9em;
-        margin: 0;
-        color: #555;
+          text-align: left; /* Or 'initial' if inherited differently */
       }
 
+
+      /* Table styles (can remain as they are for scrollability if needed, or adjust) */
       #resultPagePrint table, #resultPagePDF table {
         width: 100%;
         max-width: 100%;
@@ -343,7 +351,7 @@
       .summary-section td { width: 25%; }
     }
 
-    /* Responsive adjustments for smaller screens */
+    /* Responsive adjustments for smaller screens (applies to screen view, not print) */
     @media (max-width: 768px) {
       .page {
         margin: 10px;
@@ -356,16 +364,8 @@
       .logo { max-width: 150px; }
       .logo-line { margin: 10px 0 15px 0; }
 
-      .row {
-        flex-direction: column;
-        align-items: center;
-      }
-      .row p {
-        width: 100%;
-        text-align: center;
-        margin-bottom: 10px;
-      }
-
+      /* --- Mobile Specific Adjustments for Elements ABOVE table --- */
+      /* These elements will stack and center on mobile view */
       .result-header {
         flex-direction: column;
         align-items: center;
@@ -374,9 +374,24 @@
       .school-info { text-align: center; }
       .school-info h2 { font-size: 1.4em; }
 
-      .progress-title { text-align: center; font-size: 1.3em;}
+      .progress-title {
+        text-align: center; /* Center the title */
+        font-size: 1.3em;
+      }
 
-      table {
+      .row { /* Stack student details vertically on mobile */
+        flex-direction: column;
+        align-items: center;
+      }
+      .row p {
+        width: 100%;
+        text-align: center; /* Center text in detail paragraphs */
+        margin-bottom: 10px;
+      }
+      /* --- End Mobile Specific Adjustments --- */
+
+
+      table { /* Table itself remains scrollable on mobile */
         font-size: 1em;
         display: block;
         overflow-x: auto;
@@ -507,9 +522,8 @@
 </div>
 
 <!-- Hidden Template for Print/PDF -->
-<!-- This will be populated by JavaScript -->
 <div id="printPdfTemplate" style="display:none;">
-    <div id="resultPagePrint" class="page">
+    <div id="resultPagePrint" class="page"> <!-- The class "page" is important for styling -->
         <div class="result-header">
             <img src="" alt="Magawa Secondary School Logo" class="logo">
             <div class="school-info">
@@ -528,7 +542,7 @@
             <p><strong>Term:</strong> <span id="printPdfStudentTerm">Term 1</span></p>
         </div>
         <div id="printPdfResultsContainer"></div>
-        <!-- No buttons here, they are handled by the caller -->
+        <!-- No buttons here -->
     </div>
 </div>
 
@@ -706,16 +720,17 @@ function loadResults() {
 
 // --- Function to populate the hidden template ---
 function populatePrintPdfTemplate(studentData) {
-    // Clear existing content
+    // Populate the template elements
     document.getElementById('printPdfStudentName').textContent = studentData.name;
     document.getElementById('printPdfStudentID').textContent = studentData.id;
     document.getElementById('printPdfStudentForm').textContent = studentData.form;
     document.getElementById('printPdfStudentTerm').textContent = studentData.term;
     document.getElementById('printPdfResultsContainer').innerHTML = studentData.resultsHtml;
 
-    // Update logo source if it's different or needs to be explicitly set for template
-    // For simplicity, assuming it's handled by the main page's CSS, but you can add:
-    // document.querySelector('#printPdfTemplate .logo').src = document.querySelector('#resultPage .logo').src;
+    // Ensure the logo source is correctly set in the template if it's dynamic
+    // For a static logo, you can set it directly in the HTML.
+    // If dynamic, uncomment and adjust the line below:
+    // document.querySelector('#resultPagePrint .logo').src = document.querySelector('#resultPage .logo').src;
 }
 
 // --- PDF Download Functionality ---
@@ -736,7 +751,7 @@ function openPdfView() {
     // Populate the hidden template
     populatePrintPdfTemplate(studentData);
 
-    // Now, target the template's content for PDF generation
+    // Target the template's content for PDF generation
     const elementToConvert = document.getElementById('resultPagePrint');
 
     alert("Generating PDF. This might take a moment on mobile...");
@@ -745,11 +760,7 @@ function openPdfView() {
         scale: 1.5,
         useCORS: true,
         logging: false,
-        ignoreElements: (element) => {
-            // The template does NOT have the buttons, so no need to ignore anything specific here
-            // If buttons were in the template, we'd target them.
-            return false; // Render all elements in the template
-        }
+        // No 'ignoreElements' needed here because the template doesn't have buttons
     }).then(canvas => {
         const imgData = canvas.toDataURL('image/png', 0.8);
         const pdf = new window.jspdf.jsPDF({
@@ -804,12 +815,7 @@ function openPrintView() {
     populatePrintPdfTemplate(studentData);
 
     // Use the @media print styles defined in CSS
-    // The CSS ensures only #resultPagePrint is visible and formatted correctly.
     window.print();
-
-    // Optional: Clean up the template after printing (though it's hidden, good practice)
-    // You might also want to re-hide the template if it somehow became visible.
-    // document.getElementById('printPdfTemplate').style.display = 'none';
 }
 </script>
 </body>
