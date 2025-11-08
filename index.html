@@ -33,7 +33,7 @@
     #initialPage { display: block; text-align: center; }
 
     .logo {
-      max-width: 90px;
+      max-width: 95px;
       height: auto;
     }
 
@@ -168,9 +168,10 @@
 
 <!-- FRONT PAGE -->
 <div id="initialPage" class="page">
-  <img src="" alt="Magawa Secondary School Logo" class="logo">
-  <h1>MAGAWA SECONDARY SCHOOL</h1>
-  <h2>EXAM RESULTS PORTAL</h2>
+  <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
+
+  <h1>MAGAWA SECONDARY</h1>
+  <h2>STUDENTS PORTAL</h2>
 
   <label for="selectedForm">Select Class/Form</label>
   <select id="selectedForm">
@@ -191,7 +192,7 @@
 <!-- RESULTS PAGE -->
 <div id="resultPage" class="page">
   <div class="header-row">
-    <img src="" alt="School Logo" class="logo">
+    <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="School Logo" class="logo">
     <div class="header-text">
       <h2>MAGAWA SEC SCHOOL</h2>
       <p>Private Bag 17, Magawa, Mchinji</p>
@@ -209,14 +210,14 @@
 
   <div class="info-row">
     <p><strong>Class:</strong> <span id="studentForm"></span></p>
-    <p><strong>Term:</strong> <span id="studentTerm">Term 1</span></p>
+    <p><strong>Term:</strong> <span id="studentTerm">TERM 1</span></p>
   </div>
 
   <div id="resultsContainer"></div>
 
   <div class="actions">
     <button onclick="openPrintView()">Print</button>
-    <button onclick="openPdfView()">Download PDF</button>
+    <button onclick="openFullPdf()">Download PDF</button>
     <button onclick="backToInitialPage()">Back</button>
   </div>
 </div>
@@ -371,14 +372,16 @@ function loadResults() {
 
 function openPrintView() { window.print(); }
 
-function openPdfView() {
-  html2canvas(document.getElementById('resultPage')).then(canvas => {
+/* Full-page PDF export */
+function openFullPdf() {
+  const page = document.getElementById('resultPage');
+  html2canvas(page, { scale: 2 }).then(canvas => {
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
-    const imgData = canvas.toDataURL('image/png');
-    const width = pdf.internal.pageSize.getWidth();
-    const height = (canvas.height * width) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-    pdf.save('Results.pdf');
+    const imgData = canvas.toDataURL('image/png', 1.0);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('Magawa_Results.pdf');
   });
 }
 </script>
