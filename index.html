@@ -590,16 +590,11 @@ function getRemark(score) {
 function loadResults() {
   const form = document.getElementById("formSelect").value;
   const studentNumber = document.getElementById("studentNumber").value.trim().toUpperCase();
-  // Construct the URL for the CSV file. It's assumed to be in the main repository.
-  // **IMPORTANT**: Replace this with your actual CSV file location.
-  // For example, if your CSVs are hosted on a web server: `http://yourwebsite.com/data/${form}.csv`
-  // Or if they are in a specific GitHub repo: `https://raw.githubusercontent.com/yourusername/yourrepo/main/${form}.csv`
   const csvUrl = `https://raw.githubusercontent.com/magawass/ui/main/${form}.csv`; // *** Double check this URL ***
 
   fetch(csvUrl)
     .then(response => {
       if (!response.ok) {
-        // Handle common errors like 404 (file not found)
         if (response.status === 404) {
             throw new Error(`File not found at ${csvUrl}. Please ensure the CSV file exists and the path is correct.`);
         }
@@ -624,13 +619,11 @@ function loadResults() {
           document.getElementById("studentID").textContent = student["Exam Number"];
           document.getElementById("studentForm").textContent = form.toUpperCase();
 
-          // Remove previous summary if it exists
           const existingSummary = document.getElementById("summarySection");
           if (existingSummary) {
             existingSummary.remove();
           }
 
-          // Dynamically get subjects, excluding identifiers
           const subjects = Object.keys(student).filter(key =>
             !key.includes("Exam Number") && !key.includes("STUDENT'S NAME")
           );
@@ -646,7 +639,7 @@ function loadResults() {
                               </tr>
                             </thead>
                             <tbody>`;
-          let scoresForSummary = []; // To store numeric scores for calculation
+          let scoresForSummary = [];
 
           subjects.forEach(subject => {
             const score = parseFloat(student[subject]);
@@ -659,7 +652,7 @@ function loadResults() {
                             <td>${subject}</td>
                             <td>${isNaN(score) ? '-' : score}</td>
                             <td>${grade}</td>
-                            <td>-</td> <!-- Position is not available in this data -->
+                            <td>-</td> <!-- Position is not available -->
                             <td>${remark}</td>
                           </tr>`;
           });
@@ -671,7 +664,6 @@ function loadResults() {
           let aggregateScore = null;
           let overallRemark = "";
 
-          // Calculate Average for Form 1 & 2
           if (form === "form1" || form === "form2") {
             const numericScores = scoresForSummary.map(s => s.score);
             if (numericScores.length > 0) {
@@ -680,30 +672,23 @@ function loadResults() {
             overallRemark = getRemark(averageScore);
           }
 
-          // Calculate Aggregate for Form 3 & 4 (best 6 subjects including English if available)
           if (form === "form3" || form === "form4") {
             let scoresForAggregate = [...scoresForSummary];
             const englishScoreEntry = scoresForAggregate.find(s => s.subject === "ENGLISH");
-
-            // Ensure English is considered if it exists, even if not explicitly selected for summary
             if (!englishScoreEntry && student["ENGLISH"] !== undefined) {
                 const engScore = parseFloat(student["ENGLISH"]);
                 if (!isNaN(engScore)) {
                     scoresForAggregate.push({ subject: "ENGLISH", score: engScore });
                 }
             }
-
-            // Sort by score descending and take top 6
             scoresForAggregate.sort((a, b) => b.score - a.score);
             const bestSixScores = scoresForAggregate.slice(0, 6).map(s => s.score);
-
             if (bestSixScores.length > 0) {
               aggregateScore = bestSixScores.reduce((sum, score) => sum + score, 0);
             }
             overallRemark = getRemark(aggregateScore);
           }
 
-          // Create and append the summary section
           const summaryDiv = document.createElement('div');
           summaryDiv.id = 'summarySection';
           summaryDiv.innerHTML = `
@@ -717,7 +702,7 @@ function loadResults() {
                 </tr>
                 <tr>
                   <th>Position</th>
-                  <td>-</td> <!-- Position is not available -->
+                  <td>-</td>
                   <th>Remarks</th>
                   <td>${overallRemark}</td>
                 </tr>
@@ -726,7 +711,6 @@ function loadResults() {
           `;
           document.getElementById("resultsContainer").appendChild(summaryDiv);
 
-          // Transition to the results page
           document.getElementById("examPage").style.display = "none";
           document.getElementById("resultPage").style.display = "block";
         }
@@ -738,48 +722,63 @@ function loadResults() {
     });
 }
 
-
-// --- PDF Download Functionality ---
+// --- Enhanced PDF Download Functionality for Mobile ---
 function downloadAsPDF() {
-    // Get the element to be converted to PDF
     const elementToConvert = document.getElementById('resultPage');
     const studentName = document.getElementById('studentName').textContent || 'student';
     const studentID = document.getElementById('studentID').textContent || 'exam_number';
+    const fileName = `${studentName.replace(/\s+/g, '_')}_${studentID}_results.pdf`; // Sanitize filename
 
-    // Use html2canvas to capture the element as an image
+    // Show a loading indicator or message
+    alert("Generating PDF. This might take a moment on mobile...");
+
     html2canvas(elementToConvert, {
-        scale: 2, // Increase scale for better resolution
-        useCORS: true, // If you have external images, this might help
-        logging: false // Disable logging to console
+        scale: 1.5, // Slightly reduced scale for potentially faster generation and smaller file size on mobile
+        useCORS: true,
+        logging: false
     }).then(canvas => {
-        // Get the image data as a PNG
-        const imgData = canvas.toDataURL('image/png');
+        const imgData = canvas.toDataURL('image/png', 0.8); // Reduce image quality slightly for smaller file size
+
         const pdf = new window.jspdf.jsPDF({
             orientation: 'portrait',
             unit: 'mm',
             format: 'a4'
         });
 
-        // Calculate PDF dimensions and image placement
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
         const imgWidth = canvas.width;
         const imgHeight = canvas.height;
 
-        // Calculate aspect ratio to fit image within PDF
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-
-        // Add image to PDF
-        // The coordinates (0, 0) are for the top-left corner of the PDF.
-        // We adjust it by 10mm margin on all sides for a better look.
+        // Calculate aspect ratio to fit image within PDF, adding margins
         const margin = 10; // mm
-        pdf.addImage(imgData, 'PNG', margin, margin, imgWidth * ratio, imgHeight * ratio);
+        const availableWidth = pdfWidth - 2 * margin;
+        const availableHeight = pdfHeight - 2 * margin;
 
-        // Save the PDF
-        pdf.save(`${studentName}_${studentID}_results.pdf`);
+        const ratio = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
+
+        const finalImgWidth = imgWidth * ratio;
+        const finalImgHeight = imgHeight * ratio;
+
+        // Center the image on the page if it doesn't fill it completely
+        const startX = (pdfWidth - finalImgWidth) / 2;
+        const startY = (pdfHeight - finalImgHeight) / 2;
+
+        pdf.addImage(imgData, 'PNG', startX, startY, finalImgWidth, finalImgHeight);
+
+        try {
+            // Attempt to save the PDF
+            pdf.save(fileName);
+            // Optionally, provide a success message after save is initiated
+            // alert("PDF download should have started!");
+        } catch (e) {
+            console.error("Error saving PDF:", e);
+            alert("Could not automatically download PDF. Please try printing instead or check browser settings.");
+        }
+
     }).catch(err => {
-        console.error("Error generating PDF:", err);
-        alert("Failed to generate PDF. Please try again.");
+        console.error("Error generating PDF image:", err);
+        alert("Failed to capture the results for PDF generation. Please try again or use the print option.");
     });
 }
 </script>
