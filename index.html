@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Magawa Secondary Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Essential for mobile responsiveness -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     /* Universal Box Sizing */
@@ -14,6 +15,9 @@
       margin: 0;
       padding: 0;
       line-height: 1.6; /* Increased line height for better readability */
+      display: flex; /* Use flexbox for overall page layout if needed */
+      justify-content: center; /* Center content if body is narrower than viewport */
+      min-height: 100vh; /* Ensure body takes at least full viewport height */
     }
 
     .page {
@@ -24,7 +28,7 @@
       padding: 25px; /* Increased padding */
       background: white;
       border-radius: 12px; /* Slightly larger border radius */
-      overflow-wrap: break-word;
+      overflow-wrap: break-word; /* Ensure text wraps */
       box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Added subtle shadow */
     }
 
@@ -99,7 +103,7 @@
       margin: 25px auto; /* Increased margin */
       font-size: 1.1em; /* Increased font size for tables */
       overflow-x: auto; /* For horizontal scroll on smaller screens if needed */
-      display: table;
+      display: table; /* Default to table display */
     }
 
     th, td {
@@ -424,6 +428,7 @@
 
       label { font-size: 0.95em; }
     }
+
   </style>
 </head>
 <body>
@@ -581,11 +586,18 @@ function loadResults() {
   const form = document.getElementById("formSelect").value;
   const studentNumber = document.getElementById("studentNumber").value.trim().toUpperCase();
   // Construct the URL for the CSV file. It's assumed to be in the main repository.
-  const csvUrl = `https://raw.githubusercontent.com/magawass/ui/main/${form}.csv`;
+  // **IMPORTANT**: Replace this with your actual CSV file location.
+  // For example, if your CSVs are hosted on a web server: `http://yourwebsite.com/data/${form}.csv`
+  // Or if they are in a specific GitHub repo: `https://raw.githubusercontent.com/yourusername/yourrepo/main/${form}.csv`
+  const csvUrl = `https://raw.githubusercontent.com/magawass/ui/main/${form}.csv`; // *** Double check this URL ***
 
   fetch(csvUrl)
     .then(response => {
       if (!response.ok) {
+        // Handle common errors like 404 (file not found)
+        if (response.status === 404) {
+            throw new Error(`File not found at ${csvUrl}. Please ensure the CSV file exists and the path is correct.`);
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       return response.text();
@@ -717,7 +729,7 @@ function loadResults() {
     })
     .catch(error => {
       console.error("Error loading or parsing CSV:", error);
-      alert("Failed to load results. Please check the exam number or try again later.");
+      alert("Failed to load results. " + error.message + " Please check the exam number or try again later.");
     });
 }
 
