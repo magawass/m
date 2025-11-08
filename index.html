@@ -9,506 +9,204 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
-    /* Universal Box Sizing */
-    * { box-sizing: border-box; }
-
     body {
       background-color: #d0e7ff;
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      line-height: 1.6;
       display: flex;
       justify-content: center;
+      align-items: center;
       min-height: 100vh;
     }
 
     .page {
       display: none;
       width: 100%;
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 25px;
+      max-width: 650px;
+      padding: 30px;
       background: white;
       border-radius: 12px;
-      overflow-wrap: break-word;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
-    #classPage { display: block; text-align: center; }
+    #initialPage { display: block; text-align: center; }
 
     .logo {
-      width: 100%;
-      max-width: 180px;
+      max-width: 100px;
       height: auto;
-      margin: 20px auto;
+    }
+
+    h1 { color: #004080; margin-bottom: 5px; }
+    h2 { color: #004080; margin-top: 0; }
+
+    label {
       display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #333;
     }
 
-    .logo-line {
+    select, input {
+      width: 90%;
+      padding: 12px;
+      margin-top: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    button {
+      width: 90%;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
       border: none;
-      border-top: 3px solid #004080;
-      margin: 15px 0 25px 0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1em;
+      transition: background-color 0.3s ease;
     }
 
-    h1, h2, h3 {
-      color: #004080;
-    }
+    button:hover { background-color: #0056b3; }
 
-    h1 { font-size: 2.2em; }
-    h2 { font-size: 1.8em; margin-bottom: 15px;}
-    h3 { font-size: 1.4em; }
-
-    /* --- Default styles (Mobile-First) for elements ABOVE table --- */
-    .result-header {
+    /* Result Page Layout */
+    .header-row {
       display: flex;
-      flex-direction: column; /* Stack by default for mobile */
-      align-items: center;    /* Center align by default */
-      gap: 15px;
-      margin-bottom: 20px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
     }
 
-    .school-info {
-      text-align: center; /* Center school info by default */
-    }
-
-    .school-info h2 {
+    .header-row h2 {
       margin: 0;
-      font-size: 1.6em;
-    }
-
-    .school-info p {
-      font-size: 0.9em;
-      margin: 0;
-      color: #555;
+      color: #004080;
+      font-size: 1.5em;
+      text-align: right;
     }
 
     .progress-title {
-      font-family: 'Agency FB', sans-serif;
-      margin-top: 25px;
-      text-align: center; /* Center title by default */
-      font-size: 1.5em;
+      font-family: "Agency FB", sans-serif;
+      font-size: 1.2em;  /* Smaller than school name */
+      color: #000;
+      margin: 10px 0 20px 0;
+      text-align: left;
     }
 
-    .row { /* For student name/form details */
+    .info-row {
       display: flex;
-      flex-direction: column; /* Stack details by default for mobile */
-      align-items: center;    /* Center align by default */
-      gap: 15px;
-      margin-top: 15px;
+      justify-content: space-between;
+      font-size: 1.05em;
+      margin-bottom: 6px;
     }
 
-    .row p { /* Individual detail paragraphs */
-      width: 100%;
-      text-align: center; /* Center text in detail paragraphs by default */
-      margin-bottom: 10px;
-    }
-
-    /* --- Styles for the TABLE and BELOW --- */
     table {
       width: 100%;
-      max-width: 100%;
       border-collapse: collapse;
-      margin: 25px auto;
-      font-size: 1.1em;
-      overflow-x: auto; /* Enable horizontal scroll for tables on small screens */
-      display: table;
+      margin-top: 15px;
     }
 
     th, td {
       border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-      word-wrap: break-word;
+      padding: 8px;
+      font-size: 1em;
     }
 
     th {
       background-color: #e9ecef;
-      font-weight: bold;
-    }
-
-    td {
-      background-color: #ffffff;
-    }
-
-    .actions {
-      margin-top: 30px;
       text-align: center;
     }
 
-    .actions button, button {
-      display: inline-block;
-      width: auto;
-      max-width: 300px;
-      margin: 8px auto;
-      padding: 12px 20px;
-      font-size: 1.1em;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      text-decoration: none;
-      white-space: nowrap;
-    }
+    td:first-child { text-align: left; }
+    td:not(:first-child) { text-align: center; }
 
-    .actions button:hover, button:hover {
-      background-color: #0056b3;
-    }
-
-    input, select {
-      width: calc(100% - 24px);
-      max-width: 300px;
-      margin: 12px auto;
-      padding: 12px 15px;
-      font-size: 1.1em;
-      display: block;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-
-    label {
-      font-size: 1.1em;
-      margin-bottom: 8px;
-      display: block;
-      text-align: left;
-      max-width: 300px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    #classPage label, #examPage label {
-        text-align: center;
-        margin-left: auto;
-        margin-right: auto;
+    .summary-section {
+      margin-top: 20px;
     }
 
     .summary-section table {
-      margin-top: 15px;
-      background-color: #f8f9fa;
-      border-collapse: collapse;
       width: 100%;
-      font-size: 1em;
+      border: 1px solid #ccc;
     }
 
-    .summary-section th,
-    .summary-section td {
-      border: 1px solid #dee2e6;
+    .summary-section th, .summary-section td {
+      border: 1px solid #ccc;
       padding: 10px;
       text-align: center;
     }
 
-    .summary-section th {
-      background-color: #e9ecef;
-      width: 25%;
+    .actions {
+      margin-top: 25px;
+      text-align: center;
     }
 
-    .summary-section td {
-      width: 25%;
-    }
-
-    /* --- PRINT STYLES --- */
-    @page {
-      size: A4 portrait;
-      margin: 0;
-    }
-
-    @media print {
-      body {
-        background: white;
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        color: #000;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-
-      .page {
-        display: none; /* Hide all pages by default */
-      }
-
-      #resultPagePrint, #resultPagePDF { /* Styles for the specific printable/PDF versions */
-        display: block !important; /* Ensure they are visible */
-        width: 210mm; /* Standard A4 width */
-        min-height: 297mm; /* Standard A4 height */
-        margin: 0 auto;
-        padding: 15mm;
-        box-shadow: none;
-        border-radius: 0;
-        page-break-after: avoid;
-        position: absolute;
-        top: 0;
-        left: 0;
-        background-color: white;
-        overflow: visible;
-      }
-
-      /* Hide elements not meant for printing directly from the main page */
-      .actions, #classPage, #adminPage {
-        display: none !important;
-      }
-
-      /* --- Styles for PRINT/PDF TEMPLATE ELEMENTS (Desktop-like layout) --- */
-      #resultPagePrint .logo, #resultPagePDF .logo {
-        width: auto;
-        max-width: 160px;
-        margin: 0;
-        display: block;
-      }
-
-      #resultPagePrint .result-header, #resultPagePDF .result-header {
-        display: flex; /* Desktop layout */
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-      }
-
-      #resultPagePrint .school-info, #resultPagePDF .school-info {
-        text-align: right; /* Desktop alignment */
-        flex: 1;
-      }
-
-      #resultPagePrint .logo-line, #resultPagePDF .logo-line {
-        border: none;
-        border-top: 3px solid #004080;
-        margin: 15px 0 25px 0;
-      }
-
-      #resultPagePrint h1, #resultPagePDF h1,
-      #resultPagePrint h2, #resultPagePDF h2,
-      #resultPagePrint h3, #resultPagePDF h3 {
-        color: #004080;
-      }
-
-      #resultPagePrint h1, #resultPagePDF h1 { font-size: 2.2em; }
-      #resultPagePrint h2, #resultPagePDF h2 { font-size: 1.8em; margin-bottom: 15px;}
-      #resultPagePrint h3, #resultPagePDF h3 { font-size: 1.4em; }
-
-      #resultPagePrint .progress-title, #resultPagePDF .progress-title {
-        font-family: 'Agency FB', sans-serif;
-        margin-top: 25px;
-        text-align: left; /* Desktop alignment */
-        font-size: 1.5em;
-      }
-
-      #resultPagePrint .row, #resultPagePDF .row {
-        display: flex; /* Desktop layout */
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 15px;
-        margin-top: 15px;
-      }
-
-      #resultPagePrint .row p, #resultPagePDF .row p {
-        font-size: 0.9em;
-        margin: 0;
-        color: #555;
-        text-align: left; /* Desktop alignment */
-      }
-
-      #resultPagePrint table, #resultPagePDF table {
-        width: 100%;
-        max-width: 100%;
-        border-collapse: collapse;
-        margin: 25px auto;
-        font-size: 1.1em;
-        page-break-inside: avoid;
-      }
-
-      #resultPagePrint th, #resultPagePDF th,
-      #resultPagePrint td, #resultPagePDF td {
-        border: 1px solid #ccc;
-        padding: 10px;
-        text-align: left;
-        word-wrap: break-word;
-      }
-
-      #resultPagePrint th, #resultPagePDF th {
-        background-color: #e9ecef;
-        font-weight: bold;
-      }
-
-      .summary-section table {
-        margin-top: 15px;
-        background-color: #f8f9fa;
-        font-size: 1em;
-      }
-
-      .summary-section th,
-      .summary-section td {
-        border: 1px solid #dee2e6;
-        padding: 10px;
-        text-align: center;
-      }
-
-      .summary-section th { width: 25%; }
-      .summary-section td { width: 25%; }
-    }
-
-    /* --- Responsive adjustments for LARGER screens (Desktop-like layout for top elements) --- */
-    @media (min-width: 768px) {
-      /* Revert .result-header, .row, and .progress-title to desktop layout */
-      .result-header {
-        flex-direction: row; /* Side-by-side */
-        justify-content: space-between; /* Distribute space */
-        align-items: center;
-        text-align: initial; /* Use default text-align */
-      }
-      .school-info {
-        text-align: right; /* Right-align school info */
-      }
-      .progress-title {
-        text-align: left; /* Left-align title */
-      }
-      .row {
-        flex-direction: row; /* Side-by-side */
-        justify-content: space-between;
-        align-items: flex-start; /* Align items at the top */
-        text-align: initial;
-      }
-      .row p {
-        width: auto; /* Allow paragraphs to size to content */
-        text-align: left; /* Left-align text in paragraphs */
-        margin-bottom: 0; /* Remove bottom margin when side-by-side */
-      }
-    }
-
-    /* --- Smaller Mobile adjustments (if needed, can override larger screen styles) --- */
-    @media (max-width: 767px) { /* This will handle devices smaller than 768px */
-      /* Default mobile-first styles for these elements will apply here */
-      /* If you need any further adjustments for very small screens, add them here */
-      .page {
-        margin: 10px;
-        padding: 20px;
-      }
-      h1 { font-size: 1.8em; }
-      h2 { font-size: 1.5em; }
-      h3 { font-size: 1.2em; }
-
-      .logo { max-width: 150px; }
-      .logo-line { margin: 10px 0 15px 0; }
-
-      /* Table remains scrollable */
-      table {
-        font-size: 1em;
-        display: block;
-        overflow-x: auto;
-      }
-      th, td { padding: 8px; }
-
-      .actions button, button {
-        width: 90%;
-        max-width: 300px;
-        margin: 6px auto;
-        padding: 10px 15px;
-        font-size: 1em;
-      }
-
-      input, select {
-        width: calc(100% - 24px);
-        max-width: 300px;
-        margin: 10px auto;
-        padding: 10px 12px;
-        font-size: 1em;
-      }
-
-      label {
-        font-size: 1em;
-        max-width: 300px;
-      }
-
-      .summary-section table { font-size: 0.95em; }
-      .summary-section th, .summary-section td { padding: 8px; }
-    }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 1.6em; }
-      h2 { font-size: 1.3em; }
-      h3 { font-size: 1.1em; }
-
-      .logo { max-width: 120px; }
-      .page { padding: 15px; }
-
-      .actions button, button {
-        width: 95%;
-        font-size: 0.95em;
-        padding: 8px 12px;
-      }
-
-      input, select {
-        font-size: 0.95em;
-        padding: 8px 10px;
-      }
-
-      label { font-size: 0.95em; }
+    .actions button {
+      width: 45%;
+      margin: 8px 5px;
     }
   </style>
 </head>
 <body>
 
-<!-- Main Application Pages -->
-<div id="classPage" class="page">
+<!-- FRONT PAGE -->
+<div id="initialPage" class="page">
   <img src="" alt="Magawa Secondary School Logo" class="logo">
-  <hr class="logo-line">
   <h1>MAGAWA SECONDARY SCHOOL</h1>
-  <h2>EXAM PORTAL</h2>
-  <label for="formSelect">Select Class:</label>
-  <select id="formSelect">
+  <h2>EXAM RESULTS PORTAL</h2>
+
+  <label for="selectedForm">Select Class/Form</label>
+  <select id="selectedForm">
+    <option value="">-- Select Class --</option>
     <option value="form1">Form 1</option>
     <option value="form2">Form 2</option>
     <option value="form3">Form 3</option>
     <option value="form4">Form 4</option>
   </select>
-  <button onclick="goToExamPage()">View Results</button>
+
+  <label for="studentNumberInput">Enter Exam Number</label>
+  <input type="text" id="studentNumberInput" placeholder="e.g. STU001">
+
+  <button onclick="loadResults()">View Results</button>
+  <button onclick="openAdmin()">Admin</button>
 </div>
 
-<div id="examPage" class="page">
-  <label for="studentNumber">Enter Exam Number:</label>
-  <input type="text" id="studentNumber" placeholder="e.g. STU001" required>
-  <button onclick="loadResults()">View</button>
-  <button onclick="goBackToClass()">Back</button>
-</div>
-
+<!-- RESULTS PAGE -->
 <div id="resultPage" class="page">
-  <div class="result-header">
-    <img src="" alt="Magawa Secondary School Logo" class="logo">
-    <div class="school-info">
-      <h2>MAGAWA SECONDARY SCHOOL</h2>
-      <p>Private Bag 17, Magawa, Mchinji</p>
-    </div>
+  <div class="header-row">
+    <img src="" alt="School Logo" class="logo">
+    <h2>MAGAWA SECONDARY SCHOOL</h2>
   </div>
-  <hr class="logo-line">
-  <h3 class="progress-title">PROGRESS OF RESULTS</h3>
-  <div class="row">
+
+  <div class="progress-title">PROGRESS OF RESULTS</div>
+
+  <div class="info-row">
     <p><strong>Student Name:</strong> <span id="studentName"></span></p>
     <p><strong>Exam Number:</strong> <span id="studentID"></span></p>
   </div>
-  <div class="row">
-    <p><strong>Form:</strong> <span id="studentForm"></span></p>
+
+  <div class="info-row">
+    <p><strong>Class:</strong> <span id="studentForm"></span></p>
     <p><strong>Term:</strong> <span id="studentTerm">Term 1</span></p>
   </div>
+
   <div id="resultsContainer"></div>
+
   <div class="actions">
     <button onclick="openPrintView()">Print</button>
     <button onclick="openPdfView()">Download PDF</button>
-    <button onclick="goBackToExam()">Back</button>
-    <button onclick="goToAdmin()">Admin</button>
+    <button onclick="backToInitialPage()">Back</button>
   </div>
 </div>
 
-<div id="adminPage" class="page">
+<!-- ADMIN PAGE -->
+<div id="adminPage" class="page" style="text-align:center;">
   <h2>Admin Login</h2>
-  <label for="adminPassword">Enter Password:</label>
-  <input type="password" id="adminPassword" placeholder="Admin Password">
+  <input type="password" id="adminPassword" placeholder="Enter Password">
   <button onclick="verifyAdmin()">Login</button>
-  <button onclick="goBackToResults()">Back</button>
-  <div id="adminPanel" style="display:none; margin-top:20px;">
-    <h3>File Management</h3>
+  <button onclick="backToInitialPage()">Back</button>
+  <div id="adminPanel" style="display:none;margin-top:20px;">
+    <h3>Manage CSV Files</h3>
     <label for="classDropdown">Select Class:</label>
     <select id="classDropdown">
       <option value="">--Select Class--</option>
@@ -524,83 +222,44 @@
   </div>
 </div>
 
-<!-- Hidden Template for Print/PDF -->
-<div id="printPdfTemplate" style="display:none;">
-    <div id="resultPagePrint" class="page">
-        <div class="result-header">
-            <img src="" alt="Magawa Secondary School Logo" class="logo">
-            <div class="school-info">
-                <h2>MAGAWA SECONDARY SCHOOL</h2>
-                <p>Private Bag 17, Magawa, Mchinji</p>
-            </div>
-        </div>
-        <hr class="logo-line">
-        <h3 class="progress-title">PROGRESS OF RESULTS</h3>
-        <div class="row">
-            <p><strong>Student Name:</strong> <span id="printPdfStudentName"></span></p>
-            <p><strong>Exam Number:</strong> <span id="printPdfStudentID"></span></p>
-        </div>
-        <div class="row">
-            <p><strong>Form:</strong> <span id="printPdfStudentForm"></span></p>
-            <p><strong>Term:</strong> <span id="printPdfStudentTerm">Term 1</span></p>
-        </div>
-        <div id="printPdfResultsContainer"></div>
-    </div>
-</div>
-
 <script>
-// --- Page Navigation Functions ---
-function goToExamPage() {
-  document.getElementById("classPage").style.display = "none";
-  document.getElementById("examPage").style.display = "block";
-}
-function goBackToClass() {
-  document.getElementById("examPage").style.display = "none";
-  document.getElementById("classPage").style.display = "block";
-}
-function goBackToExam() {
-  document.getElementById("resultPage").style.display = "none";
-  document.getElementById("examPage").style.display = "block";
-}
-function goToAdmin() {
-  document.getElementById("resultPage").style.display = "none";
+let currentForm = '';
+
+function openAdmin() {
+  document.getElementById("initialPage").style.display = "none";
   document.getElementById("adminPage").style.display = "block";
 }
-function goBackToResults() {
-  document.getElementById("adminPage").style.display = "none";
-  document.getElementById("resultPage").style.display = "block";
+
+function backToInitialPage() {
+  document.querySelectorAll('.page').forEach(p => p.style.display = "none");
+  document.getElementById("initialPage").style.display = "block";
+  document.getElementById('selectedForm').value = '';
+  document.getElementById('studentNumberInput').value = '';
 }
 
-// --- Admin Functions ---
 function verifyAdmin() {
-  const password = document.getElementById("adminPassword").value;
-  if (password === "magawa123") { // Replace with a more secure authentication method in production
+  const pass = document.getElementById("adminPassword").value;
+  if (pass === "magawa123") {
     document.getElementById("adminPanel").style.display = "block";
   } else {
-    alert("Incorrect password.");
+    alert("Incorrect password");
   }
-}
-function uploadCSV() {
-  const fileInput = document.getElementById("csvUpload");
-  const file = fileInput.files[0];
-  const selectedClass = document.getElementById("classDropdown").value;
-  if (!file || !selectedClass) {
-    alert("Please select a class and a CSV file.");
-    return;
-  }
-  alert(`Simulated upload of ${file.name} for ${selectedClass}.`);
-}
-function deleteCSV() {
-  const filename = document.getElementById("deleteFilename").value.trim();
-  const selectedClass = document.getElementById("classDropdown").value;
-  if (!filename || !selectedClass) {
-    alert("Please enter a filename and select a class.");
-    return;
-  }
-  alert(`Simulated deletion of ${filename} from ${selectedClass}.`);
 }
 
-// --- Result Processing Functions ---
+function uploadCSV() {
+  const file = document.getElementById("csvUpload").files[0];
+  const selected = document.getElementById("classDropdown").value;
+  if (!file || !selected) return alert("Select class and file first");
+  alert(`Simulated upload of ${file.name} for ${selected}`);
+}
+
+function deleteCSV() {
+  const file = document.getElementById("deleteFilename").value;
+  const selected = document.getElementById("classDropdown").value;
+  if (!file || !selected) return alert("Select class and filename first");
+  alert(`Simulated deletion of ${file} for ${selected}`);
+}
+
 function getGrade(score) {
   score = parseFloat(score);
   if (isNaN(score)) return "-";
@@ -610,6 +269,7 @@ function getGrade(score) {
   if (score >= 40) return "D";
   return "F";
 }
+
 function getRemark(score) {
   score = parseFloat(score);
   if (isNaN(score)) return "-";
@@ -619,206 +279,85 @@ function getRemark(score) {
   if (score >= 40) return "Pass";
   return "Fail";
 }
+
 function loadResults() {
-  const form = document.getElementById("formSelect").value;
-  const studentNumber = document.getElementById("studentNumber").value.trim().toUpperCase();
-  const csvUrl = `https://raw.githubusercontent.com/magawass/ui/main/${form}.csv`; // *** Double check this URL ***
+  const selectedForm = document.getElementById("selectedForm").value;
+  const studentNumber = document.getElementById("studentNumberInput").value.trim().toUpperCase();
+  if (!selectedForm || !studentNumber) return alert("Please select a class and enter exam number.");
+
+  currentForm = selectedForm;
+  const csvUrl = `https://raw.githubusercontent.com/magawass/ui/main/${currentForm}.csv`;
 
   fetch(csvUrl)
-    .then(response => {
-      if (!response.ok) {
-        if (response.status === 404) throw new Error(`File not found at ${csvUrl}. Please ensure the CSV file exists and the path is correct.`);
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.text();
-    })
+    .then(r => r.text())
     .then(csvText => {
       Papa.parse(csvText, {
         header: true,
         skipEmptyLines: true,
-        complete: function(results) {
-          const data = results.data;
+        complete: res => {
+          const data = res.data;
           const student = data.find(s => s["Exam Number"] === studentNumber);
+          if (!student) return alert("No results found for " + studentNumber);
 
-          if (!student) {
-            alert("No results found for exam number: " + studentNumber);
-            return;
-          }
-
-          // Populate current resultPage
           document.getElementById("studentName").textContent = student["STUDENT'S NAME"];
-          document.getElementById("studentID").textContent = student["Exam Number"];
-          document.getElementById("studentForm").textContent = form.toUpperCase();
+          document.getElementById("studentID").textContent = studentNumber;
+          document.getElementById("studentForm").textContent = currentForm.toUpperCase();
 
-          const existingSummary = document.getElementById("summarySection");
-          if (existingSummary) existingSummary.remove();
-
-          const subjects = Object.keys(student).filter(key => !key.includes("Exam Number") && !key.includes("STUDENT'S NAME"));
-
+          const subjects = Object.keys(student).filter(k => !k.includes("Exam Number") && !k.includes("STUDENT'S NAME"));
           let tableHtml = `<table><thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Position</th><th>Remarks</th></tr></thead><tbody>`;
-          let scoresForSummary = [];
-
-          subjects.forEach(subject => {
-            const score = parseFloat(student[subject]);
-            if (!isNaN(score)) scoresForSummary.push({ subject, score });
-            const grade = getGrade(score);
-            const remark = getRemark(score);
-            tableHtml += `<tr><td>${subject}</td><td>${isNaN(score) ? '-' : score}</td><td>${grade}</td><td>-</td><td>${remark}</td></tr>`;
+          let scores = [];
+          subjects.forEach(sub => {
+            const score = parseFloat(student[sub]);
+            if (!isNaN(score)) scores.push(score);
+            tableHtml += `<tr><td>${sub}</td><td>${isNaN(score)?'-':score}</td><td>${getGrade(score)}</td><td>-</td><td>${getRemark(score)}</td></tr>`;
           });
           tableHtml += `</tbody></table>`;
           document.getElementById("resultsContainer").innerHTML = tableHtml;
 
-          let averageScore = null, aggregateScore = null, overallRemark = "";
-          if (form === "form1" || form === "form2") {
-            const numericScores = scoresForSummary.map(s => s.score);
-            if (numericScores.length > 0) averageScore = numericScores.reduce((sum, score) => sum + score, 0) / numericScores.length;
-            overallRemark = getRemark(averageScore);
-          }
-          if (form === "form3" || form === "form4") {
-            let scoresForAggregate = [...scoresForSummary];
-            const englishScoreEntry = scoresForAggregate.find(s => s.subject === "ENGLISH");
-            if (!englishScoreEntry && student["ENGLISH"] !== undefined) {
-                const engScore = parseFloat(student["ENGLISH"]);
-                if (!isNaN(engScore)) scoresForAggregate.push({ subject: "ENGLISH", score: engScore });
+          let average = "-", aggregate = "-", remark = "-";
+          if (["form1","form2"].includes(currentForm)) {
+            if (scores.length) {
+              const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
+              average = avg.toFixed(2);
+              remark = getRemark(avg);
             }
-            scoresForAggregate.sort((a, b) => b.score - a.score);
-            const bestSixScores = scoresForAggregate.slice(0, 6).map(s => s.score);
-            if (bestSixScores.length > 0) aggregateScore = bestSixScores.reduce((sum, score) => sum + score, 0);
-            overallRemark = getRemark(aggregateScore);
+          } else {
+            if (scores.length >= 6) {
+              const bestSix = scores.sort((a,b)=>b-a).slice(0,6);
+              const total = bestSix.reduce((a,b)=>a+b,0);
+              aggregate = total;
+              remark = getRemark(total/6);
+            }
           }
 
-          const summaryDiv = document.createElement('div');
-          summaryDiv.id = 'summarySection';
-          summaryDiv.innerHTML = `
+          const summary = `
             <div class="summary-section">
               <table>
-                <tr>
-                  <th>Average</th>
-                  <td>${(form === "form1" || form === "form2") ? (averageScore !== null ? averageScore.toFixed(2) : '-') : '-'}</td>
-                  <th>Aggregate</th>
-                  <td>${(form === "form3" || form === "form4") ? (aggregateScore !== null ? aggregateScore : '-') : '-'}</td>
-                </tr>
-                <tr>
-                  <th>Position</th>
-                  <td>-</td>
-                  <th>Remarks</th>
-                  <td>${overallRemark}</td>
-                </tr>
+                <tr><th>Average</th><td>${average}</td><th>Aggregate</th><td>${aggregate}</td></tr>
+                <tr><th>Position</th><td>-</td><th>Remarks</th><td>${remark}</td></tr>
               </table>
-            </div>
-          `;
-          document.getElementById("resultsContainer").appendChild(summaryDiv);
+            </div>`;
+          document.getElementById("resultsContainer").innerHTML += summary;
 
-          document.getElementById("examPage").style.display = "none";
+          document.getElementById("initialPage").style.display = "none";
           document.getElementById("resultPage").style.display = "block";
         }
       });
     })
-    .catch(error => {
-      console.error("Error loading or parsing CSV:", error);
-      alert("Failed to load results. " + error.message + " Please check the exam number or try again later.");
-    });
+    .catch(() => alert("Error loading results."));
 }
 
-// --- Function to populate the hidden template ---
-function populatePrintPdfTemplate(studentData) {
-    // Populate the template elements
-    document.getElementById('printPdfStudentName').textContent = studentData.name;
-    document.getElementById('printPdfStudentID').textContent = studentData.id;
-    document.getElementById('printPdfStudentForm').textContent = studentData.form;
-    document.getElementById('printPdfStudentTerm').textContent = studentData.term;
-    document.getElementById('printPdfResultsContainer').innerHTML = studentData.resultsHtml;
+function openPrintView() { window.print(); }
 
-    // Ensure the logo source is correctly set in the template if it's dynamic
-    // If your logo path is dynamic or you have different logos, uncomment and adjust:
-    // const logoImg = document.querySelector('#resultPagePrint .logo');
-    // if (logoImg) {
-    //     logoImg.src = document.querySelector('#resultPage .logo').src;
-    // }
-}
-
-// --- PDF Download Functionality ---
 function openPdfView() {
-    const studentName = document.getElementById('studentName').textContent || 'student';
-    const studentID = document.getElementById('studentID').textContent || 'exam_number';
-    const fileName = `${studentName.replace(/\s+/g, '_')}_${studentID}_results.pdf`;
-
-    // Get data from the current result page
-    const studentData = {
-        name: studentName,
-        id: studentID,
-        form: document.getElementById('studentForm').textContent,
-        term: document.getElementById('studentTerm').textContent,
-        resultsHtml: document.getElementById('resultsContainer').innerHTML
-    };
-
-    // Populate the hidden template
-    populatePrintPdfTemplate(studentData);
-
-    // Target the template's content for PDF generation
-    const elementToConvert = document.getElementById('resultPagePrint');
-
-    alert("Generating PDF. This might take a moment on mobile...");
-
-    html2canvas(elementToConvert, {
-        scale: 1.5,
-        useCORS: true,
-        logging: false,
-    }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png', 0.8);
-        const pdf = new window.jspdf.jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
-
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-
-        const margin = 10; // mm
-        const availableWidth = pdfWidth - 2 * margin;
-        const availableHeight = pdfHeight - 2 * margin;
-        const ratio = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
-        const finalImgWidth = imgWidth * ratio;
-        const finalImgHeight = imgHeight * ratio;
-        const startX = (pdfWidth - finalImgWidth) / 2;
-        const startY = (pdfHeight - finalImgHeight) / 2;
-
-        pdf.addImage(imgData, 'PNG', startX, startY, finalImgWidth, finalImgHeight);
-
-        try {
-            pdf.save(fileName);
-        } catch (e) {
-            console.error("Error saving PDF:", e);
-            alert("Could not automatically download PDF. Please try printing instead or check browser settings.");
-        }
-    }).catch(err => {
-        console.error("Error generating PDF image:", err);
-        alert("Failed to capture the results for PDF generation. Please try again or use the print option.");
-    });
-}
-
-// --- Print Functionality ---
-function openPrintView() {
-    const studentName = document.getElementById('studentName').textContent || 'student';
-    const studentID = document.getElementById('studentID').textContent || 'exam_number';
-
-    // Get data from the current result page
-    const studentData = {
-        name: studentName,
-        id: studentID,
-        form: document.getElementById('studentForm').textContent,
-        term: document.getElementById('studentTerm').textContent,
-        resultsHtml: document.getElementById('resultsContainer').innerHTML
-    };
-
-    // Populate the hidden template
-    populatePrintPdfTemplate(studentData);
-
-    // Use the @media print styles defined in CSS
-    window.print();
+  html2canvas(document.getElementById('resultPage')).then(canvas => {
+    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/png');
+    const width = pdf.internal.pageSize.getWidth();
+    const height = (canvas.height * width) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+    pdf.save('Results.pdf');
+  });
 }
 </script>
 </body>
