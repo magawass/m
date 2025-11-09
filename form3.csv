@@ -1,0 +1,8 @@
+Student Name,Exam Number,Subject,Score,Grade,Position,Remarks,Teacher
+Kelvin Banda,MS301,Chemistry,85,A,1,Excellent,Mr. Mvula
+Kelvin Banda,MS301,Physics,82,A,2,Excellent,Mr. Chirwa
+Kelvin Banda,MS301,Mathematics,88,A,1,Excellent,Mr. Zulu
+Tina Mbewe,MS302,Chemistry,70,B,4,Good,Mr. Mvula
+Tina Mbewe,MS302,Physics,72,B,4,Good,Mr. Chirwa
+Tina Mbewe,MS302,Mathematics,75,B,3,Good,Mr. Zulu
+...
