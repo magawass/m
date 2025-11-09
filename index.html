@@ -154,38 +154,111 @@ async function deleteCSV(){
   }catch(e){alert('⚠️ Error: '+e.message);}
 }
 
-function getGrade(score){score=parseFloat(score);if(isNaN(score))return'-';if(score>=75)return'A';if(score>=60)return'B';if(score>=50)return'C';if(score>=40)return'D';return'F';}
-function getRemark(score){score=parseFloat(score);if(isNaN(score))return'-';if(score>=75)return'Excellent';if(score>=60)return'Good';if(score>=50)return'Fair';if(score>=40)return'Pass';return'Fail';}
+function getGrade(score) {
+  score = parseFloat(score);
+  if (isNaN(score)) return '-';
+  if (['form1','form2'].includes(currentForm)) {
+    if (score >= 80) return 'A';
+    if (score >= 65) return 'B';
+    if (score >= 55) return 'C';
+    if (score >= 40) return 'D';
+    return 'F';
+  } else {
+    if (score >= 80) return '1';
+    if (score >= 75) return '2';
+    if (score >= 70) return '3';
+    if (score >= 65) return '4';
+    if (score >= 60) return '5';
+    if (score >= 55) return '6';
+    if (score >= 45) return '7';
+    if (score >= 35) return '8';
+    return '9';
+  }
+}
 
-function loadResults(){
-  const selectedForm=document.getElementById('selectedForm').value;
-  const studentNumber=document.getElementById('studentNumberInput').value.trim().toUpperCase();
-  if(!selectedForm||!studentNumber)return alert('Please select a class and enter exam number.');
-  currentForm=selectedForm;
- const csvUrl = `https://raw.githubusercontent.com/magawass/m/main/${currentForm}.csv?timestamp=${Date.now()}`;
- fetch(csvUrl).then(r=>r.text()).then(csvText=>{
-    Papa.parse(csvText,{header:true,skipEmptyLines:true,complete:res=>{
-      const data=res.data;
-      const student=data.find(s=>s['Exam Number']===studentNumber);
-      if(!student)return alert('No results found for '+studentNumber);
-      document.getElementById('studentName').textContent=student["STUDENT'S NAME"];
-      document.getElementById('studentID').textContent=studentNumber;
-      document.getElementById('studentForm').textContent=currentForm.toUpperCase();
-      const subjects=Object.keys(student).filter(k=>!k.includes('Exam Number')&&!k.includes("STUDENT'S NAME"));
-      let tableHtml='<table><thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Position</th><th>Remarks</th></tr></thead><tbody>';
-      let scores=[];
-      subjects.forEach(sub=>{const score=parseFloat(student[sub]);if(!isNaN(score))scores.push(score);tableHtml+=`<tr><td>${sub}</td><td>${isNaN(score)?'-':score}</td><td>${getGrade(score)}</td><td>-</td><td>${getRemark(score)}</td></tr>`;});
-      tableHtml+='</tbody></table>';
-      document.getElementById('resultsContainer').innerHTML=tableHtml;
-      let average='-',aggregate='-',remark='-';
-      if(['form1','form2'].includes(currentForm)){if(scores.length){const avg=scores.reduce((a,b)=>a+b,0)/scores.length;average=avg.toFixed(2);remark=getRemark(avg);}}
-      else{if(scores.length>=6){const bestSix=scores.sort((a,b)=>b-a).slice(0,6);const total=bestSix.reduce((a,b)=>a+b,0);aggregate=total;remark=getRemark(total/6);}}
-      const summary=`<div class='summary-section'><table><tr><th>Average</th><td>${average}</td><th>Aggregate</th><td>${aggregate}</td></tr><tr><th>Position</th><td>-</td><th>Remarks</th><td>${remark}</td></tr></table></div>`;
-      document.getElementById('resultsContainer').innerHTML+=summary;
-      document.getElementById('initialPage').style.display='none';
-      document.getElementById('resultPage').style.display='block';
-    }});
-  }).catch(()=>alert('Error loading results.'));
+function getRemark(grade) {
+  if (['form1','form2'].includes(currentForm)) {
+    if (grade === 'A') return 'Excellent';
+    if (grade === 'B') return 'Very good';
+    if (grade === 'C') return 'Good';
+    if (grade === 'D') return 'Average';
+    if (grade === 'F') return 'Fail';
+  } else {
+    const g = parseInt(grade);
+    if ([1,2].includes(g)) return 'Distinction';
+    if ([3,4].includes(g)) return 'Strong Credit';
+    if ([5,6].includes(g)) return 'Credit';
+    if ([7,8].includes(g)) return 'Pass';
+    return 'Fail';
+  }
+  return '-';
+}
+
+function loadResults() {
+  const selectedForm = document.getElementById('selectedForm').value;
+  const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
+  if (!selectedForm || !studentNumber) return alert('Please select a class and enter exam number.');
+  currentForm = selectedForm;
+  const csvUrl = `https://raw.githubusercontent.com/magawass/m/main/${currentForm}.csv?timestamp=${Date.now()}`;
+  fetch(csvUrl).then(r => r.text()).then(csvText => {
+    Papa.parse(csvText, {
+      header: true,
+      skipEmptyLines: true,
+      complete: res => {
+        const data = res.data;
+        const student = data.find(s => s['Exam Number'] === studentNumber);
+        if (!student) return alert('No results found for ' + studentNumber);
+        document.getElementById('studentName').textContent = student["STUDENT'S NAME"];
+        document.getElementById('studentID').textContent = studentNumber;
+        document.getElementById('studentForm').textContent = currentForm.toUpperCase();
+
+        const subjects = Object.keys(student).filter(k => !k.includes('Exam Number') && !k.includes("STUDENT'S NAME"));
+        let tableHtml = '<table><thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Position</th><th>Remarks</th></tr></thead><tbody>';
+        let scores = [];
+        let subjectPositions = {};
+
+        subjects.forEach(sub => {
+          const allScores = data.map(d => parseFloat(d[sub])).filter(n => !isNaN(n)).sort((a,b) => b-a);
+          const score = parseFloat(student[sub]);
+          if (!isNaN(score)) scores.push(score);
+          const grade = getGrade(score);
+          const remark = getRemark(grade);
+          const position = !isNaN(score) ? (allScores.indexOf(score) + 1) : '-';
+          tableHtml += `<tr><td>${sub}</td><td>${isNaN(score)?'-':score}</td><td>${grade}</td><td>${position}</td><td>${remark}</td></tr>`;
+        });
+
+        tableHtml += '</tbody></table>';
+        document.getElementById('resultsContainer').innerHTML = tableHtml;
+
+        let average = '-', aggregate = '-', remark = '-', overallPosition = '-';
+        const studentTotal = ['form1','form2'].includes(currentForm)
+          ? scores.reduce((a,b)=>a+b,0)/scores.length
+          : scores.sort((a,b)=>b-a).slice(0,6).reduce((a,b)=>a+b,0);
+
+        const allTotals = data.map(s => {
+          const vals = subjects.map(sub => parseFloat(s[sub])).filter(n => !isNaN(n));
+          return ['form1','form2'].includes(currentForm)
+            ? vals.reduce((a,b)=>a+b,0)/vals.length
+            : vals.sort((a,b)=>b-a).slice(0,6).reduce((a,b)=>a+b,0);
+        }).filter(n => !isNaN(n)).sort((a,b) => b-a);
+
+        overallPosition = allTotals.indexOf(studentTotal) + 1;
+        const grade = getGrade(studentTotal);
+        remark = getRemark(grade);
+        if (['form1','form2'].includes(currentForm)) average = studentTotal.toFixed(2);
+        else aggregate = studentTotal;
+
+        const summary = `<div class='summary-section'><table>
+          <tr><th>Average</th><td>${average}</td><th>Aggregate</th><td>${aggregate}</td></tr>
+          <tr><th>Position</th><td>${overallPosition}</td><th>Remarks</th><td>${remark}</td></tr>
+        </table></div>`;
+        document.getElementById('resultsContainer').innerHTML += summary;
+
+        document.getElementById('initialPage').style.display = 'none';
+        document.getElementById('resultPage').style.display = 'block';
+      }
+    });
+  }).catch(() => alert('Error loading results.'));
 }
 
 function openPrintView(){window.print();}
@@ -203,6 +276,5 @@ function openFullPdf(){
 </script>
 </body>
 </html>
-
 
 
