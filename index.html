@@ -162,8 +162,8 @@ function loadResults(){
   const studentNumber=document.getElementById('studentNumberInput').value.trim().toUpperCase();
   if(!selectedForm||!studentNumber)return alert('Please select a class and enter exam number.');
   currentForm=selectedForm;
-  const csvUrl = `https://raw.githubusercontent.com/magawass/m/main/${currentForm}.csv`;
-  fetch(csvUrl).then(r=>r.text()).then(csvText=>{
+ const csvUrl = `https://raw.githubusercontent.com/magawass/m/main/${currentForm}.csv?timestamp=${Date.now()}`;
+ fetch(csvUrl).then(r=>r.text()).then(csvText=>{
     Papa.parse(csvText,{header:true,skipEmptyLines:true,complete:res=>{
       const data=res.data;
       const student=data.find(s=>s['Exam Number']===studentNumber);
@@ -203,4 +203,5 @@ function openFullPdf(){
 </script>
 </body>
 </html>
+
 
