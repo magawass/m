@@ -11,7 +11,7 @@
     body { background-color: #d0e7ff; font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     .page { display: none; width: 100%; max-width: 650px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     #initialPage { display: block; text-align: center; }
-    .logo { max-width: 200px; height: 100px; object-fit: contain; /* Added to ensure aspect ratio is maintained */ }
+    .logo { max-width: 200px; height: 100px; }
     h1 { color: #004080; margin-bottom: 5px; }
     h2 { color: #004080; margin-top: 0; }
     label { display: block; margin-top: 15px; font-weight: bold; color: #333; }
@@ -35,54 +35,14 @@
     .summary-section th, .summary-section td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     .actions { margin-top: 15px; text-align: center; }
     .actions button { width: 45%; margin: 5px; }
-    /* Admin specific styles */
-    #adminPage h2 {
-      margin-bottom: 15px;
-    }
-    #adminLoginPage input[type="password"],
-    #adminLoginPage button {
-      width: 80%; /* Slightly narrower for better spacing */
-      margin: 10px auto;
-      display: block;
-    }
-    #adminLoginPage button:last-of-type { /* Back button */
-      background-color: #6c757d;
-    }
-    #adminLoginPage button:last-of-type:hover {
-      background-color: #5a6268;
-    }
-    #adminPanelPage {
-      margin-top: 20px;
-      border-top: 1px solid #ccc;
-      padding-top: 15px;
-    }
-    #adminPanelPage label {
-      margin-top: 10px;
-    }
-    #adminPanelPage select,
-    #adminPanelPage input[type="file"],
-    #adminPanelPage button {
-      width: 80%;
-      margin: 5px auto;
-      display: block;
-    }
-    #adminPanelPage .refresh-button {
-      width: auto;
-      padding: 8px 15px;
-      font-size: 0.9em;
-      margin: 10px auto;
-      display: inline-block;
-    }
   </style>
 </head>
 <body>
 
 <!-- FRONT PAGE -->
 <div id="initialPage" class="page">
-  <!-- TEMPORARY PLACEHOLDER IMAGE FOR LOGO -->
-  <img src="" alt="Magawa Secondary School Logo Placeholder" class="logo">
-  <!-- ORIGINAL LOGO IMAGE: <img src="" alt="Magawa Secondary School Logo" class="logo"> -->
-  <h1><p style="font-size:28px;">MAGAWA SECONDARY</p></h1>
+  <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
+  <h1><p style="font-size:28px;">MAGAWA SECONDARY</p></h1>  
   <h2>STUDENTS PORTAL</h2>
   <label for="selectedForm">Select Class/Form</label>
   <select id="selectedForm">
@@ -95,16 +55,14 @@
   <label for="studentNumberInput">Enter Exam Number</label>
   <input type="text" id="studentNumberInput" placeholder="e.g. STU001">
   <button onclick="loadResults()">View Results</button>
-  <button onclick="goToAdminLogin()">Admin</button>
+  <button onclick="openAdmin()">Admin</button>
 <p><br><br></p>
 <p style="font-size: 11px;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
 </div>
 <!-- RESULTS PAGE -->
 <div id="resultPage" class="page">
   <div class="header-row">
-    <!-- TEMPORARY PLACEHOLDER IMAGE FOR LOGO -->
-    <img src="" alt="School Logo Placeholder" class="logo">
-    <!-- ORIGINAL LOGO IMAGE: <img src="" alt="School Logo" class="logo"> -->
+    <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="School Logo" class="logo">
     <div class="header-text"><h2>MAGAWA SEC SCHOOL</h2><p>Private Bag 17, Magawa, Mchinji</p></div>
   </div>
   <hr class="divider-line">
@@ -115,88 +73,40 @@
   <div class="actions"><button onclick="openPrintView()">Print</button><button onclick="openFullPdf()">Download PDF</button><button onclick="backToInitialPage()">Back</button></div>
 </div>
 
-<!-- ADMIN LOGIN PAGE -->
-<div id="adminLoginPage" class="page" style="text-align:center;">
-  <h2>Admin Access</h2>
-  <p>Please enter the administrator password to proceed.</p>
+<!-- ADMIN PAGE -->
+<div id="adminPage" class="page" style="text-align:center;">
+  <h2>Admin Login</h2>
   <input type="password" id="adminPassword" placeholder="Enter Password">
   <button onclick="verifyAdmin()">Login</button>
   <button onclick="backToInitialPage()">Back</button>
-</div>
-
-<!-- ADMIN PANEL PAGE -->
-<div id="adminPanelPage" class="page" style="text-align:center;">
-  <div class="header-row">
-    <div class="header-text">
-        <h2>Admin Panel</h2>
-        <p>Welcome, Administrator!</p>
-    </div>
-    <button onclick="backToInitialPage()" style="width: 40px; height: 40px; margin-top: 10px;">Back</button>
+  <div id="adminPanel" style="display:none;margin-top:20px;">
+    <h3>Manage CSV Files</h3>
+    <label for="classDropdown">Select Class:</label>
+    <select id="classDropdown"><option value="">--Select Class--</option><option value="form1">Form 1</option><option value="form2">Form 2</option><option value="form3">Form 3</option><option value="form4">Form 4</option></select>
+    <input type="file" id="csvUpload" accept=".csv">
+    <button onclick="uploadCSV()">Upload CSV</button>
+    <label for="deleteDropdown">Select File to Delete:</label>
+    <select id="deleteDropdown"><option value="">-- Select CSV File --</option></select>
+    <button onclick="deleteCSV()">Delete Selected CSV</button>
+    <button onclick="refreshFileList()">↻ Refresh List</button>
   </div>
-  <hr class="divider-line">
-
-  <h3>Manage CSV Files</h3>
-  <label for="classDropdown">Select Class:</label>
-  <select id="classDropdown">
-    <option value="">--Select Class--</option>
-    <option value="form1">Form 1</option>
-    <option value="form2">Form 2</option>
-    <option value="form3">Form 3</option>
-    <option value="form4">Form 4</option>
-  </select>
-  <input type="file" id="csvUpload" accept=".csv">
-  <button onclick="uploadCSV()">Upload CSV</button>
-
-  <label for="deleteDropdown">Select File to Delete:</label>
-  <select id="deleteDropdown"><option value="">-- Select CSV File --</option></select>
-  <button onclick="deleteCSV()">Delete Selected CSV</button>
-  <button onclick="refreshFileList()" class="refresh-button">↻ Refresh List</button>
 </div>
 
 <script>
 let currentForm = '';
 const GITHUB_USER = 'magawass';
 const GITHUB_REPO = 'm';
-const ADMIN_PASSWORD = 'magawa123'; // In a real application, this should be stored securely.
 
-function goToAdminLogin() {
-  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-  document.getElementById('adminLoginPage').style.display = 'block';
-}
+function openAdmin(){document.querySelectorAll('.page').forEach(p=>p.style.display='none');document.getElementById('adminPage').style.display='block';}
+function backToInitialPage(){document.querySelectorAll('.page').forEach(p=>p.style.display='none');document.getElementById('initialPage').style.display='block';document.getElementById('selectedForm').value='';document.getElementById('studentNumberInput').value='';}
+function verifyAdmin(){const pass=document.getElementById('adminPassword').value;if(pass==='magawa123'){document.getElementById('adminPanel').style.display='block';refreshFileList();}else{alert('Incorrect password');}}
 
-function backToInitialPage() {
-  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-  document.getElementById('initialPage').style.display = 'block';
-  document.getElementById('selectedForm').value = '';
-  document.getElementById('studentNumberInput').value = '';
-  // Clear admin login fields and panel
-  document.getElementById('adminPassword').value = '';
-  // Ensure adminPanelPage is hidden, not adminPanel
-  document.getElementById('adminPanelPage').style.display = 'none';
-}
+async function askForToken(){const token=prompt('Enter your GitHub Personal Access Token:');if(!token)throw new Error('No token provided. Operation cancelled.');return token.trim();}
 
-function verifyAdmin() {
-  const enteredPassword = document.getElementById('adminPassword').value;
-  if (enteredPassword === ADMIN_PASSWORD) {
-    document.getElementById('adminLoginPage').style.display = 'none';
-    document.getElementById('adminPanelPage').style.display = 'block'; // Show admin panel page
-    refreshFileList(); // Load the file list on successful login
-  } else {
-    alert('Incorrect password. Please try again.');
-  }
-}
-
-async function askForToken() {
-  const token = prompt('Enter your GitHub Personal Access Token:');
-  if (!token) throw new Error('No token provided. Operation cancelled.');
-  return token.trim();
-}
-
-async function refreshFileList() {
+async function refreshFileList(){
   const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
     const files = await res.json();
     const dropdown = document.getElementById('deleteDropdown');
     dropdown.innerHTML = '<option value="">-- Select CSV File --</option>';
@@ -211,133 +121,50 @@ async function refreshFileList() {
   }
 }
 
-async function uploadCSV() {
-  const fileInput = document.getElementById('csvUpload');
-  const classDropdown = document.getElementById('classDropdown');
-  const file = fileInput.files[0];
-  const selectedClass = classDropdown.value;
-
-  if (!file) {
-    alert('Please select a CSV file to upload.');
-    return;
-  }
-  if (!selectedClass) {
-    alert('Please select a class to associate with this CSV file.');
-    return;
-  }
-
-  const token = await askForToken();
-  const path = `${selectedClass}.csv`; // Naming convention based on class
-  const content = await file.text();
-  const encodedContent = btoa(unescape(encodeURIComponent(content)));
-
-  const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
-
-  try {
-    // First, check if the file exists to get its SHA for updating
-    const getRes = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    let commitMessage = `Upload or update ${path} by Admin`;
-    let sha = null;
-
-    if (getRes.ok) {
-      const data = await getRes.json();
-      sha = data.sha;
-      commitMessage = `Update ${path} by Admin`; // Different message for update
-    } else if (getRes.status !== 404) {
-      throw new Error(`Failed to check existing file: ${getRes.status} ${getRes.statusText}`);
-    }
-
-    const body = {
-      message: commitMessage,
-      content: encodedContent,
-      sha: sha // Include SHA if updating
-    };
-
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (res.ok) {
-      alert(`✅ ${path} uploaded successfully to GitHub.`);
-      fileInput.value = ''; // Clear the file input
-      classDropdown.value = ''; // Reset class dropdown
-      refreshFileList(); // Refresh the list to show the new/updated file
-    } else {
-      const err = await res.json();
-      alert('❌ Upload failed: ' + (err.message || err.documentation_url || 'Unknown error'));
-    }
-  } catch (e) {
-    alert('⚠️ Error during upload: ' + e.message);
-  }
+async function uploadCSV(){
+  const file=document.getElementById('csvUpload').files[0];
+  const selected=document.getElementById('classDropdown').value;
+  if(!file||!selected)return alert('Select class and file first');
+  const token=await askForToken();
+  const path=`${selected}.csv`;
+  const content=await file.text();
+  const encodedContent=btoa(unescape(encodeURIComponent(content)));
+  const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
+  try{
+    const getRes=await fetch(url,{headers:{Authorization:`Bearer ${token}`}});
+    let body={message:`Upload or update ${path} by Admin`,content:encodedContent};
+    if(getRes.ok){const data=await getRes.json();body.sha=data.sha;}
+    const res=await fetch(url,{method:'PUT',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(res.ok){alert(`✅ ${path} uploaded successfully to GitHub.`);refreshFileList();}
+    else{const err=await res.json();alert('❌ Upload failed: '+err.message);}
+  }catch(e){alert('⚠️ Error: '+e.message);}
 }
 
-async function deleteCSV() {
-  const fileToDelete = document.getElementById('deleteDropdown').value;
-  if (!fileToDelete) {
-    alert('Please select a CSV file to delete from the list.');
-    return;
-  }
-
-  if (!confirm(`Are you sure you want to delete ${fileToDelete}? This action cannot be undone.`)) {
-    return;
-  }
-
-  const token = await askForToken();
-  const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${fileToDelete}`;
-
-  try {
-    // Get the SHA of the file to delete
-    const getRes = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    if (!getRes.ok) {
-      if (getRes.status === 404) {
-        alert(`❌ Error: ${fileToDelete} not found on GitHub.`);
-      } else {
-        throw new Error(`Failed to get file info: ${getRes.status} ${getRes.statusText}`);
-      }
-      return;
-    }
-    const data = await getRes.json();
-    const sha = data.sha;
-
-    const delRes = await fetch(url, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: `Delete ${fileToDelete} by Admin`,
-        sha: sha
-      })
-    });
-
-    if (delRes.ok) {
-      alert(`🗑️ ${fileToDelete} deleted successfully from GitHub.`);
-      refreshFileList(); // Refresh the list
-    } else {
-      const err = await res.json();
-      alert('❌ Deletion failed: ' + (err.message || err.documentation_url || 'Unknown error'));
-    }
-  } catch (e) {
-    alert('⚠️ Error during deletion: ' + e.message);
-  }
+async function deleteCSV(){
+  const file=document.getElementById('deleteDropdown').value;
+  if(!file)return alert('Please select a CSV file to delete.');
+  const token=await askForToken();
+  const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${file}`;
+  try{
+    const getRes=await fetch(url,{headers:{Authorization:`Bearer ${token}`}});
+    if(!getRes.ok)return alert('❌ File not found on GitHub.');
+    const data=await getRes.json();
+    const delRes=await fetch(url,{method:'DELETE',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({message:`Delete ${file} by Admin`,sha:data.sha})});
+    if(delRes.ok){alert(`🗑️ ${file} deleted successfully from GitHub.`);refreshFileList();}
+    else{const err=await delRes.json();alert('❌ Deletion failed: '+err.message);}
+  }catch(e){alert('⚠️ Error: '+e.message);}
 }
 
-function getGrade(score, form) {
+function getGrade(score) {
   score = parseFloat(score);
   if (isNaN(score)) return '-';
-  if (['form1', 'form2'].includes(form)) {
+  if (['form1','form2'].includes(currentForm)) {
     if (score >= 80) return 'A';
     if (score >= 65) return 'B';
     if (score >= 55) return 'C';
     if (score >= 40) return 'D';
     return 'F';
-  } else { // Form 3 and Form 4
+  } else {
     if (score >= 80) return '1';
     if (score >= 75) return '2';
     if (score >= 70) return '3';
@@ -350,20 +177,20 @@ function getGrade(score, form) {
   }
 }
 
-function getRemark(grade, form) {
-  if (['form1', 'form2'].includes(form)) {
+function getRemark(grade) {
+  if (['form1','form2'].includes(currentForm)) {
     if (grade === 'A') return 'Excellent';
     if (grade === 'B') return 'Very good';
     if (grade === 'C') return 'Good';
     if (grade === 'D') return 'Average';
     if (grade === 'F') return 'Fail';
-  } else { // Form 3 and Form 4
+  } else {
     const g = parseInt(grade);
-    if (g === 1 || g === 2) return 'Distinction';
-    if (g >= 3 && g <= 4) return 'Strong Credit';
-    if (g >= 5 && g <= 6) return 'Credit';
-    if (g >= 7 && g <= 8) return 'Pass';
-    if (g === 9) return 'Fail';
+    if ([1,2].includes(g)) return 'Distinction';
+    if ([3,4].includes(g)) return 'Strong Credit';
+    if ([5,6].includes(g)) return 'Credit';
+    if ([7,8].includes(g)) return 'Pass';
+    return 'Fail';
   }
   return '-';
 }
@@ -371,155 +198,84 @@ function getRemark(grade, form) {
 function loadResults() {
   const selectedForm = document.getElementById('selectedForm').value;
   const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
+  if (!selectedForm || !studentNumber) return alert('Please select a class and enter exam number.');
+  currentForm = selectedForm;
+  const csvUrl = `https://raw.githubusercontent.com/magawass/m/main/${currentForm}.csv?timestamp=${Date.now()}`;
+  fetch(csvUrl).then(r => r.text()).then(csvText => {
+    Papa.parse(csvText, {
+      header: true,
+      skipEmptyLines: true,
+      complete: res => {
+        const data = res.data;
+        const student = data.find(s => s['Exam Number'] === studentNumber);
+        if (!student) return alert('No results found for ' + studentNumber);
+        document.getElementById('studentName').textContent = student["STUDENT'S NAME"];
+        document.getElementById('studentID').textContent = studentNumber;
+        document.getElementById('studentForm').textContent = currentForm.toUpperCase();
 
-  if (!selectedForm) {
-    alert('Please select a class.');
-    return;
-  }
-  if (!studentNumber) {
-    alert('Please enter an exam number.');
-    return;
-  }
+        const subjects = Object.keys(student).filter(k => !k.includes('Exam Number') && !k.includes("STUDENT'S NAME"));
+        let tableHtml = '<table><thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Position</th><th>Remarks</th></tr></thead><tbody>';
+        let scores = [];
+        let subjectPositions = {};
 
-  currentForm = selectedForm; // Set globally for getGrade/getRemark to use
-  const csvUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${currentForm}.csv?timestamp=${Date.now()}`;
+        subjects.forEach(sub => {
+          const allScores = data.map(d => parseFloat(d[sub])).filter(n => !isNaN(n)).sort((a,b) => b-a);
+          const score = parseFloat(student[sub]);
+          if (!isNaN(score)) scores.push(score);
+          const grade = getGrade(score);
+          const remark = getRemark(grade);
+          const position = !isNaN(score) ? (allScores.indexOf(score) + 1) : '-';
+          tableHtml += `<tr><td>${sub}</td><td>${isNaN(score)?'-':score}</td><td>${grade}</td><td>${position}</td><td>${remark}</td></tr>`;
+        });
 
-  fetch(csvUrl)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Could not fetch ${currentForm}.csv. Status: ${response.status}`);
+        tableHtml += '</tbody></table>';
+        document.getElementById('resultsContainer').innerHTML = tableHtml;
+
+        let average = '-', aggregate = '-', remark = '-', overallPosition = '-';
+        const studentTotal = ['form1','form2'].includes(currentForm)
+          ? scores.reduce((a,b)=>a+b,0)/scores.length
+          : scores.sort((a,b)=>b-a).slice(0,6).reduce((a,b)=>a+b,0);
+
+        const allTotals = data.map(s => {
+          const vals = subjects.map(sub => parseFloat(s[sub])).filter(n => !isNaN(n));
+          return ['form1','form2'].includes(currentForm)
+            ? vals.reduce((a,b)=>a+b,0)/vals.length
+            : vals.sort((a,b)=>b-a).slice(0,6).reduce((a,b)=>a+b,0);
+        }).filter(n => !isNaN(n)).sort((a,b) => b-a);
+
+        overallPosition = allTotals.indexOf(studentTotal) + 1;
+        const grade = getGrade(studentTotal);
+        remark = getRemark(grade);
+        if (['form1','form2'].includes(currentForm)) average = studentTotal.toFixed(2);
+        else aggregate = studentTotal;
+
+        const summary = `<div class='summary-section'><table>
+          <tr><th>Average</th><td>${average}</td><th>Aggregate</th><td>${aggregate}</td></tr>
+          <tr><th>Position</th><td>${overallPosition}</td><th>Remarks</th><td>${remark}</td></tr>
+        </table></div>`;
+        document.getElementById('resultsContainer').innerHTML += summary;
+
+        document.getElementById('initialPage').style.display = 'none';
+        document.getElementById('resultPage').style.display = 'block';
       }
-      return response.text();
-    })
-    .then(csvText => {
-      Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-        complete: res => {
-          const data = res.data;
-          const student = data.find(s => s['Exam Number'] === studentNumber);
-
-          if (!student) {
-            alert(`No results found for exam number ${studentNumber} in ${currentForm}.`);
-            return;
-          }
-
-          document.getElementById('studentName').textContent = student["STUDENT'S NAME"] || 'N/A';
-          document.getElementById('studentID').textContent = studentNumber;
-          document.getElementById('studentForm').textContent = currentForm.toUpperCase();
-
-          // Dynamically get subject names, excluding specific columns
-          const subjectKeys = Object.keys(student).filter(key =>
-            key.trim() !== '' && // Exclude empty keys if any
-            !key.toLowerCase().includes('exam number') &&
-            !key.toLowerCase().includes("student's name")
-          );
-
-          let tableHtml = '<table><thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Position</th><th>Remarks</th></tr></thead><tbody>';
-          let scoresForCalculation = [];
-          const subjectData = []; // To store subject scores for position calculation
-
-          subjectKeys.forEach(sub => {
-            const score = student[sub];
-            const numericScore = parseFloat(score);
-            const grade = getGrade(numericScore, currentForm);
-            const remark = getRemark(grade, currentForm);
-
-            // Store for position calculation
-            subjectData.push({ subject: sub, score: numericScore });
-
-            tableHtml += `<tr>
-                <td>${sub}</td>
-                <td>${isNaN(numericScore) ? '-' : numericScore}</td>
-                <td>${grade}</td>
-                <td>-</td> <!-- Position will be calculated later -->
-                <td>${remark}</td>
-              </tr>`;
-          });
-          tableHtml += '</tbody></table>';
-          document.getElementById('resultsContainer').innerHTML = tableHtml;
-
-          // Calculate positions after all subjects are processed
-          const positionTable = document.getElementById('resultsContainer').querySelector('table');
-          const rows = positionTable.querySelectorAll('tbody tr');
-
-          subjectKeys.forEach((sub, index) => {
-            const allScoresForSubject = data
-              .map(d => parseFloat(d[sub]))
-              .filter(n => !isNaN(n))
-              .sort((a, b) => b - a);
-
-            const studentScore = subjectData.find(s => s.subject === sub)?.score;
-
-            if (!isNaN(studentScore)) {
-              const position = allScoresForSubject.indexOf(studentScore) + 1;
-              rows[index].cells[3].textContent = position; // Update the position cell
-            }
-          });
-
-          // Calculate Average/Aggregate and Overall Position
-          let average = '-', aggregate = '-', remark = '-', overallPosition = '-';
-          const studentScoresForTotal = subjectKeys.map(sub => parseFloat(student[sub])).filter(n => !isNaN(n));
-
-          let studentTotal = 0;
-          if (studentScoresForTotal.length > 0) {
-            if (['form1', 'form2'].includes(currentForm)) {
-              studentTotal = studentScoresForTotal.reduce((a, b) => a + b, 0) / studentScoresForTotal.length;
-              average = studentTotal.toFixed(2);
-            } else { // Form 3 and Form 4, best 6 subjects
-              studentTotal = studentScoresForTotal.sort((a, b) => b - a).slice(0, 6).reduce((a, b) => a + b, 0);
-              aggregate = studentTotal;
-            }
-          }
-
-          const allTotals = data.map(s => {
-            const scores = subjectKeys.map(sub => parseFloat(s[sub])).filter(n => !isNaN(n));
-            if (scores.length === 0) return NaN;
-            if (['form1', 'form2'].includes(currentForm)) {
-              return scores.reduce((a, b) => a + b, 0) / scores.length;
-            } else {
-              return scores.sort((a, b) => b - a).slice(0, 6).reduce((a, b) => a + b, 0);
-            }
-          }).filter(n => !isNaN(n)).sort((a, b) => b - a);
-
-          if (!isNaN(studentTotal)) {
-            overallPosition = allTotals.indexOf(studentTotal) + 1;
-            const overallGrade = getGrade(studentTotal, currentForm);
-            remark = getRemark(overallGrade, currentForm);
-          }
-
-          const summary = `<div class='summary-section'><table>
-            <tr><th>Average</th><td>${average}</td><th>Aggregate</th><td>${aggregate}</td></tr>
-            <tr><th>Position</th><td>${overallPosition}</td><th>Overall Remarks</th><td>${remark}</td></tr>
-          </table></div>`;
-          document.getElementById('resultsContainer').innerHTML += summary;
-
-          document.getElementById('initialPage').style.display = 'none';
-          document.getElementById('resultPage').style.display = 'block';
-        }
-      });
-    })
-    .catch(error => {
-      alert('Error loading results: ' + error.message);
-      console.error("Fetch Error:", error);
     });
+  }).catch(() => alert('Error loading results.'));
 }
 
-function openPrintView() {
-  window.print();
-}
-
-function openFullPdf() {
-  const pageElement = document.getElementById('resultPage');
-  html2canvas(pageElement, { scale: 2 }).then(canvas => {
-    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
-    const imgData = canvas.toDataURL('image/png', 1.0);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+function openPrintView(){window.print();}
+function openFullPdf(){
+  const page=document.getElementById('resultPage');
+  html2canvas(page,{scale:2}).then(canvas=>{
+    const pdf=new window.jspdf.jsPDF('p','mm','a4');
+    const imgData=canvas.toDataURL('image/png',1.0);
+    const pdfWidth=pdf.internal.pageSize.getWidth();
+    const pdfHeight=(canvas.height*pdfWidth)/canvas.width;
+    pdf.addImage(imgData,'PNG',0,0,pdfWidth,pdfHeight);
     pdf.save('Magawa_Results.pdf');
   });
 }
 </script>
 </body>
 </html>
+
+
