@@ -1,281 +1,414 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Magawa Secondary Portal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    body { background-color: #d0e7ff; font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .page { display: none; width: 100%; max-width: 650px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    #initialPage { display: block; text-align: center; }
-    .logo { max-width: 200px; height: 100px; }
-    h1 { color: #004080; margin-bottom: 5px; }
-    h2 { color: #004080; margin-top: 0; }
-    label { display: block; margin-top: 15px; font-weight: bold; color: #333; }
-    select, input { width: 90%; padding: 12px; margin-top: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 1em; }
-    button { width: 90%; margin-top: 20px; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; transition: background-color 0.3s ease; }
-    button:hover { background-color: #0056b3; }
-    .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
-    .header-text { text-align: right; line-height: 1.2; }
-    .header-text h2 { margin: 0; color: #004080; font-size: 1.4em; }
-    .header-text p { margin: 0; font-size: 9px; color: #333; }
-    .divider-line { border: none; border-top: 2px solid #004080; margin: 8px 0 12px 0; width: 100%; }
-    .progress-title { font-family: "Agency FB", sans-serif; font-size: 1.2em; color: #000; margin: 5px 0 10px 0; text-align: left; }
-    .info-row { display: flex; justify-content: space-between; font-size: 1em; margin-bottom: 4px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95em; }
-    th, td { border: 1px solid #ccc; padding: 6px; }
-    th { background-color: #e9ecef; text-align: center; }
-    td:first-child { text-align: left; }
-    td:not(:first-child) { text-align: center; }
-    .summary-section { margin-top: 10px; }
-    .summary-section table { width: 100%; border: 1px solid #ccc; font-size: 0.95em; }
-    .summary-section th, .summary-section td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    .actions { margin-top: 15px; text-align: center; }
-    .actions button { width: 45%; margin: 5px; }
+    body {
+      background-color: #d0e7ff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .page {
+      display: none;
+      width: 100%;
+      max-width: 650px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    #initialPage {
+      display: block;
+      text-align: center;
+    }
+    .logo {
+      max-width: 200px;
+      height: 100px;
+    }
+    h1 {
+      color: #004080;
+      margin-bottom: 5px;
+    }
+    h2 {
+      color: #004080;
+      margin-top: 0;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #333;
+    }
+    select, input {
+      width: 90%;
+      padding: 12px;
+      margin-top: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    button {
+      width: 90%;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1em;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header-text {
+      text-align: right;
+      line-height: 1.2;
+    }
+    .header-text h2 {
+      margin: 0;
+      color: #004080;
+      font-size: 1.4em;
+    }
+    .header-text p {
+      margin: 0;
+      font-size: 9px;
+      color: #333;
+    }
+    .divider-line {
+      border: none;
+      border-top: 2px solid #004080;
+      margin: 8px 0 12px 0;
+      width: 100%;
+    }
+    .progress-title {
+      font-family: "Agency FB", sans-serif;
+      font-size: 1.2em;
+      color: #000;
+      margin: 5px 0 10px 0;
+      text-align: left;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1em;
+      margin-bottom: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95em;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+    }
+    th {
+      background-color: #e9ecef;
+      text-align: center;
+    }
+    td:first-child {
+      text-align: left;
+    }
+    td:not(:first-child) {
+      text-align: center;
+    }
+    .summary-section {
+      margin-top: 10px;
+    }
+    .summary-section table {
+      width: 100%;
+      border: 1px solid #ccc;
+      font-size: 0.95em;
+    }
+    .summary-section th, .summary-section td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    .actions {
+      margin-top: 15px;
+      text-align: center;
+    }
+    .actions button {
+      width: 45%;
+      margin: 5px;
+    }
   </style>
 </head>
 <body>
-
-<!-- FRONT PAGE -->
-<div id="initialPage" class="page">
-  <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
-  <h1><p style="font-size:28px;">MAGAWA SECONDARY</p></h1>  
-  <h2>STUDENTS PORTAL</h2>
-  <label for="selectedForm">Select Class/Form</label>
-  <select id="selectedForm">
-    <option value="">-- Select Class --</option>
-    <option value="form1">Form 1</option>
-    <option value="form2">Form 2</option>
-    <option value="form3">Form 3</option>
-    <option value="form4">Form 4</option>
-  </select>
-  <label for="studentNumberInput">Enter Exam Number</label>
-  <input type="text" id="studentNumberInput" placeholder="e.g. STU001">
-  <button onclick="loadResults()">View Results</button>
-  <button onclick="openAdmin()">Admin</button>
-<p><br><br></p>
-<p style="font-size: 11px;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
-</div>
-<!-- RESULTS PAGE -->
-<div id="resultPage" class="page">
-  <div class="header-row">
-    <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="School Logo" class="logo">
-    <div class="header-text"><h2>MAGAWA SEC SCHOOL</h2><p>Private Bag 17, Magawa, Mchinji</p></div>
+  <div id="initialPage" class="page">
+    <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
+    <h1><p style="font-size:28px;">MAGAWA SECONDARY</p></h1>  
+    <h2>STUDENTS PORTAL</h2>
+    <label for="selectedForm">Select Class/Form</label>
+    <select id="selectedForm">
+      <option value="">-- Select Class --</option>
+      <option value="form1">Form 1</option>
+      <option value="form2">Form 2</option>
+      <option value="form3">Form 3</option>
+      <option value="form4">Form 4</option>
+    </select>
+    <label for="studentNumberInput">Enter Exam Number</label>
+    <input type="text" id="studentNumberInput" placeholder="e.g. STU001">
+    <button onclick="loadResults()">View Results</button>
+    <button onclick="openAdmin()">Admin</button>
+    <p><br><br></p>
+    <p style="font-size: 11px;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
   </div>
-  <hr class="divider-line">
-  <div class="progress-title">PROGRESS OF RESULTS</div>
-  <div class="info-row"><p><strong>Name:</strong> <span id="studentName"></span></p><p><strong>Exam No:</strong> <span id="studentID"></span></p></div>
-  <div class="info-row"><p><strong>Class:</strong> <span id="studentForm"></span></p><p><strong>Term:</strong> <span id="studentTerm">TERM 1</span></p></div>
-  <div id="resultsContainer"></div>
-  <div class="actions"><button onclick="openPrintView()">Print</button><button onclick="openFullPdf()">Download PDF</button><button onclick="backToInitialPage()">Back</button></div>
-</div>
-
-<!-- ADMIN PAGE -->
-<div id="adminPage" class="page" style="text-align:center;">
-  <h2>Admin Login</h2>
-  <input type="password" id="adminPassword" placeholder="Enter Password">
-  <button onclick="verifyAdmin()">Login</button>
-  <button onclick="backToInitialPage()">Back</button>
-  <div id="adminPanel" style="display:none;margin-top:20px;">
-    <h3>Manage CSV Files</h3>
-    <label for="classDropdown">Select Class:</label>
-    <select id="classDropdown"><option value="">--Select Class--</option><option value="form1">Form 1</option><option value="form2">Form 2</option><option value="form3">Form 3</option><option value="form4">Form 4</option></select>
-    <input type="file" id="csvUpload" accept=".csv">
-    <button onclick="uploadCSV()">Upload CSV</button>
-    <label for="deleteDropdown">Select File to Delete:</label>
-    <select id="deleteDropdown"><option value="">-- Select CSV File --</option></select>
-    <button onclick="deleteCSV()">Delete Selected CSV</button>
-    <button onclick="refreshFileList()">↻ Refresh List</button>
+  <div id="resultPage" class="page">
+    <div class="header-row">
+    <img src="https://i.postimg.cc/9MFjGfRL/logo.png" class="logo" crossorigin="anonymous">     
+      <div class="header-text">
+        <h2>MAGAWA SEC SCHOOL</h2>
+        <p>Private Bag 17, Magawa, Mchinji</p>
+      </div>
+    </div>
+    <hr class="divider-line">
+    <div class="progress-title">PROGRESS OF RESULTS</div>
+    <div class="info-row">
+      <p><strong>Name:</strong> <span id="studentName"></span></p>
+      <p><strong>Exam No:</strong> <span id="studentID"></span></p>
+    </div>
+    <div class="info-row">
+      <p><strong>Class:</strong> <span id="studentForm"></span></p>
+      <p><strong>Term:</strong> <span id="studentTerm">TERM 1</span></p>
+    </div>
+    <div id="resultsContainer"></div>
+    <div class="actions">
+      <button onclick="openPrintView()">Print</button>
+      <button onclick="openFullPdf()">Download PDF</button>
+      <button onclick="backToInitialPage()">Back</button>
+    </div>
   </div>
-</div>
 
-<script>
-let currentForm = '';
-const GITHUB_USER = 'magawass';
-const GITHUB_REPO = 'm';
+  <div id="adminPage" class="page" style="text-align:center;">
+    <h2 id="adminLabel">Admin Login</h2>
+    <input type="password" id="adminPassword" placeholder="Enter Password">
+    <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
+    <button onclick="backToInitialPage()">Back</button>
+    <div id="adminPanel" style="display:none;margin-top:20px;">
+      <h3>Manage CSV Files</h3>
+      <label for="classDropdown">Select Class:</label>
+      <select id="classDropdown">
+        <option value="">--Select Class--</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+      </select>
+      <input type="file" id="csvUpload" accept=".csv">
+      <button onclick="uploadCSV()">Upload CSV</button>
+      <label for="deleteDropdown">Select File to Delete:</label>
+      <select id="deleteDropdown">
+        <option value="">-- Select CSV File --</option>
+      </select>
+      <button onclick="deleteCSV()">Delete Selected CSV</button>
+      <button onclick="refreshFileList()">↻ Refresh List</button>
+    </div>
+  </div>
 
-function openAdmin(){document.querySelectorAll('.page').forEach(p=>p.style.display='none');document.getElementById('adminPage').style.display='block';}
-function backToInitialPage(){document.querySelectorAll('.page').forEach(p=>p.style.display='none');document.getElementById('initialPage').style.display='block';document.getElementById('selectedForm').value='';document.getElementById('studentNumberInput').value='';}
-function verifyAdmin(){const pass=document.getElementById('adminPassword').value;if(pass==='magawa123'){document.getElementById('adminPanel').style.display='block';refreshFileList();}else{alert('Incorrect password');}}
+  <script>
+    let currentForm = '';
+    const GITHUB_USER = 'magawass';
+    const GITHUB_REPO = 'm';
 
-async function askForToken(){const token=prompt('Enter your GitHub Personal Access Token:');if(!token)throw new Error('No token provided. Operation cancelled.');return token.trim();}
+    function openAdmin() {
+      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+      document.getElementById('adminPage').style.display = 'block';
+    }
 
-async function refreshFileList(){
-  const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
-  try {
-    const res = await fetch(url);
-    const files = await res.json();
-    const dropdown = document.getElementById('deleteDropdown');
-    dropdown.innerHTML = '<option value="">-- Select CSV File --</option>';
-    files.filter(f => f.name.endsWith('.csv')).forEach(file => {
-      const opt = document.createElement('option');
-      opt.value = file.name;
-      opt.textContent = file.name;
-      dropdown.appendChild(opt);
-    });
-  } catch (e) {
-    alert('⚠️ Error loading file list: ' + e.message);
-  }
-}
+    function backToInitialPage() {
+      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+      document.getElementById('initialPage').style.display = 'block';
+      document.getElementById('selectedForm').value = '';
+      document.getElementById('studentNumberInput').value = '';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('adminLabel').style.display = 'block';
+      document.getElementById('adminPassword').style.display = 'inline-block';
+      document.getElementById('adminLoginBtn').style.display = 'inline-block';
+    }
 
-async function uploadCSV(){
-  const file=document.getElementById('csvUpload').files[0];
-  const selected=document.getElementById('classDropdown').value;
-  if(!file||!selected)return alert('Select class and file first');
-  const token=await askForToken();
-  const path=`${selected}.csv`;
-  const content=await file.text();
-  const encodedContent=btoa(unescape(encodeURIComponent(content)));
-  const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
-  try{
-    const getRes=await fetch(url,{headers:{Authorization:`Bearer ${token}`}});
-    let body={message:`Upload or update ${path} by Admin`,content:encodedContent};
-    if(getRes.ok){const data=await getRes.json();body.sha=data.sha;}
-    const res=await fetch(url,{method:'PUT',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(res.ok){alert(`✅ ${path} uploaded successfully to GitHub.`);refreshFileList();}
-    else{const err=await res.json();alert('❌ Upload failed: '+err.message);}
-  }catch(e){alert('⚠️ Error: '+e.message);}
-}
-
-async function deleteCSV(){
-  const file=document.getElementById('deleteDropdown').value;
-  if(!file)return alert('Please select a CSV file to delete.');
-  const token=await askForToken();
-  const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${file}`;
-  try{
-    const getRes=await fetch(url,{headers:{Authorization:`Bearer ${token}`}});
-    if(!getRes.ok)return alert('❌ File not found on GitHub.');
-    const data=await getRes.json();
-    const delRes=await fetch(url,{method:'DELETE',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({message:`Delete ${file} by Admin`,sha:data.sha})});
-    if(delRes.ok){alert(`🗑️ ${file} deleted successfully from GitHub.`);refreshFileList();}
-    else{const err=await delRes.json();alert('❌ Deletion failed: '+err.message);}
-  }catch(e){alert('⚠️ Error: '+e.message);}
-}
-
-function getGrade(score) {
-  score = parseFloat(score);
-  if (isNaN(score)) return '-';
-  if (['form1','form2'].includes(currentForm)) {
-    if (score >= 80) return 'A';
-    if (score >= 65) return 'B';
-    if (score >= 55) return 'C';
-    if (score >= 40) return 'D';
-    return 'F';
-  } else {
-    if (score >= 80) return '1';
-    if (score >= 75) return '2';
-    if (score >= 70) return '3';
-    if (score >= 65) return '4';
-    if (score >= 60) return '5';
-    if (score >= 55) return '6';
-    if (score >= 45) return '7';
-    if (score >= 35) return '8';
-    return '9';
-  }
-}
-
-function getRemark(grade) {
-  if (['form1','form2'].includes(currentForm)) {
-    if (grade === 'A') return 'Excellent';
-    if (grade === 'B') return 'Very good';
-    if (grade === 'C') return 'Good';
-    if (grade === 'D') return 'Average';
-    if (grade === 'F') return 'Fail';
-  } else {
-    const g = parseInt(grade);
-    if ([1,2].includes(g)) return 'Distinction';
-    if ([3,4].includes(g)) return 'Strong Credit';
-    if ([5,6].includes(g)) return 'Credit';
-    if ([7,8].includes(g)) return 'Pass';
-    return 'Fail';
-  }
-  return '-';
-}
-
-function loadResults() {
-  const selectedForm = document.getElementById('selectedForm').value;
-  const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
-  if (!selectedForm || !studentNumber) return alert('Please select a class and enter exam number.');
-  currentForm = selectedForm;
-  const csvUrl = `https://raw.githubusercontent.com/magawass/m/main/${currentForm}.csv?timestamp=${Date.now()}`;
-  fetch(csvUrl).then(r => r.text()).then(csvText => {
-    Papa.parse(csvText, {
-      header: true,
-      skipEmptyLines: true,
-      complete: res => {
-        const data = res.data;
-        const student = data.find(s => s['Exam Number'] === studentNumber);
-        if (!student) return alert('No results found for ' + studentNumber);
-        document.getElementById('studentName').textContent = student["STUDENT'S NAME"];
-        document.getElementById('studentID').textContent = studentNumber;
-        document.getElementById('studentForm').textContent = currentForm.toUpperCase();
-
-        const subjects = Object.keys(student).filter(k => !k.includes('Exam Number') && !k.includes("STUDENT'S NAME"));
-        let tableHtml = '<table><thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Position</th><th>Remarks</th></tr></thead><tbody>';
-        let scores = [];
-        let subjectPositions = {};
-
-        subjects.forEach(sub => {
-          const allScores = data.map(d => parseFloat(d[sub])).filter(n => !isNaN(n)).sort((a,b) => b-a);
-          const score = parseFloat(student[sub]);
-          if (!isNaN(score)) scores.push(score);
-          const grade = getGrade(score);
-          const remark = getRemark(grade);
-          const position = !isNaN(score) ? (allScores.indexOf(score) + 1) : '-';
-          tableHtml += `<tr><td>${sub}</td><td>${isNaN(score)?'-':score}</td><td>${grade}</td><td>${position}</td><td>${remark}</td></tr>`;
-        });
-
-        tableHtml += '</tbody></table>';
-        document.getElementById('resultsContainer').innerHTML = tableHtml;
-
-        let average = '-', aggregate = '-', remark = '-', overallPosition = '-';
-        const studentTotal = ['form1','form2'].includes(currentForm)
-          ? scores.reduce((a,b)=>a+b,0)/scores.length
-          : scores.sort((a,b)=>b-a).slice(0,6).reduce((a,b)=>a+b,0);
-
-        const allTotals = data.map(s => {
-          const vals = subjects.map(sub => parseFloat(s[sub])).filter(n => !isNaN(n));
-          return ['form1','form2'].includes(currentForm)
-            ? vals.reduce((a,b)=>a+b,0)/vals.length
-            : vals.sort((a,b)=>b-a).slice(0,6).reduce((a,b)=>a+b,0);
-        }).filter(n => !isNaN(n)).sort((a,b) => b-a);
-
-        overallPosition = allTotals.indexOf(studentTotal) + 1;
-        const grade = getGrade(studentTotal);
-        remark = getRemark(grade);
-        if (['form1','form2'].includes(currentForm)) average = studentTotal.toFixed(2);
-        else aggregate = studentTotal;
-
-        const summary = `<div class='summary-section'><table>
-          <tr><th>Average</th><td>${average}</td><th>Aggregate</th><td>${aggregate}</td></tr>
-          <tr><th>Position</th><td>${overallPosition}</td><th>Remarks</th><td>${remark}</td></tr>
-        </table></div>`;
-        document.getElementById('resultsContainer').innerHTML += summary;
-
-        document.getElementById('initialPage').style.display = 'none';
-        document.getElementById('resultPage').style.display = 'block';
+    function verifyAdmin() {
+      const pass = document.getElementById('adminPassword').value;
+      if (pass === 'magawa123') {
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('adminLabel').style.display = 'none';
+        document.getElementById('adminPassword').style.display = 'none';
+        document.getElementById('adminLoginBtn').style.display = 'none';
+        refreshFileList();
+      } else {
+        alert('Incorrect password');
       }
-    });
-  }).catch(() => alert('Error loading results.'));
-}
+    }
+    function getGrade(score) {
+      score = parseFloat(score);
+      if (isNaN(score)) return '-';
+      if (['form1', 'form2'].includes(currentForm)) {
+        if (score >= 80) return 'A';
+        if (score >= 65) return 'B';
+        if (score >= 55) return 'C';
+        if (score >= 40) return 'D';
+        return 'F';
+      } else {
+        if (score >= 80) return '1';
+        if (score >= 75) return '2';
+        if (score >= 70) return '3';
+        if (score >= 65) return '4';
+        if (score >= 60) return '5';
+        if (score >= 55) return '6';
+        if (score >= 45) return '7';
+        if (score >= 35) return '8';
+        return '9';
+      }
+    }
 
-function openPrintView(){window.print();}
-function openFullPdf(){
-  const page=document.getElementById('resultPage');
-  html2canvas(page,{scale:2}).then(canvas=>{
-    const pdf=new window.jspdf.jsPDF('p','mm','a4');
-    const imgData=canvas.toDataURL('image/png',1.0);
-    const pdfWidth=pdf.internal.pageSize.getWidth();
-    const pdfHeight=(canvas.height*pdfWidth)/canvas.width;
-    pdf.addImage(imgData,'PNG',0,0,pdfWidth,pdfHeight);
-    pdf.save('Magawa_Results.pdf');
-  });
-}
-</script>
+    function gradeToNumber(grade) {
+      if (['form1', 'form2'].includes(currentForm)) {
+        if (grade === 'A') return 1;
+        if (grade === 'B') return 2;
+        if (grade === 'C') return 3;
+        if (grade === 'D') return 4;
+        return 5; // F or invalid
+      } else {
+        const g = parseInt(grade);
+        return isNaN(g) ? 9 : g;
+      }
+    }
+
+    function loadResults() {
+      const selectedForm = document.getElementById('selectedForm').value;
+      const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
+      if (!selectedForm || !studentNumber) return alert('Please select a class and enter exam number.');
+      currentForm = selectedForm;
+      const csvUrl = `https://raw.githubusercontent.com/magawass/m/main/${currentForm}.csv?timestamp=${Date.now()}`;
+      fetch(csvUrl).then(r => r.text()).then(csvText => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: res => {
+            const data = res.data;
+            const student = data.find(s => s['Exam Number'] === studentNumber);
+            if (!student) return alert('No results found for ' + studentNumber);
+            document.getElementById('studentName').textContent = student["STUDENT'S NAME"];
+            document.getElementById('studentID').textContent = studentNumber;
+            document.getElementById('studentForm').textContent = currentForm.toUpperCase();
+
+            const subjects = Object.keys(student).filter(k => !k.includes('Exam Number') && !k.includes("STUDENT'S NAME"));
+            let tableHtml = '<table><thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Position</th><th>Remarks</th></tr></thead><tbody>';
+            let scores = [];
+            let grades = [];
+            let englishGrade = null;
+            let passedSubjects = 0;
+
+            subjects.forEach(sub => {
+              const allScores = data.map(d => parseFloat(d[sub])).filter(n => !isNaN(n)).sort((a, b) => b - a);
+              const score = parseFloat(student[sub]);
+              const grade = getGrade(score);
+              const position = !isNaN(score) ? (allScores.indexOf(score) + 1) : '-';
+              const remark = (grade === '-' || grade === 'F' || grade === '9') ? 'Fail' : 'Pass';
+              tableHtml += `<tr><td>${sub}</td><td>${isNaN(score) ? '-' : score}</td><td>${grade}</td><td>${position}</td><td>${remark}</td></tr>`;
+
+              if (!isNaN(score)) {
+                scores.push(score);
+                grades.push({ subject: sub, grade: grade });
+                if (sub.toLowerCase().includes('english')) englishGrade = grade;
+                if (['form1', 'form2'].includes(currentForm)) {
+                  if (['A', 'B', 'C', 'D'].includes(grade)) passedSubjects++;
+                } else {
+                  if (gradeToNumber(grade) <= 8) passedSubjects++;
+                }
+              }
+            });
+
+            tableHtml += '</tbody></table>';
+            document.getElementById('resultsContainer').innerHTML = tableHtml;
+
+            // Calculate position
+            let studentTotal = 0;
+            if (['form1', 'form2'].includes(currentForm)) {
+              studentTotal = scores.reduce((a, b) => a + b, 0);
+            } else {
+              let topSix = grades.map(g => ({ subject: g.subject, score: parseFloat(student[g.subject]) }))
+                                 .filter(g => !isNaN(g.score))
+                                 .sort((a, b) => b.score - a.score);
+              if (englishGrade && !topSix.some(g => g.subject.toLowerCase().includes('english'))) {
+                topSix.pop();
+                topSix.push({ subject: 'English', score: parseFloat(student['English']) });
+              }
+              studentTotal = topSix.slice(0, 6).reduce((a, b) => a + b.score, 0);
+            }
+
+            const allTotals = data.map(s => {
+              const vals = subjects.map(sub => parseFloat(s[sub])).filter(n => !isNaN(n));
+              if (['form1', 'form2'].includes(currentForm)) {
+                return vals.reduce((a, b) => a + b, 0);
+              } else {
+                return vals.sort((a, b) => b - a).slice(0, 6).reduce((a, b) => a + b, 0);
+              }
+            }).filter(n => !isNaN(n)).sort((a, b) => b - a);
+
+            const overallPosition = allTotals.indexOf(studentTotal) + 1;
+            const finalRemark = (passedSubjects >= 6 && englishGrade !== null) ? 'Pass' : 'Fail';
+
+            let average = '-', aggregate = '-';
+            if (['form1', 'form2'].includes(currentForm)) {
+              average = (studentTotal / scores.length).toFixed(2);
+            } else {
+              let gradeValues = grades.map(g => ({ subject: g.subject, value: gradeToNumber(g.grade) }));
+              let englishIncluded = gradeValues.find(g => g.subject.toLowerCase().includes('english'));
+              let others = gradeValues.filter(g => !g.subject.toLowerCase().includes('english'));
+              let bestGrades = others.sort((a, b) => a.value - b.value).slice(0, 5);
+              if (englishIncluded) bestGrades.push(englishIncluded);
+              aggregate = bestGrades.reduce((sum, g) => sum + g.value, 0);
+            }
+
+            const summary = `<div class='summary-section'><table><tr>
+              ${['form1','form2'].includes(currentForm) ? `<th>Average</th><td>${average}</td>` : `<th>Aggregate</th><td>${aggregate}</td>`}
+              <th>Position</th><td>${overallPosition}</td><th>Remarks</th><td>${finalRemark}</td>
+            </tr></table></div>`;
+            document.getElementById('resultsContainer').innerHTML += summary;
+
+            document.getElementById('initialPage').style.display = 'none';
+            document.getElementById('resultPage').style.display = 'block';
+          }
+        });
+      }).catch(() => alert('Error loading results.'));
+    }
+
+    function openPrintView() {
+      window.print();
+    }
+
+    function openFullPdf() {
+      const page = document.getElementById('resultPage');
+      html2canvas(page, { scale: 2 }).then(canvas => {
+        const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('Magawa_Results.pdf');
+      });
+    }
+  </script>
 </body>
 </html>
-
-
