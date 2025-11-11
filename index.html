@@ -175,7 +175,7 @@
   </div>
   <div id="resultPage" class="page">
     <div class="header-row">
-    <img src="https://i.postimg.cc/9MFjGfRL/logo.png" class="logo" crossorigin="anonymous">     
+      <img src="https://i.postimg.cc/9MFjGfRL/logo.png" class="logo" crossorigin="anonymous">
       <div class="header-text">
         <h2>MAGAWA SEC SCHOOL</h2>
         <p>Private Bag 17, Magawa, Mchinji</p>
@@ -281,13 +281,34 @@
       }
     }
 
+    function getSubjectRemark(grade) {
+      if (['form1', 'form2'].includes(currentForm)) {
+        switch (grade) {
+          case 'A': return 'Excellent';
+          case 'B': return 'Very Good';
+          case 'C': return 'Good';
+          case 'D': return 'Average';
+          case 'F': return 'Fail';
+          default: return '-';
+        }
+      } else {
+        const g = parseInt(grade);
+        if ([1, 2].includes(g)) return 'Distinction';
+        if ([3, 4].includes(g)) return 'Strong Credit';
+        if ([5, 6].includes(g)) return 'Credit';
+        if ([7, 8].includes(g)) return 'Pass';
+        if (g === 9) return 'Fail';
+        return '-';
+      }
+    }
+
     function gradeToNumber(grade) {
       if (['form1', 'form2'].includes(currentForm)) {
         if (grade === 'A') return 1;
         if (grade === 'B') return 2;
         if (grade === 'C') return 3;
         if (grade === 'D') return 4;
-        return 5; // F or invalid
+        return 5;
       } else {
         const g = parseInt(grade);
         return isNaN(g) ? 9 : g;
@@ -324,8 +345,8 @@
               const score = parseFloat(student[sub]);
               const grade = getGrade(score);
               const position = !isNaN(score) ? (allScores.indexOf(score) + 1) : '-';
-              const remark = (grade === '-' || grade === 'F' || grade === '9') ? 'Fail' : 'Pass';
-              tableHtml += `<tr><td>${sub}</td><td>${isNaN(score) ? '-' : score}</td><td>${grade}</td><td>${position}</td><td>${remark}</td></tr>`;
+              const subjectRemark = getSubjectRemark(grade);
+              tableHtml += `<tr><td>${sub}</td><td>${isNaN(score) ? '-' : score}</td><td>${grade}</td><td>${position}</td><td>${subjectRemark}</td></tr>`;
 
               if (!isNaN(score)) {
                 scores.push(score);
@@ -334,7 +355,7 @@
                 if (['form1', 'form2'].includes(currentForm)) {
                   if (['A', 'B', 'C', 'D'].includes(grade)) passedSubjects++;
                 } else {
-                  if (gradeToNumber(grade) <= 8) passedSubjects++;
+                  if (score >= 35) passedSubjects++;
                 }
               }
             });
@@ -342,7 +363,6 @@
             tableHtml += '</tbody></table>';
             document.getElementById('resultsContainer').innerHTML = tableHtml;
 
-            // Calculate position
             let studentTotal = 0;
             if (['form1', 'form2'].includes(currentForm)) {
               studentTotal = scores.reduce((a, b) => a + b, 0);
@@ -394,13 +414,12 @@
       }).catch(() => alert('Error loading results.'));
     }
 
-    function openPrintView() {
+        function openPrintView() {
       window.print();
     }
 
     function openFullPdf() {
-      const page = document.getElementById('resultPage');
-      html2canvas(page, { scale: 2 }).then(canvas => {
+      html2canvas(document.getElementById('resultPage'), { scale: 2 }).then(canvas => {
         const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
         const imgData = canvas.toDataURL('image/png', 1.0);
         const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -412,4 +431,3 @@
   </script>
 </body>
 </html>
-
