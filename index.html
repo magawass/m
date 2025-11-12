@@ -137,6 +137,13 @@
       width: 45%;
       margin: 5px;
     }
+    .final-remark {
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 1.1em;
+      color: #004080;
+    }
   </style>
 </head>
 <body>
@@ -153,12 +160,12 @@
       <option value="form4">Form 4</option>
     </select>
     <label for="studentNumberInput">Enter Exam Number</label>
-    <input type="text" id="studentNumberInput" placeholder="e.g. J047/001">
+    <input type="text" id="studentNumberInput" placeholder="e.g. J047/001 or M047/001">
     <label for="dobInput">Enter Date of Birth</label>
     <input type="date" id="dobInput" placeholder="e.g. 2008-05-12">
     <button onclick="loadResults()">View Results</button>
     <button onclick="openAdmin()">Admin</button>
-    <p><br><br></p>
+    <p><br></p>
     <p style="font-size: 11px;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
   </div>
   <div id="resultPage" class="page">
@@ -180,6 +187,8 @@
       <p><strong>Term:</strong> <span id="studentTerm">1</span></p>
     </div>
     <div id="resultsContainer"></div>
+    <div class="summary-section" id="summarySection"></div>
+    <div class="final-remark" id="finalRemark"></div>
     <div class="actions">
       <button onclick="openPrintView()">Print</button>
       <button onclick="openFullPdf()">Download PDF</button>
@@ -216,7 +225,148 @@
   </div>
 
   <script>
-    let currentForm = '';
+    function loadResults() {
+      const form = document.getElementById('selectedForm').value;
+      const studentNumber = document.getElementById('studentNumberInput').value.trim();
+      const dob = document.getElementById('dobInput').value.trim();
+
+      if (!form || !studentNumber || !dob) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      fetch(`https://raw.githubusercontent.com/magawass/m/main/${form}.csv`)
+        .then(response => response.text())
+        .then(csv => {
+          const parsed = Papa.parse(csv, { header: true });
+          const data = parsed.data;
+
+          const dobInput = new Date(dob);
+          const formattedDob = `${dobInput.getFullYear()}-${(dobInput.getMonth() + 1).toString().padStart(2, '0')}-${dobInput.getDate().toString().padStart(2, '0')}`;
+
+          const student = data.find(s => s['Exam Number'] === studentNumber && s['Date of Birth'] === formattedDob);
+
+          if (!student) {
+            alert('No results found. Please check Exam Number and Date of Birth.');
+            return;
+          }
+
+          document.getElementById('studentName').textContent = student["STUDENT'S NAME"];
+          document.getElementById('studentID').textContent = student["Exam Number"];
+          document.getElementById('studentForm').textContent = form.toUpperCase();
+
+          const subjects = Object.keys(student).filter(k => !k.includes('Exam Number') && !k.includes("STUDENT'S NAME") && !k.includes("Date of Birth"));
+          let tableHTML = '<table><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Remark</th></tr>';
+          let total = 0;
+          let grades = [];
+
+          subjects.forEach(sub => {
+            const score = parseInt(student[sub]);
+            total += score;
+            const grade = getGrade(score, form);
+            grades.push(grade);
+            tableHTML += `<tr><td>${sub}</td><td>${score}</td><td>${grade}</td><td>${getSubjectRemark(score, form)}</td></tr>`;
+          });
+
+          tableHTML += '</table>';
+          document.getElementById('resultsContainer').innerHTML = tableHTML;
+
+          let summaryHTML = '';
+          if (form === 'form1' || form === 'form2') {
+            const avg = Math.round(total / subjects.length);
+            summaryHTML = `<table><tr><th>Total</th><th>Average</th></tr>
+                           <tr><td>${total}</td><td>${avg}</td></tr></table>`;
+          } else {
+            const numericGrades = grades.map(g => parseInt(g)).sort((a, b) => a - b);
+            const aggregate = numericGrades.slice(0, 6).reduce((sum, g) => sum + g, 0);
+            summaryHTML = `<table><tr><th>Aggregate</th></tr>
+                           <tr><td>${aggregate}</td></tr></table>`;
+          }
+
+          document.getElementById('summarySection').innerHTML = summaryHTML;
+          document.getElementById('finalRemark').textContent = getFinalRemark(subjects, student, form);
+
+          document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+          document.getElementById('resultPage').style.display = 'block';
+        })
+        .catch(() => alert('Failed to load results.'));
+    }    function getGrade(score, form) {
+      if (form === 'form1' || form === 'form2') {
+        if (score >= 80) return 'A';
+        if (score >= 65) return 'B';
+        if (score >= 55) return 'C';
+        if (score >= 40) return 'D';
+        return 'F';
+      } else {
+        if (score >= 80) return '1';
+        if (score >= 75) return '2';
+        if (score >= 70) return '3';
+        if (score >= 65) return '4';
+        if (score >= 60) return '5';
+        if (score >= 55) return '6';
+        if (score >= 45) return '7';
+        if (score >= 35) return '8';
+        return '9';
+      }
+    }
+
+    function getSubjectRemark(score, form) {
+      if (form === 'form1' || form === 'form2') {
+        if (score >= 80) return 'Excellent';
+        if (score >= 65) return 'Very good';
+        if (score >= 55) return 'Good';
+        if (score >= 40) return 'Average';
+        return 'Fail';
+      } else {
+        if (score >= 75) return 'Distinction';
+        if (score >= 70) return 'Strong credit';
+        if (score >= 65) return 'Strong credit';
+        if (score >= 60) return 'Credit';
+        if (score >= 55) return 'Credit';
+        if (score >= 45) return 'Pass';
+        if (score >= 35) return 'Pass';
+        return 'Fail';
+      }
+    }
+
+    function getFinalRemark(subjects, student, form) {
+      let passedSubjects = 0;
+      let englishPassed = false;
+
+      subjects.forEach(sub => {
+        const score = parseInt(student[sub]);
+        if (form === 'form1' || form === 'form2') {
+          if (score >= 40) {
+            passedSubjects++;
+            if (sub === 'English') englishPassed = true;
+          }
+        } else {
+          if (score >= 35) {
+            passedSubjects++;
+            if (sub === 'English') englishPassed = true;
+          }
+        }
+      });
+
+      return (passedSubjects >= 6 && englishPassed) ? 'Pass' : 'Fail';
+    }
+
+    function openPrintView() {
+      window.print();
+    }
+
+    function openFullPdf() {
+      html2canvas(document.getElementById('resultPage')).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jspdf.jsPDF();
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('Magawa_Results.pdf');
+      });
+    }
+
     const GITHUB_USER = 'magawass';
     const GITHUB_REPO = 'm';
 
@@ -341,10 +491,6 @@
         })
         .catch(() => alert('Failed to load file list.'));
     }
-
-    // loadResults(), getGrade(), getSubjectRemark(), gradeToNumber(), openPrintView(), openFullPdf()
-    // — already included in Part 1
-
   </script>
 </body>
 </html>
