@@ -8,28 +8,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    * { box-sizing: border-box; } /* Crucial for consistent layout */
     body {background:#666;font-family:Arial,sans-serif;margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh}
-    /* Main page container adjusted to 90% width on all screens, keeping desktop max-width */
-    .page {display:none;width:90%;max-width:650px;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+    .page {display:none;width:50%;max-width:650px;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
     #initialPage {display:block;text-align:center}
     .logo {max-width:220px;height:120px}
     h1,h2 {color:#555;margin:5px 0}
     label {display:block;margin-top:15px;font-weight:bold;color:#333}
-    /* Input/Select/Button widths remain 50% for desktop-like layout */
     select,input {width:50%;padding:12px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1em}
     button {width:50%;margin-top:20px;padding:12px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1.1em;transition:.3s}
     button:hover {background:#0056b3}
-    /* Header rows remain side-by-side (flex) for desktop layout consistency */
     .header-row {display:flex;justify-content:space-between;align-items:flex-start}
     .header-text {text-align:right;line-height:1.2}
     .divider-line {border:none;border-top:2px solid #004080;margin:8px 0 12px;width:100%}
     .progress-title {font-family:"Agency FB",sans-serif;font-size:1.2em;color:#000;margin:5px 0 10px;text-align:left}
     .info-row {display:flex;justify-content:space-between;font-size:1em;margin-bottom:4px}
-    
-    /* Tables are set to full width */
-    table {width:100%;border-collapse:collapse;margin-top:10px;font-size:.95em;}
-    
+    table {width:100%;border-collapse:collapse;margin-top:10px;font-size:.95em}
     th,td {border:1px solid #ccc;padding:6px}
     th {background:#e9ecef;text-align:center}
     td:first-child {text-align:left}
@@ -38,46 +31,8 @@
     .summary-section table {width:100%;border:1px solid #ccc;font-size:.95em}
     .summary-section th,.summary-section td {border:1px solid #ccc;padding:8px;text-align:left}
     .actions {text-align:center;margin-top:15px}
-    .actions button {width:15%;margin:5px} /* Keep original desktop percentage width */
+    .actions button {width:15%;margin:5px}
     .final-remark {margin-top:10px;font-weight:bold;text-align:left;font-size:1.1em;color:#004080}
-    
-    /* --- Mobile Fix: Scale/Zoom Content to Prevent Scrolling --- */
-    @media (max-width: 600px) {
-        #resultPage {
-            /* Override the 90% width to allow scaling */
-            width: 650px; 
-            max-width: 650px;
-            /* Scale content down to fit viewport (e.g., 90% of 650px is about 585px) */
-            transform-origin: top left;
-            transform: scale(0.6); /* Adjust this scale factor as needed for typical phone widths */
-            margin: 0;
-            padding: 20px;
-            
-            /* Center the scaled content */
-            position: absolute;
-            left: 50%;
-            margin-left: -325px; /* Half of the 650px width */
-        }
-        
-        /* Ensure the body doesn't scroll due to the scaled content */
-        body {
-            overflow: hidden;
-            display: block; /* Remove flex on body to allow absolute positioning */
-        }
-
-        /* The initial page must still be responsive */
-        #initialPage {
-            width: 90%;
-            margin: 0 auto;
-            position: relative;
-            left: auto;
-        }
-        
-        /* Make form/login elements full width on initial page */
-        #initialPage select, #initialPage input, #initialPage button {
-            width: 100%;
-        }
-    }
   </style>
 </head>
 <body>
