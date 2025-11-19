@@ -1,30 +1,25 @@
-﻿body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 1rem;
-  background: #f9f9f9;
-  font-size: 16px;
-}
-.container {
-  max-width: 800px;
-  margin: auto;
-  text-align: center;
-}
-h1, h2 {
-  margin-bottom: 0.5rem;
-}
-select, button {
-  padding: 0.5rem;
-  margin: 0.5rem;
-  font-size: 16px;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-th, td {
-  border: 1px solid #333;
-  padding: 0.5rem;
-  text-align: center;
-}
+body {background:#666;font-family:Arial,sans-serif;margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.page {display:none;width:50%;max-width:650px;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+#initialPage {display:block;text-align:center}
+.logo {max-width:220px;height:120px}
+h1,h2 {color:#555;margin:5px 0}
+label {display:block;margin-top:15px;font-weight:bold;color:#333}
+select,input {width:50%;padding:12px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1em}
+button {width:50%;margin-top:20px;padding:12px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1.1em;transition:.3s}
+button:hover {background:#0056b3}
+.header-row {display:flex;justify-content:space-between;align-items:flex-start}
+.header-text {text-align:right;line-height:1.2}
+.divider-line {border:none;border-top:2px solid #004080;margin:8px 0 12px;width:100%}
+.progress-title {font-family:"Agency FB",sans-serif;font-size:1.2em;color:#000;margin:5px 0 10px;text-align:left}
+.info-row {display:flex;justify-content:space-between;font-size:1em;margin-bottom:4px}
+table {width:100%;border-collapse:collapse;margin-top:10px;font-size:.95em}
+th,td {border:1px solid #ccc;padding:6px}
+th {background:#e9ecef;text-align:center}
+td:first-child {text-align:left}
+td:not(:first-child) {text-align:center}
+.summary-section {margin-top:10px}
+.summary-section table {width:100%;border:1px solid #ccc;font-size:.95em}
+.summary-section th,.summary-section td {border:1px solid #ccc;padding:8px;text-align:left}
+.actions {text-align:center;margin-top:15px}
+.actions button {width:15%;margin:5px}
+.final-remark {margin-top:10px;font-weight:bold;text-align:left;font-size:1.1em;color:#004080}
