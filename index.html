@@ -8,41 +8,191 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    * { box-sizing: border-box; } /* Crucial for consistent layout */
-    body {background:#666;font-family:Arial,sans-serif;margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh}
-    /* Main page container adjusted to 90% width on all screens, keeping desktop max-width */
-    .page {display:none;width:90%;max-width:650px;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
-    #initialPage {display:block;text-align:center}
-    .logo {max-width:220px;height:120px}
-    h1,h2 {color:#555;margin:5px 0}
-    label {display:block;margin-top:15px;font-weight:bold;color:#333}
-    /* Input/Select/Button widths remain 50% for desktop-like layout */
-    select,input {width:50%;padding:12px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1em}
-    button {width:50%;margin-top:20px;padding:12px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1.1em;transition:.3s}
-    button:hover {background:#0056b3}
-    /* Header rows remain side-by-side (flex) for desktop layout consistency */
-    .header-row {display:flex;justify-content:space-between;align-items:flex-start}
-    .header-text {text-align:right;line-height:1.2}
-    .divider-line {border:none;border-top:2px solid #004080;margin:8px 0 12px;width:100%}
-    .progress-title {font-family:"Agency FB",sans-serif;font-size:1.2em;color:#000;margin:5px 0 10px;text-align:left}
-    .info-row {display:flex;justify-content:space-between;font-size:1em;margin-bottom:4px}
-    
-    /* TABLES: Enable horizontal scrolling for the subject results on small screens */
-    #resultsContainer, .summary-section {
-        overflow-x: auto; 
+    /* Global Reset and Box Sizing */
+    * { box-sizing: border-box; margin: 0; padding: 0; } 
+
+    /* Body - Full view height, professional background */
+    body {
+        background: #e9ebee; /* Light, soft gray background */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px; /* Padding for mobile screens */
     }
-    table {width:100%;border-collapse:collapse;margin-top:10px;font-size:.95em; min-width: 400px; /* Prevents table from crushing too much */ }
-    
-    th,td {border:1px solid #ccc;padding:6px}
-    th {background:#e9ecef;text-align:center}
-    td:first-child {text-align:left}
-    td:not(:first-child) {text-align:center}
-    .summary-section {margin-top:10px}
-    .summary-section table {width:100%;border:1px solid #ccc;font-size:.95em}
-    .summary-section th,.summary-section td {border:1px solid #ccc;padding:8px;text-align:left}
-    .actions {text-align:center;margin-top:15px}
-    .actions button {width:15%;margin:5px} /* Keep original desktop percentage width */
-    .final-remark {margin-top:10px;font-weight:bold;text-align:left;font-size:1.1em;color:#004080}
+
+    /* Page Container - Attractive Card Look */
+    .page {
+        display: none;
+        width: 95%; /* Take up most of the mobile screen */
+        max-width: 650px;
+        padding: 30px; /* More padding */
+        background: #ffffff; /* Clean white background */
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Deeper, softer shadow */
+        margin: 20px 0; /* Add margin for vertical spacing */
+    }
+
+    #initialPage { display: block; text-align: center; }
+
+    /* Header/Logo */
+    .logo { max-width: 150px; height: auto; margin-bottom: 10px; }
+    h1, h2 { color: #34495e; margin: 5px 0; font-weight: 600; }
+    h1 p { font-size: 24px; margin: 0; }
+    h2 { font-size: 1.2em; color: #7f8c8d; }
+
+    /* Forms/Inputs */
+    label {
+        display: block;
+        margin-top: 15px;
+        font-weight: 500;
+        color: #2c3e50;
+        text-align: left; /* Align labels left */
+    }
+
+    select, input:not([type="file"]):not([type="password"]) {
+        width: 100%; /* Full width for better mobile UX */
+        padding: 12px;
+        margin-top: 5px;
+        border-radius: 8px; /* Slightly more rounded */
+        border: 1px solid #bdc3c7;
+        font-size: 1em;
+        transition: border-color 0.3s;
+    }
+    select:focus, input:focus {
+        border-color: #17a2b8; /* Highlight on focus */
+        outline: none;
+    }
+
+    /* Buttons */
+    button {
+        width: 100%; /* Full width for main buttons */
+        margin-top: 20px;
+        padding: 14px; /* More padding for easier tapping */
+        background: #17a2b8; /* Professional blue/cyan */
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: 600;
+        transition: background 0.3s, transform 0.1s;
+    }
+    button:hover { background: #148f9e; }
+    button:active { transform: scale(0.99); }
+
+    /* Header Row (Logo and School Text) */
+    .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center; /* Center vertically */
+        flex-wrap: wrap; /* Allow wrapping on small screens */
+        margin-bottom: 10px;
+    }
+    .header-text { text-align: right; line-height: 1.4; }
+    .header-text h2 { font-size: 1.5em; margin: 0; color: #2c3e50; }
+    .header-text p { margin: 0; font-size: 0.9em; color: #7f8c8d; }
+
+    /* Divider */
+    .divider-line { border: none; border-top: 3px solid #17a2b8; margin: 15px 0 20px; width: 100%; }
+
+    /* Results Info */
+    .progress-title {
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 1.4em;
+        color: #2c3e50;
+        margin: 5px 0 10px;
+        text-align: left;
+        border-bottom: 1px solid #ecf0f1;
+        padding-bottom: 5px;
+    }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95em;
+        margin-bottom: 8px;
+        flex-wrap: wrap; /* Allow wrapping */
+    }
+    .info-row p { width: 50%; margin: 0; }
+
+    /* Tables - Responsive scroll for data (Professional Compromise) */
+    #resultsContainer, .summary-section {
+        overflow-x: auto; /* Enable horizontal scroll for table to prevent content crushing/scrolling body */
+        width: 100%;
+        margin-top: 15px;
+    }
+    table {
+        min-width: 500px; /* Ensures table columns don't shrink too much */
+        border-collapse: collapse;
+        font-size: 0.9em;
+    }
+    th, td { border: 1px solid #dcdde1; padding: 10px 8px; }
+    th { background: #ecf0f1; color: #2c3e50; font-weight: 600; text-align: center; }
+    td:first-child { text-align: left; }
+    td:not(:first-child) { text-align: center; }
+
+    /* Summary */
+    .summary-section table { border: 2px solid #17a2b8; margin-top: 20px; }
+    .summary-section th, .summary-section td { border: 1px solid #dcdde1; padding: 10px; }
+
+    /* Final Remark */
+    .final-remark {
+        margin-top: 20px;
+        font-weight: bold;
+        text-align: center;
+        font-size: 1.2em;
+        color: #c0392b; /* A distinct color for the pass/fail result */
+        padding: 10px;
+        border: 2px solid #c0392b;
+        border-radius: 8px;
+    }
+
+    /* Actions (Print/Download/Back) */
+    .actions {
+        text-align: center;
+        margin-top: 25px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    .actions button {
+        width: 30%; /* Balanced width for small buttons */
+        margin: 0;
+        padding: 10px;
+        font-size: 0.9em;
+        border-radius: 6px;
+    }
+
+    /* Mobile Adjustments (Ensures stacking and full width on smaller screens) */
+    @media (max-width: 480px) {
+        /* Stack header elements */
+        .header-row {
+            flex-direction: column;
+            text-align: center;
+        }
+        .header-text {
+            text-align: center;
+        }
+        
+        /* Stack info details */
+        .info-row {
+            flex-direction: column;
+        }
+        .info-row p { 
+            width: 100%; 
+            text-align: left;
+        }
+        
+        /* Stack action buttons */
+        .actions {
+            flex-direction: column;
+            gap: 15px;
+        }
+        .actions button {
+            width: 100%; /* Make action buttons full width on very small screens */
+        }
+    }
   </style>
 </head>
 <body>
@@ -64,7 +214,7 @@
     <input type="date" id="dobInput">
     <button onclick="loadResults()">View Results</button>
     <button onclick="openAdmin()">Admin</button>
-    <p style="font-size:11px;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
   </div>
 
   <div id="resultPage" class="page">
