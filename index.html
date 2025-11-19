@@ -8,22 +8,31 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
+    * { box-sizing: border-box; } /* Crucial for consistent layout */
     body {background:#666;font-family:Arial,sans-serif;margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh}
-    .page {display:none;width:50%;max-width:650px;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+    /* Main page container adjusted to 90% width on all screens, keeping desktop max-width */
+    .page {display:none;width:90%;max-width:650px;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
     #initialPage {display:block;text-align:center}
     .logo {max-width:220px;height:120px}
     h1,h2 {color:#555;margin:5px 0}
     label {display:block;margin-top:15px;font-weight:bold;color:#333}
-    /* Default for larger screens */
+    /* Input/Select/Button widths remain 50% for desktop-like layout */
     select,input {width:50%;padding:12px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1em}
     button {width:50%;margin-top:20px;padding:12px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1.1em;transition:.3s}
     button:hover {background:#0056b3}
+    /* Header rows remain side-by-side (flex) for desktop layout consistency */
     .header-row {display:flex;justify-content:space-between;align-items:flex-start}
     .header-text {text-align:right;line-height:1.2}
     .divider-line {border:none;border-top:2px solid #004080;margin:8px 0 12px;width:100%}
     .progress-title {font-family:"Agency FB",sans-serif;font-size:1.2em;color:#000;margin:5px 0 10px;text-align:left}
     .info-row {display:flex;justify-content:space-between;font-size:1em;margin-bottom:4px}
-    table {width:100%;border-collapse:collapse;margin-top:10px;font-size:.95em}
+    
+    /* TABLES: Enable horizontal scrolling for the subject results on small screens */
+    #resultsContainer, .summary-section {
+        overflow-x: auto; 
+    }
+    table {width:100%;border-collapse:collapse;margin-top:10px;font-size:.95em; min-width: 400px; /* Prevents table from crushing too much */ }
+    
     th,td {border:1px solid #ccc;padding:6px}
     th {background:#e9ecef;text-align:center}
     td:first-child {text-align:left}
@@ -32,57 +41,8 @@
     .summary-section table {width:100%;border:1px solid #ccc;font-size:.95em}
     .summary-section th,.summary-section td {border:1px solid #ccc;padding:8px;text-align:left}
     .actions {text-align:center;margin-top:15px}
-    /* Default width for Download/Print/Back buttons */
-    .actions button {width:15%;margin:5px} 
+    .actions button {width:15%;margin:5px} /* Keep original desktop percentage width */
     .final-remark {margin-top:10px;font-weight:bold;text-align:left;font-size:1.1em;color:#004080}
-
-    /* --- Mobile Responsiveness (Max width 600px) --- */
-    @media (max-width: 600px) {
-        .page {
-            width: 90%; /* Take up most of the screen */
-            padding: 15px;
-        }
-        
-        /* Make inputs/selects full width */
-        select, input, button:not(.actions button) {
-            width: 100%;
-            box-sizing: border-box; /* Include padding in width calculation */
-        }
-
-        /* Stack logo and school text vertically */
-        .header-row {
-            flex-direction: column;
-            align-items: center;
-        }
-        .header-text {
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        /* Stack student info rows vertically */
-        .info-row {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .info-row p {
-            margin: 2px 0;
-        }
-
-        /* Make action buttons wider for mobile tapping */
-        .actions button {
-            width: 30%; /* Much wider for better tapping */
-            padding: 8px;
-            font-size: 0.9em;
-        }
-        
-        /* Make tables responsive (requires horizontal scrolling if content is too wide) */
-        #resultsContainer, .summary-section {
-            overflow-x: auto;
-        }
-        table {
-            min-width: 450px; /* Minimum width to ensure columns are readable */
-        }
-    }
   </style>
 </head>
 <body>
