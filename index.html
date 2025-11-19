@@ -27,11 +27,8 @@
     .progress-title {font-family:"Agency FB",sans-serif;font-size:1.2em;color:#000;margin:5px 0 10px;text-align:left}
     .info-row {display:flex;justify-content:space-between;font-size:1em;margin-bottom:4px}
     
-    /* TABLES: Enable horizontal scrolling for the subject results on small screens */
-    #resultsContainer, .summary-section {
-        overflow-x: auto; 
-    }
-    table {width:100%;border-collapse:collapse;margin-top:10px;font-size:.95em; min-width: 400px; /* Prevents table from crushing too much */ }
+    /* Tables are set to full width */
+    table {width:100%;border-collapse:collapse;margin-top:10px;font-size:.95em;}
     
     th,td {border:1px solid #ccc;padding:6px}
     th {background:#e9ecef;text-align:center}
@@ -43,6 +40,44 @@
     .actions {text-align:center;margin-top:15px}
     .actions button {width:15%;margin:5px} /* Keep original desktop percentage width */
     .final-remark {margin-top:10px;font-weight:bold;text-align:left;font-size:1.1em;color:#004080}
+    
+    /* --- Mobile Fix: Scale/Zoom Content to Prevent Scrolling --- */
+    @media (max-width: 600px) {
+        #resultPage {
+            /* Override the 90% width to allow scaling */
+            width: 650px; 
+            max-width: 650px;
+            /* Scale content down to fit viewport (e.g., 90% of 650px is about 585px) */
+            transform-origin: top left;
+            transform: scale(0.6); /* Adjust this scale factor as needed for typical phone widths */
+            margin: 0;
+            padding: 20px;
+            
+            /* Center the scaled content */
+            position: absolute;
+            left: 50%;
+            margin-left: -325px; /* Half of the 650px width */
+        }
+        
+        /* Ensure the body doesn't scroll due to the scaled content */
+        body {
+            overflow: hidden;
+            display: block; /* Remove flex on body to allow absolute positioning */
+        }
+
+        /* The initial page must still be responsive */
+        #initialPage {
+            width: 90%;
+            margin: 0 auto;
+            position: relative;
+            left: auto;
+        }
+        
+        /* Make form/login elements full width on initial page */
+        #initialPage select, #initialPage input, #initialPage button {
+            width: 100%;
+        }
+    }
   </style>
 </head>
 <body>
