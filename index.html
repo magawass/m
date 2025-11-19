@@ -130,41 +130,79 @@ function loadResults(){
       const formattedDob=`${dobInput.getFullYear()}-${(dobInput.getMonth()+1).toString().padStart(2,'0')}-${dobInput.getDate().toString().padStart(2,'0')}`;
       const student=data.find(s=>s['Exam Number']===studentNumber&&s['Date of Birth']===formattedDob);
       if(!student){alert('No results found.');return;}
-            document.getElementById('studentName').textContent=student["STUDENT'S NAME"];
+            
+      // FIX 1: Ensure student name is displayed for ALL forms
+      document.getElementById('studentName').textContent=student["STUDENT'S NAME"];
       document.getElementById('studentID').textContent=student["Exam Number"];
       document.getElementById('studentForm').textContent=form.toUpperCase();
 
-      // MODIFICATION START: Use the full SUBJECT_ORDER array
       const subjectsToDisplay=SUBJECT_ORDER;
-      // The `subjects` variable is used later for Total/Average/Aggregate calculation
-      // and final remark logic, so we keep the check for subjects *in the student data*
-      // but ensure we use the full list for table display.
       const subjects=SUBJECT_ORDER.filter(sub=>sub in student);
 
 
       let tableHTML='<table><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Position</th><th>Remark</th></tr>';
       let total=0;let grades=[];
 
-      // Iterate over the *full* list for display
       subjectsToDisplay.forEach(sub=>{
-        // The raw value will be undefined if the subject isn't in the student's record
         const raw=student[sub];
-        // The score calculation handles missing/undefined data by defaulting to 0
-        const score=parseInt(raw)||0;
+        let score=0; 
+        let grade='-';
+        let remark='-';
+        let subjectPosition='-'; // Default position to hyphen
+        let includeInCalc = false; // Contributes to Total/Aggregate/FinalRemark
         
-        // Only include score/grade in total/aggregate calculation if the subject
-        // was originally present in the data (as in the previous logic)
-        if (subjects.includes(sub)) {
-          total+=score;
-          const grade=getGrade(score,form);
-          grades.push(grade);
+        // If subject is present in student's CSV data
+        if (sub in student) { 
+            const isNumeric = !isNaN(parseFloat(raw)) && isFinite(raw);
+            
+            if (form === 'form3' || form === 'form4') {
+                if (raw === 'X') {
+                    remark = 'Not Enrolled';
+                } else if (raw === 'N') {
+                    remark = 'Did Not Write';
+                } else if (!isNumeric) {
+                    // Treat non-numeric non-X/N entries as missing score (hyphen)
+                    score = 0;
+                } else {
+                    // Valid Numeric score for F3/F4
+                    score = parseInt(raw);
+                    grade = getGrade(score, form);
+                    remark = getSubjectRemark(score, form);
+                    includeInCalc = true; 
+                }
+            } else {
+                // Forms 1 & 2: All present subjects contribute.
+                if (isNumeric) {
+                    score = parseInt(raw);
+                    grade = getGrade(score, form);
+                    remark = getSubjectRemark(score, form);
+                    includeInCalc = true;
+                }
+            }
         }
         
-        const grade=getGrade(score,form);
-        const subjectPosition=computeSubjectPosition(data,sub,score);
-        tableHTML+=`<tr><td>${sub}</td><td>${score}</td><td>${grade}</td><td>${subjectPosition}</td><td>${getSubjectRemark(score,form)}</td></tr>`;
+        // Only calculate position if a valid score was found
+        if (includeInCalc) {
+            subjectPosition=computeSubjectPosition(data,sub,score);
+        }
+        
+        // Total and Grades Array calculation
+        if (includeInCalc) {
+            total+=score;
+            // Only push a grade if it's the right type (F1/F2: A-F, F3/F4: 1-9)
+            if (form === 'form1' || form === 'form2') {
+                grades.push(grade);
+            } else {
+                // For F3/F4, push only numeric grades for aggregate calculation
+                if (!isNaN(parseInt(grade))) { 
+                    grades.push(grade);
+                }
+            }
+        }
+
+        tableHTML+=`<tr><td>${sub}</td><td>${score}</td><td>${grade}</td><td>${subjectPosition}</td><td>${remark}</td></tr>`;
       });
-      // MODIFICATION END
+      
 
       tableHTML+='</table>';
       document.getElementById('resultsContainer').innerHTML=tableHTML;
@@ -173,15 +211,19 @@ function loadResults(){
 
       let summaryHTML='';
       if(form==='form1'||form==='form2'){
-        // If no subjects were found, prevent division by zero for avg
         const avg=subjects.length > 0 ? Math.round(total/subjects.length) : 0;
         summaryHTML=`<table>
           <tr><th>Total</th><th>Average</th><th>Overall Position in Class</th></tr>
           <tr><td>${total}</td><td>${avg}</td><td>${position}</td></tr>
         </table>`;
       }else{
-        const numericGrades=grades.map(g=>parseInt(g)).sort((a,b)=>a-b);
-        const aggregate=numericGrades.slice(0,6).reduce((sum,g)=>sum+g,0);
+        // Aggregate calculated only if 6 or more numeric grades are available
+        const numericGrades=grades.filter(g=>!isNaN(parseInt(g))).map(g=>parseInt(g)).sort((a,b)=>a-b);
+        let aggregate = '-';
+        if (numericGrades.length >= 6) { 
+            aggregate = numericGrades.slice(0,6).reduce((sum,g)=>sum+g,0);
+        }
+
         summaryHTML=`<table>
           <tr><th>Aggregate</th><th>Overall Position in Class</th></tr>
           <tr><td>${aggregate}</td><td>${position}</td></tr>
@@ -196,7 +238,11 @@ function loadResults(){
     .catch(()=>alert('Failed to load results.'));
 }
 
+// MODIFIED: Ensure we only compute position for subjects with valid scores
 function computeSubjectPosition(classData,subject,myScore){
+  if (myScore === 0) { // If score is 0 due to being missing, return no position
+     return '-';
+  }
   const scores=classData.filter(s=>s&&s[subject]).map(s=>parseInt(s[subject])||0);
   scores.sort((a,b)=>b-a);
   const index=scores.indexOf(myScore);
@@ -208,23 +254,68 @@ function computeOverallPosition(classData,form,subjects){
   classData.forEach(s=>{
     if(!s||!s["Exam Number"])return;
     let total=0;let grades=[];
+    
     subjects.forEach(sub=>{
-      const score=parseInt(s[sub])||0;
-      total+=score;
-      grades.push(getGrade(score,form));
+      const raw = s[sub];
+      let score=0;
+      let includeInCalc = false;
+      
+      if (sub in s) {
+        const isNumeric = !isNaN(parseFloat(raw)) && isFinite(raw);
+        
+        if (form === 'form3' || form === 'form4') {
+            if (raw !== 'X' && raw !== 'N' && isNumeric) {
+                score = parseInt(raw) || 0;
+                const grade = getGrade(score, form);
+                // Only push numeric grades (1-9) for aggregate calculation
+                if (!isNaN(parseInt(grade))) {
+                    grades.push(grade);
+                }
+                includeInCalc = true;
+            }
+        } else {
+            // Forms 1 & 2
+            if (isNumeric) {
+                score = parseInt(raw) || 0;
+                const grade = getGrade(score, form);
+                grades.push(grade);
+                includeInCalc = true;
+            }
+        }
+      }
+      
+      if(includeInCalc) {
+        total+=score;
+      }
     });
+    
     if(form==='form1'||form==='form2'){
       metrics.push({id:s["Exam Number"],value:total,better:(a,b)=>a>b});
     }else{
-      const numeric=grades.map(g=>parseInt(g)).sort((a,b)=>a-b);
-      const aggregate=numeric.slice(0,6).reduce((sum,g)=>sum+g,0);
+      const numeric=grades.filter(g=>!isNaN(parseInt(g))).map(g=>parseInt(g)).sort((a,b)=>a-b);
+      // Set a high default value for aggregate so students with < 6 subjects rank last
+      let aggregate = 999; 
+      
+      if (numeric.length >= 6) { 
+          aggregate = numeric.slice(0,6).reduce((sum,g)=>sum+g,0);
+      }
+
       metrics.push({id:s["Exam Number"],value:aggregate,better:(a,b)=>a<b});
     }
   });
   const me=metrics.find(m=>m.id===document.getElementById('studentID').textContent);
   if(!me)return'-';
-  const betterCount=metrics.reduce((acc,m)=>acc+(m.better(m.value,me.value)?1:0),0);
-  return betterCount+1;
+  
+  // Sort and rank logic
+  if (form === 'form1' || form === 'form2') {
+      metrics.sort((a, b) => b.value - a.value); // Sort descending by total
+  } else {
+      metrics.sort((a, b) => a.value - b.value); // Sort ascending by aggregate
+  }
+  
+  const myIndex = metrics.findIndex(m => m.id === document.getElementById('studentID').textContent);
+  
+  return myIndex >= 0 ? (myIndex + 1) : '-';
 }
 
 function getGrade(score,form){
@@ -269,7 +360,18 @@ function getSubjectRemark(score,form){
 function getFinalRemark(subjects,student,form){
   let passedSubjects=0;let englishPassed=false;
   subjects.forEach(sub=>{
-    const score=parseInt(student[sub]);
+    const raw = student[sub];
+    const isNumeric = !isNaN(parseFloat(raw)) && isFinite(raw);
+    
+    // Only check for pass/fail if it's a numeric score and not N or X for Forms 3/4
+    if(form==='form3'||form==='form4'){
+        if(raw === 'X' || raw === 'N' || !isNumeric) return;
+    } else {
+        if (!isNumeric) return;
+    }
+    
+    const score = parseInt(raw);
+    
     if(form==='form1'||form==='form2'){
       if(score>=40){passedSubjects++;if(sub==='English')englishPassed=true;}
     }else{
