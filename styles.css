@@ -4,6 +4,7 @@ body {background:#666;font-family:Arial,sans-serif;margin:0;padding:0;display:fl
 .logo {max-width:220px;height:120px}
 h1,h2 {color:#555;margin:5px 0}
 label {display:block;margin-top:15px;font-weight:bold;color:#333}
+/* Default for larger screens */
 select,input {width:50%;padding:12px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1em}
 button {width:50%;margin-top:20px;padding:12px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1.1em;transition:.3s}
 button:hover {background:#0056b3}
@@ -21,5 +22,54 @@ td:not(:first-child) {text-align:center}
 .summary-section table {width:100%;border:1px solid #ccc;font-size:.95em}
 .summary-section th,.summary-section td {border:1px solid #ccc;padding:8px;text-align:left}
 .actions {text-align:center;margin-top:15px}
-.actions button {width:15%;margin:5px}
+/* Default width for Download/Print/Back buttons */
+.actions button {width:15%;margin:5px} 
 .final-remark {margin-top:10px;font-weight:bold;text-align:left;font-size:1.1em;color:#004080}
+
+/* --- Mobile Responsiveness (Max width 600px) --- */
+@media (max-width: 600px) {
+    .page {
+        width: 90%; /* Take up most of the screen */
+        padding: 15px;
+    }
+    
+    /* Make inputs/selects full width */
+    select, input, button:not(.actions button) {
+        width: 100%;
+        box-sizing: border-box; /* Include padding in width calculation */
+    }
+
+    /* Stack logo and school text vertically */
+    .header-row {
+        flex-direction: column;
+        align-items: center;
+    }
+    .header-text {
+        text-align: center;
+        margin-top: 10px;
+    }
+    
+    /* Stack student info rows vertically */
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .info-row p {
+        margin: 2px 0;
+    }
+
+    /* Make action buttons wider for mobile tapping */
+    .actions button {
+        width: 30%; /* Much wider for better tapping */
+        padding: 8px;
+        font-size: 0.9em;
+    }
+    
+    /* Make tables responsive (requires horizontal scrolling if content is too wide) */
+    #resultsContainer, .summary-section {
+        overflow-x: auto;
+    }
+    table {
+        min-width: 450px; /* Minimum width to ensure columns are readable */
+    }
+}
