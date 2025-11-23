@@ -50,8 +50,8 @@
         color: #2c3e50;
         text-align: left; /* Align labels left */
     }
-
-    select, input:not([type="file"]):not([type="password"]) {
+    /* Added textarea and select to selectors for consistent styling */
+    select, input:not([type="file"]):not([type="password"]), textarea {
         width: 100%; /* Full width for better mobile UX */
         padding: 12px;
         margin-top: 5px;
@@ -59,20 +59,27 @@
         border: 1px solid #bdc3c7;
         font-size: 1em;
         transition: border-color 0.3s;
-    }
-    textarea {
-        width: 100%;
-        padding: 12px;
-        margin-top: 5px;
-        border-radius: 8px;
-        border: 1px solid #bdc3c7;
-        font-size: 1em;
-        resize: vertical;
-        font-family: inherit;
+        font-family: inherit; /* Ensure textarea uses body font */
     }
     select:focus, input:focus, textarea:focus {
         border-color: #17a2b8; /* Highlight on focus */
         outline: none;
+    }
+    textarea {
+        resize: vertical;
+    }
+    /* Style for teacher assignment grouping to maintain layout consistency */
+    #teacherAssignmentPanel label {
+        margin-top: 10px;
+        margin-bottom: 5px;
+        font-weight: 400; /* Lighter weight for subject labels */
+    }
+    /* STYLE FOR SCROLLABLE SUBJECT ASSIGNMENT PANEL */
+    #teacherAssignmentPanel {
+        max-height: 400px; /* Limit height */
+        overflow-y: auto; /* Enable vertical scroll */
+        padding-right: 15px; /* Add space for scrollbar */
+        margin-bottom: 10px;
     }
 
     /* Buttons */
@@ -137,21 +144,24 @@
     }
 
     /* Tables - Responsive scroll for data (Professional Compromise) */
-    #resultsContainer, .summary-section {
-        overflow-x: auto; /* Enable horizontal scroll for table to prevent content crushing/scrolling body */
-        width: 100%; /* Ensures container takes up full width */
-        margin-top: 15px;
-    }
-    table {
+    /* NOTE: resultsContainer is not used, but overflow-x is needed for table wrapper */
+    #progressReport #resultsTable { 
         min-width: 500px; /* Ensures table columns don't shrink too much */
         border-collapse: collapse;
         font-size: 0.9em;
-        width: 100%; /* Ensures the table inside the scroll container takes full width */
+        width: 100%; 
     }
-    th, td { border: 1px solid #dcdde1; padding: 10px 8px; }
-    th { background: #ecf0f1; color: #2c3e50; font-weight: 600; text-align: center; }
-    td:first-child { text-align: left; }
-    td:not(:first-child) { text-align: center; }
+    #progressReport .table-wrapper {
+        overflow-x: auto; /* Enable horizontal scroll for table to prevent content crushing/scrolling body */
+        width: 100%; 
+        margin-top: 15px;
+    }
+
+    /* Table Cell Styles */
+    #resultsTable th, #resultsTable td { border: 1px solid #dcdde1; padding: 10px 8px; }
+    #resultsTable th { background: #ecf0f1; color: #2c3e50; font-weight: 600; text-align: center; }
+    #resultsTable td:first-child { text-align: left; }
+    #resultsTable td:not(:first-child) { text-align: center; }
 
     /* Summary - Ensures this table also takes full width */
     .summary-section table { 
@@ -190,7 +200,105 @@
         border-radius: 6px;
     }
 
-    /* Mobile Adjustments (Ensures stacking and full width on smaller screens) */
+    /* --- PROGRESS REPORT LAYOUT STYLES (RESPONSIVE FIRST) --- */
+    /* Container: Logo Left, Text Right */
+    #progressReport #reportHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+    
+    /* Responsive Logo Style */
+    #progressReport #reportHeader .logo {
+        width: 100px; /* Smaller for phone view */
+        height: auto;
+        margin-right: 15px;
+    }
+    
+    /* Responsive Text Block */
+    #reportHeaderRight {
+        text-align: right;
+        font-size: 0.8em; /* Readable address on mobile */
+        line-height: 1.4;
+    }
+
+    #reportHeaderRight h3 {
+        font-size: 1.3em; /* Readable school name on mobile */
+        margin: 0 0 5px 0;
+        color: black;
+    }
+
+    /* Report Page Container - Default to responsive for mobile screens */
+    #progressReport {
+        background-color: white;
+        color: black;
+        /* Adjusted padding for better mobile viewing experience */
+        padding: 40px 20px; 
+        width: 95%; /* Inherit .page width logic for responsiveness */
+        max-width: 650px; /* Adhere to the .page max width */
+        min-height: auto; /* Remove fixed height */
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Use the standard page shadow */
+        margin: 20px auto; 
+        
+        page-break-after: always;
+    }
+
+    #reportDetails div {
+        color: black; 
+    }
+
+    #resultsTable th, #resultsTable td {
+        border: 1px solid black;
+        padding: 5px;
+        background-color: white; 
+        color: black; 
+        font-size: 10pt; /* Ensure legible font size */
+    }
+    #resultsTable th {
+        background-color: #eee; 
+        text-align: center; /* Center headers for better column recognition */
+    }
+
+    /* Centering specific columns */
+    #resultsTable td:nth-child(3), /* Grade */
+    #resultsTable td:nth-child(4) { /* Position */
+        text-align: center;
+    }
+
+    /* Summary/Key Flex Structure */
+    #summaryAndKeyWrapper {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        flex-wrap: wrap; 
+    }
+    #reportSummary, #gradeKeyPlaceholder {
+        width: 48%; /* Default to side-by-side */
+    }
+
+    /* Styles for the NEW Aligned Grade Key Table */
+    #gradeKeyTableNew {
+        margin-top: 5px; 
+        width: 100%; 
+        border-collapse: collapse;
+        font-size: 7.5pt; 
+        border: 1px solid black;
+    }
+    #gradeKeyTableNew th, #gradeKeyTableNew td {
+        border: 1px solid black;
+        padding: 2px 4px; 
+        text-align: center;
+        background-color: white;
+        vertical-align: middle;
+        color: black;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    /* --- MOBILE ADJUSTMENTS (Ensures stacking and full width on smaller screens) --- */
     @media (max-width: 480px) {
         /* Stack header elements */
         .header-row {
@@ -218,156 +326,18 @@
         .actions button {
             width: 100%; /* Make action buttons full width on very small screens */
         }
-    }
-    
-    /* --- PROGRESS REPORT A4 SCREEN VIEW FIX & TOP MARGIN ADJUSTMENT (NEW) --- */
-    #progressReport header .logo {
-        width: 200px;
-        height: 100px;
-        margin: 0 15px 0 0; /* Align left in flex header */
-    }
-
-    /* Overwrite .page max-width for A4 size simulation */
-    #progressReport {
-        background-color: white;
-        color: black;
-        /* Increased top padding to push content down and equalize visual top/bottom border */
-        padding: 100px 40px 40px 40px;
-        /* A4 Portrait size approximation at 96 DPI: 794px x 1123px */
-        width: 794px; /* Fixed width for A4 simulation */
-        max-width: 794px; /* Ensure overwrite of .page max-width */
-        min-height: 1123px; /* Minimum height for A4 simulation */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add shadow to look like a separate page */
-        margin: 20px auto; /* Center the page horizontally on screen */
         
-        page-break-after: always; /* Ensure one A4 page logic for print */
+        /* Ensure Summary and Key stack on mobile */
+        #summaryAndKeyWrapper {
+            flex-direction: column;
+        }
+        #reportSummary, #gradeKeyPlaceholder {
+            width: 100% !important; /* Take full width when stacked */
+            margin-bottom: 15px; /* Add space between stacked elements */
+        }
     }
 
-    #progressReport header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 10px;
-    }
-
-    #reportHeaderRight {
-        text-align: right;
-        font-size: 9pt;
-    }
-
-    #reportHeaderRight h3 {
-        font-size: 16pt;
-        margin: 0 0 5px 0;
-    }
-
-    #reportDetails {
-        margin: 15px 0;
-        border-bottom: 1px solid black;
-        padding-bottom: 10px;
-    }
-
-    #reportDetails div {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 5px;
-        color: black; /* Ensure text is black */
-    }
-
-    #resultsTable {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        font-size: 10pt;
-    }
-
-    #resultsTable th, #resultsTable td {
-        border: 1px solid black;
-        padding: 5px;
-        text-align: left; /* Headers aligned left */
-        background-color: white; /* Ensure table cells are white */
-        color: black; /* Ensure table text is black */
-    }
-    /* Center Grades in the Progress Report table (3rd column) */
-    #resultsTable td:nth-child(3) {
-        text-align: center;
-    }
-    /* Center Position in the Progress Report table (4th column) */
-    #resultsTable td:nth-child(4) {
-        text-align: center;
-    }
-
-    #resultsTable th {
-        background-color: #eee; /* Light header for differentiation */
-    }
-
-    /* Styles for the NEW Aligned Grade Key Table */
-    #gradeKeyTableNew {
-        /* To align the content with the results table columns */
-        margin-top: 5px; /* Adjust top margin for desired skip */
-        width: 100%; 
-        border-collapse: collapse;
-        font-size: 7.5pt; /* Smaller font size */
-        border: 1px solid black;
-    }
-    #gradeKeyTableNew th, #gradeKeyTableNew td {
-        border: 1px solid black;
-        padding: 2px 4px; /* Reduced padding */
-        text-align: center;
-        background-color: white;
-        vertical-align: middle;
-        color: black;
-    }
-    #gradeKeyTableNew th {
-        background-color: #eee;
-        font-weight: 600;
-    }
-    #gradeKeyTableNew .range-header {
-        text-align: center;
-        font-weight: bold;
-        background-color: #ddd;
-    }
-
-    /* Ensure the summary has padding */
-    #reportSummary div {
-        margin: 5px 0;
-        font-weight: bold;
-        color: black;
-        /* Add padding for better visual alignment */
-        padding-left: 5px; 
-    }
-    /* Style for Admin Panel Teacher Inputs */
-    #teacherAssignmentPanel {
-      margin-top: 10px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      max-height: 250px;
-      overflow-y: auto;
-    }
-    .teacher-input-group {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
-    }
-    .teacher-input-group label {
-      margin: 0;
-      width: 40%;
-      font-size: 0.9em;
-      font-weight: normal;
-    }
-    .teacher-input-group input {
-      width: 55%;
-      padding: 5px;
-      margin: 0;
-      font-size: 0.9em;
-    }
-
-
-    .hidden {
-        display: none !important;
-    }
-
+    
     /* --- A4 PRINTING STYLES (REQUIRED to ensure A4 output) --- */
     @media print {
         /* Define the paper size and a common margin */
@@ -378,7 +348,7 @@
         
         /* Hide all pages except the Progress Report when printing */
         body > .page:not(#progressReport),
-        body > div:not(#progressReport) { /* Added div selector for robustness */
+        body > div:not(#progressReport) { 
             display: none !important;
         }
         
@@ -388,17 +358,39 @@
             max-width: none !important;
             min-height: auto !important;
             margin: 0 !important;
-            /* Increased top padding for print to match the larger top margin requested */
-            padding: 100px 40px 40px 40px !important;
+            /* Ensure the A4 padding is used for print */
+            padding: 100px 40px 40px 40px !important; 
             box-shadow: none !important;
             display: block !important;
-            position: relative; /* Required for absolute positioned elements inside */
+            position: relative; 
         }
         
         /* Hide the back and print/save buttons in the print view */
         #progressReport .back-btn,
         #progressReport .view-btn {
             display: none !important;
+        }
+    }
+
+    /* Apply A4 fixed size ONLY for large screens or print preview (Media Query Added) */
+    @media (min-width: 795px) {
+        #progressReport {
+            padding: 100px 40px 40px 40px; /* Restored A4 top margin */
+            width: 794px; /* Fixed width for A4 simulation */
+            max-width: 794px; /* Ensure overwrite of .page max-width */
+            min-height: 1123px; /* Minimum height for A4 simulation */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add shadow to look like a separate page */
+        }
+        /* A4 Specific Header Overrides */
+        #progressReport #reportHeader .logo {
+            width: 200px; /* Larger logo on A4 */
+            height: 100px;
+        }
+        #reportHeaderRight {
+            font-size: 9pt; /* Address size for A4 print */
+        }
+        #reportHeaderRight h3 {
+            font-size: 16pt; /* School Name size for A4 print */
         }
     }
   </style>
@@ -428,10 +420,8 @@
   <div id="progressReport" class="page">
     <button class="back-btn" onclick="backToInitialPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px;">Back</button>
 
-    <header style="width: 100%;">
-        <div style="display: flex; align-items: center;">
-            <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo" style="width: 150px; height: auto; margin: 0 15px 0 0;">
-        </div>
+    <header id="reportHeader" style="width: 100%;">
+        <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
         <div id="reportHeaderRight">
             <h3>MAGAWA SECONDARY SCHOOL</h3>
             Private Bag 17,<br>
@@ -457,39 +447,37 @@
         </div>
     </div>
     
-    <table id="resultsTable">
-        <thead>
-            <tr>
-                <th style="width: 20%;">SUBJECT</th>
-                <th style="width: 10%;">SCORE</th>
-                <th style="width: 10%;">GRADE</th>
-                <th style="width: 10%;">POSITION</th>
-                <th style="width: 30%;">REMARKS</th>
-                <th style="width: 20%;">TEACHER</th>
-            </tr>
-        </thead>
-        <tbody id="reportBody">
-            </tbody>
-    </table>
+    <div class="table-wrapper">
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">SUBJECT</th>
+                    <th style="width: 10%;">SCORE</th>
+                    <th style="width: 10%;">GRADE</th>
+                    <th style="width: 10%;">POSITION</th>
+                    <th style="width: 30%;">REMARKS</th>
+                    <th style="width: 20%;">TEACHER</th>
+                </tr>
+            </thead>
+            <tbody id="reportBody">
+                </tbody>
+        </table>
+    </div>
 
-    <table id="bottomSectionTable" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-        <tr>
-            <td id="reportSummaryCell" style="width: 45%; padding: 0; vertical-align: top; border: none;">
-                <div id="reportSummary" style="width: 100%;">
-                    <div id="averageLine" class="hidden">Average: <span id="reportAverage"></span></div>
-                    <div id="aggregateLine" class="hidden">Aggregate: <span id="reportAggregate"></span></div>
-                    <div>Position in Class: <span id="reportPosition"></span></div>
-                    <div>Remark: <span id="reportOverallRemark"></span></div>
-                </div>
-            </td>
-            
-            <td id="gradeKeyCell" style="width: 55%; padding: 0; vertical-align: top; border: none;">
-                </td>
-        </tr>
-    </table>
+    <div id="summaryAndKeyWrapper">
+        <div id="reportSummary">
+            <div id="averageLine" class="hidden">Average: <span id="reportAverage"></span></div>
+            <div id="aggregateLine" class="hidden">Aggregate: <span id="reportAggregate"></span></div>
+            <div>Position in Class: <span id="reportPosition"></span></div>
+            <div>Remark: <span id="reportOverallRemark"></span></div>
+        </div>
+        
+        <div id="gradeKeyPlaceholder">
+            </div>
+    </div>
 
     <p style="margin-top: 20px; color: black;"><strong>COMMENT:</strong></p>
-    <div id="reportComment">
+    <div id="reportComment" style="padding: 10px; border: 1px solid black; min-height: 40px;">
         </div>
 
     <div style="text-align: right; margin-top: 20px;">
@@ -498,6 +486,7 @@
     </div>
     <p style="text-align: center; font-size: 8pt; margin-top: 10px; color: black;">Progress of results covers one A4 page only.</p>
 </div>
+
   <div id="adminPage" class="page" style="text-align:center;">
     <h2 id="adminLabel">Admin Login</h2>
     <input type="password" id="adminPassword" placeholder="Enter Password">
@@ -522,7 +511,17 @@
         <label for="generalCommentInput">General Report Comment:</label>
         <textarea id="generalCommentInput" rows="3" placeholder="Enter comment for all reports..."></textarea>
         
-        <label style="margin-top: 15px;">Assign Subject Teachers</label>
+        <hr style="margin: 20px 0; border: 1px solid #eee;">
+
+        <h3>Assign Subject Teachers (Per Class)</h3>
+        <label for="classTeacherDropdown">Select Class to Configure Teachers:</label>
+        <select id="classTeacherDropdown" onchange="populateTeacherInputs()">
+            <option value="form1">Form 1</option>
+            <option value="form2">Form 2</option>
+            <option value="form3">Form 3</option>
+            <option value="form4">Form 4</option>
+        </select>
+
         <div id="teacherAssignmentPanel">
             </div>
         
@@ -562,6 +561,7 @@ let configSha = null;
 
 // --- STATIC CONSTANTS ---
 const ALL_SUBJECTS = ["Agriculture", "Bible Knowledge", "Biology", "Chemistry", "Chichewa", "English", "Geography", "History", "Mathematics", "Physics", "Social/Life"];
+const ALL_CLASSES = ['form1', 'form2', 'form3', 'form4'];
 const MIN_SUBJECTS = 4;
 const DEFAULT_TEACHER = '-';
 
@@ -595,7 +595,7 @@ function goToPage(pageId) {
 function getNumericGradeForSorting(form, grade) {
     if (grade === '-' || grade === 'X' || grade === 'N') return 100;
 
-    if (form === 'Form1' || form === 'Form2') {
+    if (form.includes('form1') || form.includes('form2')) {
         if (grade === 'A') return 1;
         if (grade === 'B') return 4;
         if (grade === 'C') return 6;
@@ -613,7 +613,7 @@ function getGradeAndRemark(form, score) {
     if (score === null || score === undefined || score === '' || isNaN(parseInt(score))) return { grade: '-', remark: 'No score' };
     score = parseInt(score);
 
-    if (form === 'Form1' || form === 'Form2') {
+    if (form.includes('form1') || form.includes('form2')) {
         if (score >= 80) return { grade: 'A', remark: 'Excellent' };
         if (score >= 65) return { grade: 'B', remark: 'Very Good' };
         if (score >= 55) return { grade: 'C', remark: 'Good' };
@@ -621,7 +621,7 @@ function getGradeAndRemark(form, score) {
         return { grade: 'F', remark: 'Fail' };
     }
 
-    if (form === 'Form3' || form === 'Form4') {
+    if (form.includes('form3') || form.includes('form4')) {
         if (score >= 80) return { grade: '1', remark: 'Distinction' };
         if (score >= 75) return { grade: '2', remark: 'Distinction' };
         if (score >= 70) return { grade: '3', remark: 'Strong Credit' };
@@ -636,9 +636,9 @@ function getGradeAndRemark(form, score) {
 }
 
 function isPassingGrade(form, grade) {
-    if (form === 'Form1' || form === 'Form2') {
+    if (form.includes('form1') || form.includes('form2')) {
         return grade !== 'F' && grade !== '-' && grade !== 'X' && grade !== 'N';
-    } else if (form === 'Form3' || form === 'Form4') {
+    } else if (form.includes('form3') || form.includes('form4')) {
         return ['1', '2', '3', '4', '5', '6', '7', '8'].includes(grade);
     }
     return false;
@@ -647,12 +647,18 @@ function isPassingGrade(form, grade) {
 // --- CONFIGURATION MANAGEMENT FUNCTIONS ---
 
 function getDefaultConfig() {
-    const teachers = {};
-    ALL_SUBJECTS.forEach(sub => teachers[sub] = DEFAULT_TEACHER);
+    const defaultTeachers = {};
+    
+    // Initialize teachers for all forms
+    ALL_CLASSES.forEach(cls => {
+        defaultTeachers[cls] = {};
+        ALL_SUBJECTS.forEach(sub => defaultTeachers[cls][sub] = DEFAULT_TEACHER);
+    });
+
     return {
         term: 1,
         generalComment: 'No general comment was provided for this class/term.',
-        teachers: teachers
+        teachers: defaultTeachers
     };
 }
 
@@ -679,12 +685,18 @@ async function fetchConfig(token) {
         const data = await response.json();
         const content = JSON.parse(atob(data.content));
         
-        // Merge loaded config with defaults to ensure all fields are present
+        // Merge loaded config with defaults to ensure all fields/forms are present
         const defaultConfig = getDefaultConfig();
         const loadedConfig = { 
             ...defaultConfig, 
             ...content,
-            teachers: { ...defaultConfig.teachers, ...(content.teachers || {}) }
+            teachers: ALL_CLASSES.reduce((acc, cls) => {
+                acc[cls] = { 
+                    ...defaultConfig.teachers[cls], 
+                    ...(content.teachers && content.teachers[cls] ? content.teachers[cls] : {}) 
+                };
+                return acc;
+            }, {})
         };
 
         return { config: loadedConfig, sha: data.sha };
@@ -701,14 +713,24 @@ async function loadConfigAndPopulateAdmin() {
     currentConfig = config;
     configSha = sha;
     
-    // Populate Admin Inputs
+    // Populate General Inputs
     document.getElementById('reportTermSelect').value = config.term || 1;
     document.getElementById('generalCommentInput').value = config.generalComment || '';
     
+    // Populate teacher inputs for the currently selected class
+    populateTeacherInputs(); 
+}
+
+function populateTeacherInputs() {
+    if (!currentConfig) return; // Wait until config is loaded
+
+    const selectedClass = document.getElementById('classTeacherDropdown').value;
+    const teachersForClass = currentConfig.teachers[selectedClass] || {};
+
     const panel = document.getElementById('teacherAssignmentPanel');
     panel.innerHTML = '';
     
-    // Dynamically create teacher inputs
+    // Dynamically create teacher inputs for all subjects
     ALL_SUBJECTS.forEach(subject => {
         const group = document.createElement('div');
         group.className = 'teacher-input-group';
@@ -717,10 +739,13 @@ async function loadConfigAndPopulateAdmin() {
         label.textContent = subject + ':';
         group.appendChild(label);
         
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.id = `teacher-${subject.replace(/\s/g, '_')}`;
-        input.value = config.teachers[subject] || DEFAULT_TEACHER;
+        // Use text input box for teacher names
+        const input = document.createElement('input'); 
+        input.type = 'text'; 
+        input.placeholder = DEFAULT_TEACHER; 
+        input.id = `teacher-${selectedClass}-${subject.replace(/\s/g, '_')}`;
+        input.value = teachersForClass[subject] || DEFAULT_TEACHER;
+        
         group.appendChild(input);
         
         panel.appendChild(group);
@@ -731,30 +756,40 @@ async function handleSaveConfig() {
     const token = document.getElementById('githubToken').value.trim();
     if (!token) { alert('Please enter your Authorization Code (GitHub Token).'); return; }
 
-    // 1. Collect data from inputs
-    const newTeachers = {};
+    // 1. Collect general configuration data
+    const newTerm = parseInt(document.getElementById('reportTermSelect').value);
+    const newComment = document.getElementById('generalCommentInput').value.trim();
+    const selectedClass = document.getElementById('classTeacherDropdown').value;
+
+    // 2. Collect teachers for the selected class (now from text inputs)
+    const newTeachersForClass = {};
     ALL_SUBJECTS.forEach(subject => {
-        const inputId = `teacher-${subject.replace(/\s/g, '_')}`;
-        newTeachers[subject] = document.getElementById(inputId).value.trim() || DEFAULT_TEACHER;
+        const inputId = `teacher-${selectedClass}-${subject.replace(/\s/g, '_')}`;
+        // Retrieval remains the same (.value on the ID)
+        newTeachersForClass[subject] = document.getElementById(inputId).value.trim() || DEFAULT_TEACHER;
     });
 
+    // 3. Update the *current* config state
+    const currentTeachers = currentConfig.teachers || getDefaultConfig().teachers;
+    currentTeachers[selectedClass] = newTeachersForClass;
+    
     const newConfig = {
-        term: parseInt(document.getElementById('reportTermSelect').value),
-        generalComment: document.getElementById('generalCommentInput').value.trim(),
-        teachers: newTeachers
+        term: newTerm,
+        generalComment: newComment,
+        teachers: currentTeachers
     };
 
-    // 2. Fetch current SHA to prevent overwriting
+    // 4. Fetch current SHA to prevent overwriting
     const { sha: latestSha } = await fetchConfig(token);
     
-    // 3. Save the new config
+    // 5. Save the new config
     const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${CONFIG_FILE}`;
     // Indent JSON for readability on GitHub
     const encodedContent = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2))));
 
     try {
         const response = await fetch(apiUrl, {
-            method: latestSha ? 'PUT' : 'PUT', // Always use PUT when updating/creating files
+            method: 'PUT', // Always use PUT when updating/creating files
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -808,6 +843,9 @@ async function loadResults() {
             const currentForm = form.charAt(0).toUpperCase() + form.slice(1);
             const isUpperForm = form === 'form3' || form === 'form4';
             const ALL_SUBJECTS_IN_DATA = ALL_SUBJECTS.filter(s => classData.length > 0 && classData[0][s] !== undefined);
+            
+            // Get teacher assignments for the student's form
+            const teachersForStudentClass = currentConfig.teachers[form] || {};
 
             // 1. Populate Header Details (Report Page)
             document.getElementById('reportStudentName').textContent = student["STUDENT'S NAME"];
@@ -844,7 +882,7 @@ async function loadResults() {
                 } else if (isNumeric) {
                     score = parseInt(rawScore);
                     displayScore = score;
-                    const gr = getGradeAndRemark(currentForm, score);
+                    const gr = getGradeAndRemark(form, score); // Pass the raw form string ('form1')
                     grade = gr.grade;
                     remark = gr.remark;
 
@@ -853,13 +891,13 @@ async function loadResults() {
                         totalScore += score;
                     }
                     
-                    const numericGrade = getNumericGradeForSorting(currentForm, grade);
+                    const numericGrade = getNumericGradeForSorting(form, grade); // Pass the raw form string ('form1')
                     gradesList.push({ grade, subject, numericGrade });
                     
-                    if (isPassingGrade(currentForm, grade)) {
+                    if (isPassingGrade(form, grade)) { // Pass the raw form string ('form1')
                         passingSubjects++;
                     }
-                    if (subject === 'English' && isPassingGrade(currentForm, grade)) {
+                    if (subject === 'English' && isPassingGrade(form, grade)) { // Pass the raw form string ('form1')
                         englishPassed = true;
                     }
                 }
@@ -875,8 +913,8 @@ async function loadResults() {
                     subjectPosition = firstIndex >= 0 ? (firstIndex + 1) : '-';
                 }
 
-                // Use loaded teacher configuration
-                const teacher = currentConfig.teachers[subject] || DEFAULT_TEACHER;
+                // Use loaded teacher configuration for the student's class
+                const teacher = teachersForStudentClass[subject] || DEFAULT_TEACHER;
 
                 row.insertCell().textContent = subject;
                 row.insertCell().textContent = displayScore;
@@ -903,7 +941,7 @@ async function loadResults() {
                     const englishGradeEntry = gradesList.find(g => g.subject === 'English');
 
                     if (gradesList.length >= 6) { 
-                        if (englishGradeEntry && isPassingGrade(currentForm, englishGradeEntry.grade)) {
+                        if (englishGradeEntry && isPassingGrade(form, englishGradeEntry.grade)) {
                             let bestSixGrades = gradesList.slice(0, 6);
 
                             if (!bestSixGrades.some(g => g.subject === 'English')) {
@@ -922,7 +960,9 @@ async function loadResults() {
                 let total = 0;
                 let grades = [];
                 let subjectsCount = 0;
-                const studentForm = s.Form || currentForm;
+                const studentForm = form; // Assuming form is uniform for the CSV
+                const isStudentUpperForm = studentForm === 'form3' || studentForm === 'form4';
+
 
                 ALL_SUBJECTS_IN_DATA.forEach(sub => {
                     const raw = s[sub];
@@ -933,7 +973,7 @@ async function loadResults() {
                         const numericGrade = getNumericGradeForSorting(studentForm, grade);
                         
                         subjectsCount++;
-                        if (!isUpperForm) {
+                        if (!isStudentUpperForm) {
                             total += score;
                         } else {
                             grades.push({ grade, subject: sub, numericGrade });
@@ -943,7 +983,7 @@ async function loadResults() {
 
                 let metric = null;
                 if (subjectsCount >= MIN_SUBJECTS) {
-                    if (!isUpperForm) {
+                    if (!isStudentUpperForm) {
                         metric = total / subjectsCount;
                     } else {
                         if (grades.length >= 6) {
@@ -962,7 +1002,7 @@ async function loadResults() {
                     }
                 }
 
-                return { examNo: s["Exam Number"], metric, isUpperForm };
+                return { examNo: s["Exam Number"], metric, isUpperForm: isStudentUpperForm };
             });
 
             const rankableMetrics = classMetrics.filter(m => m.metric !== null);
@@ -1025,7 +1065,7 @@ async function loadResults() {
             document.getElementById('reportPosition').textContent = `${overallRank}/${totalRankableStudents}`;
             document.getElementById('reportComment').textContent = currentConfig.generalComment; // Use loaded comment
 
-            // --- NEW GRADE KEY LOGIC ---
+            // --- GRADE KEY LOGIC ---
             const gradeKeyData = isUpperForm ? GRADE_KEY_F3_F4 : GRADE_KEY_F1_F2;
 
             let keyHtml = `<table id="gradeKeyTableNew">
@@ -1042,7 +1082,7 @@ async function loadResults() {
             });
             keyHtml += `</tbody></table>`;
 
-            document.getElementById('gradeKeyCell').innerHTML = keyHtml;
+            document.getElementById('gradeKeyPlaceholder').innerHTML = keyHtml;
 
             // 5. Display Page
             goToPage('progressReport');
@@ -1064,6 +1104,7 @@ function openFullPdf(){
   const buttons = contentToCapture.querySelectorAll('.back-btn, .view-btn');
   buttons.forEach(btn => btn.style.visibility = 'hidden');
   
+  // Use scale: 2 for higher resolution in PDF
   html2canvas(contentToCapture, {
       scrollY: 0,
       scale: 2 
@@ -1071,11 +1112,13 @@ function openFullPdf(){
     buttons.forEach(btn => btn.style.visibility = 'visible');
 
     const imgData=canvas.toDataURL('image/png');
+    // Initialize jsPDF for A4 portrait
     const pdf=new jspdf.jsPDF('p', 'mm', 'a4'); 
     
     const pdfWidth=pdf.internal.pageSize.getWidth();
     const imgProps=pdf.getImageProperties(imgData);
     
+    // Calculate the image height to maintain aspect ratio
     const pdfHeight=(imgProps.height*pdfWidth)/imgProps.width;
 
     pdf.addImage(imgData,'PNG',0,0,pdfWidth,pdfHeight);
@@ -1094,7 +1137,7 @@ function openAdmin(){
   document.getElementById('adminPage').style.display='block';
 }
 
-function backToInitialPage(){
+async function backToInitialPage(){
   goToPage('initialPage'); 
   document.getElementById('selectedForm').value='';
   document.getElementById('studentNumberInput').value='';
@@ -1116,7 +1159,7 @@ async function verifyAdmin(){
     document.getElementById('adminLabel').style.display='none';
     document.getElementById('adminPassword').style.display='none';
     document.getElementById('adminLoginBtn').style.display='none';
-    await loadConfigAndPopulateAdmin();
+    await loadConfigAndPopulateAdmin(); // Load and populate config after admin login
     refreshFileList();
   }else{alert('Incorrect password');}
 }
