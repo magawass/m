@@ -2,16 +2,57 @@
   "term": 1,
   "generalComment": "You must work extra hard in the subjects not done well.",
   "teachers": {
-    "Agriculture": "Lubaini Chiku",
-    "Bible Knowledge": "-",
-    "Biology": "-",
-    "Chemistry": "-",
-    "Chichewa": "-",
-    "English": "-",
-    "Geography": "-",
-    "History": "-",
-    "Mathematics": "-",
-    "Physics": "-",
-    "Social/Life": "-"
+    "form1": {
+      "Agriculture": "Lubaini Chiku",
+      "Bible Knowledge": "-",
+      "Biology": "-",
+      "Chemistry": "-",
+      "Chichewa": "-",
+      "English": "-",
+      "Geography": "-",
+      "History": "-",
+      "Mathematics": "-",
+      "Physics": "-",
+      "Social/Life": "-"
+    },
+    "form2": {
+      "Agriculture": "-",
+      "Bible Knowledge": "-",
+      "Biology": "-",
+      "Chemistry": "-",
+      "Chichewa": "-",
+      "English": "-",
+      "Geography": "-",
+      "History": "-",
+      "Mathematics": "-",
+      "Physics": "-",
+      "Social/Life": "-"
+    },
+    "form3": {
+      "Agriculture": "-",
+      "Bible Knowledge": "-",
+      "Biology": "-",
+      "Chemistry": "-",
+      "Chichewa": "-",
+      "English": "-",
+      "Geography": "-",
+      "History": "-",
+      "Mathematics": "-",
+      "Physics": "-",
+      "Social/Life": "-"
+    },
+    "form4": {
+      "Agriculture": "-",
+      "Bible Knowledge": "-",
+      "Biology": "-",
+      "Chemistry": "-",
+      "Chichewa": "-",
+      "English": "-",
+      "Geography": "-",
+      "History": "-",
+      "Mathematics": "-",
+      "Physics": "-",
+      "Social/Life": "-"
+    }
   }
 }
