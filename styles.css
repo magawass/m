@@ -1,75 +1,383 @@
-body {background:#666;font-family:Arial,sans-serif;margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh}
-.page {display:none;width:50%;max-width:650px;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
-#initialPage {display:block;text-align:center}
-.logo {max-width:220px;height:120px}
-h1,h2 {color:#555;margin:5px 0}
-label {display:block;margin-top:15px;font-weight:bold;color:#333}
-/* Default for larger screens */
-select,input {width:50%;padding:12px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1em}
-button {width:50%;margin-top:20px;padding:12px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1.1em;transition:.3s}
-button:hover {background:#0056b3}
-.header-row {display:flex;justify-content:space-between;align-items:flex-start}
-.header-text {text-align:right;line-height:1.2}
-.divider-line {border:none;border-top:2px solid #004080;margin:8px 0 12px;width:100%}
-.progress-title {font-family:"Agency FB",sans-serif;font-size:1.2em;color:#000;margin:5px 0 10px;text-align:left}
-.info-row {display:flex;justify-content:space-between;font-size:1em;margin-bottom:4px}
-table {width:100%;border-collapse:collapse;margin-top:10px;font-size:.95em}
-th,td {border:1px solid #ccc;padding:6px}
-th {background:#e9ecef;text-align:center}
-td:first-child {text-align:left}
-td:not(:first-child) {text-align:center}
-.summary-section {margin-top:10px}
-.summary-section table {width:100%;border:1px solid #ccc;font-size:.95em}
-.summary-section th,.summary-section td {border:1px solid #ccc;padding:8px;text-align:left}
-.actions {text-align:center;margin-top:15px}
-/* Default width for Download/Print/Back buttons */
-.actions button {width:15%;margin:5px} 
-.final-remark {margin-top:10px;font-weight:bold;text-align:left;font-size:1.1em;color:#004080}
+/* Global Reset and Box Sizing */
+* { box-sizing: border-box; margin: 0; padding: 0; } 
 
-/* --- Mobile Responsiveness (Max width 600px) --- */
-@media (max-width: 600px) {
-    .page {
-        width: 90%; /* Take up most of the screen */
-        padding: 15px;
-    }
+/* Body - Full view height, professional background */
+body {
+    background: #e9ebee; /* Light, soft gray background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px; /* Padding for mobile screens */
+}
+
+/* --- NEW Loading Indicator Styles (More appealing) --- */
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent white overlay */
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0; /* Controlled by JS show/hide */
+    visibility: hidden; /* Controlled by JS show/hide */
+    transition: opacity 0.3s;
+}
+
+#loadingSpinner {
+    text-align: center;
+    padding: 30px;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15); /* Stronger, softer shadow */
+    min-width: 200px;
+}
+
+#loadingCircle {
+    width: 70px;
+    height: 70px;
+    border: 8px solid #f0f0f0; /* Light grey */
+    border-top: 8px solid #17a2b8; /* Professional Blue/Cyan spinner */
+    border-radius: 50%;
+    animation: spin 1.2s cubic-bezier(0.5, 0.2, 0.5, 0.8) infinite; /* Enhanced spin animation */
+    margin: 0 auto 15px auto;
+}
+
+#loadingText {
+    font-size: 1.1em;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* Page Container - Attractive Card Look */
+.page {
+    display: none;
+    width: 95%; /* Take up most of the mobile screen */
+    max-width: 650px;
+    padding: 30px; /* More padding */
+    background: #ffffff; /* Clean white background */
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Deeper, softer shadow */
+    margin: 20px 0; /* Add margin for vertical spacing */
+    text-align: center; /* Center content in the new pages */
+}
+
+#initialPage { display: block; text-align: center; }
+
+/* Header/Logo */
+.logo { max-width: 150px; height: auto; margin-bottom: 10px; }
+h1, h2 { color: #34495e; margin: 5px 0; font-weight: 600; }
+h1 p { font-size: 24px; margin: 0; }
+h2 { font-size: 1.2em; color: #7f8c8d; }
+
+/* Forms/Inputs */
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 500;
+    color: #2c3e50;
+    text-align: center; /* ALIGN CENTERED */
+}
+/* Added textarea and select to selectors for consistent styling */
+select, input:not([type="file"]):not([type="password"]), textarea {
+    width: 100%; /* Full width for better mobile UX */
+    max-width: 400px; /* Constrain width for centered look */
+    padding: 12px;
+    margin-top: 5px;
+    border-radius: 8px; /* Slightly more rounded */
+    border: 1px solid #bdc3c7;
+    font-size: 1em;
+    transition: border-color 0.3s;
+    font-family: inherit; /* Ensure textarea uses body font */
+    text-align: center; /* ALIGN CENTERED */
+    display: block; /* Ensure it takes full width for centering */
+    margin-left: auto;
+    margin-right: auto;
+}
+input[type="file"] {
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    margin-top: 10px;
+    display: block;
+    border: 1px solid #bdc3c7;
+    border-radius: 8px;
+}
+select:focus, input:focus, textarea:focus {
+    border-color: #17a2b8; /* Highlight on focus */
+    outline: none;
+}
+textarea {
+    resize: vertical;
+}
+/* Style for teacher assignment grouping to maintain layout consistency */
+#teacherAssignmentPanel label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: 400; /* Lighter weight for subject labels */
+}
+/* STYLE FOR SCROLLABLE SUBJECT ASSIGNMENT PANEL */
+#teacherAssignmentPanel {
+    max-height: 400px; /* Limit height */
+    overflow-y: auto; /* Enable vertical scroll */
+    padding-right: 15px; /* Add space for scrollbar */
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* Buttons */
+button {
+    width: 100%; /* Full width for main buttons */
+    max-width: 400px; /* Constrain width for centered look */
+    margin-top: 20px;
+    padding: 14px; /* More padding for easier tapping */
+    background: #17a2b8; /* Professional blue/cyan */
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.1s;
+    display: block; /* Ensure button centers properly */
+    margin-left: auto;
+    margin-right: auto;
+}
+/* Specific styling for action buttons that don't need full width */
+.small-btn {
+    width: auto !important;
+    max-width: 200px !important;
+    margin-left: 10px;
+    margin-right: 10px;
+    display: inline-block;
+}
+button:hover { background: #148f9e; }
+button:active { transform: scale(0.99); }
+
+/* Divider */
+.divider-line { border: none; border-top: 3px solid #17a2b8; margin: 15px 0 20px; width: 100%; }
+
+/* Results Info */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95em;
+    margin-bottom: 8px;
+    flex-wrap: wrap; 
+}
+.info-row p { width: 50%; margin: 0; }
+.info-row p:nth-child(2) { text-align: right; }
+
+/* Tables - Responsive scroll for data (Professional Compromise for Mobile) */
+/* This generic rule ensures tables are readable on small screens by forcing a min-width and scrollbar */
+#progressReport #resultsTable, 
+#gradesTable,
+#analysisTable,
+#scoresTable /* ADDED */ 
+{ 
+    min-width: 500px; /* Ensures table columns don't shrink too much on mobile */
+    border-collapse: collapse;
+    font-size: 0.9em;
+    width: 100%; 
+    border: 1px solid black; /* Black line for tables */
+}
+.table-wrapper {
+    overflow-x: auto; /* Enable horizontal scroll for table on mobile/narrow screens */
+    width: 100%; 
+    margin-top: 15px;
+    text-align: left; /* Keep table content left aligned for reading */
+}
+
+/* Table Cell Styles (Updated to include #scoresTable) */
+#resultsTable th, #resultsTable td,
+#gradesTable th, #gradesTable td,
+#analysisTable th, #analysisTable td,
+#scoresTable th, #scoresTable td /* ADDED */
+{ 
+    border: 1px solid black; 
+    padding: 10px 8px; 
+}
+#resultsTable th, #gradesTable th, #analysisTable th, #scoresTable th /* ADDED */
+{ 
+    background: #ecf0f1; 
+    color: #2c3e50; 
+    font-weight: 600; 
+    text-align: center; 
+}
+#resultsTable td:first-child, #gradesTable td:first-child, #scoresTable td:nth-child(2) { text-align: left; }
+#resultsTable td:not(:first-child), #gradesTable td:not(:first-child), #scoresTable td:not(:nth-child(2)) { text-align: center; }
+#analysisTable td { text-align: center; }
+
+/* --- PROGRESS REPORT LAYOUT STYLES (Print Specific) --- */
+#progressReport #reportHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+#reportHeaderRight {
+    text-align: right;
+    font-size: 0.8em;
+    line-height: 1.4;
+}
+#reportHeaderRight h3 {
+    font-size: 1.3em;
+    margin: 0 0 5px 0;
+    color: black;
+}
+#progressReport {
+    background-color: white;
+    color: black;
+    padding: 40px 20px; 
+    width: 95%;
+    max-width: 650px;
+    min-height: auto;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    margin: 20px auto; 
+    page-break-after: always;
+}
+#reportDetails div { color: black; }
+
+/* MODIFIED: Flex for Summary/Key alignment */
+#summaryAndKeyWrapper {
+    display: flex;
+    justify-content: space-between; /* Space out the two sections */
+    margin-top: 15px;
+    width: 100%;
+    text-align: left; /* Keep text left aligned */
+}
+
+/* MODIFIED: Set width for side-by-side display */
+#reportSummary { 
+    width: 48%; /* Take up 48% of the space, left-aligned */
+    text-align: left;
+}
+#gradeKeyPlaceholder { 
+    width: 48%; /* Take up 48% of the space, right-aligned */
+    text-align: right;
+}
+/* Styles for the NEW Aligned Grade Key Table */
+#gradeKeyTableNew {
+    margin-top: 5px; 
+    width: 100%; 
+    border-collapse: collapse;
+    font-size: 7.5pt; 
+    border: 1px solid black;
+}
+#gradeKeyTableNew th, #gradeKeyTableNew td {
+    border: 1px solid black;
+    padding: 2px 4px; 
+    text-align: center;
+    background-color: white;
+    vertical-align: middle;
+    color: black;
+}
+
+.hidden { display: none !important; }
+
+/* --- MOBILE ADJUSTMENTS --- */
+@media (max-width: 480px) {
+    /* Stack info details */
+    .info-row { flex-direction: column; }
+    .info-row p { width: 100%; text-align: left !important; }
     
-    /* Make inputs/selects full width */
-    select, input, button:not(.actions button) {
-        width: 100%;
-        box-sizing: border-box; /* Include padding in width calculation */
+    /* Stack action buttons */
+    .actions { flex-direction: column; gap: 15px; }
+    .actions button { width: 100%; }
+    
+    /* Ensure Summary and Key stack on mobile */
+    #summaryAndKeyWrapper { flex-direction: column; }
+    #reportSummary, #gradeKeyPlaceholder { width: 100% !important; margin-bottom: 15px; }
+    #gradeKeyPlaceholder { text-align: left; } /* Align key left on mobile stack */
+}
+
+/* --- DESKTOP TABLE ADJUSTMENTS (NEW) --- */
+/* Applies to Screens wider than a typical tablet/large phone */
+@media (min-width: 768px) {
+    /* NEW: Allow admin pages with tables to expand to a wider max-width */
+    #scoreSheetView,
+    #gradesPage,
+    #analysisPage {
+        max-width: 1200px !important; 
+        width: 90% !important; 
     }
 
-    /* Stack logo and school text vertically */
-    .header-row {
-        flex-direction: column;
-        align-items: center;
-    }
-    .header-text {
-        text-align: center;
-        margin-top: 10px;
-    }
-    
-    /* Stack student info rows vertically */
-    .info-row {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .info-row p {
-        margin: 2px 0;
+    /* 1. Ensure the container for admin tables does not scroll */
+    #scoreSheetView .table-wrapper,
+    #gradesPage .table-wrapper,
+    #analysisPage .table-wrapper {
+        overflow-x: visible !important; 
     }
 
-    /* Make action buttons wider for mobile tapping */
-    .actions button {
-        width: 30%; /* Much wider for better tapping */
-        padding: 8px;
-        font-size: 0.9em;
+    /* 2. Allow the admin tables to shrink and fill the container without scrollbars */
+    #gradesTable,
+    #analysisTable,
+    #scoresTable {
+        min-width: 100% !important; /* Override the 500px, but ensure it uses 100% of wrapper */
+        width: 100% !important; 
+        /* Let the browser determine the best width distribution */
+        table-layout: auto !important; 
     }
+}
+
+
+/* --- A4 PRINTING STYLES (Optimized for Single Page Fit) --- */
+@media print {
+    @page { size: A4 portrait; margin: 0.5cm; } /* Reduced page margin */
+    body > .page:not(#progressReport),
+    body > div:not(#progressReport) { display: none !important; }
+    #progressReport {
+        width: auto !important; max-width: none !important; min-height: auto !important;
+        margin: 0 !important; 
+        padding: 20px 20px 20px 20px !important; /* REDUCED PADDING TO PUSH CONTENT UP */
+        box-shadow: none !important; display: block !important; position: relative; 
+        font-size: 10pt; /* Smaller font for better fit */
+    }
+    #progressReport .back-btn,
+    #progressReport .view-btn { display: none !important; }
+    /* Ensure side-by-side layout for print on A4 */
+    #summaryAndKeyWrapper {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px; /* Reduced margin */
+    }
+    #reportSummary { width: 48%; text-align: left; }
+    #gradeKeyPlaceholder { width: 48%; text-align: right; }
+    #gradeKeyTableNew { margin-left: auto; margin-right: 0; font-size: 8pt; }
     
-    /* Make tables responsive (requires horizontal scrolling if content is too wide) */
-    #resultsContainer, .summary-section {
-        overflow-x: auto;
+    /* Make table cells more compact in print */
+    #progressReport #resultsTable th, #progressReport #resultsTable td {
+        padding: 5px 3px !important; 
     }
-    table {
-        min-width: 450px; /* Minimum width to ensure columns are readable */
+
+    /* Adjust header margins */
+    #reportHeader { margin-bottom: 5px !important; }
+    .info-row { margin-bottom: 2px !important; }
+}
+
+/* Apply A4 fixed size ONLY for large screens or print preview (Media Query Added) */
+@media (min-width: 795px) {
+    #progressReport {
+        /* Kept the fixed A4 size dimensions */
+        padding: 100px 40px 40px 40px; 
+        width: 794px; 
+        max-width: 794px; 
+        min-height: 1123px; 
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
     }
+    #progressReport #reportHeader .logo { width: 200px; height: 100px; }
+    #reportHeaderRight { font-size: 9pt; }
+    #reportHeaderRight h3 { font-size: 16pt; }
 }
