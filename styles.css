@@ -89,14 +89,17 @@ label {
     color: #2c3e50;
     text-align: center; /* ALIGN CENTERED */
 }
-/* Added textarea and select to selectors for consistent styling */
+
+/* MODIFIED: Input/Select/Textarea Styling for dark orange color */
 select, input:not([type="file"]):not([type="password"]), textarea {
     width: 100%; /* Full width for better mobile UX */
     max-width: 400px; /* Constrain width for centered look */
     padding: 12px;
     margin-top: 5px;
     border-radius: 8px; /* Slightly more rounded */
-    border: 1px solid #bdc3c7;
+    border: 1px solid #cc6600; /* Darker orange border */
+    background-color: #ffcc99; /* Light orange background */
+    color: #333;
     font-size: 1em;
     transition: border-color 0.3s;
     font-family: inherit; /* Ensure textarea uses body font */
@@ -112,11 +115,11 @@ input[type="file"] {
     padding: 10px;
     margin-top: 10px;
     display: block;
-    border: 1px solid #bdc3c7;
+    border: 1px solid #cc6600; /* Darker orange border */
     border-radius: 8px;
 }
 select:focus, input:focus, textarea:focus {
-    border-color: #17a2b8; /* Highlight on focus */
+    border-color: #cc6600; /* Dark orange highlight on focus */
     outline: none;
 }
 textarea {
@@ -178,7 +181,10 @@ button:active { transform: scale(0.99); }
     flex-wrap: wrap; 
 }
 .info-row p { width: 50%; margin: 0; }
-.info-row p:nth-child(2) { text-align: right; }
+
+/* MODIFIED: Ensure the second p tag in each info row is fixed to the right */
+.info-row p:nth-child(1) { text-align: left !important; } /* Ensure first is left */
+.info-row p:nth-child(2) { text-align: right !important; } /* Ensure second is right */
 
 /* Tables - Responsive scroll for data (Professional Compromise for Mobile) */
 /* This generic rule ensures tables are readable on small screens by forcing a min-width and scrollbar */
@@ -291,7 +297,9 @@ button:active { transform: scale(0.99); }
 @media (max-width: 480px) {
     /* Stack info details */
     .info-row { flex-direction: column; }
-    .info-row p { width: 100%; text-align: left !important; }
+    /* Ensure that even in mobile, the requested fields are on the correct side
+       But since they stack, they must all be left-aligned for readability */
+    .info-row p { width: 100%; text-align: left !important; } 
     
     /* Stack action buttons */
     .actions { flex-direction: column; gap: 15px; }
@@ -370,11 +378,11 @@ button:active { transform: scale(0.99); }
 /* Apply A4 fixed size ONLY for large screens or print preview (Media Query Added) */
 @media (min-width: 795px) {
     #progressReport {
-        /* Kept the fixed A4 size dimensions */
-        padding: 100px 40px 40px 40px; 
+        /* FIX: Set a more reasonable padding and remove fixed min-height to prevent clipping */
+        padding: 40px 40px 40px 40px; /* Reduced top padding from 100px */
         width: 794px; 
         max-width: 794px; 
-        min-height: 1123px; 
+        min-height: auto !important; /* IMPORTANT: Allow content to define height for full capture */
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
     }
     #progressReport #reportHeader .logo { width: 200px; height: 100px; }
