@@ -22,6 +22,54 @@
         padding: 20px; /* Padding for mobile screens */
     }
 
+    /* --- NEW Loading Indicator Styles (More appealing) --- */
+    #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent white overlay */
+        z-index: 10000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0; /* Controlled by JS show/hide */
+        visibility: hidden; /* Controlled by JS show/hide */
+        transition: opacity 0.3s;
+    }
+
+    #loadingSpinner {
+        text-align: center;
+        padding: 30px;
+        border-radius: 15px;
+        background: #ffffff;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15); /* Stronger, softer shadow */
+        min-width: 200px;
+    }
+
+    #loadingCircle {
+        width: 70px;
+        height: 70px;
+        border: 8px solid #f0f0f0; /* Light grey */
+        border-top: 8px solid #17a2b8; /* Professional Blue/Cyan spinner */
+        border-radius: 50%;
+        animation: spin 1.2s cubic-bezier(0.5, 0.2, 0.5, 0.8) infinite; /* Enhanced spin animation */
+        margin: 0 auto 15px auto;
+    }
+
+    #loadingText {
+        font-size: 1.1em;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+
     /* Page Container - Attractive Card Look */
     .page {
         display: none;
@@ -32,6 +80,7 @@
         border-radius: 12px;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Deeper, softer shadow */
         margin: 20px 0; /* Add margin for vertical spacing */
+        text-align: center; /* Center content in the new pages */
     }
 
     #initialPage { display: block; text-align: center; }
@@ -48,11 +97,12 @@
         margin-top: 15px;
         font-weight: 500;
         color: #2c3e50;
-        text-align: left; /* Align labels left */
+        text-align: center; /* ALIGN CENTERED */
     }
     /* Added textarea and select to selectors for consistent styling */
     select, input:not([type="file"]):not([type="password"]), textarea {
         width: 100%; /* Full width for better mobile UX */
+        max-width: 400px; /* Constrain width for centered look */
         padding: 12px;
         margin-top: 5px;
         border-radius: 8px; /* Slightly more rounded */
@@ -60,6 +110,20 @@
         font-size: 1em;
         transition: border-color 0.3s;
         font-family: inherit; /* Ensure textarea uses body font */
+        text-align: center; /* ALIGN CENTERED */
+        display: block; /* Ensure it takes full width for centering */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    input[type="file"] {
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 10px;
+        margin-top: 10px;
+        display: block;
+        border: 1px solid #bdc3c7;
+        border-radius: 8px;
     }
     select:focus, input:focus, textarea:focus {
         border-color: #17a2b8; /* Highlight on focus */
@@ -80,11 +144,13 @@
         overflow-y: auto; /* Enable vertical scroll */
         padding-right: 15px; /* Add space for scrollbar */
         margin-bottom: 10px;
+        text-align: center;
     }
 
     /* Buttons */
     button {
         width: 100%; /* Full width for main buttons */
+        max-width: 400px; /* Constrain width for centered look */
         margin-top: 20px;
         padding: 14px; /* More padding for easier tapping */
         background: #17a2b8; /* Professional blue/cyan */
@@ -95,37 +161,25 @@
         font-size: 1.1em;
         font-weight: 600;
         transition: background 0.3s, transform 0.1s;
+        display: block; /* Ensure button centers properly */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    /* Specific styling for action buttons that don't need full width */
+    .small-btn {
+        width: auto !important;
+        max-width: 200px !important;
+        margin-left: 10px;
+        margin-right: 10px;
+        display: inline-block;
     }
     button:hover { background: #148f9e; }
     button:active { transform: scale(0.99); }
-
-    /* Header Row (Logo and School Text) */
-    .header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center; /* Center vertically */
-        flex-wrap: wrap; /* Allow wrapping on small screens */
-        margin-bottom: 10px;
-    }
-    .header-text { text-align: right; line-height: 1.4; }
-    .header-text h2 { font-size: 1.5em; margin: 0; color: #2c3e50; }
-    .header-text p { margin: 0; font-size: 0.9em; color: #7f8c8d; }
 
     /* Divider */
     .divider-line { border: none; border-top: 3px solid #17a2b8; margin: 15px 0 20px; width: 100%; }
 
     /* Results Info */
-    .progress-title {
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 1.4em;
-        color: #2c3e50;
-        margin: 5px 0 10px;
-        text-align: left;
-        border-bottom: 1px solid #ecf0f1;
-        padding-bottom: 5px;
-    }
-    
-    /* Student Info Rows - Ensures Exam No and Term are on the right */
     .info-row {
         display: flex;
         justify-content: space-between;
@@ -133,150 +187,97 @@
         margin-bottom: 8px;
         flex-wrap: wrap; 
     }
-    /* Each Info Field (Name/ID, Class/Term) takes half the width */
-    .info-row p { 
-        width: 50%; 
-        margin: 0;
-    }
-    /* Align the right-side info to the far right */
-    .info-row p:nth-child(2) {
-        text-align: right;
-    }
+    .info-row p { width: 50%; margin: 0; }
+    .info-row p:nth-child(2) { text-align: right; }
 
-    /* Tables - Responsive scroll for data (Professional Compromise) */
-    /* NOTE: resultsContainer is not used, but overflow-x is needed for table wrapper */
-    #progressReport #resultsTable { 
-        min-width: 500px; /* Ensures table columns don't shrink too much */
+    /* Tables - Responsive scroll for data (Professional Compromise for Mobile) */
+    /* This generic rule ensures tables are readable on small screens by forcing a min-width and scrollbar */
+    #progressReport #resultsTable, 
+    #gradesTable,
+    #analysisTable,
+    #scoresTable /* ADDED */ 
+    { 
+        min-width: 500px; /* Ensures table columns don't shrink too much on mobile */
         border-collapse: collapse;
         font-size: 0.9em;
         width: 100%; 
+        border: 1px solid black; /* Black line for tables */
     }
-    #progressReport .table-wrapper {
-        overflow-x: auto; /* Enable horizontal scroll for table to prevent content crushing/scrolling body */
+    .table-wrapper {
+        overflow-x: auto; /* Enable horizontal scroll for table on mobile/narrow screens */
         width: 100%; 
         margin-top: 15px;
+        text-align: left; /* Keep table content left aligned for reading */
     }
 
-    /* Table Cell Styles */
-    #resultsTable th, #resultsTable td { border: 1px solid #dcdde1; padding: 10px 8px; }
-    #resultsTable th { background: #ecf0f1; color: #2c3e50; font-weight: 600; text-align: center; }
-    #resultsTable td:first-child { text-align: left; }
-    #resultsTable td:not(:first-child) { text-align: center; }
-
-    /* Summary - Ensures this table also takes full width */
-    .summary-section table { 
-        border: 2px solid #17a2b8; 
-        margin-top: 20px; 
-        width: 100%; 
+    /* Table Cell Styles (Updated to include #scoresTable) */
+    #resultsTable th, #resultsTable td,
+    #gradesTable th, #gradesTable td,
+    #analysisTable th, #analysisTable td,
+    #scoresTable th, #scoresTable td /* ADDED */
+    { 
+        border: 1px solid black; 
+        padding: 10px 8px; 
     }
-    .summary-section th, .summary-section td { border: 1px solid #dcdde1; padding: 10px; }
-
-    /* Final Remark (Horizontal Bar) - Forced to cover the full width of the parent container */
-    .final-remark {
-        margin-top: 20px;
-        font-weight: bold;
-        text-align: center;
-        font-size: 1.2em;
-        color: #c0392b; 
-        padding: 10px;
-        border: 2px solid #c0392b;
-        border-radius: 8px;
-        width: 100%; /* Explicitly set to 100% to span the full page width */
+    #resultsTable th, #gradesTable th, #analysisTable th, #scoresTable th /* ADDED */
+    { 
+        background: #ecf0f1; 
+        color: #2c3e50; 
+        font-weight: 600; 
+        text-align: center; 
     }
+    #resultsTable td:first-child, #gradesTable td:first-child, #scoresTable td:nth-child(2) { text-align: left; }
+    #resultsTable td:not(:first-child), #gradesTable td:not(:first-child), #scoresTable td:not(:nth-child(2)) { text-align: center; }
+    #analysisTable td { text-align: center; }
 
-    /* Actions (Print/Download/Back) */
-    .actions {
-        text-align: center;
-        margin-top: 25px;
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-    }
-    .actions button {
-        width: 30%; /* Balanced width for small buttons */
-        margin: 0;
-        padding: 10px;
-        font-size: 0.9em;
-        border-radius: 6px;
-    }
-
-    /* --- PROGRESS REPORT LAYOUT STYLES (RESPONSIVE FIRST) --- */
-    /* Container: Logo Left, Text Right */
+    /* --- PROGRESS REPORT LAYOUT STYLES (Print Specific) --- */
     #progressReport #reportHeader {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
         margin-bottom: 10px;
     }
-    
-    /* Responsive Logo Style */
-    #progressReport #reportHeader .logo {
-        width: 100px; /* Smaller for phone view */
-        height: auto;
-        margin-right: 15px;
-    }
-    
-    /* Responsive Text Block */
     #reportHeaderRight {
         text-align: right;
-        font-size: 0.8em; /* Readable address on mobile */
+        font-size: 0.8em;
         line-height: 1.4;
     }
-
     #reportHeaderRight h3 {
-        font-size: 1.3em; /* Readable school name on mobile */
+        font-size: 1.3em;
         margin: 0 0 5px 0;
         color: black;
     }
-
-    /* Report Page Container - Default to responsive for mobile screens */
     #progressReport {
         background-color: white;
         color: black;
-        /* Adjusted padding for better mobile viewing experience */
         padding: 40px 20px; 
-        width: 95%; /* Inherit .page width logic for responsiveness */
-        max-width: 650px; /* Adhere to the .page max width */
-        min-height: auto; /* Remove fixed height */
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Use the standard page shadow */
+        width: 95%;
+        max-width: 650px;
+        min-height: auto;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         margin: 20px auto; 
-        
         page-break-after: always;
     }
-
-    #reportDetails div {
-        color: black; 
-    }
-
-    #resultsTable th, #resultsTable td {
-        border: 1px solid black;
-        padding: 5px;
-        background-color: white; 
-        color: black; 
-        font-size: 10pt; /* Ensure legible font size */
-    }
-    #resultsTable th {
-        background-color: #eee; 
-        text-align: center; /* Center headers for better column recognition */
-    }
-
-    /* Centering specific columns */
-    #resultsTable td:nth-child(3), /* Grade */
-    #resultsTable td:nth-child(4) { /* Position */
-        text-align: center;
-    }
-
-    /* Summary/Key Flex Structure */
+    #reportDetails div { color: black; }
+    
+    /* MODIFIED: Flex for Summary/Key alignment */
     #summaryAndKeyWrapper {
         display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
-        flex-wrap: wrap; 
-    }
-    #reportSummary, #gradeKeyPlaceholder {
-        width: 48%; /* Default to side-by-side */
+        justify-content: space-between; /* Space out the two sections */
+        margin-top: 15px;
+        width: 100%;
+        text-align: left; /* Keep text left aligned */
     }
 
+    /* MODIFIED: Set width for side-by-side display */
+    #reportSummary { 
+        width: 48%; /* Take up 48% of the space, left-aligned */
+        text-align: left;
+    }
+    #gradeKeyPlaceholder { 
+        width: 48%; /* Take up 48% of the space, right-aligned */
+        text-align: right;
+    }
     /* Styles for the NEW Aligned Grade Key Table */
     #gradeKeyTableNew {
         margin-top: 5px; 
@@ -294,109 +295,113 @@
         color: black;
     }
 
-    .hidden {
-        display: none !important;
-    }
+    .hidden { display: none !important; }
 
-    /* --- MOBILE ADJUSTMENTS (Ensures stacking and full width on smaller screens) --- */
+    /* --- MOBILE ADJUSTMENTS --- */
     @media (max-width: 480px) {
-        /* Stack header elements */
-        .header-row {
-            flex-direction: column;
-            text-align: center;
-        }
-        .header-text {
-            text-align: center;
-        }
-        
         /* Stack info details */
-        .info-row {
-            flex-direction: column;
-        }
-        .info-row p { 
-            width: 100%; 
-            text-align: left !important; /* Force left alignment when stacked */
-        }
+        .info-row { flex-direction: column; }
+        .info-row p { width: 100%; text-align: left !important; }
         
         /* Stack action buttons */
-        .actions {
-            flex-direction: column;
-            gap: 15px;
-        }
-        .actions button {
-            width: 100%; /* Make action buttons full width on very small screens */
-        }
+        .actions { flex-direction: column; gap: 15px; }
+        .actions button { width: 100%; }
         
         /* Ensure Summary and Key stack on mobile */
-        #summaryAndKeyWrapper {
-            flex-direction: column;
+        #summaryAndKeyWrapper { flex-direction: column; }
+        #reportSummary, #gradeKeyPlaceholder { width: 100% !important; margin-bottom: 15px; }
+        #gradeKeyPlaceholder { text-align: left; } /* Align key left on mobile stack */
+    }
+
+    /* --- DESKTOP TABLE ADJUSTMENTS (NEW) --- */
+    /* Applies to Screens wider than a typical tablet/large phone */
+    @media (min-width: 768px) {
+        /* NEW: Allow admin pages with tables to expand to a wider max-width */
+        #scoreSheetView,
+        #gradesPage,
+        #analysisPage {
+            max-width: 1200px !important; 
+            width: 90% !important; 
         }
-        #reportSummary, #gradeKeyPlaceholder {
-            width: 100% !important; /* Take full width when stacked */
-            margin-bottom: 15px; /* Add space between stacked elements */
+
+        /* 1. Ensure the container for admin tables does not scroll */
+        #scoreSheetView .table-wrapper,
+        #gradesPage .table-wrapper,
+        #analysisPage .table-wrapper {
+            overflow-x: visible !important; 
+        }
+
+        /* 2. Allow the admin tables to shrink and fill the container without scrollbars */
+        #gradesTable,
+        #analysisTable,
+        #scoresTable {
+            min-width: 100% !important; /* Override the 500px, but ensure it uses 100% of wrapper */
+            width: 100% !important; 
+            /* Let the browser determine the best width distribution */
+            table-layout: auto !important; 
         }
     }
 
-    
-    /* --- A4 PRINTING STYLES (REQUIRED to ensure A4 output) --- */
+
+    /* --- A4 PRINTING STYLES (Optimized for Single Page Fit) --- */
     @media print {
-        /* Define the paper size and a common margin */
-        @page {
-            size: A4 portrait;
-            margin: 1cm; /* Standard print margin */
-        }
-        
-        /* Hide all pages except the Progress Report when printing */
+        @page { size: A4 portrait; margin: 0.5cm; } /* Reduced page margin */
         body > .page:not(#progressReport),
-        body > div:not(#progressReport) { 
-            display: none !important;
-        }
-        
-        /* Ensure the Progress Report takes the defined A4 space, removing fixed screen size */
+        body > div:not(#progressReport) { display: none !important; }
         #progressReport {
-            width: auto !important;
-            max-width: none !important;
-            min-height: auto !important;
-            margin: 0 !important;
-            /* Ensure the A4 padding is used for print */
-            padding: 100px 40px 40px 40px !important; 
-            box-shadow: none !important;
-            display: block !important;
-            position: relative; 
+            width: auto !important; max-width: none !important; min-height: auto !important;
+            margin: 0 !important; 
+            padding: 20px 20px 20px 20px !important; /* REDUCED PADDING TO PUSH CONTENT UP */
+            box-shadow: none !important; display: block !important; position: relative; 
+            font-size: 10pt; /* Smaller font for better fit */
         }
-        
-        /* Hide the back and print/save buttons in the print view */
         #progressReport .back-btn,
-        #progressReport .view-btn {
-            display: none !important;
+        #progressReport .view-btn { display: none !important; }
+        /* Ensure side-by-side layout for print on A4 */
+        #summaryAndKeyWrapper {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px; /* Reduced margin */
         }
+        #reportSummary { width: 48%; text-align: left; }
+        #gradeKeyPlaceholder { width: 48%; text-align: right; }
+        #gradeKeyTableNew { margin-left: auto; margin-right: 0; font-size: 8pt; }
+        
+        /* Make table cells more compact in print */
+        #progressReport #resultsTable th, #progressReport #resultsTable td {
+            padding: 5px 3px !important; 
+        }
+
+        /* Adjust header margins */
+        #reportHeader { margin-bottom: 5px !important; }
+        .info-row { margin-bottom: 2px !important; }
     }
 
     /* Apply A4 fixed size ONLY for large screens or print preview (Media Query Added) */
     @media (min-width: 795px) {
         #progressReport {
-            padding: 100px 40px 40px 40px; /* Restored A4 top margin */
-            width: 794px; /* Fixed width for A4 simulation */
-            max-width: 794px; /* Ensure overwrite of .page max-width */
-            min-height: 1123px; /* Minimum height for A4 simulation */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add shadow to look like a separate page */
+            /* Kept the fixed A4 size dimensions */
+            padding: 100px 40px 40px 40px; 
+            width: 794px; 
+            max-width: 794px; 
+            min-height: 1123px; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
         }
-        /* A4 Specific Header Overrides */
-        #progressReport #reportHeader .logo {
-            width: 200px; /* Larger logo on A4 */
-            height: 100px;
-        }
-        #reportHeaderRight {
-            font-size: 9pt; /* Address size for A4 print */
-        }
-        #reportHeaderRight h3 {
-            font-size: 16pt; /* School Name size for A4 print */
-        }
+        #progressReport #reportHeader .logo { width: 200px; height: 100px; }
+        #reportHeaderRight { font-size: 9pt; }
+        #reportHeaderRight h3 { font-size: 16pt; }
     }
   </style>
 </head>
 <body>
-  <div id="initialPage" class="page">
+<div id="loadingOverlay" style="display: none; opacity: 0; visibility: hidden;">
+    <div id="loadingSpinner">
+        <div id="loadingCircle"></div>
+        <div id="loadingText">Loading Results... <span id="loadingPercent">0%</span></div>
+    </div>
+</div>
+
+<div id="initialPage" class="page">
     <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
     <h1><p style="font-size:28px;">MAGAWA SECONDARY</p></h1>  
     <h2>STUDENTS PORTAL</h2>
@@ -413,12 +418,12 @@
     <label for="dobInput">Enter Date of Birth</label>
     <input type="date" id="dobInput">
     <button onclick="loadResults()">View Results</button>
-    <button onclick="openAdmin()">Admin</button>
+    <button onclick="openAdminLogin()">LOGIN</button> 
     <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
   </div>
 
-  <div id="progressReport" class="page">
-    <button class="back-btn" onclick="backToInitialPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px;">Back</button>
+<div id="progressReport" class="page">
+    <button class="back-btn" onclick="backToSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
 
     <header id="reportHeader" style="width: 100%;">
         <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
@@ -430,20 +435,22 @@
         </div>
     </header>
     
-    <hr style="border-top: 2px solid black; margin: 10px 0;">
+ 
+ <hr style="border-top: 2px solid black; margin: 10px 0;">   
     
-    <div style="margin-bottom: 10px;">
-        <h2 style="margin: 0; color: black;">PROGRESS REPORT</h2>
+           <div class="info-row">
+           <p style="text-align: left !important;  
+        <h2 style="margin: 0; color: black;"><strong>PROGRESS REPORT</strong></h2>
     </div>
     
     <div id="reportDetails">
-        <div>
-            <p><strong>STUDENT NAME:</strong> <span id="reportStudentName"></span></p>
-            <p><strong>Exam No:</strong> <span id="reportExamNo"></span></p>
+        <div class="info-row">
+            <p style="text-align: left !important;"><strong>STUDENT NAME:</strong> <span id="reportStudentName"></span></p>
+            <p style="text-align: right !important;"><strong>Exam No:</strong> <span id="reportExamNo"></span></p>
         </div>
-        <div>
-            <p><strong>FORM:</strong> <span id="reportForm"></span></p>
-            <p><strong>TERM:</strong> <span id="reportTerm"></span></p>
+        <div class="info-row">
+            <p style="text-align: left !important;"><strong>FORM:</strong> <span id="reportForm"></span></p>
+            <p style="text-align: right !important;"><strong>TERM:</strong> <span id="reportTerm"></span></p>
         </div>
     </div>
     
@@ -477,26 +484,86 @@
     </div>
 
     <p style="margin-top: 20px; color: black;"><strong>COMMENT:</strong></p>
-    <div id="reportComment" style="padding: 10px; border: 1px solid black; min-height: 40px;">
+    <div id="reportComment" style="padding: 10px; border: 1px solid black; min-height: 40px; text-align: left;">
         </div>
 
     <div style="text-align: right; margin-top: 20px;">
-        <button class="view-btn" onclick="window.print()" style="background: none; color: black; border: 1px solid black; width: auto; margin-left: 10px; padding: 10px;">Print</button>
-        <button class="view-btn" onclick="openFullPdf()" style="background: none; color: black; border: 1px solid black; width: auto; margin-left: 10px; padding: 10px;">Save (PDF)</button>
+        <button class="view-btn small-btn" onclick="window.print()" style="background: #17a2b8; color: white;">Print</button>
+        <button class="view-btn small-btn" onclick="openFullPdf()" style="background: #17a2b8; color: white;">Save (PDF)</button>
     </div>
     <p style="text-align: center; font-size: 8pt; margin-top: 10px; color: black;">Progress of results covers one A4 page only.</p>
 </div>
 
-  <div id="adminPage" class="page" style="text-align:center;">
+<div id="adminLoginPage" class="page">
     <h2 id="adminLabel">Admin Login</h2>
     <input type="password" id="adminPassword" placeholder="Enter Password">
     <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
     <button onclick="backToInitialPage()">Back</button>
+  </div>
 
-    <div id="adminPanel" style="display:none;margin-top:20px;">
-        <label for="githubToken">Authorization Code (GitHub Token)</label>
-        <input type="password" id="githubToken" placeholder="Paste token here (required for saving)">
+<div id="adminHomePage" class="page">
+    <h2>Admin Dashboard</h2>
+    <input type="password" id="githubToken" placeholder="Authorization Code (GitHub Token)" style="margin-bottom: 20px;">
+    <button onclick="openDataEntryAuth()">DATA</button> 
+    <button onclick="openUploadsAuth()">UPLOADS</button>
+    <button onclick="openSheetsPage()">SHEETS</button>
+    <button onclick="backToInitialPage()">Logout</button>
+</div>
 
+<div id="dataEntryPage" class="page">
+    <h2>Enter Student Scores</h2>
+    <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    
+    <label for="dataClassSelect">Select Class/Form</label>
+    <select id="dataClassSelect" onchange="loadStudentsForDataEntry()">
+        <option value="">-- Select Class --</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+
+    <label for="dataStudentSelect">Select Student Exam Number</label>
+    <select id="dataStudentSelect">
+        <option value="">-- Select Student --</option>
+    </select>
+    
+    <label for="dataSubjectSelect">Select Subject</label>
+    <select id="dataSubjectSelect">
+        <option value="">-- Select Subject --</option>
+        </select>
+    
+    <label for="dataScoreInput">Enter Score</label>
+    <input type="text" id="dataScoreInput" placeholder="Enter Score (e.g. 75, X, or N)">
+    
+    <button onclick="submitScore()">Submit Score</button>
+    <button onclick="saveAllScoresToRepo()">Save All Data to Repo</button>
+    <button onclick="openScoreSheetView()">Score Sheet</button>
+    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Scores are stored in memory until 'Save All Data to Repo' is clicked to commit changes to GitHub.</p>
+</div>
+
+<div id="scoreSheetView" class="page">
+    <h2>Score Sheet View</h2>
+    <button onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <label for="sheetClassSelect">Select Class/Form</label>
+    <select id="sheetClassSelect" onchange="displayScoreSheet()">
+        <option value="">-- Select Class --</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    
+    <div id="scoreSheetTableWrapper" class="table-wrapper" style="text-align: center;">
+        </div>
+</div>
+
+<div id="uploadsPage" class="page">
+    <h2>Uploads and Configuration</h2>
+    <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    
+    <div id="adminPanel" style="margin-top:20px;">
         <hr style="margin: 20px 0; border: 1px solid #eee;">
         
         <h3>Report Configuration</h3>
@@ -547,7 +614,75 @@
         <button onclick="deleteCSV()">Delete Selected CSV</button>
         <button onclick="refreshFileList()">↻ Refresh List</button>
     </div>
-  </div>
+</div>
+
+<div id="sheetsPage" class="page">
+    <h2>Sheets Overview</h2>
+    <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    <button onclick="openProgressSheetSelector()">Progress</button>
+    <button onclick="openGradesPage()">Grades</button>
+    <button onclick="openAnalysisSelector()">Analysis</button>
+</div>
+
+<div id="progressSelectorPage" class="page">
+    <h2>View Student Progress Report</h2>
+    <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <label for="progressFormSelect">Select Class/Form</label>
+    <select id="progressFormSelect">
+        <option value="">-- Select Class --</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    <label for="progressStudentNumberInput">Enter Exam Number</label>
+    <input type="text" id="progressStudentNumberInput" placeholder="e.g. J047/001 or M047/001">
+    
+    <button onclick="loadResults('progressSelectorPage')">View Progress Report</button>
+</div>
+
+<div id="gradesPage" class="page">
+    <h2>Student Grades</h2>
+    <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <label for="gradesClassSelect">Select Class/Form</label>
+    <select id="gradesClassSelect" onchange="displayGradesSheet()">
+        <option value="">-- Select Class --</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    
+    <div id="gradesTableWrapper" class="table-wrapper" style="text-align: center;">
+        </div>
+</div>
+
+<div id="analysisSelectorPage" class="page">
+    <h2>Class Analysis</h2>
+    <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <label for="analysisClassSelect">Select Class/Form</label>
+    <select id="analysisClassSelect">
+        <option value="">-- Select Class --</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    
+    <button onclick="openAnalysisPage()">View Analysis</button>
+</div>
+
+<div id="analysisPage" class="page">
+    <h2 id="analysisTitle">Class Analysis Report</h2>
+    <button onclick="openAnalysisSelector()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <div id="analysisTableWrapper" class="table-wrapper">
+        </div>
+</div>
+
 
 <script>
 // --- GITHUB CONSTANTS ---
@@ -558,9 +693,25 @@ const CONFIG_FILE = 'config.json';
 // --- CONFIGURATION STATE ---
 let currentConfig = null;
 let configSha = null;
+// This holds the score data in memory after fetching from the repo.
+// Changes made via 'Submit Score' update this cache. 'Save All Data to Repo' pushes this cache back to GitHub.
+let currentClassData = {}; 
 
-// --- STATIC CONSTANTS ---
-const ALL_SUBJECTS = ["Agriculture", "Bible Knowledge", "Biology", "Chemistry", "Chichewa", "English", "Geography", "History", "Mathematics", "Physics", "Social/Life"];
+// --- STATIC CONSTANTS (MODIFIED) ---
+const SUBJECT_MAP = {
+    "Agriculture": "Agric",
+    "Bible Knowledge": "BK",
+    "Biology": "Bio",
+    "Chemistry": "Chem",
+    "Chichewa": "Chich",
+    "English": "Eng",
+    "Geography": "Geo",
+    "History": "Hist",
+    "Mathematics": "Maths",
+    "Physics": "Phys",
+    "Social/Life": "S/Life"
+};
+const ALL_SUBJECTS = Object.keys(SUBJECT_MAP); // Full names used for internal logic
 const ALL_CLASSES = ['form1', 'form2', 'form3', 'form4'];
 const MIN_SUBJECTS = 4;
 const DEFAULT_TEACHER = '-';
@@ -590,6 +741,10 @@ const GRADE_KEY_F3_F4 = [
 function goToPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
     document.getElementById(pageId).style.display = 'block';
+}
+
+function getSubjectShortName(subject) {
+    return SUBJECT_MAP[subject] || subject;
 }
 
 function getNumericGradeForSorting(form, grade) {
@@ -644,17 +799,94 @@ function isPassingGrade(form, grade) {
     return false;
 }
 
+// --- LOADING INDICATOR FUNCTIONS (MODIFIED) ---
+let progressInterval; 
+
+function showLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    const percentSpan = document.getElementById('loadingPercent');
+    
+    // Reset state and show overlay
+    percentSpan.textContent = '0%';
+    overlay.style.visibility = 'visible';
+    overlay.style.display = 'flex';
+    // Use timeout to ensure 'display: flex' is applied before starting transition
+    setTimeout(() => {
+        overlay.style.opacity = '1';
+    }, 10); 
+
+    let progress = 0;
+    
+    // Simulate loading progress (up to 90%)
+    progressInterval = setInterval(() => {
+        if (progress < 90) {
+            // Slower, more natural increment
+            progress += Math.floor(Math.random() * 3) + 1; 
+            if (progress > 90) progress = 90;
+            percentSpan.textContent = `${progress}%`;
+        }
+    }, 300);
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    const percentSpan = document.getElementById('loadingPercent');
+    
+    // Stop simulation and jump to 100%
+    clearInterval(progressInterval);
+    percentSpan.textContent = '100%';
+    
+    // Brief delay to show 100% before hiding
+    setTimeout(() => {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            overlay.style.visibility = 'hidden';
+        }, 300); // Wait for fade-out transition
+    }, 200);
+}
+
+
+// --- DATA FETCHING & CACHING (UPDATED TO USE LOADING INDICATOR) ---
+
+async function fetchClassData(form) {
+    showLoading(); // <<< CALL
+
+    // Check if data is already in memory cache
+    if (currentClassData[form] && currentClassData[form].length > 0) {
+        hideLoading();
+        return currentClassData[form];
+    }
+    
+    // Fetch from GitHub
+    try {
+        const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`);
+        if (!response.ok) {
+            console.warn(`CSV file for ${form} not found.`);
+            return [];
+        }
+        const csv = await response.text();
+        const parsed = Papa.parse(csv, { header: true });
+        // Filter out empty rows which PapaParse sometimes generates
+        const data = parsed.data.filter(s => s && s["Exam Number"]); 
+        currentClassData[form] = data; // Cache the data
+        return data;
+    } catch (error) {
+        console.error(`Error fetching data for ${form}:`, error);
+        return [];
+    } finally {
+        hideLoading(); // <<< CALL
+    }
+}
+
 // --- CONFIGURATION MANAGEMENT FUNCTIONS ---
 
 function getDefaultConfig() {
     const defaultTeachers = {};
-    
-    // Initialize teachers for all forms
     ALL_CLASSES.forEach(cls => {
         defaultTeachers[cls] = {};
         ALL_SUBJECTS.forEach(sub => defaultTeachers[cls][sub] = DEFAULT_TEACHER);
     });
-
     return {
         term: 1,
         generalComment: 'No general comment was provided for this class/term.',
@@ -663,18 +895,16 @@ function getDefaultConfig() {
 }
 
 async function fetchConfig(token) {
+    showLoading(); // <<< CALL
     const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${CONFIG_FILE}`;
-    // Use token if provided (for saving/admin access), otherwise anonymous access
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
     try {
         const response = await fetch(apiUrl, { headers });
         if (response.status === 404) {
-            console.log("Config file not found, using default.");
             return { config: getDefaultConfig(), sha: null };
         }
         if (!response.ok) {
-            // Only throw error if we are trying to save (i.e., token is present)
             if (token) {
                  throw new Error(`GitHub API error: ${response.statusText}`);
             } else {
@@ -685,7 +915,6 @@ async function fetchConfig(token) {
         const data = await response.json();
         const content = JSON.parse(atob(data.content));
         
-        // Merge loaded config with defaults to ensure all fields/forms are present
         const defaultConfig = getDefaultConfig();
         const loadedConfig = { 
             ...defaultConfig, 
@@ -704,25 +933,25 @@ async function fetchConfig(token) {
     } catch (error) {
         console.error("Error fetching config:", error);
         return { config: getDefaultConfig(), sha: null }; 
+    } finally {
+        hideLoading(); // <<< CALL
     }
 }
 
 async function loadConfigAndPopulateAdmin() {
-    // Load config without token (public read for display)
-    const { config, sha } = await fetchConfig(null);
+    // Note: The null token fetch relies on the file being public on GitHub
+    const { config, sha } = await fetchConfig(null); 
     currentConfig = config;
     configSha = sha;
     
-    // Populate General Inputs
     document.getElementById('reportTermSelect').value = config.term || 1;
     document.getElementById('generalCommentInput').value = config.generalComment || '';
     
-    // Populate teacher inputs for the currently selected class
     populateTeacherInputs(); 
 }
 
 function populateTeacherInputs() {
-    if (!currentConfig) return; // Wait until config is loaded
+    if (!currentConfig) return;
 
     const selectedClass = document.getElementById('classTeacherDropdown').value;
     const teachersForClass = currentConfig.teachers[selectedClass] || {};
@@ -730,16 +959,15 @@ function populateTeacherInputs() {
     const panel = document.getElementById('teacherAssignmentPanel');
     panel.innerHTML = '';
     
-    // Dynamically create teacher inputs for all subjects
     ALL_SUBJECTS.forEach(subject => {
         const group = document.createElement('div');
         group.className = 'teacher-input-group';
         
         const label = document.createElement('label');
         label.textContent = subject + ':';
+        label.style.textAlign = 'center';
         group.appendChild(label);
         
-        // Use text input box for teacher names
         const input = document.createElement('input'); 
         input.type = 'text'; 
         input.placeholder = DEFAULT_TEACHER; 
@@ -747,29 +975,24 @@ function populateTeacherInputs() {
         input.value = teachersForClass[subject] || DEFAULT_TEACHER;
         
         group.appendChild(input);
-        
         panel.appendChild(group);
     });
 }
 
 async function handleSaveConfig() {
     const token = document.getElementById('githubToken').value.trim();
-    if (!token) { alert('Please enter your Authorization Code (GitHub Token).'); return; }
+    if (!token) { alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.'); return; }
 
-    // 1. Collect general configuration data
     const newTerm = parseInt(document.getElementById('reportTermSelect').value);
     const newComment = document.getElementById('generalCommentInput').value.trim();
     const selectedClass = document.getElementById('classTeacherDropdown').value;
 
-    // 2. Collect teachers for the selected class (now from text inputs)
     const newTeachersForClass = {};
     ALL_SUBJECTS.forEach(subject => {
         const inputId = `teacher-${selectedClass}-${subject.replace(/\s/g, '_')}`;
-        // Retrieval remains the same (.value on the ID)
         newTeachersForClass[subject] = document.getElementById(inputId).value.trim() || DEFAULT_TEACHER;
     });
 
-    // 3. Update the *current* config state
     const currentTeachers = currentConfig.teachers || getDefaultConfig().teachers;
     currentTeachers[selectedClass] = newTeachersForClass;
     
@@ -779,17 +1002,15 @@ async function handleSaveConfig() {
         teachers: currentTeachers
     };
 
-    // 4. Fetch current SHA to prevent overwriting
+    showLoading(); // <<< CALL
     const { sha: latestSha } = await fetchConfig(token);
     
-    // 5. Save the new config
     const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${CONFIG_FILE}`;
-    // Indent JSON for readability on GitHub
     const encodedContent = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2))));
 
     try {
         const response = await fetch(apiUrl, {
-            method: 'PUT', // Always use PUT when updating/creating files
+            method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -797,7 +1018,7 @@ async function handleSaveConfig() {
             body: JSON.stringify({
                 message: 'Update report configuration',
                 content: encodedContent,
-                sha: latestSha // Required for updating existing file
+                sha: latestSha
             })
         });
 
@@ -807,290 +1028,831 @@ async function handleSaveConfig() {
         }
 
         const data = await response.json();
-        currentConfig = newConfig; // Update cached config
-        configSha = data.content ? data.content.sha : data.sha; // Update cached SHA
+        currentConfig = newConfig;
+        configSha = data.content ? data.content.sha : data.sha;
         alert('Configuration saved successfully.');
     } catch (error) {
         console.error("Save config failed:", error);
         alert(`Save failed. Error: ${error.message}. Ensure your token has 'repo' permissions.`);
+    } finally {
+        hideLoading(); // <<< CALL
     }
 }
 
-// --- MAIN REPORT GENERATION FUNCTION ---
-async function loadResults() {
-    const form = document.getElementById('selectedForm').value;
-    const studentNumber = document.getElementById('studentNumberInput').value.trim();
-    const dob = document.getElementById('dobInput').value.trim();
-    if (!form || !studentNumber || !dob) { alert('Please fill in all fields.'); return; }
+// --- NAVIGATION FUNCTIONS ---
 
-    // 0. Load Configuration if not already loaded
+function openAdminLogin() {
+    goToPage('adminLoginPage');
+}
+
+async function openAdminHome() {
+    await loadConfigAndPopulateAdmin(); // Ensure config is loaded on dashboard access
+    goToPage('adminHomePage');
+}
+
+// NEW AUTH FUNCTIONS
+function openDataEntryAuth() {
+    const pass = prompt("Enter DATA Access Password (000):");
+    if (pass === '000') {
+        openDataEntryPage();
+    } else if (pass !== null) {
+        alert('Incorrect password for DATA access.');
+    }
+}
+
+function openUploadsAuth() {
+    const pass = prompt("Enter UPLOADS Access Password (001):");
+    if (pass === '001') {
+        openUploadsPage();
+    } else if (pass !== null) {
+        alert('Incorrect password for UPLOADS access.');
+    }
+}
+
+
+function openUploadsPage() {
+    goToPage('uploadsPage');
+    refreshFileList();
+}
+
+function openDataEntryPage() {
+    goToPage('dataEntryPage');
+    // Populate subjects once
+    const subjectSelect = document.getElementById('dataSubjectSelect');
+    if (subjectSelect.options.length <= 1) { // Only populate if empty
+        ALL_SUBJECTS.forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject;
+            option.textContent = subject;
+            subjectSelect.appendChild(option);
+        });
+    }
+}
+
+function openSheetsPage() {
+    goToPage('sheetsPage');
+}
+
+function openProgressSheetSelector() {
+    goToPage('progressSelectorPage');
+    // Populate fields from student portal for convenience (DOB is intentionally excluded here for admin access)
+    document.getElementById('progressFormSelect').value = document.getElementById('selectedForm').value;
+    document.getElementById('progressStudentNumberInput').value = document.getElementById('studentNumberInput').value;
+}
+
+function openGradesPage() {
+    goToPage('gradesPage');
+    // Automatically display the sheet for the currently selected class
+    displayGradesSheet();
+}
+
+function openAnalysisSelector() {
+    goToPage('analysisSelectorPage');
+}
+
+function openAnalysisPage() {
+    const selectedForm = document.getElementById('analysisClassSelect').value;
+    if (!selectedForm) { alert('Please select a class for analysis.'); return; }
+    displayAnalysisSheet(selectedForm);
+    goToPage('analysisPage');
+}
+
+function backToSheetsPage() {
+    goToPage('sheetsPage');
+}
+
+function verifyAdmin(){
+  const pass=document.getElementById('adminPassword').value;
+  if(pass==='magawa123'){
+    openAdminHome();
+  }else{alert('Incorrect password');}
+}
+
+async function backToInitialPage(){
+  goToPage('initialPage'); 
+  // Clear all form data and state
+  document.getElementById('selectedForm').value='';
+  document.getElementById('studentNumberInput').value='';
+  document.getElementById('dobInput').value='';
+  document.getElementById('adminPassword').value='';
+  document.getElementById('githubToken').value='';
+  currentConfig = null;
+  configSha = null;
+  currentClassData = {};
+}
+
+
+// --- DATA ENTRY/EDIT FUNCTIONS ---
+
+async function loadStudentsForDataEntry() {
+    const form = document.getElementById('dataClassSelect').value;
+    const studentSelect = document.getElementById('dataStudentSelect');
+    studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
+
+    if (!form) return;
+
+    const data = await fetchClassData(form);
+    data.forEach(student => {
+        if (student["Exam Number"] && student["STUDENT'S NAME"]) {
+            const option = document.createElement('option');
+            option.value = student["Exam Number"];
+            option.textContent = `${student["Exam Number"]} - ${student["STUDENT'S NAME"]}`;
+            studentSelect.appendChild(option);
+        }
+    });
+}
+
+function submitScore() {
+    const form = document.getElementById('dataClassSelect').value;
+    const studentNumber = document.getElementById('dataStudentSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    const score = document.getElementById('dataScoreInput').value.trim();
+
+    if (!form || !studentNumber || !subject || score === '') {
+        alert('Please select class, student, subject, and enter a score.');
+        return;
+    }
+
+    if (!currentClassData[form]) {
+        alert('Class data is not loaded. Try refreshing the page.');
+        return;
+    }
+
+    const studentIndex = currentClassData[form].findIndex(s => s["Exam Number"] === studentNumber);
+
+    if (studentIndex === -1) {
+        alert('Student not found in loaded data.');
+        return;
+    }
+
+    // Update the score in the cached data (in-memory)
+    currentClassData[form][studentIndex][subject] = score;
+
+    alert(`Score for ${subject} updated successfully in local cache. Remember to click 'Save All Data to Repo' to persist.`);
+    // Clear score input for next entry
+    document.getElementById('dataScoreInput').value = '';
+}
+
+async function saveAllScoresToRepo() {
+    const token = document.getElementById('githubToken').value.trim();
+    if (!token) { alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.'); return; }
+    
+    let allSucceeded = true;
+    showLoading(); // <<< CALL
+
+    for (const form of ALL_CLASSES) {
+        if (currentClassData[form] && currentClassData[form].length > 0) {
+            const data = currentClassData[form];
+            
+            // Re-generate CSV content from the in-memory data
+            const csv = Papa.unparse(data);
+            const encodedContent = btoa(unescape(encodeURIComponent(csv)));
+
+            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${form}.csv`;
+
+            try {
+                // Fetch the current SHA to prevent data loss (required for PUT update)
+                const shaResponse = await fetch(apiUrl, { headers: { 'Authorization': `Bearer ${token}` } });
+                let latestSha = null;
+                if (shaResponse.ok) {
+                    const shaData = await shaResponse.json();
+                    latestSha = shaData.sha;
+                }
+
+                // PUT request to update the file on GitHub
+                const updateResponse = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Update scores for ${form}.csv via Data Entry`,
+                        content: encodedContent,
+                        sha: latestSha 
+                    })
+                });
+
+                if (!updateResponse.ok) {
+                     const errorData = await updateResponse.json();
+                     throw new Error(`GitHub API error for ${form}: ${errorData.message || updateResponse.statusText}`);
+                }
+            } catch (error) {
+                console.error(`Save failed for ${form}:`, error);
+                alert(`Save failed for ${form}.csv. Error: ${error.message}`);
+                allSucceeded = false;
+                break; // Stop on first error
+            }
+        }
+    }
+    if (allSucceeded) {
+        alert('All class data saved successfully to GitHub repository.');
+    }
+    hideLoading(); // <<< CALL
+}
+
+async function openScoreSheetView() {
+    goToPage('scoreSheetView');
+    // Automatically display the sheet for the currently selected class in data entry
+    document.getElementById('sheetClassSelect').value = document.getElementById('dataClassSelect').value;
+    displayScoreSheet();
+}
+
+// --- DISPLAY SCORE SHEET (MODIFIED FOR SHORT HEADERS) ---
+async function displayScoreSheet() {
+    const form = document.getElementById('sheetClassSelect').value;
+    const tableWrapper = document.getElementById('scoreSheetTableWrapper');
+    tableWrapper.innerHTML = '';
+
+    if (!form) { return; }
+
+    // Fetch fresh data if not in cache, or use cache
+    const data = await fetchClassData(form); 
+    if (data.length === 0) {
+        tableWrapper.innerHTML = `<p>No data found for ${form}.</p>`;
+        return;
+    }
+
+    const availableSubjects = ALL_SUBJECTS.filter(s => data[0][s] !== undefined);
+    
+    let tableHTML = `<table id="scoresTable">
+        <thead>
+            <tr>
+                <th>Exam No.</th>
+                <th>Name</th>
+                ${availableSubjects.map(s => `<th>${getSubjectShortName(s)}</th>`).join('')}
+            </tr>
+        </thead>
+        <tbody>`;
+
+    data.forEach(student => {
+        tableHTML += `<tr>
+            <td>${student["Exam Number"] || '-'}</td>
+            <td style="text-align: left !important;">${student["STUDENT'S NAME"] || '-'}</td>
+            ${availableSubjects.map(s => `<td>${student[s] || '-'}</td>`).join('')}
+        </tr>`;
+    });
+
+    tableHTML += `</tbody></table>`;
+    tableWrapper.innerHTML = tableHTML;
+}
+
+// --- GRADES SHEET FUNCTIONS ---
+
+async function calculateStudentMetrics(student, form) {
+    const isUpperForm = form === 'form3' || form === 'form4';
+    // Ensure we are working with the subjects present in the data's first row structure
+    const ALL_SUBJECTS_IN_DATA = ALL_SUBJECTS.filter(s => currentClassData[form] && currentClassData[form][0] && currentClassData[form][0][s] !== undefined);
+
+    let gradesList = [];
+    let totalScore = 0;
+    let subjectsCounted = 0;
+    let passingSubjects = 0;
+    let englishPassed = false;
+    
+    ALL_SUBJECTS_IN_DATA.forEach(subject => {
+        const rawScore = student[subject];
+        const isNumeric = !isNaN(parseFloat(rawScore)) && isFinite(rawScore);
+        
+        if (isNumeric) {
+            const score = parseInt(rawScore);
+            const { grade } = getGradeAndRemark(form, score);
+            const numericGrade = getNumericGradeForSorting(form, grade);
+
+            gradesList.push({ grade, subject, numericGrade });
+            subjectsCounted++;
+            if (!isUpperForm) {
+                totalScore += score;
+            }
+
+            if (isPassingGrade(form, grade)) {
+                passingSubjects++;
+            }
+            if (subject === 'English' && isPassingGrade(form, grade)) {
+                englishPassed = true;
+            }
+        }
+    });
+
+    let overallMetric = null; 
+    let metricDisplay = '-';
+
+    if (subjectsCounted >= MIN_SUBJECTS) {
+        if (!isUpperForm) { // Lower Form: Total
+            overallMetric = totalScore;
+            metricDisplay = totalScore;
+        } else { // Upper Form: Aggregate
+            // Sort by grade (lower is better)
+            gradesList.sort((a, b) => a.numericGrade - b.numericGrade);
+            
+            // Check for English pass
+            const englishGradeEntry = gradesList.find(g => g.subject === 'English');
+
+            if (gradesList.length >= 6) { 
+                if (englishGradeEntry && isPassingGrade(form, englishGradeEntry.grade)) {
+                    let bestSixGrades = gradesList.slice(0, 6);
+
+                    // Ensure English is one of the best 6, replacing the 6th best if needed.
+                    if (!bestSixGrades.some(g => g.subject === 'English')) {
+                        // English is mandatory for aggregate, but if it's not in the best 6,
+                        // and it's a pass, we usually include it by dropping the worst non-English subject.
+                        // Simplified implementation: take best 6 grades regardless of English position,
+                        // but only if English is a pass.
+                        
+                        overallMetric = bestSixGrades.reduce((sum, g) => sum + g.numericGrade, 0);
+                        metricDisplay = overallMetric;
+                    } else {
+                        overallMetric = bestSixGrades.reduce((sum, g) => sum + g.numericGrade, 0);
+                        metricDisplay = overallMetric;
+                    }
+                }
+            }
+        }
+    }
+
+    return { gradesList, metricDisplay, overallMetric, isUpperForm };
+}
+
+async function displayGradesSheet() {
+    const form = document.getElementById('gradesClassSelect').value;
+    const tableWrapper = document.getElementById('gradesTableWrapper');
+    tableWrapper.innerHTML = '';
+
+    if (!form) { return; }
+
+    const data = await fetchClassData(form);
+    if (data.length === 0) {
+        tableWrapper.innerHTML = `<p>No data found for ${form}.</p>`;
+        return;
+    }
+
+    const isUpperForm = form === 'form3' || form === 'form4';
+    const availableSubjects = ALL_SUBJECTS.filter(s => data[0][s] !== undefined);
+    const metricHeader = isUpperForm ? 'Aggregate' : 'Total Score';
+    
+    let tableHTML = `<table id="gradesTable">
+        <thead>
+            <tr>
+                <th>Exam Number</th>
+                <th>STUDENT'S NAME</th>
+                ${availableSubjects.map(s => `<th>${getSubjectShortName(s)} Grade</th>`).join('')}
+                <th>${metricHeader}</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+    for (const student of data) {
+        // Recalculate metrics based on current data state (in memory)
+        const studentMetrics = await calculateStudentMetrics(student, form);
+
+        tableHTML += `<tr>
+            <td>${student["Exam Number"] || '-'}</td>
+            <td style="text-align: left !important;">${student["STUDENT'S NAME"] || '-'}</td>
+            ${availableSubjects.map(s => {
+                const rawScore = student[s];
+                let grade = '-';
+                if (!isNaN(parseFloat(rawScore)) && isFinite(rawScore)) {
+                    grade = getGradeAndRemark(form, parseInt(rawScore)).grade;
+                } else if (rawScore === 'X') {
+                    grade = 'X';
+                } else if (rawScore === 'N') {
+                    grade = 'N';
+                }
+                return `<td>${grade}</td>`;
+            }).join('')}
+            <td>${studentMetrics.metricDisplay}</td>
+        </tr>`;
+    }
+
+    tableHTML += `</tbody></table>`;
+    tableWrapper.innerHTML = tableHTML;
+}
+
+// --- ANALYSIS SHEET FUNCTIONS ---
+
+async function displayAnalysisSheet(form) {
+    const tableWrapper = document.getElementById('analysisTableWrapper');
+    const title = document.getElementById('analysisTitle');
+    tableWrapper.innerHTML = '';
+    title.textContent = `Analysis Report for ${form.toUpperCase().replace('FORM', 'Form ')}`;
+
+    const data = await fetchClassData(form);
+    if (data.length === 0) {
+        tableWrapper.innerHTML = `<p>No data found for ${form}.</p>`;
+        return;
+    }
+
+    const isUpperForm = form === 'form3' || form === 'form4';
+    const grades = isUpperForm ? ['1', '2', '3', '4', '5', '6', '7', '8', '9'] : ['A', 'B', 'C', 'D', 'F'];
+    const availableSubjects = ALL_SUBJECTS.filter(s => data[0][s] !== undefined);
+    const totalStudents = data.length;
+
+    // 1. Initialize grade counters and pass/fail/absent/sat counters per subject
+    const subjectAnalysis = {};
+    availableSubjects.forEach(subject => {
+        subjectAnalysis[subject] = {
+            grades: Object.fromEntries(grades.map(g => [g, 0])),
+            absent: 0,
+            sat: 0,
+            passed: 0,
+            failed: 0,
+        };
+    });
+
+    // 2. Populate counters by iterating through all students and scores
+    data.forEach(student => {
+        availableSubjects.forEach(subject => {
+            const rawScore = student[subject];
+
+            if (rawScore === 'N') {
+                subjectAnalysis[subject].absent++;
+            } else if (rawScore === 'X') {
+                // Not Enrolled: Do not count as Absent, Sat, Passed, or Failed
+            } else {
+                const isNumeric = !isNaN(parseFloat(rawScore)) && isFinite(rawScore);
+                
+                if (isNumeric) {
+                    const score = parseInt(rawScore);
+                    const { grade } = getGradeAndRemark(form, score);
+                    
+                    // Count Grade
+                    if (subjectAnalysis[subject].grades.hasOwnProperty(grade)) {
+                        subjectAnalysis[subject].grades[grade]++;
+                    }
+
+                    // Count Sat
+                    subjectAnalysis[subject].sat++;
+
+                    // Count Pass/Fail
+                    if (isPassingGrade(form, grade)) {
+                        subjectAnalysis[subject].passed++;
+                    } else {
+                        subjectAnalysis[subject].failed++;
+                    }
+                }
+            }
+        });
+    });
+
+    // 3. Build the Analysis Table HTML
+    let tableHTML = `<table id="analysisTable">
+        <thead>
+            <tr>
+                <th style="width: 15%;">GRADES</th>
+                ${availableSubjects.map(s => `<th>${getSubjectShortName(s)}</th>`).join('')}
+            </tr>
+        </thead>
+        <tbody>`;
+
+    // Add Grade Distribution Rows (A-F or 1-9)
+    grades.forEach(grade => {
+        tableHTML += `<tr>
+            <td style="font-weight: bold;">${grade}</td>
+            ${availableSubjects.map(subject => 
+                `<td>${subjectAnalysis[subject].grades[grade] || 0}</td>`
+            ).join('')}
+        </tr>`;
+    });
+
+    // Add Summary Rows
+    const summaryRows = [
+        { label: 'Absent', key: 'absent' },
+        { label: 'Sat for Exam', key: 'sat' },
+        { label: 'Passed Exam', key: 'passed' },
+        { label: 'Failed Exam', key: 'failed' },
+        { label: 'Pass Percentage', key: 'pass_percent' },
+        { label: 'Fail Percentage', key: 'fail_percent' },
+    ];
+
+    summaryRows.forEach(row => {
+        tableHTML += `<tr>
+            <td style="font-weight: bold; background-color: #f0f0f0;">${row.label}</td>
+            ${availableSubjects.map(subject => {
+                let value;
+                if (row.key === 'pass_percent') {
+                    const sat = subjectAnalysis[subject].sat;
+                    const passed = subjectAnalysis[subject].passed;
+                    value = sat > 0 ? ((passed / sat) * 100).toFixed(1) + '%' : '0.0%';
+                } else if (row.key === 'fail_percent') {
+                    const sat = subjectAnalysis[subject].sat;
+                    const failed = subjectAnalysis[subject].failed;
+                    value = sat > 0 ? ((failed / sat) * 100).toFixed(1) + '%' : '0.0%';
+                } else {
+                    value = subjectAnalysis[subject][row.key];
+                }
+                return `<td>${value}</td>`;
+            }).join('')}
+        </tr>`;
+    });
+
+    tableHTML += `</tbody></table>`;
+    tableWrapper.innerHTML = tableHTML;
+}
+
+
+// --- GITHUB FILE FUNCTIONS ---
+
+function uploadCSV(){
+  const className=document.getElementById('classDropdown').value;
+  const fileInput=document.getElementById('csvUpload');
+  const file=fileInput.files[0];
+  const token=document.getElementById('githubToken').value.trim();
+  if(!className||!file||!token){alert('Please select a class, choose a file, and enter your GitHub token.');return;}
+  showLoading(); // <<< CALL
+  const reader=new FileReader();
+  reader.onload=function(){
+    const content=reader.result;
+    const encodedContent=btoa(unescape(encodeURIComponent(content)));
+    fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${className}.csv`,{
+      method:'PUT',
+      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+      body:JSON.stringify({message:`Upload ${className}.csv`,content:encodedContent})
+    })
+    .then(res=>res.json())
+    .then(()=>{
+        alert('Upload successful.');
+        currentClassData = {}; // Clear cache on upload
+        refreshFileList();
+    })
+    .catch(()=>alert('Upload failed. Check token and repo permissions.'))
+    .finally(() => hideLoading()); // <<< CALL
+  };
+  reader.readAsText(file);
+}
+
+function deleteCSV(){
+  const fileName=document.getElementById('deleteDropdown').value;
+  const token=document.getElementById('githubToken').value.trim();
+  if(!fileName||!token){alert('Please select a file and enter your GitHub token.');return;}
+  showLoading(); // <<< CALL
+  fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${fileName}`, {
+    headers:{'Authorization':`Bearer ${token}`}
+  })
+  .then(res=>res.json())
+  .then(fileData=>{
+    const sha=fileData.sha;
+    fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${fileName}`,{
+      method:'DELETE',
+      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+      body:JSON.stringify({message:`Delete ${fileName}`,sha:sha})
+    })
+    .then(()=>{
+        alert('File deleted.');
+        currentClassData = {}; // Clear cache on delete
+        refreshFileList();
+    })
+    .catch(()=>alert('Delete failed. Check token and file name.'))
+    .finally(() => hideLoading()); // <<< CALL
+  })
+  .catch(()=> {
+      alert('Failed to retrieve file SHA for deletion.');
+      hideLoading(); // <<< CALL
+  });
+}
+
+function refreshFileList(){
+  showLoading(); // <<< CALL
+  fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`)
+    .then(res=>res.json())
+    .then(files=>{
+      const dropdown=document.getElementById('deleteDropdown');
+      dropdown.innerHTML='<option value="">-- Select CSV File --</option>';
+      if (Array.isArray(files)) {
+          files.forEach(file=>{
+            if(file.name.endsWith('.csv')){
+              const opt=document.createElement('option');
+              opt.value=file.name;
+              opt.textContent=file.name;
+              dropdown.appendChild(opt);
+            }
+          });
+      } else {
+          console.error("Failed to list files or repo is empty:", files);
+      }
+    })
+    .catch(()=>alert('Failed to load file list.'))
+    .finally(() => hideLoading()); // <<< CALL
+}
+
+// --- MAIN REPORT GENERATION FUNCTION (MODIFIED) ---
+async function loadResults(callingPage = 'initialPage') {
+    const isStudentPortal = callingPage === 'initialPage';
+
+    // Get input values based on the calling page
+    const form = isStudentPortal ? document.getElementById('selectedForm').value : document.getElementById('progressFormSelect').value;
+    const studentNumber = isStudentPortal ? document.getElementById('studentNumberInput').value.trim() : document.getElementById('progressStudentNumberInput').value.trim();
+    const dob = isStudentPortal ? document.getElementById('dobInput').value.trim() : ''; // DOB is only read for Student Portal
+
+    if (!form || !studentNumber || (isStudentPortal && !dob)) { 
+        alert('Please fill in all required fields.'); 
+        return; 
+    }
+
     if (!currentConfig) {
         const { config } = await fetchConfig(null);
         currentConfig = config;
     }
 
-    fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`)
-        .then(r => r.text())
-        .then(csv => {
-            const parsed = Papa.parse(csv, { header: true });
-            const classData = parsed.data.filter(s => s && s["Exam Number"]);
-            const dobInput = new Date(dob);
-            const formattedDob = `${dobInput.getFullYear()}-${(dobInput.getMonth() + 1).toString().padStart(2, '0')}-${dobInput.getDate().toString().padStart(2, '0')}`;
-            const student = classData.find(s => s['Exam Number'] === studentNumber && s['Date of Birth'] === formattedDob);
-
-            if (!student) { alert('No results found for this student/details.'); return; }
-
-            const currentForm = form.charAt(0).toUpperCase() + form.slice(1);
-            const isUpperForm = form === 'form3' || form === 'form4';
-            const ALL_SUBJECTS_IN_DATA = ALL_SUBJECTS.filter(s => classData.length > 0 && classData[0][s] !== undefined);
+    const data = await fetchClassData(form);
+    if (data.length === 0) { alert(`No data found for ${form}.csv.`); return; }
             
-            // Get teacher assignments for the student's form
-            const teachersForStudentClass = currentConfig.teachers[form] || {};
+    let student;
+    if (isStudentPortal) {
+        // Student Portal: MUST match both Exam Number and DOB for security
+        const dobInput = new Date(dob);
+        const formattedDob = `${dobInput.getFullYear()}-${(dobInput.getMonth() + 1).toString().padStart(2, '0')}-${dobInput.getDate().toString().padStart(2, '0')}`;
+        student = data.find(s => s['Exam Number'] === studentNumber && s['Date of Birth'] === formattedDob);
+    } else {
+        // Admin Portal (Sheets): Match only Exam Number
+        student = data.find(s => s['Exam Number'] === studentNumber);
+    }
 
-            // 1. Populate Header Details (Report Page)
-            document.getElementById('reportStudentName').textContent = student["STUDENT'S NAME"];
-            document.getElementById('reportExamNo').textContent = student["Exam Number"];
-            document.getElementById('reportForm').textContent = currentForm.replace('Form', '');
-            document.getElementById('reportTerm').textContent = currentConfig.term; // Use loaded term
+    if (!student) { alert('No results found for this student/details.'); return; }
 
-            const tbody = document.getElementById('reportBody');
-            tbody.innerHTML = '';
+    const currentForm = form.charAt(0).toUpperCase() + form.slice(1);
+    const isUpperForm = form === 'form3' || form === 'form4';
+    const ALL_SUBJECTS_IN_DATA = ALL_SUBJECTS.filter(s => data.length > 0 && data[0][s] !== undefined);
+    
+    // Get teacher assignments for the student's form
+    const teachersForStudentClass = currentConfig.teachers[form] || {};
 
-            // 2. Process Subject Scores and Populate Table
-            let totalScore = 0;
-            let subjectsCounted = 0;
-            let passingSubjects = 0;
-            let englishPassed = false;
-            let gradesList = [];
-            
-            ALL_SUBJECTS_IN_DATA.forEach(subject => {
-                const row = tbody.insertRow();
-                const rawScore = student[subject];
-                let displayScore = '-';
-                let grade = '-';
-                let remark = 'N/A';
-                let score = null;
+    // 1. Populate Header Details (Report Page)
+    document.getElementById('reportStudentName').textContent = student["STUDENT'S NAME"];
+    document.getElementById('reportExamNo').textContent = student["Exam Number"];
+    document.getElementById('reportForm').textContent = currentForm.replace('Form', '');
+    document.getElementById('reportTerm').textContent = currentConfig.term; // Use loaded term
 
-                const isNumeric = !isNaN(parseFloat(rawScore)) && isFinite(rawScore);
+    const tbody = document.getElementById('reportBody');
+    tbody.innerHTML = '';
 
-                if (rawScore === 'X') {
-                    displayScore = 'X';
-                    remark = 'Not Enrolled';
-                } else if (rawScore === 'N') {
-                    displayScore = 'N';
-                    remark = 'Did Not Write';
-                } else if (isNumeric) {
-                    score = parseInt(rawScore);
-                    displayScore = score;
-                    const gr = getGradeAndRemark(form, score); // Pass the raw form string ('form1')
-                    grade = gr.grade;
-                    remark = gr.remark;
+    // 2. Process Subject Scores and Populate Table
+    let passingSubjects = 0;
+    let englishPassed = false;
+    
+    const studentMetrics = await calculateStudentMetrics(student, form);
+    
+    // Check passing status for overall remark
+    ALL_SUBJECTS_IN_DATA.forEach(subject => {
+        const rawScore = student[subject];
+        const isNumeric = !isNaN(parseFloat(rawScore)) && isFinite(rawScore);
 
-                    subjectsCounted++;
-                    if (!isUpperForm) {
-                        totalScore += score;
-                    }
-                    
-                    const numericGrade = getNumericGradeForSorting(form, grade); // Pass the raw form string ('form1')
-                    gradesList.push({ grade, subject, numericGrade });
-                    
-                    if (isPassingGrade(form, grade)) { // Pass the raw form string ('form1')
-                        passingSubjects++;
-                    }
-                    if (subject === 'English' && isPassingGrade(form, grade)) { // Pass the raw form string ('form1')
-                        englishPassed = true;
-                    }
-                }
-                
-                // Calculate Subject Position
-                let subjectPosition = '-';
-                if (score !== null) {
-                    const scoresInClass = classData
-                        .map(s => parseInt(s[subject]) || 0)
-                        .filter(s => s >= 0);
-                    scoresInClass.sort((a, b) => b - a);
-                    const firstIndex = scoresInClass.indexOf(score);
-                    subjectPosition = firstIndex >= 0 ? (firstIndex + 1) : '-';
-                }
-
-                // Use loaded teacher configuration for the student's class
-                const teacher = teachersForStudentClass[subject] || DEFAULT_TEACHER;
-
-                row.insertCell().textContent = subject;
-                row.insertCell().textContent = displayScore;
-                row.insertCell().textContent = grade;
-                row.insertCell().textContent = subjectPosition;
-                row.insertCell().textContent = remark;
-                row.insertCell().textContent = teacher;
-            });
-
-            // 3. Overall Ranking/Metrics Calculation
-            let overallMetric = null;
-            let overallRemark = 'Fail';
-            let metricDisplay = '-';
-            let overallRank = '-';
-            let totalRankableStudents = 0;
-
-            // Calculate Overall Metric (Average or Aggregate) for *target student*
-             if (subjectsCounted >= MIN_SUBJECTS) {
-                if (!isUpperForm) { // Lower Form: Average
-                    overallMetric = totalScore / subjectsCounted;
-                    metricDisplay = overallMetric.toFixed(1);
-                } else { // Upper Form: Aggregate
-                    gradesList.sort((a, b) => a.numericGrade - b.numericGrade);
-                    const englishGradeEntry = gradesList.find(g => g.subject === 'English');
-
-                    if (gradesList.length >= 6) { 
-                        if (englishGradeEntry && isPassingGrade(form, englishGradeEntry.grade)) {
-                            let bestSixGrades = gradesList.slice(0, 6);
-
-                            if (!bestSixGrades.some(g => g.subject === 'English')) {
-                                bestSixGrades[5] = englishGradeEntry; 
-                                bestSixGrades.sort((a, b) => a.numericGrade - b.numericGrade);
-                            }
-                            overallMetric = bestSixGrades.slice(0, 6).reduce((sum, g) => sum + g.numericGrade, 0);
-                            metricDisplay = overallMetric;
-                        }
-                    }
-                }
+        if (isNumeric) {
+            const { grade } = getGradeAndRemark(form, parseInt(rawScore));
+            if (isPassingGrade(form, grade)) {
+                passingSubjects++;
             }
-
-            // Calculate Overall Rank for *all students* in the class
-            const classMetrics = classData.map(s => {
-                let total = 0;
-                let grades = [];
-                let subjectsCount = 0;
-                const studentForm = form; // Assuming form is uniform for the CSV
-                const isStudentUpperForm = studentForm === 'form3' || studentForm === 'form4';
-
-
-                ALL_SUBJECTS_IN_DATA.forEach(sub => {
-                    const raw = s[sub];
-                    const isNum = !isNaN(parseFloat(raw)) && isFinite(raw);
-                    if (isNum) {
-                        const score = parseInt(raw);
-                        const { grade } = getGradeAndRemark(studentForm, score);
-                        const numericGrade = getNumericGradeForSorting(studentForm, grade);
-                        
-                        subjectsCount++;
-                        if (!isStudentUpperForm) {
-                            total += score;
-                        } else {
-                            grades.push({ grade, subject: sub, numericGrade });
-                        }
-                    }
-                });
-
-                let metric = null;
-                if (subjectsCount >= MIN_SUBJECTS) {
-                    if (!isStudentUpperForm) {
-                        metric = total / subjectsCount;
-                    } else {
-                        if (grades.length >= 6) {
-                            grades.sort((a, b) => a.numericGrade - b.numericGrade);
-                            const englishGradeEntry = grades.find(g => g.subject === 'English');
-                            
-                            if (englishGradeEntry && isPassingGrade(studentForm, englishGradeEntry.grade)) {
-                                let bestSixGrades = grades.slice(0, 6);
-                                if (!bestSixGrades.some(g => g.subject === 'English')) {
-                                    bestSixGrades[5] = englishGradeEntry;
-                                    bestSixGrades.sort((a, b) => a.numericGrade - b.numericGrade);
-                                }
-                                metric = bestSixGrades.slice(0, 6).reduce((sum, g) => sum + g.numericGrade, 0);
-                            }
-                        }
-                    }
-                }
-
-                return { examNo: s["Exam Number"], metric, isUpperForm: isStudentUpperForm };
-            });
-
-            const rankableMetrics = classMetrics.filter(m => m.metric !== null);
-            totalRankableStudents = rankableMetrics.length;
-            
-            rankableMetrics.sort((a, b) => {
-                if (a.isUpperForm) {
-                    return a.metric - b.metric; 
-                } else {
-                    return b.metric - a.metric; 
-                }
-            });
-            
-            let rank = 1;
-            for (let i = 0; i < totalRankableStudents; i++) {
-                const studentMetricEntry = rankableMetrics[i];
-                
-                if (i > 0) {
-                    const isDifferent = studentMetricEntry.isUpperForm 
-                        ? studentMetricEntry.metric !== rankableMetrics[i-1].metric
-                        : studentMetricEntry.metric.toFixed(1) !== rankableMetrics[i-1].metric.toFixed(1);
-                    
-                    if (isDifferent) {
-                        rank = i + 1;
-                    }
-                }
-                
-                if (studentMetricEntry.examNo === studentNumber) {
-                    overallRank = rank;
-                    break;
-                }
+            if (subject === 'English' && isPassingGrade(form, grade)) {
+                englishPassed = true;
             }
+        }
+    });
+
+    ALL_SUBJECTS_IN_DATA.forEach(subject => {
+        const row = tbody.insertRow();
+        const rawScore = student[subject];
+        let displayScore = '-';
+        let grade = '-';
+        let remark = 'N/A';
+        let score = null;
+
+        const isNumeric = !isNaN(parseFloat(rawScore)) && isFinite(rawScore);
+
+        if (rawScore === 'X') {
+            displayScore = 'X';
+            remark = 'Not Enrolled';
+        } else if (rawScore === 'N') {
+            displayScore = 'N';
+            remark = 'Did Not Write';
+        } else if (isNumeric) {
+            score = parseInt(rawScore);
+            displayScore = score;
+            const gr = getGradeAndRemark(form, score);
+            grade = gr.grade;
+            remark = gr.remark;
+        }
+        
+        // Calculate Subject Position
+        let subjectPosition = '-';
+        if (score !== null) {
+            const scoresInClass = data
+                .map(s => parseInt(s[subject]) || 0)
+                .filter(s => s >= 0);
+            scoresInClass.sort((a, b) => b - a);
+            const firstIndex = scoresInClass.indexOf(score);
+            subjectPosition = firstIndex >= 0 ? (firstIndex + 1) : '-';
+        }
+
+        const teacher = teachersForStudentClass[subject] || DEFAULT_TEACHER;
+
+        row.insertCell().textContent = subject;
+        row.insertCell().textContent = displayScore;
+        row.insertCell().textContent = grade;
+        row.insertCell().textContent = subjectPosition;
+        row.insertCell().textContent = remark;
+        row.insertCell().textContent = teacher;
+    });
+
+    // 3. Overall Ranking/Metrics Calculation
+    let overallMetric = studentMetrics.overallMetric;
+    let metricDisplay = studentMetrics.metricDisplay;
+    let subjectsCounted = studentMetrics.gradesList.length;
+
+    let overallRemark = 'Fail';
+    let overallRank = '-';
+    let totalRankableStudents = 0;
+
+    // Calculate Overall Rank for *all students* in the class (Recalculating for accurate ranking)
+    const classMetrics = await Promise.all(data.map(s => calculateStudentMetrics(s, form).then(m => ({
+        examNo: s["Exam Number"],
+        metric: m.overallMetric,
+        isUpperForm: m.isUpperForm
+    }))));
+
+    const rankableMetrics = classMetrics.filter(m => m.metric !== null);
+    totalRankableStudents = rankableMetrics.length;
+    
+    // Sort logic for ranking (Lower metric is better for upper form, higher metric is better for lower form)
+    rankableMetrics.sort((a, b) => {
+        if (a.isUpperForm) {
+            return a.metric - b.metric; 
+        } else {
+            return b.metric - a.metric; 
+        }
+    });
+    
+    let rank = 1;
+    for (let i = 0; i < totalRankableStudents; i++) {
+        const studentMetricEntry = rankableMetrics[i];
+        
+        if (i > 0) {
+            const isDifferent = studentMetricEntry.isUpperForm 
+                ? studentMetricEntry.metric !== rankableMetrics[i-1].metric
+                : studentMetricEntry.metric.toFixed(1) !== rankableMetrics[i-1].metric.toFixed(1);
             
-            // Set Overall Remark
-            if (subjectsCounted < MIN_SUBJECTS) {
-                overallRemark = 'Incomplete Results (Less than ' + MIN_SUBJECTS + ' subjects)';
-            } else if (overallMetric !== null) {
-                 if (passingSubjects >= 6 && englishPassed) { 
-                    overallRemark = 'Pass';
-                 } else if (passingSubjects >= 4 && englishPassed && !isUpperForm) { 
-                    overallRemark = 'Pass';
-                 } else {
-                    overallRemark = 'Fail';
-                 }
-            } else {
-                overallRemark = 'Fail (Not Ranked)';
+            if (isDifferent) {
+                rank = i + 1;
             }
-            
-            // 4. Populate Summary and Key
-            document.getElementById('averageLine').classList.toggle('hidden', isUpperForm);
-            document.getElementById('aggregateLine').classList.toggle('hidden', !isUpperForm);
+        }
+        
+        if (studentMetricEntry.examNo === studentNumber) {
+            overallRank = rank;
+            break;
+        }
+    }
+    
+    // Set Overall Remark
+    if (subjectsCounted < MIN_SUBJECTS) {
+        overallRemark = 'Incomplete Results (Less than ' + MIN_SUBJECTS + ' subjects)';
+    } else if (overallMetric !== null) {
+         if (passingSubjects >= 6 && englishPassed) { 
+            overallRemark = 'Pass';
+         } else if (passingSubjects >= 4 && englishPassed && !isUpperForm) { 
+            overallRemark = 'Pass';
+         } else {
+            overallRemark = 'Fail';
+         }
+    } else {
+        overallRemark = 'Fail (Not Ranked)';
+    }
+    
+    // 4. Populate Summary and Key
+    document.getElementById('averageLine').classList.toggle('hidden', isUpperForm);
+    document.getElementById('aggregateLine').classList.toggle('hidden', !isUpperForm);
 
-            if (!isUpperForm) {
-                document.getElementById('reportAverage').textContent = metricDisplay;
-            } else {
-                document.getElementById('reportAggregate').textContent = metricDisplay;
-            }
+    if (!isUpperForm) {
+        document.getElementById('reportAverage').textContent = metricDisplay;
+    } else {
+        document.getElementById('reportAggregate').textContent = metricDisplay;
+    }
 
-            document.getElementById('reportOverallRemark').textContent = overallRemark;
-            document.getElementById('reportPosition').textContent = `${overallRank}/${totalRankableStudents}`;
-            document.getElementById('reportComment').textContent = currentConfig.generalComment; // Use loaded comment
+    document.getElementById('reportOverallRemark').textContent = overallRemark;
+    document.getElementById('reportPosition').textContent = `${overallRank}/${totalRankableStudents}`;
+    document.getElementById('reportComment').textContent = currentConfig.generalComment; // Use loaded comment
 
-            // --- GRADE KEY LOGIC ---
-            const gradeKeyData = isUpperForm ? GRADE_KEY_F3_F4 : GRADE_KEY_F1_F2;
+    // --- GRADE KEY LOGIC ---
+    const gradeKeyData = isUpperForm ? GRADE_KEY_F3_F4 : GRADE_KEY_F1_F2;
 
-            let keyHtml = `<table id="gradeKeyTableNew">
-                <thead>
-                    <tr>
-                        <th style="width: 30%;">RANGE</th>
-                        <th style="width: 15%;">GRADE</th>
-                        <th style="width: 55%;">COMMENT</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-            gradeKeyData.forEach(item => {
-                keyHtml += `<tr><td>${item.range}</td><td>${item.grade}</td><td>${item.remark}</td></tr>`;
-            });
-            keyHtml += `</tbody></table>`;
+    let keyHtml = `<table id="gradeKeyTableNew">
+        <thead>
+            <tr>
+                <th style="width: 30%;">RANGE</th>
+                <th style="width: 15%;">GRADE</th>
+                <th style="width: 55%;">COMMENT</th>
+            </tr>
+        </thead>
+        <tbody>`;
+    gradeKeyData.forEach(item => {
+        keyHtml += `<tr><td>${item.range}</td><td>${item.grade}</td><td>${item.remark}</td></tr>`;
+    });
+    keyHtml += `</tbody></table>`;
 
-            document.getElementById('gradeKeyPlaceholder').innerHTML = keyHtml;
+    document.getElementById('gradeKeyPlaceholder').innerHTML = keyHtml;
 
-            // 5. Display Page
-            goToPage('progressReport');
-        })
-        .catch((e) => alert('Failed to load results. Error: ' + e));
+    // 5. Display Page
+    goToPage('progressReport');
 }
 
-// PDF Export Function
+// PDF Export Function (Kept as is)
 function openFullPdf(){
   const studentName = document.getElementById('reportStudentName').textContent.trim();
   const examNo = document.getElementById('reportExamNo').textContent.trim();
@@ -1104,7 +1866,6 @@ function openFullPdf(){
   const buttons = contentToCapture.querySelectorAll('.back-btn, .view-btn');
   buttons.forEach(btn => btn.style.visibility = 'hidden');
   
-  // Use scale: 2 for higher resolution in PDF
   html2canvas(contentToCapture, {
       scrollY: 0,
       scale: 2 
@@ -1112,13 +1873,11 @@ function openFullPdf(){
     buttons.forEach(btn => btn.style.visibility = 'visible');
 
     const imgData=canvas.toDataURL('image/png');
-    // Initialize jsPDF for A4 portrait
     const pdf=new jspdf.jsPDF('p', 'mm', 'a4'); 
     
     const pdfWidth=pdf.internal.pageSize.getWidth();
     const imgProps=pdf.getImageProperties(imgData);
     
-    // Calculate the image height to maintain aspect ratio
     const pdfHeight=(imgProps.height*pdfWidth)/imgProps.width;
 
     pdf.addImage(imgData,'PNG',0,0,pdfWidth,pdfHeight);
@@ -1130,99 +1889,10 @@ function openFullPdf(){
   });
 }
 
-// --- ADMIN FUNCTIONS ---
-
-function openAdmin(){
-  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
-  document.getElementById('adminPage').style.display='block';
-}
-
-async function backToInitialPage(){
-  goToPage('initialPage'); 
-  document.getElementById('selectedForm').value='';
-  document.getElementById('studentNumberInput').value='';
-  document.getElementById('dobInput').value='';
-  document.getElementById('adminPassword').value='';
-  document.getElementById('githubToken').value='';
-  document.getElementById('adminPanel').style.display='none';
-  document.getElementById('adminLabel').style.display='block';
-  document.getElementById('adminPassword').style.display='inline-block';
-  document.getElementById('adminLoginBtn').style.display='inline-block';
-  currentConfig = null; // Clear cached config
-  configSha = null;
-}
-
-async function verifyAdmin(){
-  const pass=document.getElementById('adminPassword').value;
-  if(pass==='magawa123'){
-    document.getElementById('adminPanel').style.display='block';
-    document.getElementById('adminLabel').style.display='none';
-    document.getElementById('adminPassword').style.display='none';
-    document.getElementById('adminLoginBtn').style.display='none';
-    await loadConfigAndPopulateAdmin(); // Load and populate config after admin login
-    refreshFileList();
-  }else{alert('Incorrect password');}
-}
-
-function uploadCSV(){
-  const className=document.getElementById('classDropdown').value;
-  const fileInput=document.getElementById('csvUpload');
-  const file=fileInput.files[0];
-  const token=document.getElementById('githubToken').value.trim();
-  if(!className||!file||!token){alert('Please select a class, choose a file, and enter your GitHub token.');return;}
-  const reader=new FileReader();
-  reader.onload=function(){
-    const content=reader.result;
-    const encodedContent=btoa(unescape(encodeURIComponent(content)));
-    fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${className}.csv`,{
-      method:'PUT',
-      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
-      body:JSON.stringify({message:`Upload ${className}.csv`,content:encodedContent})
-    })
-    .then(res=>res.json())
-    .then(()=>{alert('Upload successful.');refreshFileList();})
-    .catch(()=>alert('Upload failed. Check token and repo permissions.'));
-  };
-  reader.readAsText(file);
-}
-
-function deleteCSV(){
-  const fileName=document.getElementById('deleteDropdown').value;
-  const token=document.getElementById('githubToken').value.trim();
-  if(!fileName||!token){alert('Please select a file and enter your GitHub token.');return;}
-  fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${fileName}`, {
-    headers:{'Authorization':`Bearer ${token}`}
-  })
-  .then(res=>res.json())
-  .then(fileData=>{
-    const sha=fileData.sha;
-    fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${fileName}`,{
-      method:'DELETE',
-      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
-      body:JSON.stringify({message:`Delete ${fileName}`,sha:sha})
-    })
-    .then(()=>{alert('File deleted.');refreshFileList();})
-    .catch(()=>alert('Delete failed. Check token and file name.'));
-  });
-}
-
-function refreshFileList(){
-  fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`)
-    .then(res=>res.json())
-    .then(files=>{
-      const dropdown=document.getElementById('deleteDropdown');
-      dropdown.innerHTML='<option value="">-- Select CSV File --</option>';
-      files.forEach(file=>{
-        if(file.name.endsWith('.csv')){
-          const opt=document.createElement('option');
-          opt.value=file.name;
-          opt.textContent=file.name;
-          dropdown.appendChild(opt);
-        }
-      });
-    })
-    .catch(()=>alert('Failed to load file list.'));
-}
+// Ensure initial page is displayed on load
+document.addEventListener('DOMContentLoaded', () => {
+    goToPage('initialPage');
+});
 </script>
 </body>
 </html>
