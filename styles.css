@@ -125,20 +125,39 @@ select:focus, input:focus, textarea:focus {
 textarea {
     resize: vertical;
 }
-/* Style for teacher assignment grouping to maintain layout consistency */
-#teacherAssignmentPanel label {
-    margin-top: 10px;
-    margin-bottom: 5px;
-    font-weight: 400; /* Lighter weight for subject labels */
-}
-/* STYLE FOR SCROLLABLE SUBJECT ASSIGNMENT PANEL */
+
+/* --- START NEW/MODIFIED TEACHER ASSIGNMENT STYLES --- */
 #teacherAssignmentPanel {
     max-height: 400px; /* Limit height */
     overflow-y: auto; /* Enable vertical scroll */
     padding-right: 15px; /* Add space for scrollbar */
     margin-bottom: 10px;
-    text-align: center;
+    text-align: left; /* Changed to left for label-input alignment */
 }
+.teacher-input-group {
+    display: flex; /* Key change: enable flex layout */
+    align-items: center; /* Vertically align label and input */
+    justify-content: space-between; /* Space out subject and input field */
+    margin-top: 10px; /* Space between subject rows */
+    padding: 0 5px; /* Slight padding for inner look */
+}
+.teacher-input-group label {
+    flex-basis: 40%; /* Give label a fixed width */
+    margin-top: 0 !important; /* Remove top margin */
+    text-align: left !important; /* Align label text to the left */
+    font-weight: 400; 
+    color: #2c3e50;
+}
+.teacher-input-group input[type="text"] {
+    flex-basis: 55%; /* Give input field the remaining width */
+    max-width: 100%; /* Important: Override the global max-width 400px */
+    margin: 0; /* Remove auto margins */
+    padding: 8px; /* Slightly smaller padding than global input */
+    font-size: 0.9em;
+    text-align: left !important; /* Align input text to the left for names */
+    display: inline-block !important; /* Override global display: block */
+}
+/* --- END NEW/MODIFIED TEACHER ASSIGNMENT STYLES --- */
 
 /* Buttons */
 button {
@@ -309,6 +328,11 @@ button:active { transform: scale(0.99); }
     #summaryAndKeyWrapper { flex-direction: column; }
     #reportSummary, #gradeKeyPlaceholder { width: 100% !important; margin-bottom: 15px; }
     #gradeKeyPlaceholder { text-align: left; } /* Align key left on mobile stack */
+    
+    /* Stack teacher assignment on mobile */
+    .teacher-input-group { flex-direction: column; align-items: stretch; }
+    .teacher-input-group label { flex-basis: auto; text-align: center !important; }
+    .teacher-input-group input[type="text"] { flex-basis: auto; text-align: center !important; }
 }
 
 /* --- DESKTOP TABLE ADJUSTMENTS (NEW) --- */
