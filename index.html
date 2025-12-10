@@ -535,7 +535,7 @@
 
 <div id="adminHomePage" class="page">
     <h2>Admin Dashboard</h2>
-    <input type="password" id="githubToken" placeholder="Authorization Code (GitHub Token)" style="margin-bottom: 20px;">
+    <input type="password" id="githubToken" placeholder="Authorization Code" style="margin-bottom: 20px;">
     <button onclick="openDataEntryAuth()">DATA</button> 
     <button onclick="openUploadsAuth()">UPLOADS</button>
     <button onclick="openSheetsPage()">SHEETS</button>
@@ -1155,7 +1155,7 @@ function populateTeacherInputs() {
 async function handleSaveConfig() {
     const token = document.getElementById('githubToken').value.trim();
     if (!token) {
-        alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.');
+        alert('Please enter Authorization Code on the Admin Dashboard.');
         return;
     }
 
@@ -1419,7 +1419,7 @@ function deleteScore() {
 async function saveAllScoresToRepo() {
     const token = document.getElementById('githubToken').value.trim();
     if (!token) {
-        alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.');
+        alert('Please enter your Authorization Code on the Admin Dashboard.');
         return;
     }
 
@@ -2194,4 +2194,5 @@ window.onload = function() {
 </script>
 </body>
 </html>
+
 
