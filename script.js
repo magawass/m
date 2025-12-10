@@ -39,235 +39,129 @@ const GRADE_KEY_F1_F2 = [
 ];
 
 const GRADE_KEY_F3_F4 = [
-    { range: '80 - 100', grade: '1', remark: 'Distinction' },
-    { range: '75 - 79', grade: '2', remark: 'Distinction' },
-    { range: '70 - 74', grade: '3', remark: 'Strong Credit' },
-    { range: '65 - 69', grade: '4', remark: 'Strong Credit' },
-    { range: '60 - 64', grade: '5', remark: 'Credit' },
-    { range: '55 - 59', grade: '6', remark: 'Credit' },
-    { range: '45 - 54', grade: '7', remark: 'Pass' },
-    { range: '35 - 44', grade: '8', remark: 'Pass' },
-    { range: '0 - 34', grade: '9', remark: 'Fail' },
+    { range: '1 - 2', grade: '1', remark: 'Distinction' },
+    { range: '3 - 4', grade: '2', remark: 'Distinction' },
+    { range: '5 - 6', grade: '3', remark: 'Strong Credit' },
+    { range: '7 - 8', grade: '4', remark: 'Credit' },
+    { range: '9 - 10', grade: '5', remark: 'Credit' },
+    { range: '11 - 12', grade: '6', remark: 'Credit' },
+    { range: '13 - 14', grade: '7', remark: 'Pass' },
+    { range: '15 - 16', grade: '8', remark: 'Pass' },
+    { range: '17 - 19', grade: '9', remark: 'Fail' },
 ];
 
 // --- UTILITY FUNCTIONS ---
-
-function goToPage(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-    document.getElementById(pageId).style.display = 'block';
-}
-
-function getSubjectShortName(subject) {
-    return SUBJECT_MAP[subject] || subject;
-}
-
-function getNumericGradeForSorting(form, grade) {
-    if (grade === '-' || grade === 'X' || grade === 'N') return 100;
-
-    if (form.includes('form1') || form.includes('form2')) {
-        if (grade === 'A') return 1;
-        if (grade === 'B') return 4;
-        if (grade === 'C') return 6;
-        if (grade === 'D') return 8;
-        if (grade === 'F') return 9;
-    }
-    const numeric = parseInt(grade);
-    if (!isNaN(numeric) && numeric >= 1 && numeric <= 9) {
-        return numeric;
-    }
-    return 100;
+function getSubjectShortName(fullName) {
+    return SUBJECT_MAP[fullName] || fullName.substring(0, 5);
 }
 
 function getGradeAndRemark(form, score) {
-    if (score === null || score === undefined || score === '' || isNaN(parseInt(score))) return { grade: '-', remark: 'No score' };
-    score = parseInt(score);
-
-    if (form.includes('form1') || form.includes('form2')) {
-        if (score >= 80) return { grade: 'A', remark: 'Excellent' };
-        if (score >= 65) return { grade: 'B', remark: 'Very Good' };
-        if (score >= 55) return { grade: 'C', remark: 'Good' };
-        if (score >= 40) return { grade: 'D', remark: 'Average' };
-        return { grade: 'F', remark: 'Fail' };
-    }
-
-    if (form.includes('form3') || form.includes('form4')) {
-        if (score >= 80) return { grade: '1', remark: 'Distinction' };
-        if (score >= 75) return { grade: '2', remark: 'Distinction' };
-        if (score >= 70) return { grade: '3', remark: 'Strong Credit' };
-        if (score >= 65) return { grade: '4', remark: 'Strong Credit' };
-        if (score >= 60) return { grade: '5', remark: 'Credit' };
-        if (score >= 55) return { grade: '6', remark: 'Credit' };
-        if (score >= 45) return { grade: '7', remark: 'Pass' };
-        if (score >= 35) return { grade: '8', remark: 'Pass' };
-        return { grade: '9', remark: 'Fail' };
-    }
-    return { grade: '-', remark: 'Unknown Form' }; // Should not happen
-}
-
-function isPassingGrade(form, grade) {
-    if (form.includes('form1') || form.includes('form2')) {
-        return ['A', 'B', 'C', 'D'].includes(grade);
-    }
-    if (form.includes('form3') || form.includes('form4')) {
-        const numericGrade = parseInt(grade);
-        return numericGrade >= 1 && numericGrade <= 8;
-    }
-    return false;
-}
-
-function getCommentForAggregate(aggregate) {
-    if (aggregate === 6) return 'Excellent performance, top achievement.';
-    if (aggregate >= 7 && aggregate <= 12) return 'Very strong performance, excellent academic potential.';
-    if (aggregate >= 13 && aggregate <= 18) return 'Commendable performance, solid academic standing.';
-    if (aggregate >= 19 && aggregate <= 24) return 'Good effort, showing satisfactory progress.';
-    if (aggregate >= 25 && aggregate <= 32) return 'Fair performance, needs more dedication in certain areas.';
-    if (aggregate >= 33 && aggregate <= 40) return 'Needs serious improvement. Academic output is below expectation.';
-    return 'Unsatisfactory performance. Immediate attention required across all subjects.';
-}
-
-function generateGradeKeyTable(form) {
-    const key = form.includes('form1') || form.includes('form2') ? GRADE_KEY_F1_F2 : GRADE_KEY_F3_F4;
-    let html = `<h4>Grade Key:</h4><table id="gradeKeyTableNew"><thead><tr><th>Range</th><th>Grade</th><th>Remark</th></tr></thead><tbody>`;
-    key.forEach(item => {
-        html += `<tr><td>${item.range}</td><td>${item.grade}</td><td>${item.remark}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-    return html;
-}
-
-// Function to calculate all student metrics (Total Score/Average/Aggregate, Position, Remarks)
-// Modifies students array in place by adding 'overallMetric'
-async function calculateAllStudentMetrics(form, data) {
-    const isUpperForm = form === 'form3' || form === 'form4';
-    const studentsWithMetrics = data.map(student => {
-        const studentMetrics = calculateStudentMetricsSingle(student, form);
-        return {
-            ...student,
-            overallMetric: studentMetrics.overallMetric,
-            metricDisplay: studentMetrics.metricDisplay,
-            gradesList: studentMetrics.gradesList,
-            subjectsCounted: studentMetrics.subjectsCounted,
-            passingSubjects: studentMetrics.passingSubjects,
-            englishPassed: studentMetrics.englishPassed,
-            overallRemark: studentMetrics.overallRemark,
-            rankable: studentMetrics.rankable,
-        };
-    });
-
-    // 1. Filter out students who shouldn't be ranked (Less than MIN_SUBJECTS, or failed English in upper form)
-    let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
-
-    // 2. Sort rankable students by overallMetric
-    // Lower forms (non-aggregate) sort by metric descending (higher is better)
-    // Upper forms (aggregate) sort by metric ascending (lower aggregate is better)
-    if (!isUpperForm) {
-        rankableStudents.sort((a, b) => b.overallMetric - a.overallMetric);
-    } else {
-        rankableStudents.sort((a, b) => a.overallMetric - b.overallMetric);
-    }
-
-    // 3. Assign ranks to rankable students
-    let currentRank = 1;
-    for (let i = 0; i < rankableStudents.length; i++) {
-        if (i > 0 && rankableStudents[i].overallMetric !== rankableStudents[i - 1].overallMetric) {
-            currentRank = i + 1;
-        }
-        rankableStudents[i].overallRank = currentRank;
-    }
-
-    // 4. Merge ranks back into the full list
-    return studentsWithMetrics.map(student => {
-        const rankedStudent = rankableStudents.find(r => r["Exam Number"] === student["Exam Number"]);
-        if (rankedStudent) {
-            student.overallRank = rankedStudent.overallRank;
-            student.totalRankableStudents = rankableStudents.length;
-        } else {
-            student.overallRank = 'N/A';
-            student.totalRankableStudents = rankableStudents.length; // Still show total for context
-        }
-        return student;
-    });
-}
-
-function calculateStudentMetricsSingle(student, form) {
-    const isUpperForm = form === 'form3' || form === 'form4';
-
-    // Determine available subjects based on data presence for the first student
-    // This assumes all students in the file have the same subject columns
-    const ALL_SUBJECTS_IN_DATA = ALL_SUBJECTS.filter(s => currentClassData[form] && currentClassData[form][0] && currentClassData[form][0][s] !== undefined);
+    const key = (form === 'form1' || form === 'form2') ? GRADE_KEY_F1_F2 : GRADE_KEY_F3_F4;
     
-    let gradesList = [];
-    let totalScore = 0;
-    let subjectsCounted = 0;
-    let passingSubjects = 0;
-    let englishPassed = false;
+    // Lower Forms (F1/F2) use Score Ranges
+    if (form === 'form1' || form === 'form2') {
+        const gradeEntry = key.find(entry => {
+            const [min, max] = entry.range.split(' - ').map(s => parseInt(s.trim()));
+            return score >= min && score <= max;
+        });
+        return gradeEntry || { grade: 'N/A', remark: 'N/A' };
+    } 
+    // Upper Forms (F3/F4) use Grade Points based on raw score
+    else if (form === 'form3' || form === 'form4') {
+        let points;
+        if (score >= 80) points = 1;
+        else if (score >= 75) points = 2;
+        else if (score >= 70) points = 3;
+        else if (score >= 65) points = 4;
+        else if (score >= 60) points = 5;
+        else if (score >= 50) points = 6;
+        else if (score >= 40) points = 7;
+        else if (score >= 30) points = 8;
+        else points = 9;
 
-    ALL_SUBJECTS_IN_DATA.forEach(subject => {
-        const rawScore = student[subject];
-        const isNumeric = !isNaN(parseFloat(rawScore)) && isFinite(rawScore);
+        const gradeEntry = key.find(entry => entry.grade === points.toString());
+        
+        // Return the grade (point) and remark
+        return { grade: points.toString(), remark: gradeEntry ? gradeEntry.remark : 'Fail', numericGrade: points };
+    }
 
-        if (isNumeric) {
-            const score = parseInt(rawScore);
-            const { grade } = getGradeAndRemark(form, score);
-            const numericGrade = getNumericGradeForSorting(form, grade);
+    return { grade: 'N/A', remark: 'N/A', numericGrade: 99 };
+}
 
-            // Only count grades that are not 'No score' for metric calculation
-            if (grade !== '-') {
-                gradesList.push({ grade, subject, numericGrade });
-                subjectsCounted++;
-                
-                if (!isUpperForm) {
-                    totalScore += score;
-                }
-                
-                if (isPassingGrade(form, grade)) {
-                    passingSubjects++;
-                }
-
-                if (subject === 'English' && isPassingGrade(form, grade)) {
-                    englishPassed = true;
-                }
-            }
-        }
-    });
-
-    let overallMetric = null; 
-    let metricDisplay = '-';
-    let overallRemark = 'Fail';
+function calculateStudentMetrics(student, form) {
+    let overallMetric = 999; // Default to worst rank number
+    let metricDisplay = 'N/A';
+    let overallRemark = 'Fail (Not Ranked)';
     let rankable = false;
 
+    // 1. Filter out subjects with no score, X, or N
+    const countedSubjects = ALL_SUBJECTS.filter(s => {
+        const rawScore = student[s];
+        return rawScore !== undefined && rawScore !== null && rawScore !== '' && rawScore !== 'X' && rawScore !== 'N';
+    });
+
+    const subjectsCounted = countedSubjects.length;
+    const isUpperForm = form === 'form3' || form === 'form4';
+
     if (subjectsCounted >= MIN_SUBJECTS) {
-        rankable = true;
-        
+        // --- LOWER FORMS (F1/F2): Use Average Score ---
         if (!isUpperForm) {
-            // Lower Form: Total Score
-            overallMetric = totalScore;
-            metricDisplay = (totalScore / subjectsCounted).toFixed(1); // Display Average
+            let totalScore = 0;
+            countedSubjects.forEach(s => {
+                const score = parseFloat(student[s]);
+                if (!isNaN(score)) {
+                    totalScore += score;
+                }
+            });
 
-            if (passingSubjects >= 4 && englishPassed) {
-                overallRemark = 'Pass';
-            } else {
-                overallRemark = 'Fail';
-            }
-        } else {
-            // Upper Form: Aggregate (Best 6 compulsory subjects with English Pass)
-            
-            // 1. Sort by numeric grade ascending (1 is best, 9 is worst)
-            gradesList.sort((a, b) => a.numericGrade - b.numericGrade);
-            
-            // 2. Select best six grades
-            let bestSixGrades = gradesList.slice(0, 6);
-            let aggregate = bestSixGrades.reduce((sum, g) => sum + g.numericGrade, 0);
+            const average = totalScore / subjectsCounted;
+            overallMetric = 100 - average; // Invert for ranking (higher average = lower metric = better rank)
+            metricDisplay = average.toFixed(2) + '%';
+            overallRemark = (average >= 50) ? 'Pass' : 'Fail';
+            rankable = true;
+        }
+        // --- UPPER FORMS (F3/F4): Use Aggregate (Sum of best 6 points) ---
+        else {
+            let gradesList = [];
+            let englishPassed = false; // Important pass criteria
 
-            if (subjectsCounted >= 6 && aggregate <= 40 && englishPassed) {
-                overallMetric = aggregate;
-                metricDisplay = aggregate;
-                overallRemark = getCommentForAggregate(aggregate); 
-            } else {
-                overallMetric = 999; // Highest possible rank number (worst)
-                metricDisplay = 'N/A';
-                overallRemark = 'Fail';
-                rankable = false; // Do not rank students who fail mandatory requirements
+            countedSubjects.forEach(subject => {
+                const score = parseFloat(student[subject]);
+                if (!isNaN(score)) {
+                    const { numericGrade: point } = getGradeAndRemark(form, score);
+                    gradesList.push({ subject: subject, numericGrade: point });
+                    
+                    if (subject === 'English' && point <= 8) { // English must be a Pass (8 or better)
+                        englishPassed = true;
+                    }
+                }
+            });
+            
+            // Need at least 6 grades to be considered for aggregate ranking
+            if (gradesList.length >= 6) {
+                rankable = true;
+                // 1. Sort by numeric grade (ascending, lower point is better)
+                gradesList.sort((a, b) => a.numericGrade - b.numericGrade);
+
+                // 2. Select the best 6 grades
+                let bestSixGrades = gradesList.slice(0, 6);
+
+                // 3. Calculate aggregate
+                let aggregate = bestSixGrades.reduce((sum, item) => sum + item.numericGrade, 0);
+
+                // 4. Check for Pass Criteria (English passed and best 6 grades < 48)
+                const passedAggregate = aggregate <= 48; // Aggregate of 8*6 = 48 (Pass grade is 8, so 48 is the threshold)
+
+                if (passedAggregate && englishPassed) {
+                    overallMetric = aggregate;
+                    metricDisplay = aggregate;
+                    overallRemark = 'Pass';
+                } else {
+                    overallMetric = 999; // Highest possible rank number (worst)
+                    metricDisplay = 'N/A';
+                    overallRemark = 'Fail';
+                    rankable = false; // Do not rank students who fail mandatory requirements
+                }
             }
         }
     } else {
@@ -276,7 +170,9 @@ function calculateStudentMetricsSingle(student, form) {
         overallRemark = 'Fail (Not Ranked)';
     }
 
-    return { overallMetric, metricDisplay, gradesList, subjectsCounted, passingSubjects, englishPassed, overallRemark, rankable };
+    // NOTE: passingSubjects and englishPassed are not fully calculated/used in the returned object in the existing code, 
+    // but the overall logic is self-contained.
+    return { overallMetric, metricDisplay, gradesList: gradesList || [], subjectsCounted, passingSubjects: 0, englishPassed: englishPassed || false, overallRemark, rankable };
 }
 
 function showLoading() {
@@ -316,69 +212,94 @@ async function fetchClassData(form) {
 
     // Fetch from GitHub
     try {
-        const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`);
-        if (!response.ok) {
-            console.warn(`CSV file for ${form} not found.`);
-            return [];
-        }
-        const csv = await response.text();
-        const parsed = Papa.parse(csv, { header: true });
+        updateLoadingPercent(10);
+        const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${form}.csv`;
+        const response = await fetch(apiUrl);
         
-        // Filter out empty rows which PapaParse sometimes generates
-        const data = parsed.data.filter(s => s && s["Exam Number"]);
-        currentClassData[form] = data; // Cache the data
-        return data;
+        if (!response.ok) {
+            if (response.status === 404) {
+                alert(`Data file for ${form} not found on GitHub.`);
+                return [];
+            }
+            throw new Error(`Failed to fetch CSV file: ${response.statusText}`);
+        }
+
+        updateLoadingPercent(50);
+        const data = await response.json();
+        const csvContent = atob(data.content);
+        
+        updateLoadingPercent(80);
+        // Parse CSV content using PapaParse
+        return new Promise((resolve) => {
+            Papa.parse(csvContent, {
+                header: true,
+                dynamicTyping: true, // Auto-convert numbers/booleans
+                skipEmptyLines: true,
+                complete: (results) => {
+                    // Cache the data in memory
+                    currentClassData[form] = results.data;
+                    updateLoadingPercent(100);
+                    resolve(results.data);
+                },
+                error: (error) => {
+                    alert(`Error parsing CSV for ${form}: ${error.message}`);
+                    resolve([]);
+                }
+            });
+        });
+
     } catch (error) {
-        console.error(`Error fetching data for ${form}:`, error);
+        console.error(`Error fetching class data for ${form}:`, error);
+        alert(`Failed to load data for ${form}. Error: ${error.message}`);
         return [];
     } finally {
-        hideLoading(); // <<< CALL
+        // hideLoading is called inside the promise resolution/rejection or immediately after in case of fetch error
+        // The check below attempts to ensure hideLoading is only called once if successful
+        if (currentClassData[form] || !document.getElementById('loadingOverlay').style.display === 'none') {
+             hideLoading();
+        }
     }
 }
 
-// --- CONFIGURATION MANAGEMENT FUNCTIONS ---
+// --- CONFIGURATION FUNCTIONS ---
 function getDefaultConfig() {
     const defaultTeachers = {};
     ALL_CLASSES.forEach(c => {
-        defaultTeachers[c] = Object.fromEntries(ALL_SUBJECTS.map(s => [s, DEFAULT_TEACHER]));
+        const classTeachers = {};
+        ALL_SUBJECTS.forEach(s => {
+            classTeachers[s] = DEFAULT_TEACHER;
+        });
+        defaultTeachers[c] = classTeachers;
     });
-
     return {
         term: 1,
-        generalComment: 'No general comment provided.',
-        teachers: defaultTeachers,
+        generalComment: 'The student has performed satisfactorily.',
+        teachers: defaultTeachers
     };
 }
 
 async function fetchConfig(token) {
-    showLoading(); // <<< CALL
-    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${CONFIG_FILE}`;
-    
+    // Note: The calling functions (verifyAdmin, initializeConfig) handle the loading/hiding.
+    showLoading(); // <<< CALL 
     try {
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-        const response = await fetch(apiUrl, { headers });
-
-        if (response.status === 404) {
-            // Config file not found, return default
-            console.warn('Config file not found on GitHub. Using default configuration.');
-            // Do not hide loading here, let the calling function handle it
-            return { config: getDefaultConfig(), sha: null };
-        }
-
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${CONFIG_FILE}`, { headers });
+        
         if (!response.ok) {
-            // This is a failure we need to alert about, but still return default config if no token was used
-            if (!token) {
+            if (response.status === 404) {
+                // Config file missing, return default and null SHA
                 return { config: getDefaultConfig(), sha: null };
             }
-            throw new Error(`Failed to fetch config with status: ${response.status} and error: ${response.statusText}`);
-        } else {
-            // This logic block should only run if the file EXISTS (response.ok)
+            if (response.status === 401 || response.status === 403) {
+                throw new Error("Authentication failed for config file.");
+            }
+            // For other errors, re-throw with status text
+            throw new Error(`Failed to fetch config file: ${response.statusText}`);
         }
 
         const data = await response.json();
         const content = JSON.parse(atob(data.content));
         return { config: content, sha: data.sha };
-
     } catch (error) {
         console.error("Error fetching config:", error);
         if (token) {
@@ -399,6 +320,7 @@ async function initializeConfig() {
     populateTeacherInputs();
 }
 
+// MODIFIED: Teacher assignment layout change
 function populateTeacherInputs() {
     if (!currentConfig) return;
     const selectedClass = document.getElementById('classTeacherDropdown').value;
@@ -411,8 +333,8 @@ function populateTeacherInputs() {
         group.className = 'teacher-input-group';
         
         const label = document.createElement('label');
-        label.textContent = subject + ':';
-        label.style.textAlign = 'center';
+        label.textContent = subject + ':'; 
+        // Removed inline style: label.style.textAlign = 'center';
         group.appendChild(label);
         
         const input = document.createElement('input');
@@ -420,6 +342,8 @@ function populateTeacherInputs() {
         input.placeholder = DEFAULT_TEACHER;
         input.id = `teacher-${selectedClass}-${subject.replace(/\s/g, '_')}`;
         input.value = teachersForClass[subject] || DEFAULT_TEACHER;
+        // This input element needs to override the global input styles
+        // to conform to the side-by-side layout in the panel. The CSS takes care of this via group/input/label selectors.
         group.appendChild(input);
         
         panel.appendChild(group);
@@ -432,33 +356,36 @@ async function handleSaveConfig() {
         alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.');
         return;
     }
-
-    const newTerm = parseInt(document.getElementById('reportTermSelect').value);
-    const newComment = document.getElementById('generalCommentInput').value.trim();
     
+    // 1. Collect new config data
+    const newConfig = {
+        term: document.getElementById('reportTermSelect').value,
+        generalComment: document.getElementById('generalCommentInput').value.trim(),
+        teachers: currentConfig.teachers // Start with existing teachers
+    };
+
+    // 2. Collect updated teacher assignments for the currently selected class
     const selectedClass = document.getElementById('classTeacherDropdown').value;
-    const newTeachersForClass = {};
+    const updatedTeachers = {};
     ALL_SUBJECTS.forEach(subject => {
         const inputId = `teacher-${selectedClass}-${subject.replace(/\s/g, '_')}`;
-        newTeachersForClass[subject] = document.getElementById(inputId).value.trim() || DEFAULT_TEACHER;
+        updatedTeachers[subject] = document.getElementById(inputId).value.trim() || DEFAULT_TEACHER;
     });
-    
-    const currentTeachers = currentConfig.teachers || getDefaultConfig().teachers;
-    currentTeachers[selectedClass] = newTeachersForClass;
 
-    const newConfig = {
-        term: newTerm,
-        generalComment: newComment,
-        teachers: currentTeachers
-    };
+    // Update the teachers object in the new config
+    newConfig.teachers[selectedClass] = updatedTeachers;
     
-    showLoading(); // <<< CALL
-    const { sha: latestSha } = await fetchConfig(token);
-    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${CONFIG_FILE}`;
+    // 3. Prepare for GitHub commit
     const content = JSON.stringify(newConfig, null, 2);
     const encodedContent = btoa(unescape(encodeURIComponent(content)));
 
+    showLoading(); // <<< CALL
+
     try {
+        // Re-fetch SHA just before update to avoid conflicts
+        const { sha: latestSha } = await fetchConfig(token);
+        
+        const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${CONFIG_FILE}`;
         const response = await fetch(apiUrl, {
             method: 'PUT',
             headers: {
@@ -466,20 +393,20 @@ async function handleSaveConfig() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                message: 'Update config.json (term, comment, teachers)',
+                message: 'Update config.json',
                 content: encodedContent,
-                sha: latestSha || configSha // Use the latest SHA if available, fallback to cached
+                sha: latestSha // Use the latest SHA if available
             })
         });
 
         if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(err.message || response.statusText);
-            });
+            const errorData = await response.json();
+            throw new Error(errorData.message || response.statusText);
         }
-        const result = await response.json();
-        configSha = result.content.sha; // Update SHA
+
+        const data = await response.json();
         currentConfig = newConfig; // Update in-memory config
+        configSha = data.content.sha; // Update SHA for next save
         alert('Configuration saved successfully to GitHub!');
     } catch (error) {
         alert(`Failed to save configuration: ${error.message}`);
@@ -489,21 +416,28 @@ async function handleSaveConfig() {
     }
 }
 
-// --- NAVIGATION & ADMIN AUTH FUNCTIONS ---
+// --- NAVIGATION & AUTHENTICATION ---
+function goToPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.style.display = 'none';
+    });
+    document.getElementById(pageId).style.display = 'block';
+}
 
 function backToInitialPage() {
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('githubToken').value = '';
     goToPage('initialPage');
 }
 
 function openAdminLogin() {
     goToPage('adminLoginPage');
-    document.getElementById('adminPassword').value = '';
 }
 
 async function verifyAdmin() {
     const password = document.getElementById('adminPassword').value;
-    const token = document.getElementById('githubToken').value.trim(); // Get token from the hidden field
-    if (password === 'MagawaPass123') {
+    if (password === 'Magawa123') { // Fixed Password
+        await initializeConfig();
         goToPage('adminHomePage');
     } else {
         alert('Incorrect Password.');
@@ -529,11 +463,26 @@ async function openUploadsAuth() {
     if (pass === 'upload123' && token) {
         await initializeConfig(); // Ensure config is loaded before uploads
         openUploadsPage();
+        refreshFileList(); // Load existing files
     } else if (!token) {
         alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.');
     } else if (pass !== null) {
         alert('Incorrect password for UPLOADS access.');
     }
+}
+
+function openDataEntryPage() {
+    document.getElementById('dataClassSelect').value = ''; // Reset class selector
+    document.getElementById('dataStudentSelect').innerHTML = '<option value="">-- Select Student --</option>'; // Reset student selector
+    document.getElementById('dataSubjectSelect').innerHTML = '<option value="">-- Select Subject --</option>';
+    document.getElementById('dataScoreInput').value = '';
+    ALL_SUBJECTS.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject;
+        option.textContent = subject;
+        document.getElementById('dataSubjectSelect').appendChild(option);
+    });
+    goToPage('dataEntryPage');
 }
 
 function openAdminHome() {
@@ -542,31 +491,24 @@ function openAdminHome() {
 
 function openUploadsPage() {
     goToPage('uploadsPage');
-    refreshFileList();
-}
-
-function openDataEntryPage() {
-    goToPage('dataEntryPage');
-    // Populate subjects once
-    const subjectSelect = document.getElementById('dataSubjectSelect');
-    if (subjectSelect.options.length <= 1) { // Only populate if empty
-        ALL_SUBJECTS.forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject;
-            option.textContent = subject;
-            subjectSelect.appendChild(option);
-        });
-    }
+    // Ensure the teacher inputs are populated for the default selected class
+    populateTeacherInputs();
 }
 
 function openSheetsPage() {
     goToPage('sheetsPage');
 }
 
+function openScoreSheetView() {
+    goToPage('scoreSheetView');
+    // Reset selection and sheet
+    document.getElementById('sheetClassSelect').value = '';
+    document.getElementById('scoreSheetTableWrapper').innerHTML = '';
+}
+
 function openProgressSheetSelector() {
     goToPage('progressSelectorPage');
-    // Populate fields from student portal for convenience (DOB is intentionally excluded here for admin access)
-    document.getElementById('progressFormSelect').value = document.getElementById('selectedForm').value;
+    // Reset student number input for convenience
     document.getElementById('progressStudentNumberInput').value = document.getElementById('studentNumberInput').value;
 }
 
@@ -597,25 +539,25 @@ function backToSheetsPage() {
 // Preserved: Handle back button logic for Progress Report
 function handleProgressBack() {
     if (lastCallingPage === 'initialPage') {
-        backToInitialPage();
+        goToPage('initialPage');
     } else if (lastCallingPage === 'progressSelectorPage') {
         goToPage('progressSelectorPage');
+    } else {
+        goToPage('initialPage'); // Default fallback
     }
 }
 
-// --- DATA ENTRY & SAVE FUNCTIONS ---
-
+// --- DATA ENTRY FUNCTIONS (IN-MEMORY CACHE) ---
 async function loadStudentsForDataEntry() {
     const form = document.getElementById('dataClassSelect').value;
     const studentSelect = document.getElementById('dataStudentSelect');
     studentSelect.innerHTML = '<option value="">-- Select Student --</option>'; // Clear previous
-
     if (!form) return;
 
-    // Fetch and cache data
-    const data = await fetchClassData(form);
+    const data = await fetchClassData(form); // Uses in-memory cache
 
     data.forEach(student => {
+        // Ensure Exam Number and Name are present for the dropdown
         if (student["Exam Number"] && student["STUDENT'S NAME"]) {
             const option = document.createElement('option');
             option.value = student["Exam Number"];
@@ -639,12 +581,14 @@ function submitScore() {
         alert('Please enter a score.');
         return;
     }
+
     if (!currentClassData[form] || currentClassData[form].length === 0) {
         alert('Class data not loaded. Please ensure you have loaded the data first.');
         return;
     }
+    
+    const studentIndex = currentClassData[form].findIndex(s => s["Exam Number"] === examNumber);
 
-    const studentIndex = currentClassData[form].findIndex(s => s['Exam Number'] === examNumber);
     if (studentIndex === -1) {
         alert('Student not found in the current data set.');
         return;
@@ -652,7 +596,43 @@ function submitScore() {
 
     // Update the in-memory cache
     currentClassData[form][studentIndex][subject] = score;
-    alert(`Score for ${examNumber} in ${subject} updated to: ${score}. Remember to click 'Save All Data to Repo'.`);
+
+    alert(`Score for ${examNumber} in ${subject} saved in memory. Remember to click 'Save All Data to Repo' to commit changes to GitHub.`);
+    
+    // Clear score input for next entry
+    document.getElementById('dataScoreInput').value = '';
+}
+
+function deleteScore() {
+    const form = document.getElementById('dataClassSelect').value;
+    const examNumber = document.getElementById('dataStudentSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+
+    if (!form || !examNumber || !subject) {
+        alert('Please select class, student, and subject.');
+        return;
+    }
+
+    if (!currentClassData[form] || currentClassData[form].length === 0) {
+        alert('Class data not loaded.');
+        return;
+    }
+    
+    const studentIndex = currentClassData[form].findIndex(s => s["Exam Number"] === examNumber);
+
+    if (studentIndex === -1) {
+        alert('Student not found in the current data set.');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to DELETE the score for ${examNumber} in ${subject}? The existing value is: "${currentClassData[form][studentIndex][subject] || 'BLANK'}".`)) {
+        return;
+    }
+
+    // Update the in-memory cache: set score to empty string, which PapaParse handles as an empty cell (deleted score)
+    currentClassData[form][studentIndex][subject] = "";
+
+    alert(`Score for ${examNumber} in ${subject} has been DELETED (set to blank). Remember to click 'Save All Data to Repo' to confirm changes on GitHub.`);
     
     // Clear score input for next entry
     document.getElementById('dataScoreInput').value = '';
@@ -675,68 +655,418 @@ async function saveAllScoresToRepo() {
             // Re-generate CSV content from the in-memory data
             const csv = Papa.unparse(data);
             const encodedContent = btoa(unescape(encodeURIComponent(csv)));
-
             const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${form}.csv`;
 
             try {
-                // Fetch the current SHA to prevent data loss (required for PUT update)
-                const shaResponse = await fetch(apiUrl, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
+                // Fetch current SHA
+                const response = await fetch(apiUrl, { headers: { 'Authorization': `Bearer ${token}` } });
                 let sha = null;
-                if (shaResponse.ok) {
-                    const shaData = await shaResponse.json();
-                    sha = shaData.sha;
-                } else if (shaResponse.status !== 404) {
-                     // Only throw error if it's not a 404 (file doesn't exist yet)
-                    throw new Error(`Failed to fetch current SHA for ${form}.csv: ${shaResponse.statusText}`);
+
+                if (response.status !== 404) {
+                    if (!response.ok) throw new Error(`Failed to fetch current file SHA for ${form}: ${response.statusText}`);
+                    const fileData = await response.json();
+                    sha = fileData.sha;
                 }
 
-                // PUT request to update/create file
-                const updateResponse = await fetch(apiUrl, {
+                // PUT request to update file
+                const putResponse = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: `Update ${form}.csv with new scores`,
+                        message: `Update ${form}.csv via data entry`,
                         content: encodedContent,
-                        sha: sha // Include SHA for update, or null/undefined for new file
+                        sha: sha
                     })
                 });
 
-                if (!updateResponse.ok) {
-                    allSucceeded = false;
-                    const errorDetails = await updateResponse.json();
-                    throw new Error(errorDetails.message || updateResponse.statusText);
+                if (!putResponse.ok) {
+                    const errorData = await putResponse.json();
+                    throw new Error(errorData.message || putResponse.statusText);
                 }
 
             } catch (error) {
-                alert(`Failed to save ${form}.csv: ${error.message}`);
-                console.error(`Error saving ${form}.csv:`, error);
+                console.error(`Failed to save ${form}.csv:`, error);
+                alert(`Error saving ${form}.csv: ${error.message}`);
                 allSucceeded = false;
             }
         }
     }
-
+    
     if (allSucceeded) {
-        alert('All class data saved successfully to GitHub!');
+        alert('All available class data saved successfully to GitHub!');
     } else {
-        alert('Some data failed to save. Check the console for details.');
+        alert('One or more files failed to save. Check the console for details.');
     }
+    
     hideLoading(); // <<< CALL
 }
 
-async function openScoreSheetView() {
-    goToPage('scoreSheetView');
-    // Automatically display the sheet for the currently selected class in data entry
-    document.getElementById('sheetClassSelect').value = document.getElementById('dataClassSelect').value;
-    displayScoreSheet();
+// --- CSV UPLOAD/DELETE FUNCTIONS ---
+async function uploadCSV() {
+    const token = document.getElementById('githubToken').value.trim();
+    const classSelect = document.getElementById('classDropdown');
+    const classValue = classSelect.value;
+    const fileInput = document.getElementById('csvUpload');
+    const file = fileInput.files[0];
+
+    if (!token) {
+        alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.');
+        return;
+    }
+    if (!classValue) {
+        alert('Please select a Class.');
+        return;
+    }
+    if (!file) {
+        alert('Please select a CSV file.');
+        return;
+    }
+
+    // 1. Read the file content
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const csvContent = e.target.result;
+        const fileName = `${classValue}.csv`;
+
+        // 2. Prepare for GitHub commit
+        const encodedContent = btoa(unescape(encodeURIComponent(csvContent)));
+        const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${fileName}`;
+
+        showLoading(); // <<< CALL
+
+        try {
+            // Check if the file exists to get its SHA
+            const getResponse = await fetch(apiUrl, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            let sha = null;
+            if (getResponse.ok) {
+                const fileData = await getResponse.json();
+                sha = fileData.sha;
+            } else if (getResponse.status !== 404) {
+                 // For errors other than 404, throw
+                throw new Error(`Failed to check file existence: ${getResponse.statusText}`);
+            }
+
+            // PUT request to create or update file
+            const putResponse = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Upload ${fileName}`,
+                    content: encodedContent,
+                    sha: sha // Include SHA if updating an existing file
+                })
+            });
+
+            if (!putResponse.ok) {
+                const errorData = await putResponse.json();
+                throw new Error(errorData.message || putResponse.statusText);
+            }
+
+            // Clear the in-memory cache for the uploaded class
+            delete currentClassData[classValue]; 
+            
+            alert(`${fileName} uploaded and saved successfully!`);
+            fileInput.value = ''; // Clear file input
+            refreshFileList(); // Update the delete dropdown
+        } catch (error) {
+            alert(`Upload failed: ${error.message}`);
+            console.error(error);
+        } finally {
+            hideLoading(); // <<< CALL
+        }
+    };
+    reader.readAsText(file);
 }
 
-// --- DISPLAY SCORE SHEET (MODIFIED FOR SHORT HEADERS) ---
+function deleteCSV() {
+    const token = document.getElementById('githubToken').value.trim();
+    const fileName = document.getElementById('deleteDropdown').value;
+
+    if (!token) {
+        alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.');
+        return;
+    }
+    if (!fileName) {
+        alert('Please select a CSV file to delete.');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete the file: ${fileName}? This action is irreversible.`)) {
+        return;
+    }
+
+    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${fileName}`;
+
+    showLoading(); // <<< CALL
+
+    // 1. Get the current SHA of the file to be deleted
+    fetch(apiUrl, { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(response => {
+            if (response.status === 404) {
+                throw new Error(`File ${fileName} not found on GitHub.`);
+            }
+            if (!response.ok) {
+                throw new Error(`Failed to fetch file SHA for deletion: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        // 2. Perform the DELETE request
+        .then(fileData => {
+            return fetch(apiUrl, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Delete ${fileName}`,
+                    sha: fileData.sha // Required for deletion
+                })
+            });
+        })
+        // 3. Handle response
+        .then(response => {
+            if(!response.ok){
+                return response.json().then(err => {
+                    throw new Error(err.message || response.statusText);
+                });
+            }
+            alert(`${fileName} deleted successfully!`);
+            const className = fileName.replace('.csv', '');
+            delete currentClassData[className]; // Clear in-memory cache
+            refreshFileList();
+        })
+        .catch(error => {
+            alert(`Delete failed: ${error.message}`);
+            console.error(error);
+        })
+        .finally(() => hideLoading()); // <<< CALL
+}
+
+function refreshFileList(){
+    const token=document.getElementById('githubToken').value.trim();
+    if(!token){return;} // Don't show loading if no token
+    
+    showLoading(); // <<< CALL
+
+    fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`,{
+        headers:{'Authorization':`Bearer ${token}`}
+    })
+    .then(response=>{
+        if(!response.ok){
+            throw new Error(`Failed to fetch file list: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(files=>{
+        const deleteDropdown=document.getElementById('deleteDropdown');
+        deleteDropdown.innerHTML='<option value="">-- Select CSV File --</option>';
+        
+        if (Array.isArray(files)) {
+            files.filter(f=>f.name.endsWith('.csv')).forEach(file=>{
+                const option=document.createElement('option');
+                option.value=file.name;
+                option.textContent=file.name;
+                deleteDropdown.appendChild(option);
+            });
+        } else {
+            console.error("Failed to list files or repo is empty:", files);
+        }
+    })
+    .catch(()=>alert('Failed to load file list.'))
+    .finally(() => hideLoading()); // <<< CALL
+}
+
+// --- MAIN REPORT GENERATION FUNCTION (MODIFIED) ---
+async function loadResults(callingPage = 'initialPage') {
+    // Preserved: Set the global variable
+    lastCallingPage = callingPage;
+
+    const isStudentPortal = callingPage === 'initialPage'; // Re-read for clarity inside function
+
+    // Get input values based on the calling page
+    const form = isStudentPortal ? document.getElementById('selectedForm').value : document.getElementById('progressFormSelect').value;
+    const studentNumber = isStudentPortal ? document.getElementById('studentNumberInput').value.trim() : document.getElementById('progressStudentNumberInput').value.trim();
+    const dob = isStudentPortal ? document.getElementById('dobInput').value.trim() : null; // DOB is only required for student portal
+
+    if (!form || !studentNumber) {
+        alert('Please select a class and enter the Exam Number.');
+        return;
+    }
+    if (isStudentPortal && !dob) {
+        alert('Please enter the Date of Birth.');
+        return;
+    }
+
+    // 1. Fetch class data and initialize config (if not done)
+    if (!currentConfig) {
+        await initializeConfig();
+    }
+    const data = await fetchClassData(form);
+
+    if (data.length === 0) {
+        alert(`No data found for ${form}.`);
+        return;
+    }
+
+    // 2. Find the student
+    const student = data.find(s => s["Exam Number"] === studentNumber);
+
+    if (!student) {
+        alert('Student not found with this Exam Number.');
+        return;
+    }
+
+    // 2a. Student Portal Authentication: Verify DOB
+    if (isStudentPortal) {
+        const storedDob = student["Date of Birth"] || '';
+        // *** FIX APPLIED: Standardize both dates to YYYY-MM-DD before comparison ***
+        const storedDateStandardized = standardizeDateForComparison(storedDob);
+        const inputDateStandardized = standardizeDateForComparison(dob);
+
+        if (!storedDateStandardized || storedDateStandardized !== inputDateStandardized) {
+            alert('Date of Birth does not match the record for this Exam Number.');
+            return;
+        }
+        // *** END FIX ***
+    }
+    
+    // 3. Prepare ranking data for the entire class
+    const studentsWithMetrics = [];
+    for (const s of data) {
+        const metrics = await calculateStudentMetrics(s, form);
+        studentsWithMetrics.push({
+            examNo: s["Exam Number"],
+            metric: metrics.overallMetric,
+            rankable: metrics.rankable
+        });
+    }
+
+    // Filter to only rankable students and sort (ascending: lower metric value = better rank)
+    let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
+    rankableStudents.sort((a, b) => a.metric - b.metric);
+    const totalRankableStudents = rankableStudents.length;
+
+    // 4. Get the target student's full metrics
+    const studentMetrics = await calculateStudentMetrics(student, form);
+
+    // Determine available subjects in the student's data
+    const ALL_SUBJECTS_IN_DATA = ALL_SUBJECTS.filter(s => student[s] !== undefined);
+    
+    // Get teacher assignments
+    const teachersForStudentClass = currentConfig.teachers[form] || {};
+    const currentForm = form.toUpperCase().replace('FORM', 'Form ');
+
+    // 5. Populate Report Details
+    document.getElementById('reportStudentName').textContent = student["STUDENT'S NAME"] || '-';
+    document.getElementById('reportExamNo').textContent = student["Exam Number"] || '-';
+    document.getElementById('reportForm').textContent = currentForm;
+    document.getElementById('reportTerm').textContent = currentConfig.term;
+    
+    // 6. Populate Results Table
+    const tbody = document.getElementById('reportBody');
+    tbody.innerHTML = '';
+    
+    ALL_SUBJECTS_IN_DATA.forEach(subject => {
+        const row = tbody.insertRow();
+        const rawScore = student[subject];
+        let displayScore = '-';
+        let grade = '-';
+        let remark = 'N/A';
+        let score = null;
+        
+        const isNumeric = !isNaN(parseFloat(rawScore)) && isFinite(rawScore);
+
+        if (rawScore === 'X') {
+            displayScore = 'X';
+            remark = 'Not Enrolled';
+        } else if (rawScore === 'N') {
+            displayScore = 'N';
+            remark = 'Absent';
+        } else if (isNumeric) {
+            score = parseInt(rawScore);
+            const gradeInfo = getGradeAndRemark(form, score);
+            displayScore = score.toString();
+            grade = gradeInfo.grade;
+            remark = gradeInfo.remark;
+        }
+
+        // Find subject position/rank (this part is complex and often requires pre-calculating ranks for all subjects)
+        // Since we don't have per-subject ranking logic pre-calculated in this single file, 
+        // we will leave this as a simple placeholder for now or calculate on the fly for the student.
+        // A placeholder logic: assume only the top scoring subjects are ranked (if F3/F4), otherwise position N/A
+        let subjectPosition = '-';
+        
+        // Find teacher
+        const teacher = teachersForStudentClass[subject] || DEFAULT_TEACHER;
+
+        row.insertCell().textContent = subject;
+        row.insertCell().textContent = displayScore;
+        row.insertCell().textContent = grade;
+        row.insertCell().textContent = subjectPosition;
+        row.insertCell().textContent = remark;
+        row.insertCell().textContent = teacher;
+    });
+
+    // 7. Overall Ranking
+    let overallRank = 'N/A';
+    let overallRemark = studentMetrics.overallRemark;
+    let metricDisplay = studentMetrics.metricDisplay;
+
+    if (studentMetrics.rankable) {
+        if (totalRankableStudents > 0) {
+            // Find the student's rank in the sorted list (handle ties)
+            let currentRank = 1;
+            for (let i = 0; i < rankableStudents.length; i++) {
+                if (i > 0 && rankableStudents[i].metric !== rankableStudents[i-1].metric) {
+                    currentRank = i + 1;
+                }
+                if (rankableStudents[i].examNo === studentNumber) {
+                    overallRank = currentRank;
+                    break;
+                }
+            }
+        } else {
+            overallRank = 'N/A';
+            overallRemark = 'Fail (Not Ranked)';
+        }
+    } else {
+        overallRemark = 'Fail (Not Ranked)';
+    }
+
+    // 8. Populate Summary and Key
+    const isUpperForm = form === 'form3' || form === 'form4';
+    document.getElementById('averageLine').classList.toggle('hidden', isUpperForm);
+    document.getElementById('aggregateLine').classList.toggle('hidden', !isUpperForm);
+    
+    if (!isUpperForm) {
+        document.getElementById('reportAverage').textContent = metricDisplay;
+        document.getElementById('reportAggregate').textContent = '-';
+        document.getElementById('gradeKeyPlaceholder').innerHTML = createGradeKeyTable(GRADE_KEY_F1_F2);
+    } else {
+        document.getElementById('reportAverage').textContent = '-';
+        document.getElementById('reportAggregate').textContent = metricDisplay;
+        document.getElementById('gradeKeyPlaceholder').innerHTML = createGradeKeyTable(GRADE_KEY_F3_F4);
+    }
+
+    document.getElementById('reportPosition').textContent = `${overallRank}/${totalRankableStudents}`;
+    document.getElementById('reportOverallRemark').textContent = overallRemark;
+    document.getElementById('reportComment').textContent = currentConfig.generalComment;
+
+    // 9. Display the report
+    goToPage('progressReport');
+}
+
+// --- SCORE SHEET VIEW FUNCTION ---
 async function displayScoreSheet() {
     const form = document.getElementById('sheetClassSelect').value;
     const tableWrapper = document.getElementById('scoreSheetTableWrapper');
@@ -749,7 +1079,7 @@ async function displayScoreSheet() {
 
     // Fetch data and populate currentClassData cache if not present
     const data = await fetchClassData(form);
-
+    
     if (data.length === 0) {
         tableWrapper.innerHTML = `<p>No data found for ${form}.</p>`;
         return;
@@ -794,538 +1124,252 @@ async function displayGradesSheet() {
     }
 
     const data = await fetchClassData(form);
-
+    
     if (data.length === 0) {
         tableWrapper.innerHTML = `<p>No data found for ${form}.</p>`;
         return;
     }
-    
-    // Calculate all metrics including ranks
-    const studentsWithMetrics = await calculateAllStudentMetrics(form, data);
 
-    const isUpperForm = form === 'form3' || form === 'form4';
-    const finalMetricHeader = isUpperForm ? 'Aggregate' : 'Average';
+    // 1. Calculate metrics and filter for rankable students
+    const studentsWithMetrics = [];
+    for (const student of data) {
+        const metrics = await calculateStudentMetrics(student, form);
+        studentsWithMetrics.push({
+            student: student,
+            metrics: metrics
+        });
+    }
+
+    // 2. Sort students for ranking (ascending metric is better)
+    studentsWithMetrics.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
+
+    const rankableStudents = studentsWithMetrics.filter(s => s.metrics.rankable);
+    const totalRankableStudents = rankableStudents.length;
 
     // Determine available subjects based on the first student's data structure
     const availableSubjects = ALL_SUBJECTS.filter(s => data[0][s] !== undefined);
 
-    // Create table headers
+    // 3. Create table headers
     let headerHTML = `<thead><tr><th>Rank</th><th>Exam Number</th><th>STUDENT'S NAME</th>`;
     headerHTML += availableSubjects.map(s => `<th>${getSubjectShortName(s)}</th>`).join('');
-    headerHTML += `<th>${finalMetricHeader}</th>`;
-    headerHTML += `<th>Remark</th></tr></thead>`;
+    headerHTML += `<th>${(form === 'form3' || form === 'form4') ? 'Aggregate' : 'Average'}</th>`;
+    headerHTML += `</tr></thead>`;
 
-    // Create table body rows
+    // 4. Create table body rows
     let tableHTML = `<table id="gradesTable">${headerHTML}<tbody>`;
-    
-    // Sort by rank for display
-    studentsWithMetrics.sort((a, b) => {
-        const rankA = a.overallRank === 'N/A' ? studentsWithMetrics.length + 1 : a.overallRank;
-        const rankB = b.overallRank === 'N/A' ? studentsWithMetrics.length + 1 : b.overallRank;
-        return rankA - rankB;
-    });
+    let currentRank = 1;
 
+    for (let i = 0; i < studentsWithMetrics.length; i++) {
+        const { student, metrics: studentMetrics } = studentsWithMetrics[i];
+        let displayRank = 'N/A';
 
-    for (const student of studentsWithMetrics) {
-        tableHTML += `<tr>
-            <td>${student.overallRank}</td>
-            <td>${student["Exam Number"] || '-'}</td>
-            <td style="text-align: left !important;">${student["STUDENT'S NAME"] || '-'}</td>
-            ${availableSubjects.map(subject => {
-                const rawScore = student[subject];
-                let grade = '-';
-                if (!isNaN(parseFloat(rawScore)) && isFinite(rawScore)) {
-                    grade = getGradeAndRemark(form, parseInt(rawScore)).grade;
-                } else if (rawScore === 'X') {
-                    grade = 'X';
-                } else if (rawScore === 'N') {
-                    grade = 'N';
-                }
-                return `<td>${grade}</td>`;
-            }).join('')}
-            <td>${student.metricDisplay}</td>
-            <td>${student.overallRemark}</td>
-        </tr>`;
+        // Only assign ranks to students who are "rankable"
+        if (studentMetrics.rankable) {
+            if (i > 0 && studentsWithMetrics[i].metrics.overallMetric !== studentsWithMetrics[i-1].metrics.overallMetric) {
+                currentRank = i + 1;
+            }
+            displayRank = `${currentRank}/${totalRankableStudents}`;
+        }
+        
+        tableHTML += `<tr>`;
+        tableHTML += `<td>${displayRank}</td>`;
+        tableHTML += `<td>${student["Exam Number"] || '-'}</td>`;
+        tableHTML += `<td style="text-align: left !important;">${student["STUDENT'S NAME"] || '-'}</td>`;
+
+        // Add grades for each available subject
+        tableHTML += availableSubjects.map(subject => {
+            const rawScore = student[subject];
+            let grade = '-';
+            
+            if (!isNaN(parseFloat(rawScore)) && isFinite(rawScore)) {
+                grade = getGradeAndRemark(form, parseInt(rawScore)).grade;
+            } else if (rawScore === 'X') {
+                grade = 'X';
+            } else if (rawScore === 'N') {
+                grade = 'N';
+            }
+            return `<td>${grade}</td>`;
+        }).join('')
+
+        tableHTML += `<td>${studentMetrics.metricDisplay}</td>`;
+        tableHTML += `</tr>`;
     }
-
+    
     tableHTML += `</tbody></table>`;
     tableWrapper.innerHTML = tableHTML;
 }
 
-// --- ANALYSIS SHEET FUNCTIONS ---
+// --- ANALYSIS SHEET FUNCTION ---
 async function displayAnalysisSheet(form) {
     const tableWrapper = document.getElementById('analysisTableWrapper');
-    const title = document.getElementById('analysisTitle');
     tableWrapper.innerHTML = '';
-    title.textContent = `Analysis Report for ${form.toUpperCase().replace('FORM', 'Form ')}`;
-
+    document.getElementById('analysisTitle').textContent = `Class Analysis Report - ${form.toUpperCase().replace('FORM', 'Form ')}`;
+    
     const data = await fetchClassData(form);
-
     if (data.length === 0) {
         tableWrapper.innerHTML = `<p>No data found for ${form}.</p>`;
         return;
     }
 
-    const isUpperForm = form === 'form3' || form === 'form4';
-    const grades = isUpperForm ? ['1', '2', '3', '4', '5', '6', '7', '8', '9'] : ['A', 'B', 'C', 'D', 'F'];
+    // Determine available subjects based on the first student's data structure
     const availableSubjects = ALL_SUBJECTS.filter(s => data[0][s] !== undefined);
-    const totalStudents = data.length;
-
-    // 1. Initialize grade counters and pass/fail/absent/sat counters per subject
-    const subjectAnalysis = {};
-    availableSubjects.forEach(subject => {
-        subjectAnalysis[subject] = {
-            grades: Object.fromEntries(grades.map(g => [g, 0])),
-            absent: 0,
-            sat: 0,
-            passed: 0,
-            failed: 0,
+    
+    // Total students in the class (excluding rows with no exam number)
+    const totalStudents = data.filter(s => s["Exam Number"]).length; 
+    
+    // Grade definitions based on form
+    const isUpperForm = form === 'form3' || form === 'form4';
+    const gradeKey = isUpperForm ? GRADE_KEY_F3_F4 : GRADE_KEY_F1_F2;
+    const gradeLevels = gradeKey.map(g => g.grade);
+    
+    // Initialize analysis structure
+    const analysis = availableSubjects.reduce((acc, subject) => {
+        acc[subject] = {
+            count: 0, // Total scores recorded
+            totalScore: 0,
+            passCount: 0,
+            failCount: 0,
+            gradeCounts: gradeLevels.reduce((g_acc, grade) => { g_acc[grade] = 0; return g_acc; }, {})
         };
-    });
-
-    // 2. Populate counters by iterating through all students and subjects
+        return acc;
+    }, {});
+    
+    // Process student data
     data.forEach(student => {
         availableSubjects.forEach(subject => {
             const rawScore = student[subject];
-            let grade = null;
-            
-            if (rawScore === 'N' || rawScore === 'X') {
-                subjectAnalysis[subject].absent++;
-            } else if (!isNaN(parseFloat(rawScore)) && isFinite(rawScore)) {
-                subjectAnalysis[subject].sat++;
+            const isNumeric = !isNaN(parseFloat(rawScore)) && isFinite(rawScore);
+
+            if (isNumeric) {
                 const score = parseInt(rawScore);
-                grade = getGradeAndRemark(form, score).grade;
-
-                if (grade !== '-') { // Should not happen with numeric scores, but safe guard
-                    subjectAnalysis[subject].grades[grade]++;
-
-                    if (isPassingGrade(form, grade)) {
-                        subjectAnalysis[subject].passed++;
-                    } else {
-                        subjectAnalysis[subject].failed++;
-                    }
+                const gradeInfo = getGradeAndRemark(form, score);
+                const grade = gradeInfo.grade;
+                
+                // 1. Update overall counts
+                analysis[subject].count++;
+                analysis[subject].totalScore += score;
+                
+                // 2. Update Pass/Fail counts
+                // For lower forms, D/F is fail (score < 55)
+                // For upper forms, 9 is fail (point 9)
+                if ((!isUpperForm && score < 55) || (isUpperForm && parseInt(grade) >= 9)) {
+                    analysis[subject].failCount++;
+                } else {
+                    analysis[subject].passCount++;
                 }
-            } else {
-                 // Non-numeric, non-X/N entry is treated as an absence for calculation purposes (e.g. empty string)
-                 subjectAnalysis[subject].absent++;
+
+                // 3. Update grade distribution
+                if (analysis[subject].gradeCounts[grade] !== undefined) {
+                    analysis[subject].gradeCounts[grade]++;
+                }
             }
         });
     });
 
-    // 3. Generate table headers
-    let headerHTML = `<thead><tr><th>Metric</th>`;
-    headerHTML += availableSubjects.map(s => `<th>${getSubjectShortName(s)}</th>`).join('');
+    // Generate table HTML
+    let headerHTML = `<thead><tr><th>Subject</th><th>Total Students</th><th>Average Score</th><th>Pass Rate (%)</th>`;
+    headerHTML += gradeLevels.map(g => `<th>${g}</th>`).join('');
     headerHTML += `</tr></thead>`;
 
-    // 4. Define rows for the analysis table
-    const analysisRows = [
-        { label: 'Total Students', key: 'total_students', value: totalStudents },
-        { label: 'Sat Exam', key: 'sat' },
-        { label: 'Absent/Not Enrolled', key: 'absent' },
-        { label: 'Total Passed', key: 'passed' },
-        { label: 'Total Failed', key: 'failed' },
-        { label: 'Pass % (of sat)', key: 'pass_percent' },
-        { label: 'Fail % (of sat)', key: 'fail_percent' },
-    ];
-    // Add grade counts dynamically
-    grades.forEach(g => {
-        analysisRows.push({ label: `Grade ${g} Count`, key: `grades.${g}` });
-    });
-
-
-    // 5. Generate table body
-    let tableHTML = `<table id="analysisTable">${headerHTML}<tbody>`;
-    analysisRows.forEach(row => {
-        tableHTML += `<tr><td style="text-align: left; font-weight: bold; background-color: #f0f0f0;">${row.label}</td>`;
+    let bodyHTML = `<tbody>`;
+    availableSubjects.forEach(subject => {
+        const stats = analysis[subject];
+        const average = stats.count > 0 ? (stats.totalScore / stats.count).toFixed(2) : '-';
+        const passRate = stats.count > 0 ? ((stats.passCount / stats.count) * 100).toFixed(1) : '-';
         
-        if (row.key === 'total_students') {
-            // Special case for total students (spans all subject columns)
-            tableHTML += `<td colspan="${availableSubjects.length}">${totalStudents}</td></tr>`;
-            return;
-        }
-
-
-        tableHTML += availableSubjects.map(subject => {
-            let value;
-            if (row.key === 'pass_percent') {
-                const sat = subjectAnalysis[subject].sat;
-                const passed = subjectAnalysis[subject].passed;
-                value = sat > 0 ? ((passed / sat) * 100).toFixed(1) + '%' : '0.0%';
-            } else if (row.key === 'fail_percent') {
-                const sat = subjectAnalysis[subject].sat;
-                const failed = subjectAnalysis[subject].failed;
-                value = sat > 0 ? ((failed / sat) * 100).toFixed(1) + '%' : '0.0%';
-            } else if (row.key.startsWith('grades.')) {
-                const gradeKey = row.key.split('.')[1];
-                value = subjectAnalysis[subject].grades[gradeKey];
-            } else {
-                value = subjectAnalysis[subject][row.key];
-            }
-            return `<td>${value}</td>`;
-        }).join('')}
-        </tr>`;
+        bodyHTML += `<tr>`;
+        bodyHTML += `<td style="text-align: left !important;">${subject}</td>`;
+        bodyHTML += `<td>${stats.count} / ${totalStudents}</td>`;
+        bodyHTML += `<td>${average}</td>`;
+        bodyHTML += `<td>${passRate}%</td>`;
+        
+        gradeLevels.forEach(grade => {
+            bodyHTML += `<td>${stats.gradeCounts[grade] || 0}</td>`;
+        });
+        
+        bodyHTML += `</tr>`;
     });
-    tableHTML += `</tbody></table>`;
+    bodyHTML += `</tbody>`;
+
+    let tableHTML = `<table id="analysisTable">${headerHTML}${bodyHTML}</table>`;
     tableWrapper.innerHTML = tableHTML;
 }
 
-// --- GITHUB FILE FUNCTIONS ---
 
-function uploadCSV(){
-    const className=document.getElementById('classDropdown').value;
-    const fileInput=document.getElementById('csvUpload');
-    const file=fileInput.files[0];
-    const token=document.getElementById('githubToken').value.trim();
-
-    if(!className||!file||!token){
-        alert('Please select a class, choose a file, and enter your GitHub token.');
-        return;
-    }
-
-    showLoading(); // <<< CALL
-
-    const reader=new FileReader();
-    reader.onload=function(){
-        const content=reader.result;
-        const encodedContent=btoa(unescape(encodeURIComponent(content)));
-
-        // Get current SHA for update
-        fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${className}.csv`,{
-            headers:{'Authorization':`Bearer ${token}`}
-        })
-        .then(response => {
-            if (response.status === 404) { // File not found, proceed without SHA
-                return { sha: null };
-            }
-            if (!response.ok) {
-                throw new Error(`Failed to fetch current file SHA: ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const sha = data.sha;
-
-            // PUT request to create/update file
-            return fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${className}.csv`,{
-                method:'PUT',
-                headers:{
-                    'Authorization':`Bearer ${token}`,
-                    'Content-Type':'application/json'
-                },
-                body:JSON.stringify({
-                    message:`Upload ${className}.csv`,
-                    content:encodedContent,
-                    sha: sha // Include SHA for update, or null/undefined for new file
-                })
-            });
-        })
-        .then(response=>{
-            if(!response.ok){
-                return response.json().then(err => {
-                    throw new Error(err.message || response.statusText);
-                });
-            }
-            alert(`File ${className}.csv uploaded successfully!`);
-            currentClassData[className] = []; // Clear old cache
-            refreshFileList(); // Refresh the delete dropdown list
-        })
-        .catch(error => {
-            alert(`Upload failed: ${error.message}`);
-            console.error(error);
-        })
-        .finally(() => hideLoading()); // <<< CALL
-    };
-    reader.readAsText(file);
-}
-
-function deleteCSV(){
-    const fileName=document.getElementById('deleteDropdown').value;
-    const token=document.getElementById('githubToken').value.trim();
-
-    if(!fileName||!token){
-        alert('Please select a file to delete and enter your GitHub token.');
-        return;
-    }
-
-    if(!confirm(`Are you sure you want to delete ${fileName}? This action cannot be undone.`)){
-        return;
-    }
-
-    showLoading(); // <<< CALL
-
-    // First, get the SHA of the file to delete
-    fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${fileName}`,{
-        headers:{'Authorization':`Bearer ${token}`}
-    })
-    .then(response=>{
-        if(!response.ok){
-            throw new Error(`Failed to fetch file SHA for deletion: ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then(data=>{
-        const sha=data.sha;
-
-        // DELETE request
-        return fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${fileName}`,{
-            method:'DELETE',
-            headers:{
-                'Authorization':`Bearer ${token}`,
-                'Content-Type':'application/json'
-            },
-            body:JSON.stringify({
-                message:`Delete ${fileName}`,
-                sha:sha
-            })
-        });
-    })
-    .then(response=>{
-        if(!response.ok){
-            return response.json().then(err => {
-                throw new Error(err.message || response.statusText);
-            });
-        }
-        alert(`${fileName} deleted successfully!`);
-        const className = fileName.replace('.csv', '');
-        delete currentClassData[className]; // Clear in-memory cache
-        refreshFileList();
-    })
-    .catch(error => {
-        alert(`Delete failed: ${error.message}`);
-        console.error(error);
-    })
-    .finally(() => hideLoading()); // <<< CALL
-}
-
-function refreshFileList(){
-    const token=document.getElementById('githubToken').value.trim();
-    if(!token){
-        return;
-    } // Don't show loading if no token
-
-    showLoading(); // <<< CALL
-    fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`,{
-        headers:{'Authorization':`Bearer ${token}`}
-    })
-    .then(response=>{
-        if(!response.ok){
-            throw new Error(`Failed to fetch file list: ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then(files=>{
-        const deleteDropdown=document.getElementById('deleteDropdown');
-        deleteDropdown.innerHTML='<option value="">-- Select CSV File --</option>';
-
-        if (Array.isArray(files)) {
-            files.filter(f=>f.name.endsWith('.csv')).forEach(file=>{
-                const option=document.createElement('option');
-                option.value=file.name;
-                option.textContent=file.name;
-                deleteDropdown.appendChild(option);
-            });
-        } else {
-            console.error("Failed to list files or repo is empty:", files);
-        }
-    })
-    .catch(()=>alert('Failed to load file list.'))
-    .finally(() => hideLoading()); // <<< CALL
-}
-
-// --- MAIN REPORT GENERATION FUNCTION (MODIFIED) ---
-async function loadResults(callingPage = 'initialPage') {
-    // Preserved: Set the global variable
-    lastCallingPage = callingPage; 
-
-    const isStudentPortal = callingPage === 'initialPage'; // Re-read for clarity inside function
-
-    // Get input values based on the calling page
-    const form = isStudentPortal ? document.getElementById('selectedForm').value : document.getElementById('progressFormSelect').value;
-    const studentNumber = isStudentPortal ? document.getElementById('studentNumberInput').value.trim() : document.getElementById('progressStudentNumberInput').value.trim();
-    const dob = isStudentPortal ? document.getElementById('dobInput').value.trim() : ''; // DOB is only read for Student Portal
-
-    if (!form || !studentNumber || (isStudentPortal && !dob)) {
-        alert('Please fill in all required fields.');
-        return;
-    }
-
-    // 1. Fetch data and config
-    const [data, { config }] = await Promise.all([
-        fetchClassData(form),
-        fetchConfig(null) // Fetch config without token for student view
-    ]);
-
-    if (data.length === 0) {
-        alert(`No score data available for ${form}.`);
-        return;
-    }
-
-    if (!config) {
-        alert('Failed to load report configuration. Cannot generate report.');
-        return;
-    }
-
-    const student = data.find(s => s["Exam Number"] === studentNumber);
-
-    if (!student) {
-        alert('Student with that Exam Number not found in the selected class.');
-        return;
-    }
-
-    // Student Portal DOB check (only for initialPage)
-    if (isStudentPortal) {
-        const studentDOB = student.DOB; // Assuming DOB column exists in CSV
-        if (studentDOB !== dob) {
-            alert('Date of Birth does not match the records.');
-            return;
-        }
-    }
-
-    // 2. Data Preparation
-    const currentForm = form.toUpperCase().replace('FORM', 'Form ');
-    const isUpperForm = form === 'form3' || form === 'form4';
-
-    // Get the configured teachers for this class
-    const teachersForStudentClass = config.teachers[form] || getDefaultConfig().teachers[form];
+// --- PDF GENERATION UTILITY ---
+// Uses jspdf and html2canvas, linked in <head>
+function openFullPdf() {
+    const contentToCapture = document.getElementById('progressReport');
+    const fileName = document.getElementById('reportStudentName').textContent.trim() + "_Report.pdf";
     
-    // Determine available subjects based on data presence for the first student
-    const ALL_SUBJECTS_IN_DATA = ALL_SUBJECTS.filter(s => data[0][s] !== undefined);
+    if (!contentToCapture) {
+        alert("Report content not found.");
+        return;
+    }
+
+    // Hide controls that shouldn't be in the PDF
+    const buttons = contentToCapture.querySelectorAll('.back-btn, .view-btn');
+    buttons.forEach(btn => btn.style.visibility = 'hidden');
     
-    // Calculate all student metrics and ranks in the class
-    const studentsWithMetrics = await calculateAllStudentMetrics(form, data);
-    const studentMetrics = studentsWithMetrics.find(s => s["Exam Number"] === studentNumber);
+    // FIX: Added useCORS: true to handle cross-origin image loading for the logo
+    html2canvas(contentToCapture, {
+        scrollY: 0,
+        scale: 2, 
+        useCORS: true 
+    }).then(canvas=>{
+        buttons.forEach(btn => btn.style.visibility = 'visible');
 
-    // 3. Display Report
-    goToPage('progressReport');
-    
-    // Generate Grade Key Table HTML
-    document.getElementById('gradeKeyPlaceholder').innerHTML = generateGradeKeyTable(form);
+        const imgData = canvas.toDataURL('image/png');
+        // Using standard A4 size (210mm x 297mm)
+        const pdf = new jspdf.jsPDF('p', 'mm', 'a4'); 
+        
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const imgProps = pdf.getImageProperties(imgData);
+        
+        // Calculate the height required in PDF size (mm) while maintaining aspect ratio
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-    // Calculate metrics for the student
-    // const studentMetrics = await calculateStudentMetrics(student, form);
+        // Add image starting at (0, 0) and filling the width, cropping the bottom if necessary
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
-    // 1. Populate Report Details
-    document.getElementById('reportStudentName').textContent = student["STUDENT'S NAME"] || '-';
-    document.getElementById('reportExamNo').textContent = student["Exam Number"] || '-';
-    document.getElementById('reportForm').textContent = currentForm;
-    document.getElementById('reportTerm').textContent = config.term;
-
-    // 2. Populate Results Table
-    const tbody = document.getElementById('reportBody');
-    tbody.innerHTML = '';
-
-    ALL_SUBJECTS_IN_DATA.forEach(subject => {
-        const row = tbody.insertRow();
-        const rawScore = student[subject];
-        let displayScore = '-';
-        let grade = '-';
-        let remark = 'N/A';
-        let score = null;
-        const isNumeric = !isNaN(parseFloat(rawScore)) && isFinite(rawScore);
-
-        if (rawScore === 'X') {
-            displayScore = 'X';
-            remark = 'Not Enrolled';
-        } else if (rawScore === 'N') {
-            displayScore = 'N';
-            remark = 'Did Not Write';
-        } else if (isNumeric) {
-            score = parseInt(rawScore);
-            displayScore = score;
-            const gr = getGradeAndRemark(form, score);
-            grade = gr.grade;
-            remark = gr.remark;
-        }
-
-        // Calculate Subject Position
-        let subjectPosition = '-';
-        if (score !== null) {
-            const scoresInClass = data
-                .map(s => parseInt(s[subject]) || 0)
-                .filter(s => s >= 0);
-            scoresInClass.sort((a, b) => b - a);
-            const firstIndex = scoresInClass.indexOf(score);
-            subjectPosition = firstIndex >= 0 ? (firstIndex + 1) : '-';
-        }
-
-        const teacher = teachersForStudentClass[subject] || DEFAULT_TEACHER;
-
-        row.insertCell().textContent = subject;
-        row.insertCell().textContent = displayScore;
-        row.insertCell().textContent = grade;
-        row.insertCell().textContent = subjectPosition;
-        row.insertCell().textContent = remark;
-        row.insertCell().textContent = teacher;
+        pdf.save(fileName);
     });
+}
 
-    // 3. Overall Ranking/Metrics Calculation
-    let overallRank = studentMetrics.overallRank;
-    let totalRankableStudents = studentMetrics.totalRankableStudents;
-    let metricDisplay = studentMetrics.metricDisplay;
-    let overallRemark = studentMetrics.overallRemark;
-    
-    // 4. Populate Summary and Key
-    document.getElementById('averageLine').classList.toggle('hidden', isUpperForm);
-    document.getElementById('aggregateLine').classList.toggle('hidden', !isUpperForm);
+// --- GRADE KEY TABLE UTILITY (for report generation) ---
+function createGradeKeyTable(key) {
+    let html = '<strong>GRADE KEY</strong><br>';
+    html += '<table id="gradeKeyTableNew">';
+    html += '<thead><tr><th>Range / Point</th><th>Grade</th><th>Remark</th></tr></thead>';
+    html += '<tbody>';
+    key.forEach(item => {
+        html += `<tr><td>${item.range}</td><td>${item.grade}</td><td>${item.remark}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    return html;
+}
 
-    if (!isUpperForm) {
-        document.getElementById('reportAverage').textContent = metricDisplay;
-    } else {
-        document.getElementById('reportAggregate').textContent = metricDisplay;
+// --- DATE STANDARDIZATION UTILITY (FIX FOR DOB COMPARISON) ---
+function standardizeDateForComparison(dateString) {
+    if (!dateString) return null;
+    try {
+        const date = new Date(dateString);
+        // Date.prototype.toISOString() returns YYYY-MM-DDTHH:mm:ss.sssZ, 
+        // using slice(0, 10) to get YYYY-MM-DD
+        return date.toISOString().slice(0, 10);
+    } catch (e) {
+        console.error("Error standardizing date:", e);
+        return null;
     }
+}
 
-    document.getElementById('reportOverallRemark').textContent = overallRemark;
-    document.getElementById('reportPosition').textContent = `${overallRank}/${totalRankableStudents}`;
-    document.getElementById('reportComment').textContent = config.generalComment; // Use loaded comment
 
-    // 5. PDF Generation Function (Inline for encapsulation)
-    window.openFullPdf = function() {
-        showLoading();
-        updateLoadingPercent(10);
-        
-        const studentName = student["STUDENT'S NAME"] || 'Student';
-        const examNo = student["Exam Number"] || '000';
-
-        // Sanitizing logic
-        const safeName = studentName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
-        const safeExamNo = examNo.replace(/[^a-zA-Z0-9\s/]/g, '-');
-        const fileName = `${safeName}_${safeExamNo}_Report.pdf`;
-
-        const contentToCapture = document.getElementById('progressReport');
-        
-        const buttons = contentToCapture.querySelectorAll('.back-btn, .view-btn');
-        buttons.forEach(btn => btn.style.visibility = 'hidden');
-        
-        // FIX: Added useCORS: true to handle cross-origin image loading for the logo
-        html2canvas(contentToCapture, {
-            scrollY: 0,
-            scale: 2, 
-            useCORS: true 
-        }).then(canvas=>{
-            buttons.forEach(btn => btn.style.visibility = 'visible');
-
-            const imgData=canvas.toDataURL('image/png');
-            // Using standard A4 size (210mm x 297mm)
-            const pdf=new jspdf.jsPDF('p', 'mm', 'a4'); 
-            
-            const pdfWidth=pdf.internal.pageSize.getWidth();
-            const imgProps=pdf.getImageProperties(imgData);
-            
-            // Calculate the height required in PDF size (mm) while maintaining aspect ratio
-            const pdfHeight=(imgProps.height*pdfWidth)/imgProps.width;
-
-            // Add image starting from top left (0, 0)
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            updateLoadingPercent(90);
-
-            pdf.save(fileName);
-            updateLoadingPercent(100);
-            hideLoading();
-        }).catch(error => {
-            console.error('Error generating PDF:', error);
-            alert('Failed to generate PDF. Check console for details.');
-            buttons.forEach(btn => btn.style.visibility = 'visible');
-            hideLoading();
-        });
-    };
+// --- INITIALIZATION ---
+// Initialize config on window load if necessary, but this is deferred to auth functions for security
+window.onload = function() {
+    // Only attempt to initialize if on the main page,
+    // which should be true if not navigated away.
+    if (document.getElementById('initialPage').style.display !== 'none') {
+        // initializeConfig(); // Removed for security: configuration only loads after admin auth
+    }
 }
