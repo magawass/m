@@ -42,17 +42,17 @@
       "Social/Life": "Mrs Namfuko"
     },
     "form4": {
-      "Agriculture": "-",
-      "Bible Knowledge": "-",
-      "Biology": "-",
-      "Chemistry": "-",
-      "Chichewa": "-",
-      "English": "-",
-      "Geography": "-",
-      "History": "-",
-      "Mathematics": "-",
-      "Physics": "-",
-      "Social/Life": "-"
+      "Agriculture": "Kasiyagoli",
+      "Bible Knowledge": "Chirwa",
+      "Biology": "Chilikutali",
+      "Chemistry": "Masepa",
+      "Chichewa": "Chapita",
+      "English": "Phiri",
+      "Geography": "Pandakwao",
+      "History": "Mthunzi",
+      "Mathematics": "Master",
+      "Physics": "Mkhweza",
+      "Social/Life": "Namfuko"
     }
   }
 }
