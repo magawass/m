@@ -413,3 +413,55 @@ button:active { transform: scale(0.99); }
     #reportHeaderRight { font-size: 9pt; }
     #reportHeaderRight h3 { font-size: 16pt; }
 }
+
+/* STACKED student info – aligned far left */
+#reportDetails p {
+    margin: 0 0 4px 0 !important;
+    padding: 0;
+    text-align: left !important;
+    font-size: 11pt;
+    color: black;
+}
+
+/* Force progress sheet to ALWAYS fit on ONE A4 page */
+#progressReport {
+    padding: 20px 20px !important;
+    max-height: 1123px !important; /* A4 height */
+    overflow: hidden !important;
+}
+
+/* Make table compact to ensure one-page fit */
+#resultsTable th, 
+#resultsTable td {
+    padding: 4px 3px !important;
+    font-size: 9pt !important;
+}
+
+/* Reduce fonts for summary and key */
+#summaryAndKeyWrapper, #reportSummary, #gradeKeyPlaceholder {
+    font-size: 9pt !important;
+}
+#gradeKeyTableNew td, #gradeKeyTableNew th {
+    padding: 2px !important;
+    font-size: 7.5pt !important;
+}
+
+/* Print mode (ensures one-page only) */
+@media print {
+    #progressReport {
+        padding: 15px !important;
+        max-height: 1123px !important; 
+        overflow: hidden !important;
+    }
+
+    #resultsTable th, 
+    #resultsTable td {
+        padding: 3px 2px !important;
+        font-size: 8pt !important;
+    }
+
+    #reportDetails p {
+        margin-bottom: 2px !important;
+        font-size: 10pt !important;
+    }
+}
