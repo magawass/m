@@ -423,6 +423,58 @@
         #reportHeaderRight { font-size: 9pt; }
         #reportHeaderRight h3 { font-size: 16pt; }
     }
+
+/* STACKED student info – aligned far left */
+#reportDetails p {
+    margin: 0 0 4px 0 !important;
+    padding: 0;
+    text-align: left !important;
+    font-size: 11pt;
+    color: black;
+}
+
+/* Force progress sheet to ALWAYS fit on ONE A4 page */
+#progressReport {
+    padding: 20px 20px !important;
+    max-height: 1123px !important; /* A4 height */
+    overflow: hidden !important;
+}
+
+/* Make table compact to ensure one-page fit */
+#resultsTable th, 
+#resultsTable td {
+    padding: 4px 3px !important;
+    font-size: 9pt !important;
+}
+
+/* Reduce fonts for summary and key */
+#summaryAndKeyWrapper, #reportSummary, #gradeKeyPlaceholder {
+    font-size: 9pt !important;
+}
+#gradeKeyTableNew td, #gradeKeyTableNew th {
+    padding: 2px !important;
+    font-size: 7.5pt !important;
+}
+
+/* Print mode (ensures one-page only) */
+@media print {
+    #progressReport {
+        padding: 15px !important;
+        max-height: 1123px !important; 
+        overflow: hidden !important;
+    }
+
+    #resultsTable th, 
+    #resultsTable td {
+        padding: 3px 2px !important;
+        font-size: 8pt !important;
+    }
+
+    #reportDetails p {
+        margin-bottom: 2px !important;
+        font-size: 10pt !important;
+    }
+}
   </style>
 </head>
 <body>
@@ -451,7 +503,7 @@
     <input type="date" id="dobInput">
     <button onclick="loadResults()">View Results</button>
     <button onclick="openAdminLogin()">LOGIN</button> 
-    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">Created by Chiku Lubaini, for Magawa Exam Department.All rights reserved.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
   </div>
 
 <div id="progressReport" class="page">
@@ -471,17 +523,18 @@
  <hr style="border-top: 2px solid black; margin: 10px 0;">   
     
            <div class="info-row">
-           <p style="text-align: left !important;  
-        <h2 style="margin: 0; color: black;"><strong>PROGRESS REPORT</strong></h2>
+       <p style="text-align: left !important; 
+<div class="align-left"> 
+      <p style="font-size: 10px;"> <h2 style="margin: 0;color: black;"><strong>PROGRESS REPORT</strong></h2>
     </div>
     
-    <div id="reportDetails">
+    <div id="reportDetails"> 
         <div class="info-row">
-            <p><strong>STUDENT NAME:</strong> <span id="reportStudentName"></span></p>
+         <p><p><p><strong>STUDENT NAME:</strong> <span id="reportStudentName"></span></p><p>
+            <p><strong>CLASS:</strong> <span id="reportForm"></span></p>
+            <p><strong> </strong> <span id="reportForm"></span></p>
             <p><strong>Exam No:</strong> <span id="reportExamNo"></span></p>
-        </div>
-        <div class="info-row">
-            <p><strong>FORM:</strong> <span id="reportForm"></span></p>
+            <p><strong> </strong> <span id="reportForm"></span></p>
             <p><strong>TERM:</strong> <span id="reportTerm"></span></p>
         </div>
     </div>
@@ -504,18 +557,18 @@
     </div>
 
     <div id="summaryAndKeyWrapper">
-        <div id="reportSummary">
-            <div id="averageLine" class="hidden">Average: <span id="reportAverage"></span></div>
-            <div id="aggregateLine" class="hidden">Aggregate: <span id="reportAggregate"></span></div>
-            <div>Position in Class: <span id="reportPosition"></span></div>
-            <div>Remark: <span id="reportOverallRemark"></span></div>
+        <div id="reportSummary"><br>
+           <span style="font-size: 1.25em;"> <div id="averageLine" class="hidden">Average:<strong> <span id="reportAverage"></span></div></strong>
+            <div id="aggregateLine" class="hidden">Aggregate:<strong> <span id="reportAggregate"></span></div><br></strong>
+    <div>Position in Class:<strong> <span id="reportPosition"></span></div><br></strong>
+    <div>Remark:<strong> <span id="reportOverallRemark"></span></div></strong>
         </div>
         
         <div id="gradeKeyPlaceholder">
             </div>
     </div>
 
-    <p style="margin-top: 20px; color: black;"><strong>COMMENT:</strong></p>
+    <p style="margin-top: 20px; color: black;"><strong><p style="text-align: left;">COMMENT:</strong></p>
     <div id="reportComment" style="padding: 10px; border: 1px solid black; min-height: 40px; text-align: left;">
         </div>
 
@@ -573,7 +626,7 @@
     
     <button onclick="saveAllScoresToRepo()">Save All Data</button>
     <button onclick="openScoreSheetView()">Score Sheet</button>
-    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Scores are stored in memory until 'Save All Data to Repo' is clicked to commit changes.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Scores are stored in memory until 'Save All Data is clicked to commit changes.</p>
 </div>
 
 <div id="scoreSheetView" class="page">
@@ -763,11 +816,11 @@ const GRADE_KEY_F3_F4 = [
     { range: '80 - 100', grade: '1', remark: 'Distinction' },
     { range: '75 - 79', grade: '2', remark: 'Distinction' },
     { range: '70 - 74', grade: '3', remark: 'Strong Credit' },
-    { range: '65 - 69', grade: '4', 'Strong Credit': 'Strong Credit' },
-    { range: '60 - 64', grade: '5', 'Credit': 'Credit' },
-    { range: '55 - 59', grade: '6', 'Credit': 'Credit' },
-    { range: '45 - 54', grade: '7', 'Pass': 'Pass' },
-    { range: '35 - 44', grade: '8', 'Pass': 'Pass' },
+    { range: '65 - 69', grade: '4', remark: 'Strong Credit' },
+    { range: '60 - 64', grade: '5', remark: 'Credit' },
+    { range: '55 - 59', grade: '6', remark: 'Credit' },
+    { range: '45 - 54', grade: '7', remark: 'Pass' },
+    { range: '35 - 44', grade: '8', remark: 'Pass' },
     { range: '0 - 34', grade: '9', remark: 'Fail' },
 ];
 
@@ -1155,7 +1208,7 @@ function populateTeacherInputs() {
 async function handleSaveConfig() {
     const token = document.getElementById('githubToken').value.trim();
     if (!token) {
-        alert('Please enter Authorization Code on the Admin Dashboard.');
+        alert('Please enter your Authorization Code on the Admin Dashboard.');
         return;
     }
 
@@ -1210,7 +1263,7 @@ async function handleSaveConfig() {
         currentConfig = newConfig; // Update in-memory config
         configSha = data.content.sha; // Update SHA for next save
         
-        alert('Configuration saved successfully to GitHub!');
+        alert('Configuration saved successfully!');
     } catch (error) {
         alert(`Failed to save configuration: ${error.message}`);
         console.error(error);
@@ -1223,7 +1276,7 @@ async function handleSaveConfig() {
 // --- NAVIGATION & AUTHENTICATION ---
 async function verifyAdmin() {
     const password = document.getElementById('adminPassword').value;
-    if (password === 'Magawa123') { // Fixed Password
+    if (password === '00X') { // Fixed Password
         await initializeConfig();
         goToPage('adminHomePage');
     } else {
@@ -1238,7 +1291,7 @@ async function openDataEntryAuth() {
         await initializeConfig(); // Ensure config is loaded before data entry
         openDataEntryPage();
     } else if (!token) {
-        alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.');
+        alert('Please enter your Authorization Code on the Admin Dashboard.');
     } else if (pass !== null) {
         alert('Incorrect password for DATA access.');
     }
@@ -1251,7 +1304,7 @@ async function openUploadsAuth() {
         await initializeConfig(); // Ensure config is loaded before uploads
         openUploadsPage();
     } else if (!token) {
-        alert('Please enter your Authorization Code (GitHub Token) on the Admin Dashboard.');
+        alert('Please enter your Authorization Code on the Admin Dashboard.');
     } else if (pass !== null) {
         alert('Incorrect password for UPLOADS access.');
     }
@@ -1374,7 +1427,7 @@ function submitScore() {
     // Update the in-memory cache
     currentClassData[form][studentIndex][subject] = score;
 
-    alert(`Score for ${examNumber} in ${subject} updated to: ${score}. Remember to click 'Save All Data to Repo'.`);
+    alert(`Score for ${examNumber} in ${subject} updated to: ${score}. Remember to click 'Save All Data'.`);
     
     // Clear score input for next entry
     document.getElementById('dataScoreInput').value = '';
@@ -1409,7 +1462,7 @@ function deleteScore() {
     // Update the in-memory cache: set score to empty string, which PapaParse handles as an empty cell (deleted score)
     currentClassData[form][studentIndex][subject] = ""; 
 
-    alert(`Score for ${examNumber} in ${subject} has been DELETED (set to blank). Remember to click 'Save All Data to Repo' to confirm changes on GitHub.`);
+    alert(`Score for ${examNumber} in ${subject} has been DELETED (set to blank). Remember to click 'Save All Data' to confirm changes.`);
     
     // Clear score input for next entry
     document.getElementById('dataScoreInput').value = '';
@@ -2194,9 +2247,3 @@ window.onload = function() {
 </script>
 </body>
 </html>
-
-
-
-
-
-
