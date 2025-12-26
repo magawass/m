@@ -444,7 +444,7 @@
 <div id="initialPage" class="page">
     <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
     <h1><p style="font-size:28px;">MAGAWA SECONDARY</p></h1>
-    <h2>EXAM PORTAL</h2>
+    <h2>STUDENTS PORTAL</h2>
     <label for="selectedForm">Select Class/Form</label>
     <select id="selectedForm">
       <option value="">-- Select Class --</option>
@@ -464,7 +464,7 @@
     </div>
 
     <button onclick="openAdminLogin()">LOGIN</button>
-    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Designed by Chiku Lubaini. All rights reserved.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
 </div>
 
 <div id="briefReport" class="page">
@@ -809,24 +809,146 @@ const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/con
 const GRADE_KEY_LOWER = {
     A: 80,
     B: 65,
-    C: 50,
+    C: 55,
     D: 40,
-    E: 30,
     F: 0
 }; // Lower forms use A-F
 const GRADE_KEY_UPPER = {
-    1: 85,
+    1: 80,
     2: 75,
-    3: 65,
-    4: 55,
-    5: 45,
-    6: 35,
-    7: 25,
-    8: 15,
+    3: 70,
+    4: 65,
+    5: 60,
+    6: 55,
+    7: 45,
+    8: 35,
     9: 0
 }; // Upper forms use 1-9 (Aggregate)
 
 // --- UTILITY FUNCTIONS ---
+
+function computeGradeSheetPositions(students) {
+    const sorted = [...students].sort((a,b)=>b.aggregate - a.aggregate);
+    let lastAgg = null, lastPos = 0;
+
+    sorted.forEach((s,i)=>{
+        const pos = (s.aggregate === lastAgg) ? lastPos : i + 1;
+        s.__gradePosition = pos;
+        lastAgg = s.aggregate;
+        lastPos = pos;
+    });
+    return sorted;
+}
+
+
+/* === COMPETITION POSITIONING (1,1,1,4) === */
+function computePositionsByAggregate(students) {
+    const sorted = [...students].sort((a,b)=>b.aggregate - a.aggregate);
+    let lastAgg = null, lastPos = 0;
+
+    sorted.forEach((s,i)=>{
+        const pos = (s.aggregate === lastAgg) ? lastPos : i + 1;
+        s.position = pos;
+        lastAgg = s.aggregate;
+        lastPos = pos;
+    });
+    return sorted;
+}
+
+/* === BEST SIX AGGREGATE === */
+function computeBestSixAggregate(form, student) {
+    let values = [];
+
+    for (const subject of ALL_SUBJECTS) {
+        const score = student[subject];
+        if (!score) continue;
+        const grade = getGradeAndRemark(form, score).grade;
+
+        if (form === 'form1' || form === 'form2') {
+            if (['A','B','C','D','F'].includes(grade)) values.push(grade);
+        } else {
+            if (!isNaN(parseInt(grade))) values.push(parseInt(grade));
+        }
+    }
+
+    if (form === 'form1' || form === 'form2') {
+        const order = ['A','B','C','D','F'];
+        values.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+        return values.length >= 6 ? values.slice(0,6).length : '';
+    } else {
+        values.sort((a,b)=>a-b);
+        return values.length >= 6 ? values.slice(0,6).reduce((x,y)=>x+y,0) : '';
+    }
+}
+
+/* === PASS / FAIL === */
+function computeFinalRemark(form, student) {
+    let passCount = 0;
+    const eng = student['English'];
+    if (!eng) return 'Fail';
+    const engGrade = getGradeAndRemark(form, eng).grade;
+
+    function lowerPass(g){ return ['A','B','C','D'].includes(g); }
+    function upperPass(g){ return parseInt(g) <= 8; }
+
+    for (const subject of ALL_SUBJECTS) {
+        const s = student[subject];
+        if (!s) continue;
+        const g = getGradeAndRemark(form, s).grade;
+
+        if ((form==='form1'||form==='form2') && lowerPass(g)) passCount++;
+        if ((form==='form3'||form==='form4') && upperPass(g)) passCount++;
+    }
+
+    if (form==='form1'||form==='form2') {
+        return (passCount>=6 && lowerPass(engGrade)) ? 'Pass' : 'Fail';
+    }
+    return (passCount>=6 && upperPass(engGrade)) ? 'Pass' : 'Fail';
+}
+
+
+/* === SUBJECT POSITION + LOWER FORM REMARK HELPERS === */
+function computeSubjectPositions(form, subject, classData) {
+    const scored = classData
+        .map(s => ({ exam: s["Exam Number"], v: parseInt(s[subject]) }))
+        .filter(x => !isNaN(x.v))
+        .sort((a,b)=>b.v-a.v);
+
+    const posMap = {};
+    let lastScore = null, lastPos = 0;
+    scored.forEach((x, i) => {
+        const pos = (x.v === lastScore) ? lastPos : i + 1;
+        posMap[x.exam] = pos;
+        lastScore = x.v; lastPos = pos;
+    });
+    return posMap;
+}
+
+function lowerFormRemarkFromGrade(g){
+    if(g==='A') return 'Excellent';
+    if(g==='B') return 'Very Good';
+    if(g==='C') return 'Good';
+    if(g==='D') return 'Average';
+    if(g==='F') return 'Fail';
+    return '-';
+}
+/* === COMPETITION RANKING (1,1,1,4) === */
+function computeCompetitionRanks(entries, valueFn) {
+    const sorted = entries
+        .map(e => ({ key: e.key, val: valueFn(e) }))
+        .sort((a,b)=>b.val - a.val);
+
+    const ranks = {};
+    let lastVal = null, lastRank = 0;
+
+    sorted.forEach((e, i) => {
+        const rank = (e.val === lastVal) ? lastRank : i + 1;
+        ranks[e.key] = rank;
+        lastVal = e.val;
+        lastRank = rank;
+    });
+    return ranks;
+}
 function showLoading() {
     const overlay = document.getElementById('loadingOverlay');
     overlay.style.display = 'flex';
@@ -967,10 +1089,24 @@ function getGradeAndRemark(form, score) {
             } else {
                 grade = '9';
             }
-            if (parseInt(grade) <= 6) {
-                remark = 'Credit Pass';
-            } else if (parseInt(grade) <= 8) {
-                 remark = 'Ordinary Pass';
+            if (parseInt(grade) <= 1 ) {
+                remark = 'Distinction';
+            } else if (parseInt(grade) <=2) {
+                 remark = 'Distinction';
+            } else if (parseInt(grade) <=3) {
+                 remark = 'Strong Credit';
+            } else if (parseInt(grade) <=4) {
+                 remark = 'Strong Credit';
+            } else if (parseInt(grade) <=5) {
+                 remark = 'Credit';
+            } else if (parseInt(grade) <=6) {
+                 remark = 'Credit';
+            } else if (parseInt(grade) <=7) {
+                 remark = 'Pass';
+            } else if (parseInt(grade) <=8) {
+                 remark = 'Pass';
+            } else if (parseInt(grade) <=9) {
+                 remark = 'Fail';
             } else {
                 remark = 'Fail';
             }
@@ -980,6 +1116,32 @@ function getGradeAndRemark(form, score) {
         console.error('Error in getGradeAndRemark:', error);
         return { grade: '-', remark: 'Error' };
     }
+}
+
+
+function isStudentPass(form, student) {
+    let passCount = 0;
+
+    const eng = student['English'];
+    if (!eng) return false;
+    const engGrade = getGradeAndRemark(form, eng).grade;
+
+    function lowerPass(g){ return ['A','B','C','D'].includes(g); }
+    function upperPass(g){ return parseInt(g) <= 8; }
+
+    for (const subject of ALL_SUBJECTS) {
+        const raw = student[subject];
+        if (!raw) continue;
+        const grade = getGradeAndRemark(form, raw).grade;
+
+        if ((form==='form1' || form==='form2') && lowerPass(grade)) passCount++;
+        if ((form==='form3' || form==='form4') && upperPass(grade)) passCount++;
+    }
+
+    if (form==='form1' || form==='form2') {
+        return passCount >= 6 && lowerPass(engGrade);
+    }
+    return passCount >= 6 && upperPass(engGrade);
 }
 
 function getGradeKeyTableHTML(form) {
@@ -1741,11 +1903,18 @@ async function loadResults(isStudentPortal) {
 
             const teacher = currentConfig.teachers[form][subject] || DEFAULT_TEACHER;
 
+            const posMap = computeSubjectPositions(form, subject, data);
+            const subjectPos = posMap[studentNumber] || '-';
+
+            if (form === 'form1' || form === 'form2') {
+                remark = lowerFormRemarkFromGrade(grade);
+            }
+
             const row = reportBody.insertRow();
             row.insertCell().textContent = subject;
             row.insertCell().textContent = displayScore;
             row.insertCell().textContent = grade;
-            row.insertCell().textContent = '-';
+            row.insertCell().textContent = subjectPos;
             row.insertCell().textContent = remark;
             row.insertCell().textContent = teacher;
         });
@@ -1762,7 +1931,7 @@ async function loadResults(isStudentPortal) {
         }
 
         document.getElementById('reportPosition').textContent = overallRank;
-        document.getElementById('reportOverallRemark').textContent = studentMetrics.overallRemark;
+        document.getElementById('reportOverallRemark').textContent = computeFinalRemark(form, student);
 
         const isUpperForm = form === 'form3' || form === 'form4';
         const averageLine = document.getElementById('averageLine');
@@ -1958,80 +2127,109 @@ function handleBriefBack() {
     goToPage('initialPage');
 }
 
+/* ======================
+   UPDATED: calculateStudentMetrics
+   - ensures BEST-6 aggregate is computed BEFORE ranking metric
+   - uses isStudentPass(form, student) to set overallRemark for LOWER FORMS (form1/form2)
+     so Pass = A-D in at least 6 subjects including English
+   - preserves previous rankable logic and metrics structure
+   ====================== */
 async function calculateStudentMetrics(student, form){
     let totalScore = 0;
     let subjectsCount = 0;
-    let aggregate = 0;
-    let rankable = true;
     let nonNumericSubjectsCount = 0;
+    let rankable = true;
 
     const sortedSubjects = [...ALL_SUBJECTS].sort();
 
+    // Collect numeric scores and grades
+    const gradeNums = []; // numeric grades (1..9) extracted from grade letters/numbers for upper forms
     for (const subject of sortedSubjects) {
         const rawScore = student[subject];
+
+        if (rawScore === undefined || rawScore === null || rawScore === '') {
+            continue;
+        }
+
         if (rawScore === 'N' || rawScore === 'X' || rawScore === '-') {
             nonNumericSubjectsCount++;
-        } else {
-            const score = parseInt(rawScore);
-            if (!isNaN(score) && isFinite(score)) {
+            continue;
+        }
+
+        const score = parseInt(rawScore);
+        if (!isNaN(score) && isFinite(score)) {
+            // accumulate total/subject count for averages (lower forms)
+            totalScore += score;
+            subjectsCount++;
+
+            // For upper forms capture the numeric grade (1..9) derived from score
+            if (form === 'form3' || form === 'form4') {
                 const { grade } = getGradeAndRemark(form, score);
-                totalScore += score;
-                subjectsCount++;
-                if (form === 'form3' || form === 'form4') {
-                    const numericGrade = parseInt(grade);
-                    if (!isNaN(numericGrade) && numericGrade >= 1 && numericGrade <= 9) {
-                        aggregate += numericGrade;
-                    }
+                const numericGrade = parseInt(grade);
+                if (!isNaN(numericGrade)) {
+                    gradeNums.push(numericGrade);
                 }
             }
+        } else {
+            nonNumericSubjectsCount++;
         }
     }
 
+    // Determine rankable (unchanged criteria)
     if (subjectsCount < 4 || nonNumericSubjectsCount > 5) {
         rankable = false;
     }
 
-    const overallMetric = rankable ?
-        ((form === 'form3' || form === 'form4') ? aggregate : (0 - totalScore))
-        : (form === 'form3' || form === 'form4' ? 999 : 99999);
+    // Compute BEST SIX aggregate for upper forms (if possible)
+    let aggregate = '-';
+    if (form === 'form3' || form === 'form4') {
+        if (gradeNums.length >= 6) {
+            gradeNums.sort((a,b)=>a-b); // lower numeric grade is better
+            aggregate = gradeNums.slice(0,6).reduce((a,b)=>a+b,0);
+        } else {
+            aggregate = '-';
+        }
+    }
 
+    // Compute overallMetric used for ranking:
+    // - For upper forms: use aggregate (lower is better) when rankable and aggregate numeric
+    // - For lower forms: use negative totalScore so sorting ascending gives best first
+    let overallMetric;
+    if (!rankable) {
+        overallMetric = (form === 'form3' || form === 'form4') ? 999 : 99999;
+    } else {
+        if (form === 'form3' || form === 'form4') {
+            overallMetric = (typeof aggregate === 'number') ? aggregate : 999;
+        } else {
+            overallMetric = 0 - totalScore;
+        }
+    }
+
+    // Determine overallRemark using the PASS rule requested:
+    // For lower forms (form1/form2) use the exact pass rule:
+    // Pass when student gets a grade of A-D in at least 6 subjects including English.
+    // For upper forms keep the existing rule (grades 1-8 in 6 subjects incl English).
     let overallRemark = '-';
     if (rankable) {
         if (form === 'form1' || form === 'form2') {
-            if (subjectsCount > 0 && totalScore / subjectsCount >= 50) {
-                overallRemark = 'Pass';
-            } else {
-                 overallRemark = 'Fail';
-            }
+            // NEW: use isStudentPass which checks A-D in >=6 subjects and English A-D
+            const pass = isStudentPass(form, student);
+            overallRemark = pass ? 'Pass' : 'Fail';
         } else {
-            if (aggregate <= 40) {
-                overallRemark = 'Pass';
-            } else {
-                overallRemark = 'Fail';
-            }
+            // For upper forms use existing pass rule
+            const pass = isStudentPass(form, student);
+            overallRemark = pass ? 'Pass' : 'Fail';
         }
     } else {
         overallRemark = '-';
     }
 
-    
-    // Aggregate: BEST 6 GRADES ONLY (SAFE)
-    const gradeNums = [];
-    ALL_SUBJECTS.forEach(sub=>{
-        const gr = getGradeAndRemark(form, student[sub]);
-        const g = parseInt(gr.grade);
-        if(!isNaN(g)) gradeNums.push(g);
-    });
-    if(gradeNums.length >= 6){
-        gradeNums.sort((a,b)=>a-b);
-        aggregate = gradeNums.slice(0,6).reduce((a,b)=>a+b,0);
-    } else {
-        aggregate = '-';
-    }
-    
+    // Compute average for lower forms
+    const average = subjectsCount > 0 ? totalScore / subjectsCount : 0;
+
     return {
         totalScore: totalScore,
-        average: subjectsCount > 0 ? totalScore / subjectsCount : 0,
+        average: average,
         aggregate: rankable ? aggregate : '-',
         subjectsCount: subjectsCount,
         rankable: rankable,
@@ -2158,7 +2356,7 @@ async function displayGradesSheet() {
 
     let html = `<table id="gradesTable"><thead><tr><th>POSITION</th><th>Exam No</th><th>Name</th>`;
     ALL_SUBJECTS.forEach(sub => { html += `<th>${getSubjectShortName(sub)}</th>`; });
-    html += `<th>${finalColHeader}</th></tr></thead><tbody>`;
+    html += `<th>${finalColHeader}</th><th>Remark</th></tr></thead><tbody>`;
 
     const studentsWithMetrics = [];
     for (const student of data) {
@@ -2166,7 +2364,10 @@ async function displayGradesSheet() {
         studentsWithMetrics.push({ student, metrics, examNo: student["Exam Number"] });
     }
 
+    // Only include rankable students for ranking computation
     let rankableStudents = studentsWithMetrics.filter(s => s.metrics.rankable);
+
+    // Sort by overallMetric (ascending: lower aggregate is better)
     rankableStudents.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
     const totalRankableStudents = rankableStudents.length;
 
@@ -2176,6 +2377,7 @@ async function displayGradesSheet() {
              const studentMetric = rankableStudents.find(s => s.examNo === examNo);
              if (studentMetric) {
                 const metricValue = studentMetric.metrics.overallMetric;
+                // competition ranking: first index of this metricValue in sorted list + 1
                 let actualRank = rankableStudents.findIndex(s => s.metrics.overallMetric === metricValue) + 1;
                 position = `${actualRank}/${totalRankableStudents}`;
             }
@@ -2201,17 +2403,17 @@ async function displayGradesSheet() {
             }
             rowHtml += `<td>${grade}</td>`;
         });
-
+        
         const metricDisplay = isUpperForm
             ? (metrics.aggregate !== '-' ? metrics.aggregate : '-')
             : (metrics.average > 0 ? metrics.average.toFixed(1) : '-');
 
-        rowHtml += `<td>${metricDisplay}</td></tr>`;
+       rowHtml += `<td>${metricDisplay}</td><td>${metrics.overallRemark}</td></tr>`;
         html += rowHtml;
     });
 
     html += '</tbody></table>';
-    wrapper.innerHTML = html;
+    wrapper.innerHTML = html;      
 }
 
 async function displayAnalysisSheet(form) {
@@ -2347,6 +2549,3 @@ window.onload = function() {
 </script>
 </body>
 </html>
-
-
-
