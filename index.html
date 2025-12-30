@@ -77,7 +77,7 @@
         function updateDisplayContent() {
             document.getElementById('displayHeaderTitle').innerText = adminContent.headerTitle || "Quality Education";
             document.getElementById('displayHeaderSub').innerHTML = adminContent.headerSub || "Enter to learn, depart to serve";
-             const hImg = document.getElementById(''); 
+            const hImg = document.getElementById('displayHeaderImg'); 
              if(adminContent.headerImg) {
                 hImg.src = adminContent.headerImg;
                 hImg.classList.remove('hidden');
@@ -410,6 +410,7 @@
 
 </body>
 </html>
+
 
 
 
