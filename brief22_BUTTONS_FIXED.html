@@ -4,9 +4,120 @@
   <meta charset="UTF-8" />
   <title>Magawa Secondary Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js">
+function populateLockSubjects() {
+    const sel = document.getElementById('lockSubjectSelect');
+    if (!sel) return;
+    sel.innerHTML = '';
+    ALL_SUBJECTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+    });
+}
+
+function toggleSubjectLock() {
+    const classSelect = document.getElementById('classTeacherDropdown');
+    const selectedClass = classSelect ? classSelect.value : '';
+
+    if (!selectedClass) {
+        alert('Please select a Class before locking or unlocking a subject.');
+        return;
+    }
+
+    const subject = document.getElementById('lockSubjectSelect').value;
+    if (!subject) return;
+
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+
+    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
+
+    const status = document.getElementById('lockStatus');
+    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
+        (currentConfig.locks[selectedClass][subject]
+            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
+            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
+}
+
+</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+function populateLockSubjects() {
+    const sel = document.getElementById('lockSubjectSelect');
+    if (!sel) return;
+    sel.innerHTML = '';
+    ALL_SUBJECTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+    });
+}
+
+function toggleSubjectLock() {
+    const classSelect = document.getElementById('classTeacherDropdown');
+    const selectedClass = classSelect ? classSelect.value : '';
+
+    if (!selectedClass) {
+        alert('Please select a Class before locking or unlocking a subject.');
+        return;
+    }
+
+    const subject = document.getElementById('lockSubjectSelect').value;
+    if (!subject) return;
+
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+
+    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
+
+    const status = document.getElementById('lockStatus');
+    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
+        (currentConfig.locks[selectedClass][subject]
+            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
+            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
+}
+
+</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+function populateLockSubjects() {
+    const sel = document.getElementById('lockSubjectSelect');
+    if (!sel) return;
+    sel.innerHTML = '';
+    ALL_SUBJECTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+    });
+}
+
+function toggleSubjectLock() {
+    const classSelect = document.getElementById('classTeacherDropdown');
+    const selectedClass = classSelect ? classSelect.value : '';
+
+    if (!selectedClass) {
+        alert('Please select a Class before locking or unlocking a subject.');
+        return;
+    }
+
+    const subject = document.getElementById('lockSubjectSelect').value;
+    if (!subject) return;
+
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+
+    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
+
+    const status = document.getElementById('lockStatus');
+    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
+        (currentConfig.locks[selectedClass][subject]
+            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
+            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
+}
+
+</script>
   <style>
     /* Global Reset and Box Sizing */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -431,7 +542,46 @@
         #reportHeaderRight, #briefReportHeaderRight { font-size: 9pt; }
         #reportHeaderRight h3, #briefReportHeaderRight h3 { font-size: 16pt; }
     }
-  </style>
+  
+/* === SUBJECT LOCK ICON === */
+.lock-indicator {
+    font-size: 14px;
+    margin-left: 6px;
+}
+.locked { color: #e74c3c; }
+.unlocked { color: #2ecc71; }
+
+
+/* === MOBILE DATA ENTRY ALIGNMENT FIX (SURGICAL) === */
+@media (max-width: 480px) {
+    .student-mark-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .student-mark-row span {
+        grid-column: 1 / 3;
+        font-size: 0.9em;
+        text-align: left;
+    }
+
+    .student-mark-row input[type="text"] {
+        width: 100%;
+        padding: 6px;
+        text-align: center;
+    }
+
+    .student-mark-row button {
+        width: 100%;
+        padding: 6px;
+        font-size: 0.85em;
+    }
+}
+
+</style>
 </head>
 <body>
 <div id="loadingOverlay" style="display: none; opacity: 0; visibility: hidden;">
@@ -706,6 +856,16 @@
     </select>
     <button onclick="deleteCSV()">Delete Selected CSV</button>
     <button onclick="refreshFileList()">↻ Refresh List</button>
+
+<hr style="margin: 20px 0; border: 1px solid #ccc;">
+<h3>Lock / Unlock Score Entry</h3>
+
+<label for="lockSubjectSelect">Select Subject:</label>
+<select id="lockSubjectSelect"></select>
+
+<button onclick="toggleSubjectLock()">🔒 Lock / Unlock</button>
+<p id="lockStatus" style="font-size:11px;color:#e74c3c;"></p>
+
 </div>
 
 <div id="sheetsPage" class="page">
@@ -997,6 +1157,7 @@ function getDefaultConfig() {
         });
     });
     return {
+        locks: {},
         term: '3',
         generalComment: 'Excellent effort. Keep up the hard work.',
         gradeKeyLower: GRADE_KEY_LOWER,
@@ -1380,6 +1541,7 @@ async function initializeConfig(token) {
     }
 
     populateTeacherInputs();
+    populateLockSubjects();
 }
 
 async function handleSaveConfig() {
@@ -2550,7 +2712,45 @@ window.onload = function() {
     }
 
     populateTeacherInputs();
+    populateLockSubjects();
 };
+
+function populateLockSubjects() {
+    const sel = document.getElementById('lockSubjectSelect');
+    if (!sel) return;
+    sel.innerHTML = '';
+    ALL_SUBJECTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+    });
+}
+
+function toggleSubjectLock() {
+    const classSelect = document.getElementById('classTeacherDropdown');
+    const selectedClass = classSelect ? classSelect.value : '';
+
+    if (!selectedClass) {
+        alert('Please select a Class before locking or unlocking a subject.');
+        return;
+    }
+
+    const subject = document.getElementById('lockSubjectSelect').value;
+    if (!subject) return;
+
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+
+    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
+
+    const status = document.getElementById('lockStatus');
+    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
+        (currentConfig.locks[selectedClass][subject]
+            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
+            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
+}
+
 </script>
 
 <script>
@@ -2593,6 +2793,43 @@ function deleteSelectedScores(){
     });
     showStudentMarksList();
 }
+
+function populateLockSubjects() {
+    const sel = document.getElementById('lockSubjectSelect');
+    if (!sel) return;
+    sel.innerHTML = '';
+    ALL_SUBJECTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+    });
+}
+
+function toggleSubjectLock() {
+    const classSelect = document.getElementById('classTeacherDropdown');
+    const selectedClass = classSelect ? classSelect.value : '';
+
+    if (!selectedClass) {
+        alert('Please select a Class before locking or unlocking a subject.');
+        return;
+    }
+
+    const subject = document.getElementById('lockSubjectSelect').value;
+    if (!subject) return;
+
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+
+    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
+
+    const status = document.getElementById('lockStatus');
+    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
+        (currentConfig.locks[selectedClass][subject]
+            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
+            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
+}
+
 </script>
 </body>
 
