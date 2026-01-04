@@ -615,25 +615,30 @@
         <option value="form4">Form 4</option>
     </select>
 
-    <label for="dataStudentSelect">Select Student Exam Number</label>
-    <select id="dataStudentSelect">
-        <option value="">-- Select Student --</option>
-    </select>
-
     <label for="dataSubjectSelect">Select Subject</label>
     <select id="dataSubjectSelect">
         <option value="">-- Select Subject --</option>
     </select>
 
-    <label for="dataScoreInput">Enter Score</label>
-    <input type="text" id="dataScoreInput" placeholder="Enter Score (e.g. 75, X, or -)">
+    <label for="examNumberBox">Click green button below to load students</label>
+    <input type="text" 
+       id="examNumberBox" 
+       placeholder=" " 
+       readonly 
+       onclick="showStudentMarksList()" 
+       style="background-color: #317873; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-color: white;">
+    <div id="studentMarksPanel" class="hidden">
+        <div style="margin-top:10px;">
+            <button class="small-btn" onclick="deleteSelectedScores()" style="background:#e74c3c;">Click blue buttons to delete score</button>
+        </div>
+        <div id="studentMarksList"></div>
+    </div>
 
     <button onclick="submitScore()">Submit Score</button>
-    <button onclick="deleteScore()" style="background: #e74c3c;">Delete Score (Set to '-')</button>
-
-    <button onclick="saveAllScoresToRepo()">Save All Data to Repo</button>
+   
+    <button onclick="saveAllScoresToRepo()">Save All Data</button>
     <button onclick="openScoreSheetView()">Score Sheet</button>
-    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Scores are stored in memory until 'Save All Data to Repo' is clicked to commit changes.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: 'Save All Data' to commit changes.</p>
 </div>
 
 <div id="scoreSheetView" class="page">
@@ -802,7 +807,7 @@ const ALL_SUBJECTS = Object.keys(SUBJECT_MAP); // Full names used for internal l
 const BASE_HEADERS = ["STUDENT'S NAME", "Exam Number", "Date of Birth"];
 const ALL_HEADERS = [...BASE_HEADERS, ...ALL_SUBJECTS];
 const ALL_CLASSES = ['form1', 'form2', 'form3', 'form4'];
-const DEFAULT_TEACHER = 'TBA';
+const DEFAULT_TEACHER = '-';
 const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
 
 // Grade boundary definitions
@@ -1380,7 +1385,7 @@ async function initializeConfig(token) {
 async function handleSaveConfig() {
     const token = document.getElementById('githubToken').value;
     if (!token) {
-        alert('Please enter your GitHub Authorization Code.');
+        alert('Please enter your Authorization Code.');
         return;
     }
 
@@ -1429,7 +1434,7 @@ async function handleSaveConfig() {
     if (result) {
         configSha = result.content.sha;
         currentConfig = newConfig;
-        alert('Configuration saved successfully to GitHub!');
+        alert('Wow! configuration saved successfully.');
     }
 }
 
@@ -1439,7 +1444,7 @@ async function uploadCSV() {
     const fileInput = document.getElementById('csvUpload');
 
     if (!token) {
-        alert('Please enter your GitHub Authorization Code.');
+        alert('Please enter Authorization Code.');
         return;
     }
     if (!form) {
@@ -1506,7 +1511,7 @@ async function refreshFileList() {
     currentDataSha = {};
 
     if (!token) {
-        alert('Please enter your GitHub Authorization Code.');
+        alert('Please enter Authorization Code.');
         return;
     }
 
@@ -1545,7 +1550,7 @@ async function deleteCSV() {
     const selectedValue = deleteDropdown.value;
 
     if (!token) {
-        alert('Please enter your GitHub Authorization Code.');
+        alert('Please enter Authorization Code.');
         return;
     }
     if (!selectedValue) {
@@ -1676,7 +1681,7 @@ async function saveAllScoresToRepo() {
     const form = document.getElementById('dataClassSelect').value;
 
     if (!token) {
-        alert('Please enter your GitHub Authorization Code in the Admin Dashboard.');
+        alert('Please enter Authorization Code in the Admin Dashboard.');
         return;
     }
     if (!form) {
@@ -1728,7 +1733,7 @@ async function saveAllScoresToRepo() {
             currentClassData[form] = null;
             await fetchClassData(form);
 
-            alert(`Successfully saved and committed data for ${form} to GitHub!`);
+            alert(`Successfully saved and committed data for ${form}!`);
         }
     } catch (error) {
         hideLoading();
@@ -1794,7 +1799,7 @@ function openAdminHome() {
 async function openUploadsAuth() {
     const token = document.getElementById('githubToken').value;
     if (!token) {
-        alert('You need to provide the GitHub Authorization Code to access this section.');
+        alert('You need Authorization Code to access this section.');
         return;
     }
     await initializeConfig(token);
@@ -1805,7 +1810,7 @@ async function openUploadsAuth() {
 function openDataEntryAuth() {
     const token = document.getElementById('githubToken').value;
     if (!token) {
-        alert('You need to provide the GitHub Authorization Code to access this section.');
+        alert('You need Authorization Code to access this section.');
         return;
     }
     openDataEntryPage();
@@ -2547,5 +2552,48 @@ window.onload = function() {
     populateTeacherInputs();
 };
 </script>
+
+<script>
+async function showStudentMarksList() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    if (!form || !subject) {
+        alert('Select Class and Subject first');
+        return;
+    }
+
+    // ENSURE students are loaded
+    const students = await fetchClassData(form);
+
+    const panel = document.getElementById('studentMarksPanel');
+    const list = document.getElementById('studentMarksList');
+    list.innerHTML = '';
+    panel.classList.remove('hidden');
+
+    students.forEach((s,i)=>{
+        const val = s[subject] || '';
+        list.innerHTML += `
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
+            <span style="flex:6;">${s["Exam Number"]} - ${s["STUDENT'S NAME"]}</span>
+            <input type="text" value="${val}" style="width:100px"
+                onchange="currentClassData['${form}'][${i}]['${subject}']=this.value">
+            <button onclick="currentClassData['${form}'][${i}]['${subject}']='-';showStudentMarksList()"
+<button style="width: 100px;">delete</button>  
+        
+        </div>`;
+    });
+}
+
+function deleteSelectedScores(){
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    document.querySelectorAll('.bulkCheck:checked').forEach(c=>{
+        const i = c.dataset.i;
+        currentClassData[form][i][subject] = '-';
+    });
+    showStudentMarksList();
+}
+</script>
 </body>
+
 </html>
