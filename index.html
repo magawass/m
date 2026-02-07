@@ -39,12 +39,30 @@
             window.scrollTo(0,0);
         }
 
+        
+        function openCA() {
+            document.getElementById('mainNav').style.display = 'none';
+            document.getElementById('mainFooter').style.display = 'none';
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('portalContainer').classList.add('active');
+            document.querySelector('#portalContainer iframe').src = 'CANew372.html';
+        }
+
+        function openODL() {
+            document.getElementById('mainNav').style.display = 'none';
+            document.getElementById('mainFooter').style.display = 'none';
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('portalContainer').classList.add('active');
+            document.querySelector('#portalContainer iframe').src = 'ODL.html';
+        }
+
         function openPortal() {
             document.getElementById('mainNav').style.display = 'none';
             document.getElementById('mainFooter').style.display = 'none';
             const pages = document.querySelectorAll('.page');
             pages.forEach(p => p.classList.remove('active'));
             document.getElementById('portalContainer').classList.add('active');
+            document.querySelector('#portalContainer iframe').src = 'brief22_BUTTONS_FIXED.html';
         }
 
         function setSyncStatus(msg, isError = false) {
@@ -224,7 +242,7 @@
                 });
 
                 if (syncRes.ok) {
-                    setSyncStatus("✅ SUCCESSFULLY SAVED!");
+                    setSyncStatus("✅WOW SUCCESSFULLY SAVED!");
                     localStorage.setItem('magawaAdminContent', finalJson);
                     updateDisplayContent();
                 } else {
@@ -271,7 +289,7 @@
             </div>
             <div class="hidden md:flex space-x-6 text-xs font-bold uppercase">
                 <button onclick="showPage('homePage')">Home</button>
-                <button onclick="openPortal()" class="bg-secondary text-primary px-3 py-1 rounded">Portal</button>
+                <button onclick="openPortal()" class="bg-secondary text-primary px-3 py-1 rounded">Portal</button><button onclick="openCA()" class="bg-white text-primary px-3 py-1 rounded">Continuous Assessment</button><button onclick="openODL()" class="bg-white text-primary px-3 py-1 rounded">ODL</button>
                 <button onclick="showPage('adminLogin')">Admin</button>
             </div>
         </div>
@@ -290,7 +308,7 @@
                         <span class="text-secondary">depart to serve</span>
                     </p>
                     <p id="displayAboutText" class="opacity-90 mb-6"></p>
-                    <button onclick="openPortal()" class="bg-white text-primary px-6 py-2 rounded-lg font-bold">Exam Portal</button>
+                    <button onclick="openPortal()" class="bg-white text-primary px-4 py-2 rounded-lg font-bold mr-2">Day Exam Portal</button><button onclick="openCA()" class="bg-secondary text-primary px-4 py-2 rounded-lg font-bold mr-2">Continuous Assessment</button><button onclick="openODL()" class="bg-accent text-white px-4 py-2 rounded-lg font-bold">ODL Exam Portal</button>
                 </div>
                 <i class="fas fa-graduation-cap text-[100px] opacity-30"></i>
             </div>
@@ -410,7 +428,6 @@
 
 </body>
 </html>
-
 
 
 
