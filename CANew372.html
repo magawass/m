@@ -1,0 +1,489 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assessment Program</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #1a2a6c; }
+        .no-print { background: #f4f4f4; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ccc; line-height: 1.8; color: #000; }
+        
+        /* Table fix for visibility and printing */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; background-color: #ffffff; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 10px; word-wrap: break-word; color: #000; }
+        th { background-color: #e2e2e2; color: #000; }
+        
+        /* Header font fixes for dark background */
+        .header-title { text-align: center; font-weight: bold; text-decoration: underline; font-size: 18px; margin-bottom: 5px; color: #ffffff; }
+        .sub-header { text-align: center; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; color: #ffffff; }
+        
+        input[type="number"] { width: 40px; border: 1px solid #ccc; padding: 2px; border-radius: 3px; }
+        .final-col { font-weight: bold; background-color: #f9f9f9; width: 60px; }
+        .gh-controls { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #aaa; display: flex; gap: 10px; flex-wrap: wrap; }
+        .pagination { margin: 15px 0; text-align: center; display: none; }
+        .pagination button { padding: 5px 15px; cursor: pointer; }
+        #viewTableSection { display: none; }
+        #scoresReportTable td, #scoresReportTable th { border: 1px solid #000 !important; }
+        #searchBox { padding: 5px; width: 250px; border: 1px solid #007bff; border-radius: 4px; margin-left: 10px; }
+        .print-footer { display: none; }
+        
+        #homePage { text-align: center; padding: 50px 20px; min-height: 80vh; position: relative; }
+        .search-container { max-width: 650px; margin: 0 auto; background: #f9f9f9; padding: 30px; border-radius: 10px; border: 1px solid #ddd; }
+        .search-container select, .search-container input { margin: 10px; padding: 8px; font-size: 14px; }
+        #adminInterface, #reportView { display: none; }
+        
+        /* Report View Container Fix */
+        #reportView { background-color: #ffffff; padding: 20px; border-radius: 8px; margin: 20px auto; max-width: 90%; }
+        #reportView .header-title, #reportView .sub-header { color: #000000; }
+        
+        .nav-btn { background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-bottom: 10px; }
+
+        /* Admin Controls Text Color Fix */
+        .admin-text-black { color: #000000 !important; }
+
+        .vertical-report-table { max-width: 400px; margin: 20px auto; border: 2px solid #000; background-color: #ffffff; }
+        .vertical-report-table th { text-align: left; width: 50%; padding: 8px; font-size: 12px; background-color: #007bff; color: #ffffff; }
+        .vertical-report-table td { text-align: left; padding: 8px; font-size: 12px; color: #000; }
+        .copyright { margin-top: 50px; font-size: 12px; color: #777; }
+
+        @media print { 
+            .no-print, .pagination, #toggleBtn, .nav-btn, #homePage, #loginTrigger { display: none !important; } 
+            body { margin: 0; padding-bottom: 50px; background-color: #ffffff; }
+            #adminInterface, #viewTableSection, #reportView { display: block !important; }
+            #entrySection { display: none !important; }
+            .header-title, .sub-header { color: #000000 !important; }
+            .print-footer { display: block; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 10px; }
+            .page-number:after { content: "Page " counter(page); }
+        }
+        @page { counter-increment: page; margin: 0.5cm; }
+    
+        @media (max-width: 768px) {
+            body { margin: 5px; }
+            table { display: block; overflow-x: auto; white-space: nowrap; }
+            input[type="number"] { width: 35px; }
+            button { font-size: 11px; padding: 4px 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="homePage">
+    <div class="search-container">
+        <h2 style="color: #007bff;">ASSESSMENT SEARCH</h2>
+        <p>Select Class,Term,Year,Subject and enter Name or Exam Number to view scores.</p>
+        <hr>
+        <div>
+            <label>Class:</label>
+            <select id="pubClass">
+                <option value="1">Form 1</option><option value="2">Form 2</option>
+                <option value="3">Form 3</option><option value="4">Form 4</option>
+            </select>
+            <label>Term:</label>
+            <select id="pubTerm">
+                <option value="1">Term 1</option><option value="2">Term 2</option><option value="3">Term 3</option>
+            </select>
+            <label>Year:</label>
+            <select id="pubYear">
+                <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}">${y}</option>`);</script>
+            </select>
+            <br>
+            <label>Subject:</label>
+            <select id="pubSubject">
+                <option>Agriculture</option><option>Bible Knowledge</option><option>Biology</option>
+                <option>Chemistry</option><option>Chichewa</option><option>English</option>
+                <option>Geography</option><option>History</option><option>Mathematics</option>
+                <option>Physics</option><option>Social</option>
+            </select>
+        </div>
+        <div style="margin-top: 15px;">
+            <input type="text" id="publicSearchBox" placeholder="Enter Name or ID...">
+            <button onclick="publicSearchScores()" style="background:#007bff; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">Search Scores</button>
+        </div>
+        <div style="margin-top: 50px;">
+            <button id="loginTrigger" onclick="adminLogin()" style="background:none; border:none; color:#ddd; text-decoration:underline; cursor:pointer; font-size:12px;">Admin Login</button>
+        </div>
+    </div>
+    <div class="copyright">
+        &copy; 2026 Continuous Assessment Program.Designed by Chiku Lubaini. All Rights Reserved.
+    </div>
+</div>
+
+<div id="adminInterface">
+    <button class="nav-btn no-print" onclick="showHome()">← Back to Search</button>
+    <div class="no-print admin-text-black">
+        <h3 class="admin-text-black">Admin Controls</h3>
+        <div style="margin-bottom: 10px;">
+            <label>Authorization Code:</label>
+            <input type="password" id="ghToken" placeholder="Enter Code" style="width: 200px;">
+            <input type="text" id="searchBox" placeholder="Search Name or Exam No..." oninput="updateView()">
+        </div>
+
+        <label>Class:</label>
+        <select id="selectClass" onchange="updateView()">
+            <option value="1">Form 1</option><option value="2">Form 2</option>
+            <option value="3">Form 3</option><option value="4">Form 4</option>
+        </select>
+
+        <label>Term:</label>
+        <select id="selectTerm" onchange="updateView()">
+            <option value="1">Term 1</option><option value="2">Term 2</option><option value="3">Term 3</option>
+        </select>
+
+        <label>Year:</label>
+        <select id="selectYear" onchange="updateView()">
+            <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}">${y}</option>`);</script>
+        </select>
+
+        <label>Subject:</label>
+        <select id="selectSubject" onchange="updateView()">
+            <option>Agriculture</option><option>Bible Knowledge</option><option>Biology</option>
+            <option>Chemistry</option><option>Chichewa</option><option>English</option>
+            <option>Geography</option><option>History</option><option>Mathematics</option>
+            <option>Physics</option><option>Social</option>
+        </select>
+        <hr>
+        
+        <label>Upload Year Roster (ID, Name): </label>
+        <input type="file" id="csvFile" accept=".csv"><br>
+        
+        <label>Max Marks (P1-P4):</label>
+        <input type="number" id="t1" value="20" oninput="updateHeaders()"> 
+        <input type="number" id="t2" value="80" oninput="updateHeaders()"> 
+        <input type="number" id="t3" value="0" oninput="updateHeaders()">
+        <input type="number" id="t4" value="100" oninput="updateHeaders()">
+
+        <div class="gh-controls">
+            <button onclick="loadFromGitHub()" style="background:#007bff; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">Load Data</button>
+            <button id="toggleBtn" onclick="toggleMode()" style="background:#f39c12; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">View Scores Table</button>
+            <button onclick="saveToGitHub()" style="background:#2ea44f; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">Save ALL</button>
+            <button onclick="window.print()" style="background:#1a73e8; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">Print Report</button>
+        </div>
+    </div>
+
+    <div class="header-title">CONTINUOUS ASSESSMENT PROGRAM</div>
+    <div class="sub-header" id="dynamicSubHeader"></div>
+
+    <div id="entrySection">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:50px;">SERIAL NO.</th><th>STUDENT NAME</th>
+                    <th id="h1">CA1</th><th id="h2">CA2</th><th id="h3">CA3</th><th id="h4">CA4</th>
+                    <th class="final-col">FINAL SCORE(%)</th><th>DELETE</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable"></tbody>
+        </table>
+    </div>
+
+    <div id="viewTableSection">
+        <table id="scoresReportTable">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width:30px;">S/N</th>
+                    <th rowspan="2" style="width:180px;">STUDENT NAME</th>
+                    <th rowspan="2" style="width:30px;">SEX</th>
+                    <th colspan="5">TERM 1</th>
+                    <th colspan="5">TERM 2</th>
+                    <th colspan="4">TERM 3</th>
+                    <th rowspan="2">E.O.Y AGGR</th>
+                </tr>
+                <tr>
+                    <th style="width:30px;">SEPT</th><th>OCT</th><th>NOV</th><th>DEC</th><th>TERM1 SCORE</th>
+                    <th style="width:30px;">JAN</th><th>FEB</th><th>MAR</th><th>APR</th><th>TERM2 SCORE</th>
+                    <th style="width:30px;">MAY</th><th>JUN</th><th>JULY</th><th>TERM3 SCORE</th>
+                </tr>
+            </thead>
+            <tbody id="viewTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="reportView">
+    <button class="nav-btn no-print" onclick="showHome()">← Back to Search</button>
+    <div class="header-title">STUDENT ASSESSMENT REPORT</div>
+    <div class="sub-header" id="publicSubHeader"></div>
+    <div id="publicReportContainer"></div>
+</div>
+
+<script>
+    let masterData = {}; 
+    let currentPage = 0;
+    const pageSize = 20;
+    let isViewMode = false;
+
+    const termMonths = {
+        "1": ["SEPT", "OCT", "NOV", "DEC"],
+        "2": ["JAN", "FEB", "MAR", "APR"],
+        "3": ["MAY", "JUN", "JULY", "TERM SCORE"]
+    };
+
+    function adminLogin() {
+        if(prompt("Enter Admin Password:") === "00") {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('adminInterface').style.display = 'block';
+            updateView();
+        }
+    }
+
+    function showHome() {
+        document.getElementById('homePage').style.display = 'block';
+        document.getElementById('adminInterface').style.display = 'none';
+        document.getElementById('reportView').style.display = 'none';
+    }
+
+    function getStorageKey() {
+        const f = document.getElementById('selectClass').value;
+        const t = document.getElementById('selectTerm').value;
+        const y = document.getElementById('selectYear').value;
+        const s = document.getElementById('selectSubject').value;
+        return `${f}-${t}-${y}-${s}`;
+    }
+
+    function updateView() {
+        const key = getStorageKey();
+        const f = document.getElementById('selectClass').value;
+        const t = document.getElementById('selectTerm').value;
+        const y = document.getElementById('selectYear').value;
+        const s = document.getElementById('selectSubject').value;
+        document.getElementById('dynamicSubHeader').innerText = `FORM ${f} - TERM ${t} - ${y} - ${s}`;
+        updateHeaders();
+        if (!isViewMode) { renderEntryTable(key); } else { renderViewTable(key); }
+    }
+
+    function updateHeaders() {
+        document.getElementById('h1').innerText = `P1 / ${document.getElementById('t1').value}`;
+        document.getElementById('h2').innerText = `P2 / ${document.getElementById('t2').value}`;
+        document.getElementById('h3').innerText = `P3 / ${document.getElementById('t3').value}`;
+        document.getElementById('h4').innerText = `P4 / ${document.getElementById('t4').value}`;
+    }
+
+    function toggleMode() {
+        isViewMode = !isViewMode;
+        document.getElementById('entrySection').style.display = isViewMode ? 'none' : 'block';
+        document.getElementById('viewTableSection').style.display = isViewMode ? 'block' : 'none';
+        document.getElementById('toggleBtn').innerText = isViewMode ? 'Back to Entry' : 'View Scores Table';
+        if(isViewMode) updateView();
+    }
+
+    async function loadFromGitHub() {
+        const token = document.getElementById('ghToken').value;
+        if (!token) return alert("Enter Code");
+        const key = getStorageKey();
+        const yearRosterKey = getYearRosterKey();
+        
+        try {
+            let res = await fetch(`https://api.github.com/repos/magawass/ca/contents/${key}.csv`, { 
+                headers: {'Authorization': `token ${token}`} 
+            });
+
+            if (res.ok) {
+                const d = await res.json();
+                masterData[key] = parseCSV(atob(d.content));
+                updateView();
+            } else {
+                let resRoster = await fetch(`https://api.github.com/repos/magawass/ca/contents/${yearRosterKey}.csv`, { 
+                    headers: {'Authorization': `token ${token}`} 
+                });
+
+                if (resRoster.ok) {
+                    const d = await resRoster.json();
+                    const rosterData = parseCSV(atob(d.content));
+                    masterData[key] = rosterData.map(std => ({
+                        id: std.id, name: std.name, sex: std.sex || "F",
+                        p1: "", p2: "", p3: "", p4: ""
+                    }));
+                    updateView();
+                } else {
+                    masterData[key] = [];
+                    updateView();
+                    alert("No existing data or master roster found for this Form.");
+                }
+            }
+        } catch (e) { alert("Error connecting to GitHub."); }
+    }
+
+    function parseCSV(text) {
+        const rows = text.trim().split('\n');
+        const data = [];
+        const meta = rows[1] ? rows[1].split(',') : [];
+        if (meta[0] === "MAX_MARKS") {
+            document.getElementById('t1').value = meta[2] || 20;
+            document.getElementById('t2').value = meta[3] || 80;
+            document.getElementById('t3').value = meta[4] || 0;
+            document.getElementById('t4').value = meta[5] || 100;
+        }
+        for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i].split(',');
+            if (cols.length >= 2 && cols[0] !== "MAX_MARKS") {
+                data.push({
+                    id: cols[0].trim(), name: cols[1].trim(),
+                    p1: cols[2] || "", p2: cols[3] || "",
+                    p3: cols[4] || "", p4: cols[5] || "",
+                    sex: cols[6] || "F"
+                });
+            }
+        }
+        return data;
+    }
+
+    function renderEntryTable(key) {
+        const tableBody = document.getElementById('dataTable');
+        tableBody.innerHTML = '';
+        if (!masterData[key]) return;
+        const query = document.getElementById('searchBox').value.toLowerCase();
+        masterData[key].forEach((std, idx) => {
+            if (std.name.toLowerCase().includes(query) || std.id.toLowerCase().includes(query)) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${std.id}</td><td>${std.name}</td>
+                    <td><input type="number" class="p1" value="${std.p1}" oninput="updateScore(${idx}, 'p1', this, '${key}')"><button onclick="clearScore(${idx},'p1','${key}')">✖</button></td>
+                    <td><input type="number" class="p2" value="${std.p2}" oninput="updateScore(${idx}, 'p2', this, '${key}')"><button onclick="clearScore(${idx},'p2','${key}')">✖</button></td>
+                    <td><input type="number" class="p3" value="${std.p3}" oninput="updateScore(${idx}, 'p3', this, '${key}')"><button onclick="clearScore(${idx},'p3','${key}')">✖</button></td>
+                    <td><input type="number" class="p4" value="${std.p4}" oninput="updateScore(${idx}, 'p4', this, '${key}')"><button onclick="clearScore(${idx},'p4','${key}')">✖</button></td>
+                    <td class="res final-col">0</td><td><button onclick="clearAllScores(${idx},'${key}')">Clear</button></td>`;
+                tableBody.appendChild(tr);
+                calcEntryRow(tr);
+            }
+        });
+    }
+
+    function renderViewTable(key) {
+        const viewBody = document.getElementById('viewTableBody');
+        viewBody.innerHTML = '';
+        const allData = masterData[key] || [];
+        const query = document.getElementById('searchBox').value.toLowerCase();
+        const filteredData = allData.filter(std => std.name.toLowerCase().includes(query) || std.id.toLowerCase().includes(query));
+        const t = document.getElementById('selectTerm').value;
+        filteredData.forEach((std, i) => {
+            const tr = document.createElement('tr');
+            const score = calculateValue(std);
+            tr.innerHTML = `
+                <td>${i+1}</td><td style="text-align:left">${std.name}</td><td>${std.sex}</td>
+                <td>${t==1?std.p1:''}</td><td>${t==1?std.p2:''}</td><td>${t==1?std.p3:''}</td><td>${t==1?std.p4:''}</td><td>${t==1?score:''}</td>
+                <td>${t==2?std.p1:''}</td><td>${t==2?std.p2:''}</td><td>${t==2?std.p3:''}</td><td>${t==2?std.p4:''}</td><td>${t==2?score:''}</td>
+                <td>${t==3?std.p1:''}</td><td>${t==3?std.p2:''}</td><td>${t==3?std.p3:''}</td><td>${t==3?score:''}</td>
+                <td></td>`;
+            viewBody.appendChild(tr);
+        });
+    }
+
+    function calculateValue(std) {
+        const p1=parseFloat(std.p1)||0; const p2=parseFloat(std.p2)||0;
+        const p3=parseFloat(std.p3)||0; const p4=parseFloat(std.p4)||0;
+        const m1=parseFloat(document.getElementById('t1').value)||0;
+        const m2=parseFloat(document.getElementById('t2').value)||0;
+        const m3=parseFloat(document.getElementById('t3').value)||0;
+        const m4=parseFloat(document.getElementById('t4').value)||0;
+        let partA = (m1+m2+m3)>0 ? ((p1+p2+p3)/(m1+m2+m3))*40 : 0;
+        let partB = m4>0 ? (p4/m4)*60 : 0;
+        return Math.round(partA + partB);
+    }
+
+    function updateScore(idx, field, el, key) { masterData[key][idx][field] = el.value; calcEntryRow(el.closest('tr')); }
+
+    function calcEntryRow(row) {
+        const p1=parseFloat(row.querySelector('.p1').value)||0;
+        const p2=parseFloat(row.querySelector('.p2').value)||0;
+        const p3=parseFloat(row.querySelector('.p3').value)||0;
+        const p4=parseFloat(row.querySelector('.p4').value)||0;
+        const m1=parseFloat(document.getElementById('t1').value)||0;
+        const m2=parseFloat(document.getElementById('t2').value)||0;
+        const m3=parseFloat(document.getElementById('t3').value)||0;
+        const m4=parseFloat(document.getElementById('t4').value)||0;
+        let partA = (m1+m2+m3)>0 ? ((p1+p2+p3)/(m1+m2+m3))*40 : 0;
+        let partB = m4>0 ? (p4/m4)*60 : 0;
+        row.querySelector('.res').innerText = Math.round(partA + partB);
+    }
+
+    function getYearRosterKey() {
+        const f = document.getElementById('selectClass').value;
+        const y = document.getElementById('selectYear').value;
+        return `roster-${y}-Form${f}`;
+    }
+
+    async function saveToGitHub() {
+        const token = document.getElementById('ghToken').value;
+        if (!token) return alert("Enter Code");
+        const key = getStorageKey();
+        const rosterKey = getYearRosterKey();
+        const data = masterData[key] || [];
+        let csvContent = "ID,Name,P1,P2,P3,P4,Sex\n";
+        csvContent += `MAX_MARKS,TOTALS,${document.getElementById('t1').value},${document.getElementById('t2').value},${document.getElementById('t3').value},${document.getElementById('t4').value},M\n`;
+        data.forEach(s => { csvContent += `${s.id},${s.name},${s.p1},${s.p2},${s.p3},${s.p4},${s.sex}\n`; });
+        const encoded = btoa(unescape(encodeURIComponent(csvContent)));
+        for(let path of [key, rosterKey]) {
+            const url = `https://api.github.com/repos/magawass/ca/contents/${path}.csv`;
+            let sha = "";
+            const ck = await fetch(url, { headers: {'Authorization': `token ${token}`} });
+            if (ck.ok) { const d = await ck.json(); sha = d.sha; }
+            await fetch(url, {
+                method: 'PUT',
+                headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
+                body: JSON.stringify({ message: `Update ${path}`, content: encoded, sha: sha })
+            });
+        }
+        alert("Wow Saved successfully!");
+    }
+
+    async function publicSearchScores() {
+        const query = document.getElementById('publicSearchBox').value.trim().toLowerCase();
+        if(!query) return alert("Please enter a Student Name or ID");
+        const f = document.getElementById('pubClass').value;
+        const t = document.getElementById('pubTerm').value;
+        const y = document.getElementById('pubYear').value;
+        const s = document.getElementById('pubSubject').value;
+        const key = `${f}-${t}-${y}-${s}`;
+        const url = `https://raw.githubusercontent.com/magawass/ca/main/${key}.csv`;
+        try {
+            const res = await fetch(url);
+            if(res.ok) {
+                const text = await res.text();
+                masterData[key] = parseCSV(text);
+                const filtered = masterData[key].filter(std => std.name.toLowerCase().includes(query) || std.id.toLowerCase().includes(query));
+                if(filtered.length === 0) return alert("No student found matching that entry.");
+                
+                const container = document.getElementById('publicReportContainer');
+                container.innerHTML = '';
+                
+                const m1 = document.getElementById('t1').value;
+                const m2 = document.getElementById('t2').value;
+                const m3 = document.getElementById('t3').value;
+                const m4 = document.getElementById('t4').value;
+                const months = termMonths[t];
+
+                filtered.forEach(std => {
+                    const table = document.createElement('table');
+                    table.className = "vertical-report-table";
+                    table.innerHTML = `
+                        <tr><th>EXAM ID</th><td>${std.id}</td></tr>
+                        <tr><th>FULL NAME</th><td>${std.name}</td></tr>
+                        <tr><th>Continuous Assess. 1 -${months[0]}</th><td>${std.p1 || '0'} / ${m1}</td></tr>
+                        <tr><th>Continuous Assess. 2 -${months[1]}</th><td>${std.p2 || '0'} / ${m2}</td></tr>
+                        <tr><th>Continuous Assess. 3 -${months[2]}</th><td>${std.p3 || '0'} / ${m3}</td></tr>
+                        <tr><th>End of Term Test Score -${months[3]}</th><td>${std.p4 || '0'} / ${m4}</td></tr>
+                        <tr style="background:#e2e2e2;"><th style="font-weight:bold; background:#007bff; color:white;">FINAL SCORE</th><td style="font-weight:bold; font-size:14px;">${calculateValue(std)}%</td></tr>
+                    `;
+                    container.appendChild(table);
+                });
+
+                document.getElementById('homePage').style.display = 'none';
+                document.getElementById('reportView').style.display = 'block';
+                document.getElementById('publicSubHeader').innerText = `FORM ${f} - TERM ${t} - ${y} - ${s}`;
+            } else { alert("Scores for this selection have not been uploaded yet."); }
+        } catch(e) { alert("Error connecting to database."); }
+    }
+
+    function clearScore(idx, field, key){
+        masterData[key][idx][field] = "";
+        updateView();
+    }
+    function clearAllScores(idx, key){
+        masterData[key][idx].p1="";
+        masterData[key][idx].p2="";
+        masterData[key][idx].p3="";
+        masterData[key][idx].p4="";
+        updateView();
+    }
+</script>
+</body>
+</html>
