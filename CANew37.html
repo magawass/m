@@ -1,16 +1,21 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Assessment Program</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #fff; }
-        .no-print { background: #f4f4f4; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ccc; line-height: 1.8; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-        th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 10px; word-wrap: break-word; }
-        th { background-color: #e2e2e2; }
-        .header-title { text-align: center; font-weight: bold; text-decoration: underline; font-size: 18px; margin-bottom: 5px; }
-        .sub-header { text-align: center; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #1a2a6c; }
+        .no-print { background: #f4f4f4; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ccc; line-height: 1.8; color: #000; }
+        
+        /* Table fix for visibility and printing */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; background-color: #ffffff; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 10px; word-wrap: break-word; color: #000; }
+        th { background-color: #e2e2e2; color: #000; }
+        
+        /* Header font fixes for dark background */
+        .header-title { text-align: center; font-weight: bold; text-decoration: underline; font-size: 18px; margin-bottom: 5px; color: #ffffff; }
+        .sub-header { text-align: center; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; color: #ffffff; }
+        
         input[type="number"] { width: 40px; border: 1px solid #ccc; padding: 2px; border-radius: 3px; }
         .final-col { font-weight: bold; background-color: #f9f9f9; width: 60px; }
         .gh-controls { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #aaa; display: flex; gap: 10px; flex-wrap: wrap; }
@@ -25,18 +30,27 @@
         .search-container { max-width: 650px; margin: 0 auto; background: #f9f9f9; padding: 30px; border-radius: 10px; border: 1px solid #ddd; }
         .search-container select, .search-container input { margin: 10px; padding: 8px; font-size: 14px; }
         #adminInterface, #reportView { display: none; }
+        
+        /* Report View Container Fix */
+        #reportView { background-color: #ffffff; padding: 20px; border-radius: 8px; margin: 20px auto; max-width: 90%; }
+        #reportView .header-title, #reportView .sub-header { color: #000000; }
+        
         .nav-btn { background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-bottom: 10px; }
 
-        .vertical-report-table { max-width: 400px; margin: 20px auto; border: 2px solid #000; }
-        .vertical-report-table th { text-align: left; width: 50%; padding: 8px; font-size: 12px; }
-        .vertical-report-table td { text-align: left; padding: 8px; font-size: 12px; }
+        /* Admin Controls Text Color Fix */
+        .admin-text-black { color: #000000 !important; }
+
+        .vertical-report-table { max-width: 400px; margin: 20px auto; border: 2px solid #000; background-color: #ffffff; }
+        .vertical-report-table th { text-align: left; width: 50%; padding: 8px; font-size: 12px; background-color: #007bff; color: #ffffff; }
+        .vertical-report-table td { text-align: left; padding: 8px; font-size: 12px; color: #000; }
         .copyright { margin-top: 50px; font-size: 12px; color: #777; }
 
         @media print { 
             .no-print, .pagination, #toggleBtn, .nav-btn, #homePage, #loginTrigger { display: none !important; } 
-            body { margin: 0; padding-bottom: 50px; }
+            body { margin: 0; padding-bottom: 50px; background-color: #ffffff; }
             #adminInterface, #viewTableSection, #reportView { display: block !important; }
             #entrySection { display: none !important; }
+            .header-title, .sub-header { color: #000000 !important; }
             .print-footer { display: block; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 10px; }
             .page-number:after { content: "Page " counter(page); }
         }
@@ -89,14 +103,14 @@
         </div>
     </div>
     <div class="copyright">
-        &copy; 2026 Continuous Assessment Program. All Rights Reserved.
+        &copy; 2026 Continuous Assessment Program.Designed by Chiku Lubaini. All Rights Reserved.
     </div>
 </div>
 
 <div id="adminInterface">
     <button class="nav-btn no-print" onclick="showHome()">← Back to Search</button>
-    <div class="no-print">
-        <h3>Admin Controls</h3>
+    <div class="no-print admin-text-black">
+        <h3 class="admin-text-black">Admin Controls</h3>
         <div style="margin-bottom: 10px;">
             <label>Authorization Code:</label>
             <input type="password" id="ghToken" placeholder="Enter Code" style="width: 200px;">
@@ -197,7 +211,6 @@
     const pageSize = 20;
     let isViewMode = false;
 
-    // Month mappings per term
     const termMonths = {
         "1": ["SEPT", "OCT", "NOV", "DEC"],
         "2": ["JAN", "FEB", "MAR", "APR"],
@@ -444,11 +457,11 @@
                     table.innerHTML = `
                         <tr><th>EXAM ID</th><td>${std.id}</td></tr>
                         <tr><th>FULL NAME</th><td>${std.name}</td></tr>
-                        <tr><th>CA 1 (${months[0]})</th><td>${std.p1 || '0'} / ${m1}</td></tr>
-                        <tr><th>CA 2 (${months[1]})</th><td>${std.p2 || '0'} / ${m2}</td></tr>
-                        <tr><th>CA 3 (${months[2]})</th><td>${std.p3 || '0'} / ${m3}</td></tr>
-                        <tr><th>Term Score (${months[3]})</th><td>${std.p4 || '0'} / ${m4}</td></tr>
-                        <tr style="background:#e2e2e2;"><th style="font-weight:bold;">FINAL SCORE</th><td style="font-weight:bold; font-size:14px;">${calculateValue(std)}%</td></tr>
+                        <tr><th>Continuous Assess. 1 -${months[0]}</th><td>${std.p1 || '0'} / ${m1}</td></tr>
+                        <tr><th>Continuous Assess. 2 -${months[1]}</th><td>${std.p2 || '0'} / ${m2}</td></tr>
+                        <tr><th>Continuous Assess. 3 -${months[2]}</th><td>${std.p3 || '0'} / ${m3}</td></tr>
+                        <tr><th>End of Term Test Score -${months[3]}</th><td>${std.p4 || '0'} / ${m4}</td></tr>
+                        <tr style="background:#e2e2e2;"><th style="font-weight:bold; background:#007bff; color:white;">FINAL SCORE</th><td style="font-weight:bold; font-size:14px;">${calculateValue(std)}%</td></tr>
                     `;
                     container.appendChild(table);
                 });
