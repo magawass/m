@@ -593,8 +593,8 @@ function toggleSubjectLock() {
 
 <div id="initialPage" class="page">
     <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
-    <h1><p style="font-size:28px;"> </p></h1>
-    <h2>EXAM PORTAL</h2>
+    <h1><p style="font-size:28px;">MAGAWA SECONDARY</p></h1>
+    <h2>STUDENTS PORTAL</h2>
     <label for="selectedForm">Select Class/Form</label>
     <select id="selectedForm">
       <option value="">-- Select Class --</option>
@@ -610,7 +610,7 @@ function toggleSubjectLock() {
 
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
         <button onclick="loadResults(true)" style="width: 195px; max-width: 195px; margin-top: 0;">View Full Results</button>
-        <button onclick="loadBriefResults()" style="width: 195px; max-width: 195px; margin-top: 0;">View Brief Results</button>
+        <button onclick="window.open('https://magawass.github.io/m/CANew37.html', '_blank')" style="width: 195px; max-width: 195px; margin-top: 0;">Continuous Assessment</button>
     </div>
 
     <button onclick="openAdminLogin()">LOGIN</button>
@@ -1755,7 +1755,8 @@ async function submitScore() {
     const studentNumber = document.getElementById('dataStudentSelect').value;
     const subject = document.getElementById('dataSubjectSelect').value;
     const rawScore = document.getElementById('dataScoreInput').value.trim();
-
+    const token = document.getElementById('githubToken').value;
+    
     if (!form || !studentNumber || !subject || rawScore === '') {
         alert('Please select a Class, Student, Subject, and enter a Score.');
         return;
@@ -1768,32 +1769,76 @@ async function submitScore() {
         return;
     }
 
+    if (!token) {
+        alert('Authorization Code required. Please enter it in Admin Dashboard.');
+        return;
+    }
+
     showLoading();
     updateLoadingPercent(10);
+    
+    try {
+        const classData = await fetchClassData(form);
+        if (!classData || classData.length === 0) {
+            alert(`Could not load data for ${form}. Cannot submit score.`);
+            hideLoading();
+            return;
+        }
 
-    const classData = await fetchClassData(form);
-    if (!classData || classData.length === 0) {
-        alert(`Could not load data for ${form}. Cannot submit score.`);
+        const studentIndex = classData.findIndex(s => s["Exam Number"] === studentNumber);
+        if (studentIndex === -1) {
+            alert('Student not found in the loaded class data.');
+            hideLoading();
+            return;
+        }
+
+        classData[studentIndex][subject] = rawScore;
+        currentClassData[form] = classData;
+        
+        updateLoadingPercent(50);
+        
+        // AUTO-SAVE TO GITHUB immediately
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(70);
+        
+        const csvString = Papa.unparse(classData, {
+            header: true,
+            columns: ALL_HEADERS
+        });
+        
+        const base64Content = btoa(csvString);
+        const commitMessage = `Score entry: ${studentNumber} - ${subject} = ${rawScore}`;
+        
+        const result = await commitFile(
+            fileName,
+            commitMessage,
+            base64Content,
+            currentSha,
+            token,
+            'PUT'
+        );
+        
+        updateLoadingPercent(90);
+        
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            // Force refresh to ensure data consistency
+            currentClassData[form] = null;
+            await fetchClassData(form);
+            
+            // IMMEDIATELY update score sheet display
+            await displayScoreSheet();
+            
+            updateLoadingPercent(100);
+            hideLoading();
+            alert(`Score saved successfully! ${studentNumber} - ${subject}: ${rawScore}`);
+        }
+    } catch (error) {
         hideLoading();
-        return;
+        console.error('Score submission failed:', error);
+        alert(`Failed to save score: ${error.message}`);
     }
-
-    const studentIndex = classData.findIndex(s => s["Exam Number"] === studentNumber);
-
-    if (studentIndex === -1) {
-        alert('Student not found in the loaded class data.');
-        hideLoading();
-        return;
-    }
-
-    classData[studentIndex][subject] = rawScore;
-    currentClassData[form] = classData;
-
-    updateLoadingPercent(100);
-    hideLoading();
-    alert(`Score for ${studentNumber} in ${subject} set to ${rawScore}. Click 'Save All Data to Repo' to permanently save changes.`);
-
-    displayScoreSheet();
 }
 
 async function deleteScore() {
@@ -2538,8 +2583,11 @@ async function displayGradesSheet() {
     rankableStudents.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
     const totalRankableStudents = rankableStudents.length;
 
+    // Calculate position for each student first
     studentsWithMetrics.forEach(({ student, metrics, examNo }) => {
         let position = '-';
+        let numericPosition = Infinity; // For sorting purposes
+        
         if (metrics.rankable) {
              const studentMetric = rankableStudents.find(s => s.examNo === examNo);
              if (studentMetric) {
@@ -2547,8 +2595,20 @@ async function displayGradesSheet() {
                 // competition ranking: first index of this metricValue in sorted list + 1
                 let actualRank = rankableStudents.findIndex(s => s.metrics.overallMetric === metricValue) + 1;
                 position = `${actualRank}/${totalRankableStudents}`;
+                numericPosition = actualRank; // Store numeric position for sorting
             }
         }
+        
+        // Store position with student for sorting
+        student.__position = position;
+        student.__numericPosition = numericPosition;
+    });
+
+    // Sort students by position in ascending order (1, 2, 3, ...)
+    studentsWithMetrics.sort((a, b) => a.student.__numericPosition - b.student.__numericPosition);
+
+    studentsWithMetrics.forEach(({ student, metrics }) => {
+        const position = student.__position;
 
         let rowHtml = `<tr><td>${position}</td><td>${student["Exam Number"]}</td><td>${student["STUDENT'S NAME"]}</td>`;
 
@@ -2624,10 +2684,21 @@ async function displayAnalysisSheet(form) {
                 subjectMetrics[sub].entries++;
                 subjectMetrics[sub].gradeCounts[grade]++;
 
-                if (remark.includes('Pass') || (isLowerForm && getGradeAndRemark(form, numericScore).grade.match(/[A-C]/))) {
-                    subjectMetrics[sub].pass++;
-                } else if (remark.includes('Fail') || (isLowerForm && getGradeAndRemark(form, numericScore).grade.match(/[D-F]/))) {
-                    subjectMetrics[sub].fail++;
+                // Forms 1 and 2: Pass = A, B, C, D; Fail = F
+                if (isLowerForm) {
+                    if (['A', 'B', 'C', 'D'].includes(grade)) {
+                        subjectMetrics[sub].pass++;
+                    } else if (grade === 'F') {
+                        subjectMetrics[sub].fail++;
+                    }
+                }
+                // Forms 3 and 4: Pass = 1, 2, 3, 4, 5, 6, 7, 8; Fail = 9
+                else {
+                    if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(grade)) {
+                        subjectMetrics[sub].pass++;
+                    } else if (grade === '9') {
+                        subjectMetrics[sub].fail++;
+                    }
                 }
             }
         });
@@ -2649,7 +2720,8 @@ async function displayAnalysisSheet(form) {
             });
 
             const passPercent = ((metrics.pass / metrics.entries) * 100).toFixed(1);
-            const failPercent = ((metrics.fail / metrics.entries) * 100).toFixed(1);
+            // Fail % = 100 - Pass % as requested
+            const failPercent = (100 - parseFloat(passPercent)).toFixed(1);
 
             rowHtml += `<td>${passPercent}%</td>`;
             rowHtml += `<td>${failPercent}%</td>`;
@@ -2834,9 +2906,3 @@ function toggleSubjectLock() {
 </body>
 
 </html>
-
-
-
-
-
-
