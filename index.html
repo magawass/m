@@ -73,7 +73,7 @@
 
         async function loadContent() {
             try {
-                const url = `https://api.github.com{GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
                 const response = await fetch(url);
                 if (response.ok) {
                     const data = await response.json();
@@ -189,7 +189,7 @@
                 adminContent.aboutText = document.getElementById('adminAboutInput').value;
                 adminContent.upcoming = document.getElementById('adminUpcomingInput').value;
 
-                const url = `https://api.github.com{GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
                 let sha = "";
                 const checkRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
                 if (checkRes.ok) { const d = await checkRes.json(); sha = d.sha; }
@@ -249,8 +249,7 @@
     <nav id="mainNav" class="bg-primary text-white sticky top-0 z-50 p-3 shadow-lg">
         <div class="container mx-auto flex justify-between items-center px-4">
             <div class="flex items-center space-x-3">
-            <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="h-10 w-10 rounded-full border border-secondary">
-	    <span class="font-bold text-sm md:text-lg">MAGAWA SECONDARY</span>
+            <span class="font-bold text-sm md:text-lg">MAGAWA SECONDARY</span>
             <span class="font-bold text-sm italic text-secondary">Enter to Learn, Depart to Serve</span>
             </div>
             <div class="hidden md:flex space-x-4 text-xs font-bold uppercase">
