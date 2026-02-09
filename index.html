@@ -73,16 +73,27 @@
 
         async function loadContent() {
             try {
-                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
-                const response = await fetch(url);
+                // SURGICAL FIX: use raw.githubusercontent.com for mobile compatibility
+                const rawUrl = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/main/${GITHUB_CONFIG.path}`;
+                const response = await fetch(rawUrl, { cache: 'no-store' });
                 if (response.ok) {
-                    const data = await response.json();
-                    const decoded = decodeURIComponent(escape(atob(data.content)));
-                    adminContent = JSON.parse(decoded);
+                    adminContent = await response.json();
                     updateDisplayContent();
                     renderAdminLists();
+                    return;
                 }
+                throw new Error("Raw load failed");
             } catch (error) {
+                try {
+                    // fallback to GitHub API (desktop / admin use)
+                    const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+                    const response = await fetch(apiUrl);
+                    if (response.ok) {
+                        const data = await response.json();
+                        const decoded = decodeURIComponent(escape(atob(data.content)));
+                        adminContent = JSON.parse(decoded);
+                    }
+                } catch(e) {}
                 const local = localStorage.getItem('magawaAdminContent');
                 if(local) adminContent = JSON.parse(local);
                 updateDisplayContent();
