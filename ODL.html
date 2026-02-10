@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Magawa Secondary ODL Portal</title>
+  <title>Magawa Secondary Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js">
 function populateLockSubjects() {
@@ -254,7 +254,7 @@ function toggleSubjectLock() {
         max-width: 400px;
         margin-top: 20px;
         padding: 14px;
-        background:#20B2AA;
+        background: #20B2AA;
         color: #fff;
         border: none;
         border-radius: 8px;
@@ -604,9 +604,9 @@ function toggleSubjectLock() {
       <option value="form4">Form 4</option>
     </select>
     <label for="studentNumberInput">Enter Exam Number</label>
-    <input type="text" id="studentNumberInput" placeholder="e.g. J8047 or M8047">
-    <label for="dobInput">Enter Date of Birth</label>
-    <input type="date" id="dobInput">
+    <input type="text" id="studentNumberInput" placeholder="e.g. J8047001/ or M8047/001">
+    <label for="passwordInput">Enter Password</label>
+    <input type="password" id="passwordInput" placeholder="Enter password to view results">
 
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
         <button onclick="loadResults(true)" style="width: 195px; max-width: 195px; margin-top: 0;">View Full Results</button>
@@ -614,7 +614,7 @@ function toggleSubjectLock() {
     </div>
 
     <button onclick="openAdminLogin()">ADMIN LOGIN</button>
-    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Created by Chiku Lubaini (099 40 39 325). All rights reserved.</p>
 </div>
 
 <div id="briefReport" class="page">
@@ -887,7 +887,7 @@ function toggleSubjectLock() {
             <option value="form4">Form 4</option>
         </select>
         <label for="progressExamNumber">Enter Exam Number</label>
-        <input type="text" id="progressExamNumber" placeholder="e.g. J8047 or M8047">
+        <input type="text" id="progressExamNumber" placeholder="e.g. J8047/001 or M8047/001">
         <button onclick="openStudentProgressSheet()" style="margin-top: 10px;">View Student Progress</button>
     </div>
 
@@ -2033,10 +2033,10 @@ async function loadResults(isStudentPortal) {
     try {
         const form = document.getElementById('selectedForm').value;
         const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
-        const dob = document.getElementById('dobInput').value;
+        const password = document.getElementById('passwordInput').value;
 
-        if (!form || !studentNumber || (isStudentPortal && !dob)) {
-            alert('Please fill in all required fields (Class, Exam Number, and Date of Birth).');
+        if (!form || !studentNumber || (isStudentPortal && !password)) {
+            alert('Please fill in all required fields (Class, Exam Number, and Password).');
             return;
         }
 
@@ -2067,12 +2067,8 @@ async function loadResults(isStudentPortal) {
         }
 
         if (isStudentPortal) {
-            const storedDob = student["Date of Birth"] || '';
-            const storedDateStandardized = standardizeDateForComparison(storedDob);
-            const inputDateStandardized = standardizeDateForComparison(dob);
-
-            if (!storedDateStandardized || storedDateStandardized !== inputDateStandardized) {
-                alert('Date of Birth does not match the record for this Exam Number.');
+            if (password !== '000') {
+                alert('Invalid password. Please enter the correct password.');
                 hideLoading();
                 return;
             }
@@ -2226,10 +2222,10 @@ function openFullPdf() {
 async function loadBriefResults() {
     const form = document.getElementById('selectedForm').value;
     const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
-    const dob = document.getElementById('dobInput').value;
+    const password = document.getElementById('passwordInput').value;
 
-    if (!form || !studentNumber || !dob) {
-        alert('Please fill in all required fields (Class, Exam Number, and Date of Birth).');
+    if (!form || !studentNumber || !password) {
+        alert('Please fill in all required fields (Class, Exam Number, and Password).');
         return;
     }
 
@@ -2257,13 +2253,8 @@ async function loadBriefResults() {
         return;
     }
 
-    const storedDob = student["Date of Birth"] || '';
-    const storedDateStandardized = standardizeDateForComparison(storedDob);
-    const inputDateStandardized = standardizeDateForComparison(dob);
-
-    if (!storedDateStandardized || storedDateStandardized !== inputDateStandardized) {
-        alert('Date of Birth does not match the record for this Exam Number.');
-        hideLoading();
+    if (password !== '000') {
+        alert('Invalid password. Please enter the correct password.');
         return;
     }
 
@@ -2934,4 +2925,3 @@ function filterGradeSheet(){
 </body>
 
 </html>
-
