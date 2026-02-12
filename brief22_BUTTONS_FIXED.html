@@ -614,7 +614,7 @@ function toggleSubjectLock() {
     </div>
 
     <button onclick="openAdminLogin()">ADMIN LOGIN</button>
-    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Created by Chiku Lubaini. All rights reserved.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">Created by Chikumbutso Lubaini (0994039325).For Magawa Exam Department All rights reserved.</p>
 </div>
 
 <div id="briefReport" class="page">
@@ -777,20 +777,27 @@ function toggleSubjectLock() {
        readonly 
        onclick="showStudentMarksList()" 
        style="background-color: #317873; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-color: white;">
+    <input type="text" id="dataSearchInput" placeholder="Search by name or exam number..." onkeyup="filterStudentMarks()" style="max-width:400px;margin-top:8px;">
+    
     <div id="studentMarksPanel" class="hidden">
-        <div style="margin-top:10px;">
-            <button class="small-btn" onclick="deleteSelectedScores()" style="background:#e74c3c;">Click blue buttons to delete score</button>
+        <div class="table-wrapper" style="margin-top:15px;">
+            <table id="dataEntryTable" style="width:100%;border-collapse:collapse;border:1px solid #cc6600;">
+                <thead>
+                    <tr style="background:#ecf0f1;">
+                        <th style="border:1px solid #cc6600;padding:10px;">Exam Number</th>
+                        <th style="border:1px solid #cc6600;padding:10px;">Name</th>
+                        <th style="border:1px solid #cc6600;padding:10px;">Score</th>
+                    </tr>
+                </thead>
+                <tbody id="dataEntryTableBody">
+                </tbody>
+            </table>
         </div>
-        <div id="studentMarksList"></div>
-<input type="text" id="dataSearchInput" placeholder="Search student..." onkeyup="filterStudentMarks()" style="max-width:300px;margin-top:8px;">
-
     </div>
 
-    <button onclick="submitScore()">Submit Score</button>
-   
-    <button onclick="saveAllScoresToRepo()">Save All Data</button>
+    <button onclick="submitAndSaveScores()">Submit & Save All Scores</button>
     <button onclick="openScoreSheetView()">Score Sheet</button>
-    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: 'Save All Data' to commit changes.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Click 'Submit & Save All Scores' to commit all changes to repository.</p>
 </div>
 
 <div id="scoreSheetView" class="page">
@@ -1756,22 +1763,13 @@ async function deleteCSV() {
     }
 }
 
-async function submitScore() {
+async function submitAndSaveScores() {
     const form = document.getElementById('dataClassSelect').value;
-    const studentNumber = document.getElementById('dataStudentSelect').value;
     const subject = document.getElementById('dataSubjectSelect').value;
-    const rawScore = document.getElementById('dataScoreInput').value.trim();
     const token = document.getElementById('githubToken').value;
     
-    if (!form || !studentNumber || !subject || rawScore === '') {
-        alert('Please select a Class, Student, Subject, and enter a Score.');
-        return;
-    }
-
-    const upperScore = rawScore.toUpperCase();
-    const numericScore = parseInt(rawScore);
-    if ((isNaN(numericScore) || numericScore < 0 || numericScore > 100) && upperScore !== 'N' && upperScore !== 'X' && upperScore !== '-') {
-        alert('Invalid score. Please enter a number between 0-100, "N" (No Mark), "X" (Not Enrolled), or "-" (Deleted/Missing).');
+    if (!form || !subject) {
+        alert('Please select a Class and Subject.');
         return;
     }
 
@@ -1780,33 +1778,57 @@ async function submitScore() {
         return;
     }
 
+    // Collect all scores from the table
+    const tbody = document.getElementById('dataEntryTableBody');
+    const rows = tbody.getElementsByTagName('tr');
+    const scoreMap = {};
+    let hasChanges = false;
+
+    for (let row of rows) {
+        const examNo = row.querySelector('input[data-exam-no]').getAttribute('data-exam-no');
+        const index = row.querySelector('input[data-index]').getAttribute('data-index');
+        const scoreInput = row.querySelector('input[type="text"]');
+        const score = scoreInput.value.trim();
+        
+        scoreMap[`${form}_${examNo}_${subject}`] = score;
+        
+        // Update currentClassData
+        if (currentClassData[form] && currentClassData[form][index]) {
+            if (currentClassData[form][index][subject] !== score) {
+                hasChanges = true;
+                currentClassData[form][index][subject] = score;
+            }
+        }
+    }
+
+    // Save scores to localStorage for persistence
+    localStorage.setItem('dataEntryScores', JSON.stringify(scoreMap));
+
+    if (!hasChanges) {
+        alert('No changes detected. All scores are up to date.');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to save all scores for ${form} - ${subject}?`)) {
+        return;
+    }
+
     showLoading();
     updateLoadingPercent(10);
     
     try {
-        const classData = await fetchClassData(form);
-        if (!classData || classData.length === 0) {
-            alert(`Could not load data for ${form}. Cannot submit score.`);
-            hideLoading();
-            return;
-        }
-
-        const studentIndex = classData.findIndex(s => s["Exam Number"] === studentNumber);
-        if (studentIndex === -1) {
-            alert('Student not found in the loaded class data.');
-            hideLoading();
-            return;
-        }
-
-        classData[studentIndex][subject] = rawScore;
-        currentClassData[form] = classData;
-        
-        updateLoadingPercent(50);
-        
-        // AUTO-SAVE TO GITHUB immediately
         const fileName = `${form}.csv`;
         const currentSha = await getCSVFileSha(form, token);
-        updateLoadingPercent(70);
+        updateLoadingPercent(40);
+        
+        const classData = await fetchClassData(form);
+        if (!classData || classData.length === 0) {
+            alert(`Could not load data for ${form}. Cannot save scores.`);
+            hideLoading();
+            return;
+        }
+        
+        updateLoadingPercent(60);
         
         const csvString = Papa.unparse(classData, {
             header: true,
@@ -1814,7 +1836,7 @@ async function submitScore() {
         });
         
         const base64Content = btoa(csvString);
-        const commitMessage = `Score entry: ${studentNumber} - ${subject} = ${rawScore}`;
+        const commitMessage = `Bulk score entry: ${form} - ${subject} (${new Date().toLocaleString()})`;
         
         const result = await commitFile(
             fileName,
@@ -1829,21 +1851,36 @@ async function submitScore() {
         
         if (result) {
             currentDataSha[form] = result.content.sha;
+            // Clear localStorage after successful save
+            localStorage.removeItem('dataEntryScores');
+            
             // Force refresh to ensure data consistency
             currentClassData[form] = null;
             await fetchClassData(form);
             
-            // IMMEDIATELY update score sheet display
-            await displayScoreSheet();
+            // Refresh the table with saved data
+            await showStudentMarksList();
+            
+            // Refresh score sheet if it's currently being viewed
+            const sheetClassSelect = document.getElementById('sheetClassSelect');
+            if (sheetClassSelect && sheetClassSelect.value === form) {
+                await displayScoreSheet();
+            }
+            
+            // Refresh grade sheet if it's currently being viewed
+            const gradesClassSelect = document.getElementById('gradesClassSelect');
+            if (gradesClassSelect && gradesClassSelect.value === form) {
+                await displayGradesSheet();
+            }
             
             updateLoadingPercent(100);
             hideLoading();
-            alert(`Score saved successfully! ${studentNumber} - ${subject}: ${rawScore}`);
+            alert(`All scores saved successfully! ${form} - ${subject}`);
         }
     } catch (error) {
         hideLoading();
         console.error('Score submission failed:', error);
-        alert(`Failed to save score: ${error.message}`);
+        alert(`Failed to save scores: ${error.message}`);
     }
 }
 
@@ -2018,6 +2055,23 @@ async function openUploadsAuth() {
     await initializeConfig(token);
     await refreshFileList();
     goToPage('uploadsPage');
+}
+
+
+
+// Restore data entry state from localStorage
+function restoreDataEntryState() {
+    const savedForm = localStorage.getItem('dataEntryForm');
+    const savedSubject = localStorage.getItem('dataEntrySubject');
+    
+    if (savedForm) {
+        document.getElementById('dataClassSelect').value = savedForm;
+        loadStudentsForDataEntry();
+    }
+    
+    if (savedSubject) {
+        document.getElementById('dataSubjectSelect').value = savedSubject;
+    }
 }
 
 function openDataEntryAuth() {
@@ -2489,13 +2543,15 @@ function openAnalysisPage() {
 
 async function loadStudentsForDataEntry() {
     const form = document.getElementById('dataClassSelect').value;
-    const studentSelect = document.getElementById('dataStudentSelect');
-    studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
     if (!form) return;
     const data = await fetchClassData(form);
-    data.forEach(s => {
-        studentSelect.innerHTML += `<option value="${s['Exam Number']}">${s['Exam Number']} - ${s["STUDENT'S NAME"]}</option>`;
-    });
+    
+    // Update the button text
+    document.getElementById('examNumberBox').value = 'Click to load student list (' + data.length + ' students)';
+    document.getElementById('examNumberBox').style.backgroundColor = '#28a745';
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('dataEntryForm', form);
 }
 
 async function displayScoreSheet() {
@@ -2561,7 +2617,7 @@ async function displayGradesSheet() {
     }
 
     const isUpperForm = form === 'form3' || form === 'form4';
-    const finalColHeader = isUpperForm ? 'Aggregate' : 'Average';
+    const finalColHeader = isUpperForm ? 'Aggregate' : 'Total Score';
 
     let html = `<table id="gradesTable"><thead><tr><th>POSITION</th><th>Exam No</th><th>Name</th>`;
     ALL_SUBJECTS.forEach(sub => { html += `<th>${getSubjectShortName(sub)}</th>`; });
@@ -2591,7 +2647,7 @@ async function displayGradesSheet() {
                 const metricValue = studentMetric.metrics.overallMetric;
                 // competition ranking: first index of this metricValue in sorted list + 1
                 let actualRank = rankableStudents.findIndex(s => s.metrics.overallMetric === metricValue) + 1;
-                position = `${actualRank}/${totalRankableStudents}`;
+                position = `${actualRank}`;
                 numericPosition = actualRank; // Store numeric position for sorting
             }
         }
@@ -2630,7 +2686,7 @@ async function displayGradesSheet() {
         
         const metricDisplay = isUpperForm
             ? (metrics.aggregate !== '-' ? metrics.aggregate : '-')
-            : (metrics.average > 0 ? metrics.average.toFixed(1) : '-');
+            : (metrics.totalScore > 0 ? metrics.totalScore : '-');
 
        rowHtml += `<td>${metricDisplay}</td><td>${metrics.overallRemark}</td></tr>`;
         html += rowHtml;
@@ -2835,32 +2891,38 @@ async function showStudentMarksList() {
     const students = await fetchClassData(form);
 
     const panel = document.getElementById('studentMarksPanel');
-    const list = document.getElementById('studentMarksList');
-    list.innerHTML = '';
+    const tbody = document.getElementById('dataEntryTableBody');
+    tbody.innerHTML = '';
     panel.classList.remove('hidden');
 
-    students.forEach((s,i)=>{
-        const val = s[subject] || '';
-        list.innerHTML += `
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
-            <span style="flex:6;">${s["Exam Number"]} - ${s["STUDENT'S NAME"]}</span>
-            <input type="text" value="${val}" style="width:100px"
-                onchange="currentClassData['${form}'][${i}]['${subject}']=this.value">
-            <button onclick="currentClassData['${form}'][${i}]['${subject}']='-';showStudentMarksList()"
-<button style="width: 100px;">delete</button>  
-        
-        </div>`;
-    });
-}
+    // Restore previous scores from localStorage if available
+    const savedScores = localStorage.getItem('dataEntryScores');
+    const scoreMap = savedScores ? JSON.parse(savedScores) : {};
 
-function deleteSelectedScores(){
-    const form = document.getElementById('dataClassSelect').value;
-    const subject = document.getElementById('dataSubjectSelect').value;
-    document.querySelectorAll('.bulkCheck:checked').forEach(c=>{
-        const i = c.dataset.i;
-        currentClassData[form][i][subject] = '-';
+    students.forEach((s, i) => {
+        const examNo = s["Exam Number"];
+        const name = s["STUDENT'S NAME"];
+        const val = s[subject] || scoreMap[`${form}_${examNo}_${subject}`] || '';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="border:1px solid #cc6600;padding:8px;text-align:center;">${examNo}</td>
+            <td style="border:1px solid #cc6600;padding:8px;">${name}</td>
+            <td style="border:1px solid #cc6600;padding:8px;text-align:center;">
+                <input type="text" 
+                       id="score_${i}" 
+                       value="${val}" 
+                       data-exam-no="${examNo}" 
+                       data-index="${i}"
+                       style="width:80px;padding:6px;text-align:center;border:1px solid #cc6600;border-radius:4px;"
+                       placeholder="0-100">
+            </td>
+        `;
+        tbody.appendChild(row);
     });
-    showStudentMarksList();
+
+    // Save current state to localStorage
+    localStorage.setItem('dataEntrySubject', subject);
 }
 
 function populateLockSubjects() {
@@ -2903,10 +2965,20 @@ function toggleSubjectLock() {
 
 <script>
 function filterStudentMarks(){
-  const q=document.getElementById('dataSearchInput')?.value.toLowerCase()||'';
-  document.querySelectorAll('#studentMarksList .student-mark-row').forEach(r=>{
-    r.style.display=r.innerText.toLowerCase().includes(q)?'':'none';
-  });
+    const searchText = document.getElementById('dataSearchInput').value.toLowerCase();
+    const tbody = document.getElementById('dataEntryTableBody');
+    const rows = tbody.getElementsByTagName('tr');
+    
+    for (let row of rows) {
+        const examNo = row.cells[0].textContent.toLowerCase();
+        const name = row.cells[1].textContent.toLowerCase();
+        
+        if (examNo.includes(searchText) || name.includes(searchText)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    }
 }
 function filterScoreSheet(){
   const q=document.getElementById('scoreSearchInput')?.value.toLowerCase()||'';
