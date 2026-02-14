@@ -80,7 +80,9 @@ function toggleSubjectLock() {
 }
 
 </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
 function populateLockSubjects() {
     const sel = document.getElementById('lockSubjectSelect');
     if (!sel) return;
@@ -115,6 +117,117 @@ function toggleSubjectLock() {
         (currentConfig.locks[selectedClass][subject]
             ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
             : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
+}
+
+function populateDataSubjectSelect() {
+    const sel = document.getElementById('dataSubjectSelect');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">-- Select Subject --</option>';
+    ALL_SUBJECTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+    });
+}
+
+function saveScoresAsExcel() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    
+    if (!form) {
+        alert('Please select a Class first.');
+        return;
+    }
+    
+    if (!subject) {
+        alert('Please select a Subject first.');
+        return;
+    }
+    
+    const classData = currentClassData[form];
+    if (!classData || classData.length === 0) {
+        alert('No student data loaded for this class. Please load students first.');
+        return;
+    }
+    
+    // Create Excel data with selected subject only
+    const excelData = classData.map(student => {
+        const row = {
+            'Exam Number': student['Exam Number'],
+            'Student Name': student["STUDENT'S NAME"],
+            [subject]: student[subject] || '-'
+        };
+        return row;
+    });
+    
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    
+    // Set column widths
+    ws['!cols'] = [
+        { wch: 15 }, // Exam Number
+        { wch: 30 }, // Student Name
+        { wch: 15 }  // Subject score
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, `${form}_${subject}`);
+    
+    // Generate filename with date
+    const date = new Date().toISOString().split('T')[0];
+    const fileName = `Scores_${form}_${subject}_${date}.xlsx`;
+    
+    // Download the file
+    XLSX.writeFile(wb, fileName);
+    
+    alert(`Excel file saved: ${fileName}`);
+}
+
+function saveSelectedSubjectsToRepo() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    const token = document.getElementById('githubToken').value;
+    
+    if (!form) {
+        alert('Please select a Class first.');
+        return;
+    }
+    
+    if (!subject) {
+        alert('Please select a Subject to save.');
+        return;
+    }
+    
+    if (!token) {
+        alert('Authorization Code required. Please enter it in Admin Dashboard.');
+        return;
+    }
+    
+    // Check if there are any scores entered for this subject
+    const classData = currentClassData[form];
+    if (!classData || classData.length === 0) {
+        alert('No student data loaded. Please load students first.');
+        return;
+    }
+    
+    let hasScores = false;
+    classData.forEach(student => {
+        if (student[subject] && student[subject] !== '-' && student[subject] !== '') {
+            hasScores = true;
+        }
+    });
+    
+    if (!hasScores) {
+        alert(`No scores found for ${subject}. Please enter scores before saving.`);
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to save scores for ${form} - ${subject}?`)) {
+        return;
+    }
+    
+    submitAndSaveScores();
 }
 
 </script>
@@ -595,7 +708,7 @@ function toggleSubjectLock() {
     <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
     <h1><p style="font-size:28px;">MAGAWA SEC-ODL</p></h1>
     <h2>EXAM PORTAL</h2>
-    <label for="selectedForm">Select Class/Form</label>
+    <label for="selectedForm">Select Form / Sankhani Kalasi</label>
     <select id="selectedForm">
       <option value="">-- Select Class --</option>
       <option value="form1">Form 1</option>
@@ -603,18 +716,18 @@ function toggleSubjectLock() {
       <option value="form3">Form 3</option>
       <option value="form4">Form 4</option>
     </select>
-    <label for="studentNumberInput">Enter Exam Number</label>
-    <input type="text" id="studentNumberInput" placeholder="e.g. J047 or M047">
-    <label for="passwordInput">Enter Password</label>
-    <input type="password" id="passwordInput" placeholder="Enter password to view results">
+    <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
+    <input type="text" id="studentNumberInput" placeholder="e.g. J8047/001 or M8047/001">
+    <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
+    <input type="password" id="passwordInput" placeholder="Here / Pano">
 
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
-        <button onclick="loadResults(true)" style="width: 195px; max-width: 195px; margin-top: 0;">View Full Results</button>
+        <button onclick="loadResults(true)" style="width: 195px; max-width: 195px; margin-top: 0;">View Results/Onani Zotsatira</button>
         
     </div>
 
     <button onclick="openAdminLogin()">ADMIN LOGIN</button>
-    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">Designed by Chikumbutso Lubaini,(0994039325).For Magawa Exam Department. All rights reserved.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Designed by Chikumbutso Lubaini(0994039325). All rights reserved.</p>
 </div>
 
 <div id="briefReport" class="page">
@@ -737,18 +850,18 @@ function toggleSubjectLock() {
 </div>
 
 <div id="adminLoginPage" class="page">
-    <h2 id="adminLabel">Admin Login</h2>
-    <input type="password" id="adminPassword" placeholder="Enter Password">
+    <h2 id="adminLabel">Enter Password</h2>
+    <input type="password" id="adminPassword" placeholder="">
     <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
     <button onclick="backToInitialPage()">Back</button>
 </div>
 
 <div id="adminHomePage" class="page">
-    <h2>Admin Dashboard</h2>
-    <input type="password" id="githubToken" placeholder="Authorization Code" style="margin-bottom: 20px;">
-    <button onclick="openDataEntryAuth()">DATA</button>
-    <button onclick="openUploadsAuth()">UPLOADS</button>
-    <button onclick="openSheetsPage()">SHEETS</button>
+    <h2>Enter code to load and upload</h2>
+    <input type="password" id="githubToken" placeholder="" style="margin-bottom: 20px;">
+    <button onclick="openDataEntryAuth()">DATA ENTRY</button>
+    <button onclick="openUploadsAuth()">FILE UPLOADS</button>
+    <button onclick="openSheetsPage()">PROGRESS,GRADE,ANALYSIS SHEETS</button>
     <button onclick="backToInitialPage()">Logout</button>
 </div>
 
@@ -795,13 +908,14 @@ function toggleSubjectLock() {
         </div>
     </div>
 
-    <button onclick="submitAndSaveScores()">Submit & Save All Scores</button>
-    <button onclick="openScoreSheetView()">Score Sheet</button>
-    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Click 'Submit & Save All Scores' to commit all changes to repository.</p>
+    <button onclick="saveSelectedSubjectsToRepo()">Save</button>
+    <button onclick="openScoreSheetView()">Mark Sheet</button>
+    <button onclick="saveScoresAsExcel()">Save as Excel</button>
+    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Select a subject above, then click 'Save' to save only that subject, 'Save as Excel' to export scores.</p>
 </div>
 
 <div id="scoreSheetView" class="page">
-    <h2>Score Sheet View</h2>
+    <h2>Mark Sheet</h2>
 <input type="text" id="scoreSearchInput" placeholder="Search student..." onkeyup="filterScoreSheet()" style="max-width:300px;">
 
     <button onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
@@ -894,18 +1008,18 @@ function toggleSubjectLock() {
             <option value="form4">Form 4</option>
         </select>
         <label for="progressExamNumber">Enter Exam Number</label>
-        <input type="text" id="progressExamNumber" placeholder="e.g. J047 or M047">
+        <input type="text" id="progressExamNumber" placeholder="e.g. J8047/001 or M8047/001">
         <button onclick="openStudentProgressSheet()" style="margin-top: 10px;">View Student Progress</button>
     </div>
 
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
-        <button onclick="openGradesPage()" style="width: 195px; max-width: 195px; margin-top: 0;">View Grade Sheet</button>
-        <button onclick="openAnalysisSelector()" style="width: 195px; max-width: 195px; margin-top: 0;">View Analysis</button>
+        <button onclick="openGradesPage()" style="width: 195px; max-width: 195px; margin-top: 0;">Grade Sheet</button>
+        <button onclick="openAnalysisSelector()" style="width: 195px; max-width: 195px; margin-top: 0;">Analysis of Results</button>
     </div>
 </div>
 
 <div id="gradesPage" class="page">
-    <h2>Grades Sheet View</h2>
+    <h2>Grades Sheet</h2>
 <input type="text" id="gradeSearchInput" placeholder="Search student..." onkeyup="filterGradeSheet()" style="max-width:300px;">
 
     <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
