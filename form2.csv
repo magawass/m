@@ -1,178 +1,2724 @@
-STUDENT'S NAME,Exam Number,Date of Birth,Agriculture,Bible Knowledge,Biology,Chemistry,Chichewa,English,Geography,History,Mathematics,Physics,Social/Life
-AMON CAROLYN,J047/001,12/03/2011,31,15,12,20,33,18,11,12,34,36,15
-BAKALI ALINAFE,J047/002,01-25-2010,46,,42,19,51,26,22,32,14,27,50
-BANDA ANJELLA,J047/003,09/14/2009,42,39,41,32,48,44,40,34,55,41,55
-BANDA LOPHINER,J047/004,10/08/2009,53,39,31,35,67,25,31,43,63,48,68
-BANDA MARTHA,J047/005,,0,,-,0,,,,,,,
-BANDA TADALA,J047/006,08-26-2010,33,43,15,41,47,,18,16,18,26,20
-BANDA TWATASHA,J047/007,10-27-2010,57,,43,18,58,43,27,46,16,49,61
-BANDA VANNESSAH,J047/008,03-03-2010,37,,27,22,37,17,29,26,11,39,30
-CHILUWE FAITH,J047/009,10-08-2009,42,,32,39,48,29,24,20,32,27,30
-CHIUMIA MAYAMIKO,J047/010,01-27-2010,56,56,53,46,52,57,37,45,45,63,65
-FRANK FYNESS,J047/011,31/08/2010,65,58,58,31,74,50,41,61,41,53,73
-FRANK MABLE,J047/012,10-07-2011,69,51,34,27,58,39,27,43,26,53,73
-GANIZANI SELINA,J047/013,12-24-2009,42,,18,37,46,21,16,22,13,20,19
-GOMANI SHAKIRA,J047/014,31-07-2011,60,29,35,37,55,29,38,48,32,46,75
-GOMATI M. SALOME,J047/015,07-03-2010,49,14,51,38,55,24,28,17,28,48,50
-HERBERT BRIDGET,J047/016,07-11-2010,22,41,35,26,44,32,26,24,5,26,55
-JACKSON LAUREEN,J047/017,05-12-2010,49,45,37,29,48,58,28,38,24,22,42
-JAMES ELIZABETH,J047/018,15-08-2008,37,18,19,29,51,18,19,28,6,29,24
-JEPHITER MIRRIAM,J047/019,09-16-2009,44,44,40,39,59,27,29,26,21,37,52
-JUMA RABECCA,J047/020,01-31-2009,48,27,15,21,49,,19,31,4,29,26
-KACHAJE COSTANCE,J047/021,01-10-2010,44,22,33,32,64,24,24,26,15,32,50
-KALIKUNI RHODA,J047/022,07-06-2009,57,46,43,38,58,33,31,53,31,41,62
-KALIMBIRA CLARA,J047/023,17/06/2010,58,55,44,41,44,,33,39,28,26,57
-KAMBALAME TAMANDANI,J047/024,06-9-2009,47,36,33,36,55,30,23,15,30,24,33
-KAMENDE PATIENCE,J047/025,02-6-2011,48,39,28,33,55,16,23,35,37,56,35
-KAMPALA EUNICE,J047/026,08-23-2010,44,14,39,26,46,36,17,30,33,39,33
-KAMPANDO P. SUSAN,J047/027,02/15/2010,74,62,61,47,62,49,46,56,39,58,53
-KAPISENI MONALISA,J047/028,03/09/2011,49,45,36,46,53,40,31,33,46,58,50
-KATENGEZA ALICE,J047/029,25/10/2010,50,46,42,43,,28,31,32,16,34,37
-KAWESE SAKHIRE,J047/030,09-09-2010,62,31,58,36,59,52,40,47,41,48,77
-LAWRENCE JACQUILINE,J047/031,24-04-2010,38,22,34,54,60,,30,24,9,36,28
-LIPENGA BRIGTA,J047/032,03-17-2012,64,61,42,00,71,62,47,50,38,41,74
-LUNGU PEMPHERO,J047/033,,29,,-,54,,,,,,,
-MAJONI PELEZI,J047/034,12-07-2011,70,64,73,63,64,65,48,57,53,65,71
-MALAMULA LUCKY,J047/035,4-02-2012,80,72,84,63,72,71,54,78,48,77,88
-MALIUWA FAVOUR,J047/036,11-19-2010,75,55,57,54,64,54,60,83,60,60,83
-MANYONGA FAITH,J047/037,06-26-2010,27,4,33,29,34,,15,16,15,43,14
-MANYONGA HAZEL,J047/038,30-06-2010,27,9,27,35,43,12,14,24,6,27,25
-MASAWU ELETINA,J047/039,,19,,-,07,,,,,3,,
-MASTER LUCY,J047/040,10-30-2008,58,46,69,56,57,45,48,53,47,80,68
-MATAKA HASSINA,J047/041,10-03-2008,38,34,50,36,48,45,26,45,30,44,43
-MATHEWS RUTH,J047/042,09-10-2010,82,72,71,67,73,51,56,71,65,87,78
-MATOLA ELIZA,J047/043,27/08/2009,33,10,24,17,35,18,10,15,4,14,13
-MAUNDA DYNA,J047/044,11-08-2009,51,44,57,44,41,49,40,43,34,58,49
-MAYESO NELIJA,J047/045,11-08-2011,60,58,61,47,62,43,47,55,36,54,58
-MAZIMBO ETHEL,J047/046,27-2-2010,43,36,33,32,58,24,20,21,55,22,41
-MAZINGA BRIDGET,J047/047,15-10-2008,55,41,40,30,61,-,27,19,27,48,41
-MPHEPO FAITH,J047/048,22-4-2011,71,85,80,62,68,56,42,57,43,60,70
-MSOKOLA EMMA,J047/049,29-12-2010,39,33,23,24,34,19,13,20,11,26,29
-MWALE SELINA G,J047/050,24-12-2009,0,,-,,,,,,,,
-MWANZA PATIENCE,J047/051,23-04-2010,42,42,75,54,62,56,40,63,14,61,
-MWENENGANA LWITIKANO,J047/052,04-15-2011,53,29,47,,55,41,22,21,41,44,74
-MZANGA CHISOMO,J047/053,15-09-2009,35,25,35,,65,,25,17,22,36,19
-NDELEMA MARY,J047/054,25-07-2010,65,34,46,24,48,,27,31,33,48,53
-NEPSON CHIMWEMWE,J047/055,27/09/2011,76,34,50,44,72,30,26,43,26,44,59
-NG'ANJO MERCY,J047/056,26-01-2011,61,73,60,51,71,47,56,65,61,73,76
-NYIRENDA SHARON,J047/057,10-18-2010,46,32,38,11,53,23,19,18,26,27,36
-PATRICK DIANA,J047/058,18-03-2010,60,51,51,26,58,48,31,51,32,58,49
-PHIRI D. PRISCILA,J047/059,02-24-2009,67,54,88,56,79,63,42,46,56,82,69
-PHIRI PATIENCE,J047/060,10-31-2009,40,17,19,00,33,25,16,18,12,37,22
-,J047/061,,0,,-,0,,,,,,,
-SAKALA MAGADALENA,J047/062,09-20-2009,38,19,04,18,34,28,16,31,19,24,33
-SMART S. ASHLEY,J047/063,05-17-2010,24,10,16,16,49,18,08,23,5,20,30
-THAWE GRACE,J047/064,09-01-2011,51,33,33,30,47,46,37,25,42,30,50
-THOROWA BLESSINGS,J047/065,8-11-2010,36,52,50,39,42,43,29,34,38,37,46
-ULIYA JANEPHER,J047/066,,0,,-,08,,,,,4,,43
-YAKOBE ELIZABETH,J047/067,08-31-2008,43,32,42,30,42,30,31,20,25,36,
-ZADUTSA CHISOMO,J047/068,02-11-2011,86,66,60,56,69,59,60,73,45,63,80
-RIGHTEOUS PHIRI,J047/069,03-03-2006,41,25,22,15,,33,21,13,-,,
-ZULU JANEMITH,J047/070,13-02-2011,75,61,54,52,65,40,42,68,54,53,63
-ZULU M. CHISOMO,J047/071,11-12-2010,70,63,71,69,69,71,53,49,83,77,72
-BANDA ANDERSON,J047/072,17-03-2010,70,68,72,46,69,48,53,68,71,88,70
-BANDA EDSON,J047/073,23-06-2009,58,52,63,62,56,47,41,65,34,49,75
-BANDA FELIX,J047/074,01-8-2008,58,73,58,53,57,43,35,48,55,73,72
-BANDA FERGUSON,J047/075,08-23-2010,74,53,76,64,67,41,42,71,59,71,91
-BANDA KELVIN PRECIOS,J047/076,02/28/2009,34,35,44,49,53,45,25,43,9,51,78
-BANDA KINGSLEY,J047/077,08-30-2011,61,62,53,54,60,39,42,61,40,68,70
-BONONGWE CHAZA ONGANISMI,J047/078,14-06-2009,68,71,81,58,61,63,57,79,75,65,69
-BVUMBWE JOSEPH,J047/079,7-28-2010,41,,24,31,35,29,18,24,0,20,34
-CHARKWERA AUBREY,J047/080,09-57-2011,39,37,45,,53,36,39,25,17,48,28
-CHIELETSO ZENUS,J047/081,17-01-2009,68,57,76,41,78,41,44,59,60,63,57
-CHIKWATU WILLIAM,J047/082,08-03-2008,92,57,71,79,73,56,60,69,66,78,82
-CHIMBALIRA FELIX,J047/083,02-26-2009,81,51,63,,63,41,41,63,68,73,75
-CHIMWENJE ANDREW,J047/084,04-26-2011,63,51,61,56,64,40,40,59,40,43,58
-CHINAYANI F. MORRIS,J047/085,11-1-2010,46,29,12,,36,28,18,23,5,29,40
-CHINTSANYA CHISOMO,J047/086,10-14-2008,0,27,40,,52,35,38,31,26,41,40
-CHIONA GUTHBERT,J047/087,08-16-2009,44,44,44,58,67,40,56,56,45,54,69
-CHOMWECHO INNOCENT,J047/088,09-06-2011,56,48,47,28,55,37,31,31,15,41,54
-CHUNGA REUBEN,J047/089,03-17-2009,35,10,23,33,52,20,22,29,38,39,43
-DASCO YUSUF,J047/090,25/05/2007,87,62,70,65,51,46,63,81,80,90,70
-DAVID MPHATSO,J047/091,03-16-2009,37,45,65,46,65,45,34,47,29,43,56
-DENNIS THOMAS,J047/092,01-5-2008,64,31,59,36,56,40,34,43,32,58,52
-DINO FUNGULANI,J047/093,16-12-2010,65,21,53,47,45,40,31,47,10,34,56
-DUNCAN YOHANE,J047/094,20-6-2007,69,64,69,64,71,63,58,65,66,68,90
-ELIFALA ACKLAS,J047/095,12-28-2011,55,57,64,49,42,59,36,39,37,60,56
-EZALA BLESSINGS,J047/096,06-25-2009,66,38,55,25,68,44,,N,32,41,57
-FAIDONI SAMUEL,J047/097,01-1-2008,69,76,70,44,65,50,51,72,75,63,67
-GAMA GIFT,J047/098,,0,,-,30,,,,,,,
-GIFT ISAAC,J047/099,,0,,-,0,,,,,,,
-GOMANI KINGSLEY,J047/100,08-20-2011,25,33,42,,41,25,37,39,,32,42
-GUTSU FRANCIS,J047/101,19-02-2008,9,27,26,08,33,,13,28,6,17,32
-HAWARD KAMADZI ALFRED,J047/102,12-16-2010,20,27,33,31,49,29,43,33,7,27,50
-HUDSON PRECIOUS,J047/103,08-03-2009,23,44,60,32,53,47,34,25,26,37,78
-JAMES CHISOMO,J047/104,18-10-2011,0,,61,30,59,41,27,42,20,31,47
-JOSEPH ACKLAB,J047/105,01-7-2009,40,54,64,37,69,34,43,40,50,44,55
-JOSEPH SADANI,J047/106,08-06-2008,65,73,72,62,74,52,60,74,85,87,81
-,J047/107,09-03-2008,0,,-,40,,,,,65,,
-JOSEPH YOHANE,J047/108,12-19-2009,37,13,37,44,42,26,20,25,28,56,66
-JOSHUA C. JIMMY,J047/109,,18,22,40,14,52,35,14,26,19,19,39
-JUMA MUSTAPHER,J047/110,11-20-2008,59,57,40,44,54,42,43,58,22,43,60
-KACHAPA EMMANUEL,J047/111,02-22-2009,53,46,49,29,61,21,23,56,18,41,65
-KACHEPA CHISOMO,J047/112,25-3-2009,59,46,54,43,56,42,42,31,55,53,58
-KAESA RAYMOND,J047/113,10-24-2011,70,61,76,78,53,52,51,75,64,90,64
-KAIMFA HANIF,J047/114,03-10-2010,58,,45,14,42,"31 ",37,37,24,54,42
-KALANDE TIMOTHY,J047/115,03-28-2010,71,45,39,44,53,42,52,26,11,56,60
-KALEPA JACKSON,J047/116,11-2-2009,52,34,52,29,54,,40,47,16,53,73
-KALWO PATIENCE,J047/117,23-07-2010,59,22,45,38,43,42,33,54,65,71,52
-KAMATENDA SHADRECK,J047/118,10-2-2010,18,,30,52,59,21,28,30,13,37,68
-KANJIRA WILSON,J047/119,02-25-2011,72,59,54,35,64,54,51,66,68,75,86
-KAPHENDA DANIEL,J047/120,12-9-2010,47,32,44,25,54,25,33,41,16,49,42
-KAPHESI MERVIN PACKSON,J047/121,02/11/2010,72,17,62,44,47,20,32,28,42,49,41
-KATETE DYSON,J047/122,26/11/2010,36,65,63,52,65,50,48,60,58,70,84
-KAUNDE MOSES,J047/123,14/10/2010,39,56,36,44,46,35,15,29,27,36,30
-KUZEMBA TAPEMPHA,J047/124,30/11/2010,73,70,51,50,55,62,29,75,52,49,58
-SAMUEL LAITON YAMIKANI,J047/125,11-30-2010,17,,-,,,,,23,,,11
-LEFANI YAMIKANI,J047/126,04-5-2009,10,,09,35,39,21,05,23,1,20,
-LENECK PICKSON,J047/127,09-22-2010,83,64,71,65,52,41,53,60,63,83,82
-LIBANGA REUBEN,J047/128,,0,,-,0,,,,,,,
-LINDE DALLITSO,J047/129,02-29-2007,,0,,,68,,,,,,
-LINDE ISAAC,J047/130,,20,20,-,46,32,27,17,20,5,22,22
-LOWOLE CHRISPINE,J047/131,04-09-2009,45,30,46,00,49,36,26,39,41,43,39
-LUKAS ENOCK,J047/132,06-15-2010,43,46,54,71,50,44,43,49,28,43,73
-MAGALASI AUSTIN,J047/133,,28,16,43,34,48,40,29,08,,39,18
-MAGANJIRA JEHU,J047/134,08-15-2010,49,,33,53,60,31,31,54,35,61,63
-MAHATCHI SAMUEL,J047/135,08-28-2010,61,46,56,42,49,47,40,54,31,53,52
-MANDA PRECIOS,J047/136,30-4-2010,61,33,57,45,44,33,-,48,30,48,59
-MASAUTSO MIKE,J047/137,12-12-2007,22,37,33,21,40,26,18,27,5,44,38
-MASTON HOPE,J047/138,31-07-2010,70,50,42,35,60,41,34,71,45,37,53
-MAZUMA GREY,J047/139,03-12-2010,31,59,66,60,63,52,51,66,49,71,73
-MEDSON KONDIWANI,J047/140,,50,,-,68,,,,,31,,
-MIKE BLESSINGS,J047/141,04-23-2008,83,57,77,68,73,47,60,73,83,85,80
-MKOMBA JOSEPH,J047/142,09-15-2010,23,48,69,37,56,52,50,60,28,63,60
-MPOTA GERALD,J047/143,04-04-2007,72,43,77,70,54,52,43,70,68,83,87
-MSAPENDA FELIX,J047/144,03-01-2009,28,17,40,71,38,31,22,21,47,32,28
-MTAMBALIKA HARRY,J047/145,04-20-2010,29,7,19,28,52,19,17,05,6,32,
-MTAWALI ROOSEVELT,J047/146,04-24-2011,39,,32,31,64,32,38,23,15,34,37
-MULEYA DANIEL,J047/147,07-15-2008,57,30,35,29,45,33,24,28,3,22,19
-MWAKILASA CHRISPINE,J047/148,12-11-2010,47,40,46,52,59,47,42,44,21,46,52
-MWALA FAVOUR,J047/149,05-23-2010,24,30,38,29,42,,28,24,5,31,36
-NAMAMYA ALEX,J047/150,12-5-2008,34,60,57,50,70,41,40,61,20,66,75
-NCHILIMA PRECIOUS,J047/151,04-5-2009,48,,40,29,47,30,26,40,8,37,48
-NGULUBE COMFORT,J047/152,08-29-2010,25,29,41,31,58,58,33,47,40,51,69
-NJOBUV THANTHWE,J047/153,31-03-2010,43,,20,31,37,,15,26,44,20,22
-NKHANI FRANCIS,J047/154,08-06-2008,64,47,60,37,63,43,54,37,23,43,67
-NYIRONGO CHISOMO,J047/155,30-09-2010,76,75,62,53,50,52,43,41,66,70,77
-PALIYANI PRINCE,J047/156,11/04/2009,19,11,17,30,50,25,27,N,9,22,57
-PHILLIP GABRIEL,J047/157,08-01-2008,69,54,80,62,60,45,55,73,65,77,62
-PHIRI BLESSINGS EZRA,J047/158,06-25-2008,29,,-,,,,47,40,,41,29
-PHIRI CHRISTOPHER,J047/159,13-07-2011,22,35,21,64,40,43,26,33,,31,
-SAKALA CHIKONDI,J047/160,07-23-2008,86,64,70,75,71,63,53,82,51,84,81
-SAMUEL BACKSON,J047/161,05-15-2007,16,8,25,15,40,14,11,19,13,10,
-SAMUEL BLESSINGS,J047/162,02-21-2007,41,27,46,25,48,,32,30,30,31,33
-SIMBI DENNIS,J047/163,08-22-2008,22,20,13,39,42,21,18,29,18,34,15
-SINJENI THANDIZO,J047/164,03-29-2011,60,35,49,00,,44,49,52,59,49,64
-SOSTEN EMMANUEL,J047/165,01-03-2010,52,25,52,29,60,20,30,46,34,39,47
-TAVUTIKA JOSEPH,J047/166,05-6-2007,72,56,69,40,70,49,45,56,36,56,65
-TEMBO ASANTHY,J047/167,05-1-2010,22,,32,21,53,20,15,27,6,31,27
-THOM DESIRE,J047/168,06-4-2010,61,45,58,43,54,51,41,61,35,68,67
-THOMAS MICKAEL,J047/169,03-22-2007,80,56,63,56,75,45,40,73,35,70,82
-TSALAKUNJA STEVEN,J047/170,,0,,-,58,,,,,0,,
-TSUMBA D. FRANK,J047/171,07-17-2007,76,81,65,58,56,41,53,76,38,56,80
-WALA GRACIOUS,J047/172,01-14-2011,29,33,38,30,50,35,21,26,18,26,38
-WHITE BRIGHT,J047/173,07-07-2009,64,27,33,22,57,27,23,29,0,34,24
-YAMIKANI GIFT,J047/174,07-31-2011,20,47,33,16,,28,28,28,6,54,47
-ZAKEYO MAXSON,J047/175,07-31-2011,62,54,53,00,65,30,31,46,24,39,58
-ZOMBO LUFEYO,J047/176,26-01-2008,29,67,64,16,63,51,30,,12,39,70
-PAPIOUS EXAVIEL,J047/177,09-09-2007,40,,,,,,,,,,
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Magawa Secondary Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script>
+// --- EXCEL EXPORT FUNCTION ---
+function exportToExcel(tableId, filename) {
+    const table = document.getElementById(tableId);
+    if (!table) {
+        alert("Table not found!");
+        return;
+    }
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+    XLSX.writeFile(wb, filename + ".xlsx");
+}
+
+// --- AUTO-LOAD TRIGGER ---
+function checkAndAutoLoad() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    if (form && subject) {
+        showStudentMarksList();
+    }
+}
+
+function populateLockSubjects() {
+    const sel = document.getElementById('lockSubjectSelect');
+    if (!sel) return;
+    sel.innerHTML = '';
+    ALL_SUBJECTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+    });
+}
+
+function toggleSubjectLock() {
+    const classSelect = document.getElementById('classTeacherDropdown');
+    const selectedClass = classSelect ? classSelect.value : '';
+
+    if (!selectedClass) {
+        alert('Please select a Class before locking or unlocking a subject.');
+        return;
+    }
+
+    const subject = document.getElementById('lockSubjectSelect').value;
+    if (!subject) return;
+
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+
+    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
+
+    const status = document.getElementById('lockStatus');
+    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
+        (currentConfig.locks[selectedClass][subject]
+            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
+            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
+}
+
+function populateDataSubjectSelect() {
+    const sel = document.getElementById('dataSubjectSelect');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">-- Select Subject --</option>';
+    ALL_SUBJECTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+    });
+}
+
+function saveScoresAsExcel() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    
+    if (!form || !subject) {
+        alert('Please select a Class and Subject first.');
+        return;
+    }
+    
+    exportToExcel('dataEntryTable', `Scores_${form}_${subject}`);
+}
+
+function saveSelectedSubjectsToRepo() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    const token = document.getElementById('githubToken').value;
+    
+    if (!form) {
+        alert('Please select a Class first.');
+        return;
+    }
+    
+    if (!subject) {
+        alert('Please select a Subject to save.');
+        return;
+    }
+    
+    if (!token) {
+        alert('Authorization Code required. Please enter it in Admin Dashboard.');
+        return;
+    }
+    
+    const classData = currentClassData[form];
+    if (!classData || classData.length === 0) {
+        alert('No student data loaded.');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to save scores for ${form} - ${subject} to the cloud?`)) {
+        return;
+    }
+    
+    submitAndSaveScores();
+}
+
+</script>
+  <style>
+    /* Global Reset and Box Sizing */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Body - Full view height, professional background */
+    body {
+        background: #1a2a6c;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    /* --- Loading Indicator Styles --- */
+    #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        z-index: 10000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s;
+    }
+
+    #loadingSpinner {
+        text-align: center;
+        padding: 30px;
+        border-radius: 15px;
+        background: #ffffff;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+        min-width: 200px;
+    }
+
+    #loadingCircle {
+        width: 70px;
+        height: 70px;
+        border: 8px solid #f0f0f0;
+        border-top: 8px solid #17a2b8;
+        border-radius: 50%;
+        animation: spin 1.2s cubic-bezier(0.5, 0.2, 0.5, 0.5) infinite;
+        margin: 0 auto 15px auto;
+    }
+
+    #loadingText {
+        font-size: 1.1em;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Page Container */
+    .page {
+        display: none;
+        width: 95%;
+        max-width: 650px;
+        padding: 30px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    #initialPage { display: block; text-align: center; }
+
+    /* Header/Logo */
+    .logo { max-width: 150px; height: auto; margin-bottom: 10px; }
+    h1, h2 { color: #34495e; margin: 5px 0; font-weight: 600; }
+    h1 p { font-size: 24px; margin: 0; }
+    h2 { font-size: 1.2em; color: #7f8c8d; }
+
+    /* Forms/Inputs */
+    label {
+        display: block;
+        margin-top: 15px;
+        font-weight: 500;
+        color: #2c3e50;
+        text-align: center;
+    }
+
+    select, input:not([type="file"]):not([type="password"]), textarea {
+        width: 100%;
+        max-width: 400px;
+        padding: 12px;
+        margin-top: 5px;
+        border-radius: 8px;
+        border: 1px solid #cc6600;
+        background-color: #98FB9;
+        color: #333;
+        font-size: 1em;
+        transition: border-color 0.3s;
+        font-family: inherit;
+        text-align: center;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    input[type="file"] {
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 10px;
+        margin-top: 10px;
+        display: block;
+        border: 1px solid #cc6600;
+        border-radius: 8px;
+    }
+
+    select:focus, input:focus, textarea:focus {
+        border-color: #cc6600;
+        outline: none;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+
+    /* Buttons */
+    button {
+        width: 100%;
+        max-width: 400px;
+        margin-top: 20px;
+        padding: 14px;
+        background: #1a2a6c;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: 600;
+        transition: background 0.3s, transform 0.1s;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .small-btn {
+        width: auto !important;
+        max-width: 200px !important;
+        margin-left: 10px;
+        margin-right: 10px;
+        display: inline-block;
+    }
+
+    button:hover { background: #148f9e; }
+    button:active { transform: scale(0.99); }
+
+    /* Tables */
+    #progressReport #resultsTable,
+    #gradesTable,
+    #analysisTable,
+    #scoresTable,
+    #briefResultsTable {
+        min-width: 500px;
+        border-collapse: collapse;
+        font-size: 0.9em;
+        width: 100%;
+        border: 1px solid black;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        width: 100%;
+        margin-top: 15px;
+        text-align: left;
+    }
+
+    /* Table Cell Styles */
+    #resultsTable th, #resultsTable td,
+    #gradesTable th, #gradesTable td,
+    #analysisTable th, #analysisTable td,
+    #scoresTable th, #scoresTable td,
+    #briefResultsTable th, #briefResultsTable td {
+        border: 1px solid black;
+        padding: 10px 8px;
+    }
+
+    #resultsTable th, #gradesTable th, #analysisTable th, #scoresTable th, #briefResultsTable th {
+        background: #ecf0f1;
+        color: #2c3e50;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    #resultsTable td:first-child, #gradesTable td:first-child, #scoresTable td:nth-child(2), #briefResultsTable td:first-child { text-align: left; }
+    #resultsTable td:not(:first-child), #gradesTable td:not(:first-child), #scoresTable td:not(:nth-child(2)), #briefResultsTable td:not(:first-child) { text-align: center; }
+    #analysisTable td { text-align: center; }
+
+    /* Progress Report Layout */
+    #progressReport #reportHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+
+    #reportHeaderRight {
+        text-align: right;
+        font-size: 0.8em;
+        line-height: 1.4;
+    }
+
+    #reportHeaderRight h3 {
+        font-size: 1.3em;
+        margin: 0 0 5px 0;
+        color: black;
+    }
+
+    #progressReport, #briefReport {
+        background-color: white;
+        color: black;
+        padding: 40px 20px;
+        width: 95%;
+        max-width: 650px;
+        min-height: auto;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        margin: 20px auto;
+    }
+
+    #reportDetails div { color: black; }
+
+    #summaryAndKeyWrapper {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        width: 100%;
+        text-align: left;
+    }
+
+    #reportSummary {
+        width: 48%;
+        text-align: left;
+    }
+
+    #gradeKeyPlaceholder {
+        width: 48%;
+        text-align: right;
+    }
+
+    #gradeKeyTableNew {
+        margin-top: 5px;
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 7.5pt;
+        border: 1px solid black;
+    }
+
+    #gradeKeyTableNew th, #gradeKeyTableNew td {
+        border: 1px solid black;
+        padding: 2px 4px;
+        text-align: center;
+        background-color: white;
+        vertical-align: middle;
+        color: black;
+    }
+
+    .hidden { display: none !important; }
+
+    /* Mobile Adjustments */
+    @media (max-width: 480px) {
+        .info-row { flex-direction: column; }
+        .info-row p { width: 100%; text-align: left !important; }
+        .actions { flex-direction: column; gap: 15px; }
+        .actions button { width: 100%; }
+        #summaryAndKeyWrapper { flex-direction: column; }
+        #reportSummary, #gradeKeyPlaceholder { width: 100% !important; margin-bottom: 15px; }
+        #gradeKeyPlaceholder { text-align: left; }
+        .teacher-input-group { flex-direction: column; align-items: stretch; }
+        .teacher-input-group label { flex-basis: auto; text-align: center !important; }
+        .teacher-input-group input[type="text"] { flex-basis: auto; text-align: center !important; }
+    }
+
+    /* Desktop Table Adjustments */
+    @media (min-width: 768px) {
+        #scoreSheetView,
+        #gradesPage,
+        #analysisPage {
+            max-width: 1200px !important;
+            width: 90% !important;
+        }
+
+        #scoreSheetView .table-wrapper,
+        #gradesPage .table-wrapper,
+        #analysisPage .table-wrapper {
+            overflow-x: visible !important;
+        }
+
+        #gradesTable,
+        #analysisTable,
+        #scoresTable {
+            min-width: 100% !important;
+            width: 100% !important;
+            table-layout: auto !important;
+        }
+    }
+
+    /* Stacked student info */
+    #reportDetails p, #briefReportDetails p {
+        margin: 0 0 4px 0 !important;
+        padding: 0;
+        text-align: left !important;
+        font-size: 11pt;
+        color: black;
+    }
+
+    /* Force progress sheet to fit on ONE A4 page */
+    #progressReport {
+        padding: 20px 20px !important;
+        max-height: 1123px !important;
+        overflow: hidden !important;
+    }
+
+    /* Make table compact */
+    #resultsTable th,
+    #resultsTable td {
+        padding: 4px 3px !important;
+        font-size: 9pt !important;
+    }
+
+    /* Reduce fonts for summary and key */
+    #summaryAndKeyWrapper, #reportSummary, #gradeKeyPlaceholder {
+        font-size: 9pt !important;
+    }
+
+    #gradeKeyTableNew td, #gradeKeyTableNew th {
+        padding: 2px !important;
+        font-size: 7.5pt !important;
+    }
+
+    /* A4 Printing Styles */
+    @media print {
+        body * { visibility: hidden; }
+        #progressReport[style*="block"],
+        #briefReport[style*="block"] {
+            visibility: visible !important;
+            position: absolute !important;
+            left: 0;
+            top: 0;
+            display: block !important;
+            width: auto !important;
+            max-width: none !important;
+            min-height: auto !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            font-size: 10pt;
+            page-break-after: avoid !important;
+            page-break-before: avoid !important;
+        }
+
+        #progressReport[style*="block"] *,
+        #briefReport[style*="block"] *,
+        #progressReport[style*="block"] .table-wrapper,
+        #briefReport[style*="block"] .table-wrapper,
+        #progressReport[style*="block"] table,
+        #briefReport[style*="block"] table,
+        #progressReport[style*="block"] thead,
+        #briefReport[style*="block"] thead,
+        #progressReport[style*="block"] tbody,
+        #briefReport[style*="block"] tbody,
+        #progressReport[style*="block"] tr,
+        #briefReport[style*="block"] tr,
+        #progressReport[style*="block"] td,
+        #briefReport[style*="block"] td,
+        #progressReport[style*="block"] th,
+        #briefReport[style*="block"] th {
+            visibility: visible !important;
+        }
+
+        .back-btn, .view-btn,
+        .page[style*="block"] button,
+        .page[style*="block"] select,
+        .page[style*="block"] label,
+        .page[style*="block"] input,
+        .page[style*="block"] textarea {
+            display: none !important;
+        }
+
+        @page { size: A4 portrait; margin: 0.5cm; }
+
+        #progressReport, #briefReport {
+            padding: 15px !important;
+            position: relative;
+            max-height: 1123px !important;
+            overflow: hidden !important;
+        }
+
+        #resultsTable th, #resultsTable td,
+        #briefResultsTable th, #briefResultsTable td {
+            padding: 3px 2px !important;
+            font-size: 8pt !important;
+        }
+
+        #reportDetails p, #briefReportDetails p {
+            margin-bottom: 2px !important;
+            font-size: 10pt !important;
+        }
+    }
+
+    @media (min-width: 795px) {
+        #progressReport, #briefReport {
+            padding: 40px 40px 40px 40px;
+            width: 794px;
+            max-width: 794px;
+            min-height: auto !important;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #progressReport #reportHeader .logo, #briefReport #briefReportHeader .logo { width: 200px; height: 100px; }
+        #reportHeaderRight, #briefReportHeaderRight { font-size: 9pt; }
+        #reportHeaderRight h3, #briefReportHeaderRight h3 { font-size: 16pt; }
+    }
+  
+/* === SUBJECT LOCK ICON === */
+.lock-indicator {
+    font-size: 14px;
+    margin-left: 6px;
+}
+.locked { color: #e74c3c; }
+.unlocked { color: #2ecc71; }
+
+
+/* === MOBILE DATA ENTRY ALIGNMENT FIX (SURGICAL) === */
+@media (max-width: 480px) {
+    .student-mark-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .student-mark-row span {
+        grid-column: 1;
+        font-size: 0.9em;
+        text-align: left;
+    }
+
+    .student-mark-row input[type="text"] {
+        width: 100%;
+        padding: 6px;
+        text-align: center;
+    }
+
+    .student-mark-row button {
+        width: 100%;
+        padding: 6px;
+        font-size: 0.85em;
+    }
+}
+
+</style>
+</head>
+<body>
+<div id="loadingOverlay" style="display: none; opacity: 0; visibility: hidden;">
+    <div id="loadingSpinner">
+        <div id="loadingCircle"></div>
+        <div id="loadingText">Loading Results... <span id="loadingPercent">0%</span></div>
+    </div>
+</div>
+
+<div id="initialPage" class="page">
+    <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
+    <h1><p style="font-size:28px;">MAGAWA SECONDARY</p></h1>
+    <h2>EXAM PORTAL</h2>
+    <label for="selectedForm">Select Form / Sankhani Kalasi</label>
+    <select id="selectedForm">
+      <option value="">-- Select Class --</option>
+      <option value="form1">Form 1</option>
+      <option value="form2">Form 2</option>
+      <option value="form3">Form 3</option>
+      <option value="form4">Form 4</option>
+    </select>
+    <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
+    <input type="text" id="studentNumberInput" placeholder="e.g. J047 or M047">
+    <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
+    <input type="password" id="passwordInput" placeholder="Here / Pano">
+
+    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
+        <button onclick="loadResults(true)" style="width: 195px; max-width: 195px; margin-top: 0;">View Results/Onani Zotsatira</button>
+        
+    </div>
+
+    <button onclick="openAdminLogin()">ADMIN LOGIN</button>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Designed by Chikumbutso Lubaini. All rights reserved.</p>
+</div>
+
+<div id="briefReport" class="page">
+    <button class="back-btn" onclick="handleBriefBack()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <header id="briefReportHeader" style="width: 100%;">
+        <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
+        <div id="briefReportHeaderRight">
+            <h3>MAGAWA SECONDARY SCHOOL</h3>
+            Private Bag 17,<br>
+            Magawa,<br>
+            Mchinji.
+        </div>
+    </header>
+
+    <hr style="border-top: 2px solid black; margin: 10px 0;">
+    <h2 style="margin: 0; color: black; font-size: 1.2em;"><strong>BRIEF RESULTS</strong></h2>
+
+    <div id="briefReportDetails" style="margin-top: 15px; text-align: left;">
+        <p><strong>STUDENT NAME:</strong> <span id="briefReportStudentName"></span></p>
+        <p><strong>CLASS:</strong> <span id="briefReportForm"></span></p>
+        <p><strong>EXAM NO:</strong> <span id="briefReportExamNo"></span></p>
+        <p><strong>TERM:</strong> <span id="briefReportTerm"></span></p>
+    </div>
+
+    <div class="table-wrapper" style="margin-top: 10px;">
+        <table id="briefResultsTable" style="min-width: 300px; border-collapse: collapse; font-size: 0.9em; width: 100%; border: 1px solid black;">
+            <thead>
+                <tr>
+                    <th style="width: 50%;">SUBJECT</th>
+                    <th style="width: 25%;">SCORE</th>
+                    <th style="width: 25%;">GRADE</th>
+                </tr>
+            </thead>
+            <tbody id="briefReportBody">
+            </tbody>
+        </table>
+    </div>
+
+    <div id="briefReportSummary" style="margin-top: 15px; text-align: left;">
+        <div id="briefAverageLine" class="hidden">Total Scores:<strong> <span id="briefReportAverage"></span></strong></div>
+        <div id="briefAggregateLine" class="hidden">Aggregate:<strong> <span id="briefReportAggregate"></span></strong></div>
+        <div>Position in Class:<strong> <span id="briefReportPosition"></span></strong></div>
+        <div>Remark:<strong> <span id="briefReportOverallRemark"></span></strong></div>
+    </div>
+
+    <div style="text-align: right; margin-top: 20px;">
+        <button class="view-btn small-btn" onclick="window.print()" style="background: #17a2b8; color: white;">Print Brief Report</button>
+    </div>
+    <p style="text-align: center; font-size: 8pt; margin-top: 10px; color: #7f8c8d;">This report is a brief overview and is not official.</p>
+</div>
+
+<div id="progressReport" class="page">
+    <button class="back-btn" onclick="handleProgressBack()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <header id="reportHeader" style="width: 100%;">
+        <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
+        <div id="reportHeaderRight">
+            <h3>MAGAWA SECONDARY SCHOOL</h3>
+            Private Bag 17,<br>
+            Magawa,<br>
+            Mchinji.
+        </div>
+    </header>
+
+    <hr style="border-top: 2px solid black; margin: 10px 0;">
+    <div class="align-left">
+      <p style="font-size: 10px;"> <h2 style="margin: 0;color: black;"><strong>PROGRESS REPORT</strong></h2>
+    </div>
+
+    <div id="reportDetails">
+        <div class="info-row">
+            <p><strong>STUDENT NAME:</strong> <span id="reportStudentName"></span></p>
+            <p><strong>CLASS:</strong> <span id="reportForm"></span></p>
+        </div>
+        <div class="info-row">
+            <p><strong>Exam No:</strong> <span id="reportExamNo"></span></p>
+            <p><strong>TERM:</strong> <span id="reportTerm"></span></p>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">SUBJECT</th>
+                    <th style="width: 10%;">SCORE</th>
+                    <th style="width: 10%;">GRADE</th>
+                    <th style="width: 10%;">POSITION</th>
+                    <th style="width: 30%;">REMARKS</th>
+                    <th style="width: 20%;">TEACHER</th>
+                </tr>
+            </thead>
+            <tbody id="reportBody">
+            </tbody>
+        </table>
+    </div>
+
+    <div id="summaryAndKeyWrapper">
+        <div id="reportSummary"><br>
+           <span style="font-size: 1.25em;"> <div id="averageLine" class="hidden">Total Scores:<strong> <span id="reportAverage"></span></div></strong>
+            <div id="aggregateLine" class="hidden">Aggregate:<strong> <span id="reportAggregate"></span></div><br></strong>
+    <div>Position in Class:<strong> <span id="reportPosition"></span></div><br></strong>
+    <div>Remark:<strong> <span id="reportOverallRemark"></span></div></strong>
+        </div>
+
+        <div id="gradeKeyPlaceholder">
+        </div>
+    </div>
+
+    <p style="margin-top: 20px; color: black;"><strong><p style="text-align: left;">COMMENT:</strong></p>
+    <div id="reportComment" style="padding: 10px; border: 1px solid black; min-height: 40px; text-align: left;">
+    </div>
+
+    <div style="text-align: right; margin-top: 20px;">
+        <button class="view-btn small-btn" onclick="window.print()" style="background: #17a2b8; color: white;">Print</button>
+        <button class="view-btn small-btn" onclick="openFullPdf()" style="background: #17a2b8; color: white;">Save (PDF)</button>
+    </div>
+    <p style="text-align: center; font-size: 8pt; margin-top: 10px; color: black;">Progress of results covers one A4 page only.</p>
+</div>
+
+<div id="adminLoginPage" class="page">
+    <h2 id="adminLabel">Enter Password</h2>
+    <input type="password" id="adminPassword" placeholder="">
+    <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
+    <button onclick="backToInitialPage()">Back</button>
+</div>
+
+<div id="adminHomePage" class="page">
+    <h2>Enter code to load and upload</h2>
+    <input type="password" id="githubToken" placeholder="" style="margin-bottom: 20px;">
+    <button onclick="openDataEntryAuth()">DATA ENTRY</button>
+    <button onclick="openUploadsAuth()">FILE UPLOADS</button>
+    <button onclick="openSheetsPage()">PROGRESS,GRADE,ANALYSIS SHEETS</button>
+    <button onclick="backToInitialPage()">Logout</button>
+</div>
+
+<div id="dataEntryPage" class="page">
+    <h2>Enter Student Scores</h2>
+    <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <label for="dataClassSelect">Select Class/Form</label>
+    <select id="dataClassSelect" onchange="checkAndAutoLoad()">
+        <option value="">-- Select Class --</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+
+    <label for="dataSubjectSelect">Select Subject</label>
+    <select id="dataSubjectSelect" onchange="checkAndAutoLoad()">
+        <option value="">-- Select Subject --</option>
+    </select>
+
+    <label for="examNumberBox">Student Scoring Panel</label>
+    <input type="text" 
+       id="examNumberBox" 
+       placeholder="Scores will update in sheets immediately" 
+       readonly 
+       style="background-color: #f8f9fa; color: #333; border: 1px solid #ddd; padding: 10px; border-radius: 5px; font-weight: bold;">
+    <input type="text" id="dataSearchInput" placeholder="Search by name or exam number..." onkeyup="filterStudentMarks()" style="max-width:400px;margin-top:8px;">
+    
+    <div id="studentMarksPanel" class="hidden">
+        <div class="table-wrapper" style="margin-top:15px;">
+            <table id="dataEntryTable" style="width:100%;border-collapse:collapse;border:1px solid #cc6600;">
+                <thead>
+                    <tr style="background:#ecf0f1;">
+                        <th style="border:1px solid #cc6600;padding:10px;">Exam Number</th>
+                        <th style="border:1px solid #cc6600;padding:10px;">Name</th>
+                        <th style="border:1px solid #cc6600;padding:10px;">Score</th>
+                    </tr>
+                </thead>
+                <tbody id="dataEntryTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <button onclick="saveSelectedSubjectsToRepo()">Save All Data to Cloud</button>
+    <button onclick="saveScoresAsExcel()" style="background: #28a745;">Export entry list as Excel</button>
+    <button onclick="openScoreSheetView()">Mark Sheet</button>
+    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Selection automatically loads students. Scores update marksheets in real-time as you type.</p>
+</div>
+
+<div id="scoreSheetView" class="page">
+    <h2>Mark Sheet</h2>
+<input type="text" id="scoreSearchInput" placeholder="Search student..." onkeyup="filterScoreSheet()" style="max-width:300px;">
+
+    <button onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <label for="sheetClassSelect">Select Class/Form</label>
+    <select id="sheetClassSelect" onchange="displayScoreSheet()">
+        <option value="">-- Select Class --</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+
+    <div style="display: flex; gap: 10px; justify-content: center;">
+        <button onclick="exportToExcel('scoresTable', 'ScoreSheet')" class="small-btn" style="background: #28a745;">Export to Excel</button>
+        <button onclick="printSheet('scoreSheetView')" class="small-btn" style="max-width: 150px;">Print Sheet</button>
+    </div>
+
+    <div id="scoreSheetTableWrapper" class="table-wrapper" style="text-align: center;">
+    </div>
+</div>
+
+<div id="uploadsPage" class="page">
+    <h2>Uploads and Configuration</h2>
+    <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <hr style="margin: 20px 0; border: 1px solid #eee;">
+    <h3>Report Configuration</h3>
+    <label for="reportTermSelect">Select Current Term:</label>
+    <select id="reportTermSelect">
+        <option value="1">Term 1</option>
+        <option value="2">Term 2</option>
+        <option value="3">Term 3</option>
+    </select>
+    <label for="generalCommentInput">General Report Comment:</label>
+    <textarea id="generalCommentInput" rows="3" placeholder="Enter comment for all reports..."></textarea>
+
+    <hr style="margin: 20px 0; border: 1px solid #eee;">
+    <h3>Assign Subject Teachers (Per Class)</h3>
+    <label for="classTeacherDropdown">Select Class to Configure Teachers:</label>
+    <select id="classTeacherDropdown" onchange="populateTeacherInputs()">
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    <div id="teacherAssignmentPanel">
+    </div>
+    <button onclick="handleSaveConfig()">Save Configuration</button>
+
+    <hr style="margin: 20px 0; border: 1px solid #ccc;">
+    <h3>Manage CSV Files</h3>
+    <label for="classDropdown">Select Class:</label>
+    <select id="classDropdown">
+        <option value="">--Select Class--</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    <input type="file" id="csvUpload" accept=".csv">
+    <button onclick="uploadCSV()">Upload CSV</button>
+    <label for="deleteDropdown">Select File to Delete:</label>
+    <select id="deleteDropdown">
+        <option value="">-- Select CSV File --</option>
+    </select>
+    <button onclick="deleteCSV()">Delete Selected CSV</button>
+    <button onclick="refreshFileList()">↻ Refresh List</button>
+
+<hr style="margin: 20px 0; border: 1px solid #ccc;">
+<h3>Lock / Unlock Score Entry</h3>
+
+<label for="lockSubjectSelect">Select Subject:</label>
+<select id="lockSubjectSelect"></select>
+
+<button onclick="toggleSubjectLock()">🔒 Lock / Unlock</button>
+<p id="lockStatus" style="font-size:11px;color:#e74c3c;"></p>
+
+</div>
+
+<div id="sheetsPage" class="page">
+    <h2>Sheets Overview</h2>
+    <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <!-- Progress Sheet Selection Section -->
+    <div id="progressSheetSelection" style="margin-top: 20px;">
+        <label for="progressClassSelect">Select Class/Form</label>
+        <select id="progressClassSelect">
+            <option value="">-- Select Class --</option>
+            <option value="form1">Form 1</option>
+            <option value="form2">Form 2</option>
+            <option value="form3">Form 3</option>
+            <option value="form4">Form 4</option>
+        </select>
+        <label for="progressExamNumber">Enter Exam Number</label>
+        <input type="text" id="progressExamNumber" placeholder="e.g. J047 or M047">
+        <button onclick="openStudentProgressSheet()" style="margin-top: 10px;">View Student Progress</button>
+    </div>
+
+    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
+        <button onclick="openGradesPage()" style="width: 195px; max-width: 195px; margin-top: 0;">View Grade Sheet</button>
+        <button onclick="openAnalysisSelector()" style="width: 195px; max-width: 195px; margin-top: 0;">View Analysis</button>
+    </div>
+</div>
+
+<div id="gradesPage" class="page">
+    <h2>Grades Sheet</h2>
+<input type="text" id="gradeSearchInput" placeholder="Search student..." onkeyup="filterGradeSheet()" style="max-width:300px;">
+
+    <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <label for="gradesClassSelect">Select Class/Form</label>
+    <select id="gradesClassSelect" onchange="displayGradesSheet()">
+        <option value="">-- Select Class --</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+
+    <div style="display: flex; gap: 10px; justify-content: center;">
+        <button onclick="exportToExcel('gradesTable', 'GradeSheet')" class="small-btn" style="background: #28a745;">Export to Excel</button>
+        <button onclick="printSheet('gradesPage')" class="small-btn" style="max-width: 150px;">Print Sheet</button>
+    </div>
+
+    <div id="gradesSheetTableWrapper" class="table-wrapper" style="text-align: center;">
+    </div>
+</div>
+
+<div id="analysisSelectorPage" class="page">
+    <h2>Select Class for Analysis</h2>
+    <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <label for="analysisClassSelect">Select Class/Form</label>
+    <select id="analysisClassSelect">
+        <option value="">-- Select Class --</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    <button onclick="openAnalysisPage()">Generate Analysis Report</button>
+</div>
+
+<div id="analysisPage" class="page">
+    <h2 id="analysisTitle">Class Analysis Report</h2>
+    <button onclick="openAnalysisSelector()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    <button onclick="printSheet('analysisPage')" class="small-btn" style="float: right; margin-top: 10px; max-width: 150px;">Print Analysis (Landscape)</button>
+    <div id="analysisTableWrapper" class="table-wrapper"> </div>
+</div>
+
+<script>
+// --- GITHUB CONSTANTS ---
+const GITHUB_USER = 'magawass';
+const GITHUB_REPO = 'm';
+const CONFIG_FILE = 'config.json';
+const ADMIN_PASSWORD = '00X'; // Placeholder for security testing/local use
+
+// --- CONFIGURATION STATE ---
+let currentConfig = null;
+let configSha = null;
+let currentClassData = {}; // Cache for CSV data (key: form, value: student array)
+let currentDataSha = {}; // NEW: Cache for the SHA of the current CSV files
+// Preserved: Global variable to track the page that called loadResults()
+let lastCallingPage = 'initialPage';
+
+// --- STATIC CONSTANTS (MODIFIED) ---
+const SUBJECT_MAP = {
+    "Agriculture": "Agric",
+    "Bible Knowledge": "BK",
+    "Biology": "Bio",
+    "Chemistry": "Chem",
+    "Chichewa": "Chich",
+    "English": "Eng",
+    "Geography": "Geo",
+    "History": "Hist",
+    "Mathematics": "Maths",
+    "Physics": "Phys",
+    "Social/Life": "S/Life"
+};
+const ALL_SUBJECTS = Object.keys(SUBJECT_MAP); // Full names used for internal logic
+const BASE_HEADERS = ["STUDENT'S NAME", "Exam Number", "Date of Birth"];
+const ALL_HEADERS = [...BASE_HEADERS, ...ALL_SUBJECTS];
+const ALL_CLASSES = ['form1', 'form2', 'form3', 'form4'];
+const DEFAULT_TEACHER = '-';
+const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
+
+// Grade boundary definitions
+const GRADE_KEY_LOWER = {
+    A: 80,
+    B: 65,
+    C: 55,
+    D: 40,
+    F: 0
+}; // Lower forms use A-F
+const GRADE_KEY_UPPER = {
+    1: 80,
+    2: 75,
+    3: 70,
+    4: 65,
+    5: 60,
+    6: 55,
+    7: 45,
+    8: 35,
+    9: 0
+}; // Upper forms use 1-9 (Aggregate)
+
+// --- UTILITY FUNCTIONS ---
+
+function computeGradeSheetPositions(students) {
+    const sorted = [...students].sort((a,b)=>b.aggregate - a.aggregate);
+    let lastAgg = null, lastPos = 0;
+
+    sorted.forEach((s,i)=>{
+        const pos = (s.aggregate === lastAgg) ? lastPos : i + 1;
+        s.__gradePosition = pos;
+        lastAgg = s.aggregate;
+        lastPos = pos;
+    });
+    return sorted;
+}
+
+
+/* === COMPETITION POSITIONING (1,1,1,4) === */
+function computePositionsByAggregate(students) {
+    const sorted = [...students].sort((a,b)=>b.aggregate - a.aggregate);
+    let lastAgg = null, lastPos = 0;
+
+    sorted.forEach((s,i)=>{
+        const pos = (s.aggregate === lastAgg) ? lastPos : i + 1;
+        s.position = pos;
+        lastAgg = s.aggregate;
+        lastPos = pos;
+    });
+    return sorted;
+}
+
+/* === BEST SIX AGGREGATE === */
+function computeBestSixAggregate(form, student) {
+    let values = [];
+
+    for (const subject of ALL_SUBJECTS) {
+        const score = student[subject];
+        if (!score) continue;
+        const grade = getGradeAndRemark(form, score).grade;
+
+        if (form === 'form1' || form === 'form2') {
+            if (['A','B','C','D','F'].includes(grade)) values.push(grade);
+        } else {
+            if (!isNaN(parseInt(grade))) values.push(parseInt(grade));
+        }
+    }
+
+    if (form === 'form1' || form === 'form2') {
+        const order = ['A','B','C','D','F'];
+        values.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+        return values.length >= 6 ? values.slice(0,6).length : '';
+    } else {
+        values.sort((a,b)=>a-b);
+        return values.length >= 6 ? values.slice(0,6).reduce((x,y)=>x+y,0) : '';
+    }
+}
+
+/* === PASS / FAIL === */
+function computeFinalRemark(form, student) {
+    let passCount = 0;
+    const eng = student['English'];
+    if (!eng) return 'Fail';
+    const engGrade = getGradeAndRemark(form, eng).grade;
+
+    function lowerPass(g){ return ['A','B','C','D'].includes(g); }
+    function upperPass(g){ return parseInt(g) <= 8; }
+
+    for (const subject of ALL_SUBJECTS) {
+        const s = student[subject];
+        if (!s) continue;
+        const g = getGradeAndRemark(form, s).grade;
+
+        if ((form==='form1'||form==='form2') && lowerPass(g)) passCount++;
+        if ((form==='form3'||form==='form4') && upperPass(g)) passCount++;
+    }
+
+    if (form==='form1'||form==='form2') {
+        return (passCount>=6 && lowerPass(engGrade)) ? 'Pass' : 'Fail';
+    }
+    return (passCount>=6 && upperPass(engGrade)) ? 'Pass' : 'Fail';
+}
+
+
+/* === SUBJECT POSITION + LOWER FORM REMARK HELPERS === */
+function computeSubjectPositions(form, subject, classData) {
+    const scored = classData
+        .map(s => ({ exam: s["Exam Number"], v: parseInt(s[subject]) }))
+        .filter(x => !isNaN(x.v))
+        .sort((a,b)=>b.v-a.v);
+
+    const posMap = {};
+    let lastScore = null, lastPos = 0;
+    scored.forEach((x, i) => {
+        const pos = (x.v === lastScore) ? lastPos : i + 1;
+        posMap[x.exam] = pos;
+        lastScore = x.v; lastPos = pos;
+    });
+    return posMap;
+}
+
+function lowerFormRemarkFromGrade(g){
+    if(g==='A') return 'Excellent';
+    if(g==='B') return 'Very Good';
+    if(g==='C') return 'Good';
+    if(g==='D') return 'Average';
+    if(g==='F') return 'Fail';
+    return '-';
+}
+/* === COMPETITION RANKING (1,1,1,4) === */
+function computeCompetitionRanks(entries, valueFn) {
+    const sorted = entries
+        .map(e => ({ key: e.key, val: valueFn(e) }))
+        .sort((a,b)=>b.val - a.val);
+
+    const ranks = {};
+    let lastVal = null, lastRank = 0;
+
+    sorted.forEach((e, i) => {
+        const rank = (e.val === lastVal) ? lastRank : i + 1;
+        ranks[e.key] = rank;
+        lastVal = e.val;
+        lastRank = rank;
+    });
+    return ranks;
+}
+function showLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'flex';
+    setTimeout(() => {
+        overlay.style.opacity = '1';
+        overlay.style.visibility = 'visible';
+    }, 10);
+    updateLoadingPercent(0);
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+        overlay.style.visibility = 'hidden';
+        overlay.style.display = 'none';
+    }, 300);
+}
+
+function updateLoadingPercent(percent) {
+    const el = document.getElementById('loadingPercent');
+    if(el) el.textContent = `${percent}%`;
+}
+
+function goToPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.style.display = 'none';
+    });
+    document.getElementById(pageId).style.display = 'block';
+}
+
+function getSubjectShortName(fullName) {
+    return SUBJECT_MAP[fullName] || fullName.substring(0, 4);
+}
+
+function getDefaultConfig() {
+    const teachers = {};
+    ALL_CLASSES.forEach(form => {
+        teachers[form] = {};
+        ALL_SUBJECTS.forEach(subject => {
+            teachers[form][subject] = DEFAULT_TEACHER;
+        });
+    });
+    return {
+        locks: {},
+        term: '3',
+        generalComment: 'Excellent effort. Keep up the hard work.',
+        gradeKeyLower: GRADE_KEY_LOWER,
+        gradeKeyUpper: GRADE_KEY_UPPER,
+        teachers: teachers
+    };
+}
+
+function standardizeDateForComparison(dateStr) {
+    if (!dateStr) return null;
+    try {
+        const date = new Date(dateStr);
+        if (isNaN(date)) {
+            const parts = dateStr.split(/[-/]/);
+            if (parts.length === 3 && parts[0].length <= 2 && parts[1].length <= 2) {
+                const [d, m, y] = parts;
+                return `${y.padStart(4, '20')}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+            }
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    } catch (e) {
+        console.error("Date standardization failed:", e);
+        return null;
+    }
+}
+
+function getGradeAndRemark(form, score) {
+    try {
+        const isLowerForm = form === 'form1' || form === 'form2';
+        
+        // Ensure currentConfig and grade keys are available
+        if (!currentConfig || !currentConfig.gradeKeyLower || !currentConfig.gradeKeyUpper) {
+            console.error('Grade configuration not loaded');
+            return { grade: '-', remark: 'Config Error' };
+        }
+        
+        const key = isLowerForm ? currentConfig.gradeKeyLower : currentConfig.gradeKeyUpper;
+        let grade = '-';
+        let remark = '-';
+
+        if (score === 'N') {
+            return { grade: 'N', remark: 'No Mark' };
+        }
+        if (score === 'X') {
+            return { grade: 'X', remark: 'Not Enrolled' };
+        }
+        if (score === '-') {
+            return { grade: '-', remark: 'Missing Score' };
+        }
+
+        const numericScore = parseInt(score);
+        if (isNaN(numericScore)) {
+             return { grade: '-', remark: 'Invalid Score' };
+        }
+
+        if (isLowerForm) {
+            if (numericScore >= key.A) {
+                grade = 'A';
+            } else if (numericScore >= key.B) {
+                grade = 'B';
+            } else if (numericScore >= key.C) {
+                grade = 'C';
+            } else if (numericScore >= key.D) {
+                grade = 'D';
+            } else if (numericScore >= key.E) {
+                grade = 'E';
+            } else {
+                grade = 'F';
+            }
+            if (numericScore >= key.C) {
+                remark = 'Pass';
+            } else {
+                remark = 'Fail';
+            }
+        } else {
+            if (numericScore >= key[1]) {
+                grade = '1';
+            } else if (numericScore >= key[2]) {
+                grade = '2';
+            } else if (numericScore >= key[3]) {
+                grade = '3';
+            } else if (numericScore >= key[4]) {
+                grade = '4';
+            } else if (numericScore >= key[5]) {
+                grade = '5';
+            } else if (numericScore >= key[6]) {
+                grade = '6';
+            } else if (numericScore >= key[7]) {
+                grade = '7';
+            } else if (numericScore >= key[8]) {
+                grade = '8';
+            } else {
+                grade = '9';
+            }
+            if (parseInt(grade) <= 1 ) {
+                remark = 'Distinction';
+            } else if (parseInt(grade) <=2) {
+                 remark = 'Distinction';
+            } else if (parseInt(grade) <=3) {
+                 remark = 'Strong Credit';
+            } else if (parseInt(grade) <=4) {
+                 remark = 'Strong Credit';
+            } else if (parseInt(grade) <=5) {
+                 remark = 'Credit';
+            } else if (parseInt(grade) <=6) {
+                 remark = 'Credit';
+            } else if (parseInt(grade) <=7) {
+                 remark = 'Pass';
+            } else if (parseInt(grade) <=8) {
+                 remark = 'Pass';
+            } else if (parseInt(grade) <=9) {
+                 remark = 'Fail';
+            } else {
+                remark = 'Fail';
+            }
+        }
+        return { grade: grade.toString(), remark: remark };
+    } catch (error) {
+        console.error('Error in getGradeAndRemark:', error);
+        return { grade: '-', remark: 'Error' };
+    }
+}
+
+
+function isStudentPass(form, student) {
+    let passCount = 0;
+
+    const eng = student['English'];
+    if (!eng) return false;
+    const engGrade = getGradeAndRemark(form, eng).grade;
+
+    function lowerPass(g){ return ['A','B','C','D'].includes(g); }
+    function upperPass(g){ return parseInt(g) <= 8; }
+
+    for (const subject of ALL_SUBJECTS) {
+        const raw = student[subject];
+        if (!raw) continue;
+        const grade = getGradeAndRemark(form, raw).grade;
+
+        if ((form==='form1' || form==='form2') && lowerPass(grade)) passCount++;
+        if ((form==='form3' || form==='form4') && upperPass(grade)) passCount++;
+    }
+
+    if (form==='form1' || form==='form2') {
+        return passCount >= 6 && lowerPass(engGrade);
+    }
+    return passCount >= 6 && upperPass(engGrade);
+}
+
+function getGradeKeyTableHTML(form) {
+    const isLower = form === 'form1' || form === 'form2';
+    const key = isLower ? currentConfig.gradeKeyLower : currentConfig.gradeKeyUpper;
+    let html = `
+        <h3>Grade Key:</h3>
+        <table id="gradeKeyTableNew">
+        <thead>
+            <tr><th>Grade</th><th>Score Range</th></tr>
+        </thead>
+        <tbody>`;
+
+    let entries = Object.entries(key);
+    entries.sort((a, b) => b[1] - a[1]);
+
+    entries.forEach(([grade, score], index) => {
+        let displayRange = '';
+        if (index === 0) {
+            displayRange = `${score}+`;
+        } else {
+            const nextHigherScore = entries[index - 1][1];
+            displayRange = `${score} - ${nextHigherScore - 1}`;
+        }
+
+        if (isLower && grade === 'F') {
+             displayRange = `0 - ${entries[entries.length - 2][1] - 1}`;
+        } else if (!isLower && grade === '9') {
+             displayRange = `0 - ${entries[entries.length - 2][1] - 1}`;
+        }
+
+        html += `<tr><td>${grade}</td><td>${displayRange}</td></tr>`;
+    });
+
+    html += '</tbody></table>';
+    return html;
+}
+
+function printSheet(pageId) {
+    const pageElement = document.getElementById(pageId);
+    if (!pageElement) return;
+
+    const styleOverride = document.createElement('style');
+    styleOverride.id = 'landscapePrintStyle';
+    styleOverride.innerHTML = `
+        @page { size: A4 landscape !important; margin: 0.5cm !important; }
+        body * { visibility: hidden !important; }
+        body { visibility: visible !important; }
+        #${pageId} {
+            visibility: visible !important;
+            display: block !important;
+            padding: 15px !important;
+            margin: 0 auto !important;
+            position: absolute !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            top: 0;
+            width: 100% !important;
+            max-width: none !important;
+            box-shadow: none !important;
+        }
+        #${pageId} *,
+        #${pageId} .table-wrapper,
+        #${pageId} table,
+        #${pageId} thead,
+        #${pageId} tbody,
+        #${pageId} tr,
+        #${pageId} td,
+        #${pageId} th {
+            visibility: visible !important;
+        }
+        #${pageId} button, #${pageId} select, #${pageId} label, #${pageId} input {
+            display: none !important;
+        }
+        @media (min-width: 768px) {
+            #gradesTable, #analysisTable, #scoresTable {
+                width: 100% !important;
+                min-width: 100% !important;
+            }
+        }
+    `;
+    document.head.appendChild(styleOverride);
+
+    window.print();
+
+    setTimeout(() => {
+        const style = document.getElementById('landscapePrintStyle');
+        if (style) {
+            style.remove();
+        }
+    }, 100);
+}
+
+async function commitFile(path, message, content, sha, token, method) {
+    const url = `${API_BASE}${path}`;
+    const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+    };
+
+    const body = {
+        message: message,
+        sha: sha,
+        content: content,
+        branch: 'main'
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: headers,
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('GitHub API Response Error:', errorData);
+            throw new Error(`GitHub API Error (${method} ${path}): ${response.status} - ${errorData.message || response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Commit/Delete Failed:', error);
+        alert(`Operation Failed: ${error.message}. Check your Authorization Code and repository access.`);
+        return null;
+    }
+}
+
+async function getCSVFileSha(form, token) {
+    const fileName = `${form}.csv`;
+    const url = `${API_BASE}${fileName}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            return data.sha;
+        } else if (response.status === 404) {
+            return null;
+        } else {
+            throw new Error(`Failed to fetch SHA for ${fileName}: ${response.statusText}`);
+        }
+    } catch (error) {
+        console.error(`Error fetching SHA for ${fileName}:`, error);
+        throw error;
+    }
+}
+
+async function fetchClassData(form) {
+    showLoading();
+    if (currentClassData[form] && currentClassData[form].length > 0) {
+        hideLoading();
+        return currentClassData[form];
+    }
+
+    const token = document.getElementById('githubToken') ? document.getElementById('githubToken').value : null;
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+    try {
+        updateLoadingPercent(20);
+        const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`);
+
+        if (!response.ok) {
+            console.warn(`CSV file for ${form} not found.`);
+            return [];
+        }
+        const csv = await response.text();
+        const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true, columns: ALL_HEADERS });
+        const data = parsed.data.filter(s => s && s["Exam Number"]);
+        currentClassData[form] = data;
+        updateLoadingPercent(80);
+        return data;
+    } catch (error) {
+        console.error(`Error fetching data for ${form}:`, error);
+        return [];
+    } finally {
+        hideLoading();
+    }
+}
+
+async function fetchConfig(token) {
+    showLoading();
+    try {
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const response = await fetch(`${API_BASE}${CONFIG_FILE}`, { headers });
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                return { config: getDefaultConfig(), sha: null };
+            }
+            if (response.status === 401 || response.status === 403) {
+                throw new Error("Authentication failed for config file. Check your Authorization Code.");
+            }
+            throw new Error(`Failed to fetch config file: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        configSha = data.sha;
+        const content = JSON.parse(atob(data.content));
+        const defaultConfig = getDefaultConfig();
+        currentConfig = {
+            ...defaultConfig,
+            ...content,
+            teachers: { ...defaultConfig.teachers, ...content.teachers }
+        };
+
+        return { config: currentConfig, sha: configSha };
+
+    } catch (error) {
+        console.error('Error fetching config:', error);
+        alert(`Error: ${error.message}`);
+        return { config: getDefaultConfig(), sha: null };
+    } finally {
+        hideLoading();
+    }
+}
+
+async function initializeConfig(token) {
+    const result = await fetchConfig(token);
+    currentConfig = result.config;
+    configSha = result.sha;
+
+    if(document.getElementById('reportTermSelect')) {
+         document.getElementById('reportTermSelect').value = currentConfig.term;
+    }
+    if(document.getElementById('generalCommentInput')) {
+        document.getElementById('generalCommentInput').value = currentConfig.generalComment;
+    }
+
+    populateTeacherInputs();
+    populateLockSubjects();
+}
+
+async function handleSaveConfig() {
+    const token = document.getElementById('githubToken').value;
+    if (!token) {
+        alert('Please enter your Authorization Code.');
+        return;
+    }
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    const newConfig = {
+        term: document.getElementById('reportTermSelect').value,
+        generalComment: document.getElementById('generalCommentInput').value,
+        gradeKeyLower: currentConfig.gradeKeyLower,
+        gradeKeyUpper: currentConfig.gradeKeyUpper,
+        teachers: {}
+    };
+
+    ALL_CLASSES.forEach(form => {
+        newConfig.teachers[form] = {};
+        ALL_SUBJECTS.forEach(subject => {
+            const shortName = getSubjectShortName(subject);
+            const inputId = `${form}_${shortName}`;
+            const inputElement = document.getElementById(inputId);
+
+            if (inputElement) {
+                newConfig.teachers[form][subject] = inputElement.value.trim() || DEFAULT_TEACHER;
+            } else {
+                newConfig.teachers[form][subject] = currentConfig.teachers[form][subject] || DEFAULT_TEACHER;
+            }
+        });
+    });
+
+    updateLoadingPercent(40);
+
+    const jsonContent = JSON.stringify(newConfig, null, 2);
+    const base64Content = btoa(jsonContent);
+    const commitMessage = `Update configuration: term ${newConfig.term}, ${new Date().toLocaleString()}`;
+
+    const result = await commitFile(
+        CONFIG_FILE,
+        commitMessage,
+        base64Content,
+        configSha,
+        token,
+        'PUT'
+    );
+
+    hideLoading();
+    if (result) {
+        configSha = result.content.sha;
+        currentConfig = newConfig;
+        alert('Wow! configuration saved successfully.');
+    }
+}
+
+async function uploadCSV() {
+    const token = document.getElementById('githubToken').value;
+    const form = document.getElementById('classDropdown').value;
+    const fileInput = document.getElementById('csvUpload');
+
+    if (!token) {
+        alert('Please enter Authorization Code.');
+        return;
+    }
+    if (!form) {
+        alert('Please select a Class.');
+        return;
+    }
+    if (!fileInput.files.length) {
+        alert('Please select a CSV file.');
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const fileName = `${form}.csv`;
+    const commitMessage = `Upload new data for ${form} (${file.name})`;
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    try {
+        const fileContent = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+        const base64Content = fileContent.split(',')[1];
+
+        updateLoadingPercent(40);
+
+        let sha = await getCSVFileSha(form, token);
+
+        updateLoadingPercent(70);
+
+        const result = await commitFile(
+            fileName,
+            commitMessage,
+            base64Content,
+            sha,
+            token,
+            'PUT'
+        );
+
+        hideLoading();
+        if (result) {
+            alert(`File ${fileName} uploaded/updated successfully!`);
+            currentClassData[form] = null;
+            currentDataSha[form] = result.content.sha;
+            refreshFileList();
+            fileInput.value = '';
+        }
+
+    } catch (error) {
+        hideLoading();
+        console.error('CSV Upload failed:', error);
+        alert(`CSV Upload Failed: ${error.message}`);
+    }
+}
+
+async function refreshFileList() {
+    const token = document.getElementById('githubToken').value;
+     const deleteDropdown = document.getElementById('deleteDropdown');
+    deleteDropdown.innerHTML = '<option value="">-- Select CSV File --</option>';
+    currentDataSha = {};
+
+    if (!token) {
+        alert('Please enter Authorization Code.');
+        return;
+    }
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    try {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to list files: ${response.statusText}`);
+        }
+
+        const files = await response.json();
+
+        updateLoadingPercent(40);
+
+        files.filter(f => f.type === 'file' && f.name.endsWith('.csv')).forEach(file => {
+            deleteDropdown.innerHTML += `<option value="${file.name}|${file.sha}">${file.name}</option>`;
+            currentDataSha[file.name.replace('.csv', '')] = file.sha;
+        });
+
+    } catch (error) {
+        console.error('Error fetching file list:', error);
+        alert(`Error fetching file list: ${error.message}`);
+    } finally {
+        hideLoading();
+    }
+}
+
+async function deleteCSV() {
+    const token = document.getElementById('githubToken').value;
+    const deleteDropdown = document.getElementById('deleteDropdown');
+    const selectedValue = deleteDropdown.value;
+
+    if (!token) {
+        alert('Please enter Authorization Code.');
+        return;
+    }
+    if (!selectedValue) {
+        alert('Please select a file to delete.');
+        return;
+    }
+
+    const [fileName, sha] = selectedValue.split('|');
+    const formKey = fileName.replace('.csv', '');
+
+    if (!confirm(`Are you sure you want to delete ${fileName}? This action cannot be undone.`)) {
+        return;
+    }
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    const commitMessage = `Delete data file ${fileName}`;
+
+    const result = await commitFile(
+        fileName,
+        commitMessage,
+        null,
+        sha,
+        token,
+        'DELETE'
+    );
+
+    hideLoading();
+    if (result) {
+        alert(`File ${fileName} deleted successfully!`);
+        currentClassData[formKey] = null;
+        delete currentDataSha[formKey];
+        refreshFileList();
+    }
+}
+
+async function submitAndSaveScores() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    const token = document.getElementById('githubToken').value;
+
+    if (!form || !subject) {
+        alert('Please select a Class and Subject.');
+        return;
+    }
+
+    if (!token) {
+        alert('Authorization Code required.');
+        return;
+    }
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    try {
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(40);
+
+        const classData = currentClassData[form];
+        if (!classData || classData.length === 0) {
+            hideLoading();
+            alert('No student data loaded.');
+            return;
+        }
+
+        updateLoadingPercent(60);
+
+        const csvString = Papa.unparse(classData, {
+            header: true,
+            columns: ALL_HEADERS
+        });
+
+        const base64Content = btoa(csvString);
+        const commitMessage = `Update: ${form} - ${subject} (${new Date().toLocaleString()})`;
+
+        const result = await commitFile(
+            fileName,
+            commitMessage,
+            base64Content,
+            currentSha,
+            token,
+            'PUT'
+        );
+
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+
+            // Keep memory data intact (no reset)
+            showStudentMarksList();
+
+            if (document.getElementById('sheetClassSelect').value === form) {
+                displayScoreSheet();
+            }
+
+            if (document.getElementById('gradesClassSelect').value === form) {
+                displayGradesSheet();
+            }
+
+            updateLoadingPercent(100);
+            hideLoading();
+            alert('Scores saved successfully to GitHub!');
+        }
+
+    } catch (error) {
+        hideLoading();
+        console.error('Save failed:', error);
+        alert(`Failed to save scores: ${error.message}`);
+    }
+}
+
+async function deleteScore() {
+    const form = document.getElementById('dataClassSelect').value;
+    const studentNumber = document.getElementById('dataStudentSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+
+    if (!form || !studentNumber || !subject) {
+        alert('Please select a Class, Student, and Subject.');
+        return;
+    }
+
+    if (!confirm(`Clear score for ${studentNumber} in ${subject}?`)) {
+        return;
+    }
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    const classData = await fetchClassData(form);
+    if (!classData || classData.length === 0) {
+        alert(`Could not load data for ${form}.`);
+        hideLoading();
+        return;
+    }
+
+    const studentIndex = classData.findIndex(s => s["Exam Number"] === studentNumber);
+
+    if (studentIndex === -1) {
+        alert('Student not found.');
+        hideLoading();
+        return;
+    }
+
+    classData[studentIndex][subject] = '-';
+    currentClassData[form] = classData;
+
+    updateLoadingPercent(100);
+    hideLoading();
+    alert(`Score set to '-'. Click 'Save All Data to Cloud' to save changes.`);
+}
+
+function populateTeacherInputs() {
+    const form = document.getElementById('classTeacherDropdown').value;
+    const panel = document.getElementById('teacherAssignmentPanel');
+    panel.innerHTML = '';
+
+    if (!form || !currentConfig || !currentConfig.teachers[form]) {
+        panel.innerHTML = '<p style="margin-top: 10px;">Configuration not loaded.</p>';
+        return;
+    }
+
+    const sortedSubjects = [...ALL_SUBJECTS].sort();
+
+    sortedSubjects.forEach(subject => {
+        const teacher = currentConfig.teachers[form][subject] || DEFAULT_TEACHER;
+        const shortName = getSubjectShortName(subject);
+
+        panel.innerHTML += `
+            <div class="teacher-input-group">
+                <label for="${form}_${shortName}">${subject}</label>
+                <input type="text" id="${form}_${shortName}" data-subject="${subject}" value="${teacher}">
+            </div>
+        `;
+    });
+}
+
+function backToInitialPage() {
+    goToPage('initialPage');
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('githubToken').value = '';
+    currentConfig = null;
+    configSha = null;
+    currentClassData = {};
+    currentDataSha = {};
+    initializeConfig(null);
+}
+
+function openAdminLogin() {
+    goToPage('adminLoginPage');
+}
+
+async function verifyAdmin() {
+    const password = document.getElementById('adminPassword').value;
+    if (password === ADMIN_PASSWORD) {
+        await initializeConfig(document.getElementById('githubToken').value);
+        goToPage('adminHomePage');
+    } else {
+        alert('Invalid Password.');
+    }
+}
+
+function openAdminHome() {
+    goToPage('adminHomePage');
+}
+
+async function openUploadsAuth() {
+    const token = document.getElementById('githubToken').value;
+    if (!token) {
+        alert('You need Authorization Code.');
+        return;
+    }
+    await initializeConfig(token);
+    await refreshFileList();
+    goToPage('uploadsPage');
+}
+
+
+function openDataEntryAuth() {
+    const token = document.getElementById('githubToken').value;
+    if (!token) {
+        alert('You need Authorization Code.');
+        return;
+    }
+    openDataEntryPage();
+}
+
+async function loadResults(isStudentPortal) {
+    try {
+        const form = document.getElementById('selectedForm').value;
+        const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
+        const password = document.getElementById('passwordInput').value;
+
+        if (!form || !studentNumber || (isStudentPortal && !password)) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        if (!currentConfig) {
+            await initializeConfig(null);
+        }
+
+        showLoading();
+        updateLoadingPercent(10);
+
+        lastCallingPage = isStudentPortal ? 'initialPage' : 'sheetsPage';
+
+        const data = await fetchClassData(form);
+        updateLoadingPercent(50);
+
+        if (data.length === 0) {
+            alert(`No data found for ${form}.`);
+            hideLoading();
+            return;
+        }
+
+        const student = data.find(s => s["Exam Number"] === studentNumber);
+
+        if (!student) {
+            alert('Student not found.');
+            hideLoading();
+            return;
+        }
+
+        if (isStudentPortal) {
+            if (password !== '000') {
+                alert('Invalid password.');
+                hideLoading();
+                return;
+            }
+        }
+
+        const studentsWithMetrics = [];
+        for (const s of data) {
+            const metrics = await calculateStudentMetrics(s, form);
+            studentsWithMetrics.push({
+                examNo: s["Exam Number"],
+                metric: metrics.overallMetric,
+                rankable: metrics.rankable
+            });
+        }
+
+        studentsWithMetrics.sort((a, b) => a.metric - b.metric);
+        let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
+        const totalRankableStudents = rankableStudents.length;
+
+        const studentMetrics = await calculateStudentMetrics(student, form);
+        updateLoadingPercent(75);
+
+        document.getElementById('reportStudentName').textContent = student["STUDENT'S NAME"] || '-';
+        document.getElementById('reportForm').textContent = form.toUpperCase();
+        document.getElementById('reportExamNo').textContent = studentNumber;
+        document.getElementById('reportTerm').textContent = currentConfig.term;
+        document.getElementById('reportComment').textContent = currentConfig.generalComment;
+
+        const reportBody = document.getElementById('reportBody');
+        reportBody.innerHTML = '';
+
+        const sortedSubjects = [...ALL_SUBJECTS].sort();
+
+        sortedSubjects.forEach(subject => {
+            const rawScore = student[subject];
+            let displayScore = '-';
+            let grade = '-';
+            let remark = '-';
+
+            if (rawScore !== undefined && rawScore !== null && rawScore.toString().trim() !== '') {
+                displayScore = rawScore;
+                const gr = getGradeAndRemark(form, rawScore);
+                grade = gr.grade;
+                remark = gr.remark;
+            }
+
+            const teacher = currentConfig.teachers[form][subject] || DEFAULT_TEACHER;
+
+            const posMap = computeSubjectPositions(form, subject, data);
+            const subjectPos = posMap[studentNumber] || '-';
+
+            if (form === 'form1' || form === 'form2') {
+                remark = lowerFormRemarkFromGrade(grade);
+            }
+
+            const row = reportBody.insertRow();
+            row.insertCell().textContent = subject;
+            row.insertCell().textContent = displayScore;
+            row.insertCell().textContent = grade;
+            row.insertCell().textContent = subjectPos;
+            row.insertCell().textContent = remark;
+            row.insertCell().textContent = teacher;
+        });
+
+        let overallRank = 'N/A';
+        if (studentMetrics.rankable) {
+            const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
+            if (studentMetric) {
+                const metricValue = studentMetric.metric;
+                let actualRank = rankableStudents.findIndex(s => s.metric === metricValue) + 1;
+
+                overallRank = `${actualRank}/${totalRankableStudents}`;
+            }
+        }
+
+        document.getElementById('reportPosition').textContent = overallRank;
+        document.getElementById('reportOverallRemark').textContent = computeFinalRemark(form, student);
+
+        const isUpperForm = form === 'form3' || form === 'form4';
+        const averageLine = document.getElementById('averageLine');
+        const aggregateLine = document.getElementById('aggregateLine');
+
+        if (isUpperForm) {
+            aggregateLine.classList.remove('hidden');
+            averageLine.classList.add('hidden');
+            document.getElementById('reportAggregate').textContent = studentMetrics.aggregate;
+        } else {
+            averageLine.classList.remove('hidden');
+            aggregateLine.classList.add('hidden');
+            document.getElementById('reportAverage').textContent = studentMetrics.average > 0 ? studentMetrics.average.toFixed(2) : '0.00';
+        }
+
+        document.getElementById('gradeKeyPlaceholder').innerHTML = getGradeKeyTableHTML(form);
+
+        updateLoadingPercent(100);
+        hideLoading();
+        goToPage('progressReport');
+    } catch (error) {
+        console.error('Error loading results:', error);
+        alert(`Failed to load results.`);
+        hideLoading();
+    }
+}
+
+function handleProgressBack() {
+    if (lastCallingPage === 'initialPage') {
+        goToPage('initialPage');
+    } else if (lastCallingPage === 'sheetsPage') {
+        goToPage('sheetsPage');
+    }
+}
+
+function openFullPdf() {
+    const studentName = document.getElementById('reportStudentName').textContent;
+    const fileName = studentName.replace(/ /g, '_') + '_Report.pdf';
+
+    const element = document.getElementById('progressReport');
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    html2canvas(element, {
+        scale: 2,
+        allowTaint: true,
+        useCORS: true
+    }).then(canvas => {
+        updateLoadingPercent(50);
+        const { jsPDF } = window.jspdf;
+        const imgData = canvas.toDataURL('image/png');
+
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+
+        updateLoadingPercent(90);
+        pdf.save(fileName);
+
+        updateLoadingPercent(100);
+        hideLoading();
+    }).catch(error => {
+        console.error("Error generating PDF:", error);
+        alert("Failed to generate PDF.");
+        hideLoading();
+    });
+}
+
+async function loadBriefResults() {
+    const form = document.getElementById('selectedForm').value;
+    const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
+    const password = document.getElementById('passwordInput').value;
+
+    if (!form || !studentNumber || !password) {
+        alert('Please fill in all fields.');
+        return;
+    }
+
+    if (!currentConfig) {
+        await initializeConfig(null);
+    }
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    const data = await fetchClassData(form);
+    updateLoadingPercent(50);
+
+    if (data.length === 0) {
+        alert(`No data found.`);
+        hideLoading();
+        return;
+    }
+
+    const student = data.find(s => s["Exam Number"] === studentNumber);
+
+    if (!student) {
+        alert('Student not found.');
+        hideLoading();
+        return;
+    }
+
+    if (password !== '000') {
+        alert('Invalid password.');
+        return;
+    }
+
+    const studentsWithMetrics = [];
+    for (const s of data) {
+        const metrics = await calculateStudentMetrics(s, form);
+        studentsWithMetrics.push({
+            examNo: s["Exam Number"],
+            metric: metrics.overallMetric,
+            rankable: metrics.rankable
+        });
+    }
+    let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
+    rankableStudents.sort((a, b) => a.metric - b.metric);
+    const totalRankableStudents = rankableStudents.length;
+
+    const studentMetrics = await calculateStudentMetrics(student, form);
+    updateLoadingPercent(75);
+
+    document.getElementById('briefReportStudentName').textContent = student["STUDENT'S NAME"] || '-';
+    document.getElementById('briefReportForm').textContent = form.toUpperCase();
+    document.getElementById('briefReportExamNo').textContent = studentNumber;
+    document.getElementById('briefReportTerm').textContent = currentConfig.term;
+
+    const reportBody = document.getElementById('briefReportBody');
+    reportBody.innerHTML = '';
+
+    const sortedSubjects = [...ALL_SUBJECTS].sort();
+
+    sortedSubjects.forEach(subject => {
+        const rawScore = student[subject];
+        let displayScore = '-';
+        let grade = '-';
+
+        if (rawScore !== undefined && rawScore !== null && rawScore.toString().trim() !== '') {
+            displayScore = rawScore;
+            const gr = getGradeAndRemark(form, rawScore);
+            grade = gr.grade;
+        }
+
+        const row = reportBody.insertRow();
+        row.insertCell().textContent = subject;
+        row.insertCell().textContent = displayScore;
+        row.insertCell().textContent = grade;
+    });
+
+    let overallRank = '-';
+    if (studentMetrics.rankable) {
+         const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
+        if (studentMetric) {
+            const metricValue = studentMetric.metric;
+            let actualRank = rankableStudents.findIndex(s => s.metric === metricValue) + 1;
+            overallRank = `${actualRank}/${totalRankableStudents}`;
+        }
+    }
+    document.getElementById('briefReportPosition').textContent = overallRank;
+    document.getElementById('briefReportOverallRemark').textContent = studentMetrics.overallRemark;
+
+    const isUpperForm = form === 'form3' || form === 'form4';
+    const averageLine = document.getElementById('briefAverageLine');
+    const aggregateLine = document.getElementById('briefAggregateLine');
+
+    if (isUpperForm) {
+        aggregateLine.classList.remove('hidden');
+        averageLine.classList.add('hidden');
+        document.getElementById('briefReportAggregate').textContent = studentMetrics.aggregate;
+    } else {
+        averageLine.classList.remove('hidden');
+        aggregateLine.classList.add('hidden');
+        document.getElementById('briefReportAverage').textContent = studentMetrics.average > 0 ? studentMetrics.average.toFixed(2) : '0.00';
+    }
+
+    updateLoadingPercent(100);
+    hideLoading();
+    goToPage('briefReport');
+}
+
+function handleBriefBack() {
+    goToPage('initialPage');
+}
+
+async function calculateStudentMetrics(student, form){
+    let totalScore = 0;
+    let subjectsCount = 0;
+    let nonNumericSubjectsCount = 0;
+    let rankable = true;
+
+    const sortedSubjects = [...ALL_SUBJECTS].sort();
+
+    const gradeNums = []; 
+    for (const subject of sortedSubjects) {
+        const rawScore = student[subject];
+
+        if (rawScore === undefined || rawScore === null || rawScore === '') {
+            continue;
+        }
+
+        if (rawScore === 'N' || rawScore === 'X' || rawScore === '-') {
+            nonNumericSubjectsCount++;
+            continue;
+        }
+
+        const score = parseInt(rawScore);
+        if (!isNaN(score) && isFinite(score)) {
+            totalScore += score;
+            subjectsCount++;
+
+            if (form === 'form3' || form === 'form4') {
+                const { grade } = getGradeAndRemark(form, score);
+                const numericGrade = parseInt(grade);
+                if (!isNaN(numericGrade)) {
+                    gradeNums.push(numericGrade);
+                }
+            }
+        } else {
+            nonNumericSubjectsCount++;
+        }
+    }
+
+    if (subjectsCount < 4 || nonNumericSubjectsCount > 5) {
+        rankable = false;
+    }
+
+    let aggregate = '-';
+    if (form === 'form3' || form === 'form4') {
+        if (gradeNums.length >= 6) {
+            gradeNums.sort((a,b)=>a-b); 
+            aggregate = gradeNums.slice(0,6).reduce((a,b)=>a+b,0);
+        } else {
+            aggregate = '-';
+        }
+    }
+
+    let overallMetric;
+    if (!rankable) {
+        overallMetric = (form === 'form3' || form === 'form4') ? 999 : 99999;
+    } else {
+        if (form === 'form3' || form === 'form4') {
+            overallMetric = (typeof aggregate === 'number') ? aggregate : 999;
+        } else {
+            overallMetric = 0 - totalScore;
+        }
+    }
+
+    let overallRemark = '-';
+    if (rankable) {
+        const pass = isStudentPass(form, student);
+        overallRemark = pass ? 'Pass' : 'Fail';
+    } else {
+        overallRemark = '-';
+    }
+
+    const average = subjectsCount > 0 ? totalScore / subjectsCount : 0;
+
+    return {
+        totalScore: totalScore,
+        average: average,
+        aggregate: rankable ? aggregate : '-',
+        subjectsCount: subjectsCount,
+        rankable: rankable,
+        overallRemark: overallRemark,
+        overallMetric: overallMetric,
+    };
+}
+
+function openSheetsPage() {
+    goToPage('sheetsPage');
+}
+
+function openGradesPage() {
+    goToPage('gradesPage');
+    document.getElementById('gradesClassSelect').value = '';
+    document.getElementById('gradesSheetTableWrapper').innerHTML = '';
+}
+
+function openAnalysisSelector() {
+    goToPage('analysisSelectorPage');
+}
+
+function openDataEntryPage() {
+    goToPage('dataEntryPage');
+    const dataSubjectSelect = document.getElementById('dataSubjectSelect');
+    dataSubjectSelect.innerHTML = '<option value="">-- Select Subject --</option>';
+    ALL_SUBJECTS.forEach(subject => {
+        dataSubjectSelect.innerHTML += `<option value="${subject}">${subject}</option>`;
+    });
+}
+
+function openScoreSheetView() {
+    goToPage('scoreSheetView');
+    document.getElementById('sheetClassSelect').value = '';
+    document.getElementById('scoreSheetTableWrapper').innerHTML = '';
+}
+
+function openAnalysisPage() {
+    const form = document.getElementById('analysisClassSelect').value;
+    if (!form) {
+        alert('Please select a class.');
+        return;
+    }
+    document.getElementById('analysisTitle').textContent = `${form.toUpperCase()} Class Analysis Report`;
+    displayAnalysisSheet(form);
+    goToPage('analysisPage');
+}
+
+async function loadStudentsForDataEntry() {
+    const form = document.getElementById('dataClassSelect').value;
+    if (!form) return;
+    await fetchClassData(form);
+}
+
+// === SURGICAL FIX: POSITION COLUMN IN SCORE SHEET ===
+async function displayScoreSheet() {
+    const form = document.getElementById('sheetClassSelect').value;
+    const wrapper = document.getElementById('scoreSheetTableWrapper');
+    wrapper.innerHTML = '';
+    if (!form) return;
+    const data = await fetchClassData(form);
+    if (data.length === 0) {
+        wrapper.innerHTML = '<p>No data available.</p>';
+        return;
+    }
+
+    const isLowerForm = form === 'form1' || form === 'form2';
+
+    let html = '<table id="scoresTable"><thead><tr><th>POS</th><th>Exam No</th><th>Name</th>';
+    ALL_SUBJECTS.forEach(sub => { html += `<th>${getSubjectShortName(sub)}</th>`; });
+    if (isLowerForm) {
+        html += '<th>Total</th>';
+    }
+    html += '</tr></thead><tbody>';
+
+    const studentsWithMetrics = [];
+    for (const student of data) {
+        const metrics = await calculateStudentMetrics(student, form);
+        studentsWithMetrics.push({ student, metrics });
+    }
+
+    // Sort by performance (Ascending metric: lower aggregate is better, or higher negative score is better)
+    studentsWithMetrics.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
+
+    let lastMetric = null;
+    let lastPos = 0;
+
+    studentsWithMetrics.forEach(({ student, metrics }, i) => {
+        const currentMetric = metrics.overallMetric;
+        const pos = (currentMetric === lastMetric) ? lastPos : i + 1;
+        lastMetric = currentMetric;
+        lastPos = pos;
+
+        let totalScore = 0;
+        let rowHtml = `<tr><td>${pos}</td><td>${student["Exam Number"]}</td><td>${student["STUDENT'S NAME"]}</td>`;
+
+        ALL_SUBJECTS.forEach(sub => {
+            const rawScore = student[sub] || '-';
+            if (!isNaN(parseInt(rawScore)) && rawScore !== 'N' && rawScore !== 'X' && rawScore !== '-') {
+                totalScore += parseInt(rawScore);
+            }
+            rowHtml += `<td>${rawScore}</td>`;
+        });
+
+        if (isLowerForm) {
+            rowHtml += `<td>${totalScore}</td>`;
+        }
+
+        html += rowHtml + `</tr>`;
+    });
+
+    html += '</tbody></table>';
+    wrapper.innerHTML = html;
+}
+
+async function displayGradesSheet() {
+    const form = document.getElementById('gradesClassSelect').value;
+    const wrapper = document.getElementById('gradesSheetTableWrapper');
+    wrapper.innerHTML = '';
+    if (!form) return;
+    const data = await fetchClassData(form);
+    if (data.length === 0) {
+        wrapper.innerHTML = '<p>No data available.</p>';
+        return;
+    }
+
+    const isUpperForm = form === 'form3' || form === 'form4';
+    const finalColHeader = isUpperForm ? 'Aggregate' : 'Total Score';
+
+    let html = `<table id="gradesTable"><thead><tr><th>POSITION</th><th>Exam No</th><th>Name</th>`;
+    ALL_SUBJECTS.forEach(sub => { html += `<th>${getSubjectShortName(sub)}</th>`; });
+    html += `<th>${finalColHeader}</th><th>Remark</th></tr></thead><tbody>`;
+
+    const studentsWithMetrics = [];
+    for (const student of data) {
+        const metrics = await calculateStudentMetrics(student, form);
+        studentsWithMetrics.push({ student, metrics, examNo: student["Exam Number"] });
+    }
+
+    let rankableStudents = studentsWithMetrics.filter(s => s.metrics.rankable);
+    rankableStudents.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
+
+    studentsWithMetrics.forEach(({ student, metrics, examNo }) => {
+        let position = '-';
+        let numericPosition = Infinity; 
+        
+        if (metrics.rankable) {
+             const studentMetric = rankableStudents.find(s => s.examNo === examNo);
+             if (studentMetric) {
+                const metricValue = studentMetric.metrics.overallMetric;
+                let actualRank = rankableStudents.findIndex(s => s.metrics.overallMetric === metricValue) + 1;
+                position = `${actualRank}`;
+                numericPosition = actualRank;
+            }
+        }
+        
+        student.__position = position;
+        student.__numericPosition = numericPosition;
+    });
+
+    studentsWithMetrics.sort((a, b) => a.student.__numericPosition - b.student.__numericPosition);
+
+    studentsWithMetrics.forEach(({ student, metrics }) => {
+        const position = student.__position;
+
+        let rowHtml = `<tr><td>${position}</td><td>${student["Exam Number"]}</td><td>${student["STUDENT'S NAME"]}</td>`;
+
+        ALL_SUBJECTS.forEach(sub => {
+            const rawScore = student[sub];
+            let grade = '-';
+            if (rawScore !== undefined && rawScore !== null && rawScore.toString().trim() !== '') {
+                 if (rawScore.toUpperCase() === 'N' || rawScore.toUpperCase() === 'X' || rawScore === '-') {
+                     grade = rawScore.toUpperCase() === '-' ? '-' : rawScore.toUpperCase();
+                } else {
+                    const numericScore = parseInt(rawScore);
+                    if (!isNaN(numericScore)) {
+                        const gr = getGradeAndRemark(form, rawScore);
+                        grade = gr.grade;
+                    } else {
+                         grade = '-';
+                    }
+                }
+            }
+            rowHtml += `<td>${grade}</td>`;
+        });
+        
+        const metricDisplay = isUpperForm
+            ? (metrics.aggregate !== '-' ? metrics.aggregate : '-')
+            : (metrics.totalScore > 0 ? metrics.totalScore : '-');
+
+       rowHtml += `<td>${metricDisplay}</td><td>${metrics.overallRemark}</td></tr>`;
+        html += rowHtml;
+    });
+
+    html += '</tbody></table>';
+    wrapper.innerHTML = html;      
+}
+
+async function displayAnalysisSheet(form) {
+    const wrapper = document.getElementById('analysisTableWrapper');
+    wrapper.innerHTML = '';
+    const data = await fetchClassData(form);
+    if (data.length === 0) {
+        wrapper.innerHTML = '<p>No data available.</p>';
+        return;
+    }
+
+    const isLowerForm = form === 'form1' || form === 'form2';
+    const gradeKey = isLowerForm ? currentConfig.gradeKeyLower : currentConfig.gradeKeyUpper;
+    const gradeLabels = Object.keys(gradeKey);
+
+    gradeLabels.sort((a, b) => {
+        if (isLowerForm) {
+            return gradeKey[b] - gradeKey[a];
+        } else {
+            return parseInt(a) - parseInt(b);
+        }
+    });
+
+    const subjectMetrics = {};
+    ALL_SUBJECTS.forEach(sub => {
+        subjectMetrics[sub] = {
+            pass: 0, fail: 0, entries: 0,
+            gradeCounts: Object.fromEntries(gradeLabels.map(l => [l, 0]))
+        };
+    });
+
+    data.forEach(student => {
+        ALL_SUBJECTS.forEach(sub => {
+            const rawScore = student[sub];
+            const numericScore = parseInt(rawScore);
+
+            if (rawScore !== '-' && rawScore !== 'N' && rawScore !== 'X' && !isNaN(numericScore)) {
+                const { grade } = getGradeAndRemark(form, numericScore);
+                subjectMetrics[sub].entries++;
+                subjectMetrics[sub].gradeCounts[grade]++;
+
+                if (isLowerForm) {
+                    if (['A', 'B', 'C', 'D'].includes(grade)) subjectMetrics[sub].pass++;
+                    else if (grade === 'F') subjectMetrics[sub].fail++;
+                } else {
+                    if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(grade)) subjectMetrics[sub].pass++;
+                    else if (grade === '9') subjectMetrics[sub].fail++;
+                }
+            }
+        });
+    });
+
+    let html = '<table id="analysisTable"><thead><tr><th>Subject</th>';
+    gradeLabels.forEach(label => { html += `<th>${label}</th>`; });
+    html += '<th>Pass %</th><th>Fail %</th><th>Entries</th></tr></thead><tbody>';
+
+    const sortedSubjects = [...ALL_SUBJECTS].sort();
+
+    sortedSubjects.forEach(sub => {
+        const metrics = subjectMetrics[sub];
+        if (metrics.entries > 0) {
+            let rowHtml = `<tr><td>${sub}</td>`;
+            gradeLabels.forEach(label => { rowHtml += `<td>${metrics.gradeCounts[label] || 0}</td>`; });
+            const passPercent = ((metrics.pass / metrics.entries) * 100).toFixed(1);
+            const failPercent = (100 - parseFloat(passPercent)).toFixed(1);
+            rowHtml += `<td>${passPercent}%</td><td>${failPercent}%</td><td>${metrics.entries}</td></tr>`;
+            html += rowHtml;
+        } else {
+             let rowHtml = `<tr><td>${sub}</td>`;
+             gradeLabels.forEach(() => { rowHtml += `<td>0</td>`; });
+             rowHtml += `<td>0.0%</td><td>0.0%</td><td>0</td></tr>`;
+             html += rowHtml;
+        }
+    });
+
+    html += '</tbody></table>';
+    wrapper.innerHTML = html;
+}
+
+async function openStudentProgressSheet() {
+    const classSelect = document.getElementById('progressClassSelect').value;
+    const examNumber = document.getElementById('progressExamNumber').value.trim().toUpperCase();
+
+    if (!classSelect || !examNumber) {
+        alert('Please fill in both fields.');
+        return;
+    }
+
+    document.getElementById('selectedForm').value = classSelect;
+    document.getElementById('studentNumberInput').value = examNumber;
+
+    showLoading();
+    try {
+        lastCallingPage = 'sheetsPage';
+        await loadResults(false);
+        goToPage('progressReport');
+    } catch (error) {
+        alert('Failed to load progress.');
+    } finally {
+        hideLoading();
+    }
+}
+
+window.onload = function() {
+    initializeConfig(null);
+    const dataSubjectSelect = document.getElementById('dataSubjectSelect');
+    if (dataSubjectSelect) {
+        dataSubjectSelect.innerHTML = '<option value="">-- Select Subject --</option>';
+        ALL_SUBJECTS.forEach(subject => {
+            dataSubjectSelect.innerHTML += `<option value="${subject}">${subject}</option>`;
+        });
+    }
+    populateTeacherInputs();
+    populateLockSubjects();
+};
+
+async function showStudentMarksList() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    if (!form || !subject) return;
+
+    const students = await fetchClassData(form);
+    const panel = document.getElementById('studentMarksPanel');
+    const tbody = document.getElementById('dataEntryTableBody');
+    tbody.innerHTML = '';
+    panel.classList.remove('hidden');
+
+    students.forEach((s, i) => {
+        const examNo = s["Exam Number"];
+        const name = s["STUDENT'S NAME"];
+        const val = s[subject] || '';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="border:1px solid #cc6600;padding:8px;text-align:center;">${examNo}</td>
+            <td style="border:1px solid #cc6600;padding:8px;">${name}</td>
+            <td style="border:1px solid #cc6600;padding:8px;text-align:center;">
+                <input type="text" 
+                       id="score_${i}" 
+                       value="${val}" 
+                       oninput="updateStudentScore('${form}', ${i}, '${subject}', this.value)"
+                       style="width:80px;padding:6px;text-align:center;border:1px solid #cc6600;border-radius:4px;"
+                       placeholder=" ">
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function updateStudentScore(form, index, subject, value) {
+    if (currentClassData[form] && currentClassData[form][index]) {
+        currentClassData[form][index][subject] = value.trim();
+    }
+}
+
+function filterStudentMarks(){
+    const searchText = document.getElementById('dataSearchInput').value.toLowerCase();
+    const rows = document.getElementById('dataEntryTableBody').getElementsByTagName('tr');
+    for (let row of rows) {
+        row.style.display = row.innerText.toLowerCase().includes(searchText) ? '' : 'none';
+    }
+}
+function filterScoreSheet(){
+  const q=document.getElementById('scoreSearchInput')?.value.toLowerCase()||'';
+  document.querySelectorAll('#scoreSheetTableWrapper tbody tr').forEach(r=>{
+    r.style.display=r.innerText.toLowerCase().includes(q)?'':'none';
+  });
+}
+function filterGradeSheet(){
+  const q=document.getElementById('gradeSearchInput')?.value.toLowerCase()||'';
+  document.querySelectorAll('#gradesSheetTableWrapper tbody tr').forEach(r=>{
+    r.style.display=r.innerText.toLowerCase().includes(q)?'':'none';
+  });
+}
+</script>
+</body>
+</html>
