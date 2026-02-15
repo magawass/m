@@ -4,85 +4,32 @@
   <meta charset="UTF-8" />
   <title>Magawa Secondary Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js">
-function populateLockSubjects() {
-    const sel = document.getElementById('lockSubjectSelect');
-    if (!sel) return;
-    sel.innerHTML = '';
-    ALL_SUBJECTS.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        sel.appendChild(opt);
-    });
-}
-
-function toggleSubjectLock() {
-    const classSelect = document.getElementById('classTeacherDropdown');
-    const selectedClass = classSelect ? classSelect.value : '';
-
-    if (!selectedClass) {
-        alert('Please select a Class before locking or unlocking a subject.');
-        return;
-    }
-
-    const subject = document.getElementById('lockSubjectSelect').value;
-    if (!subject) return;
-
-    if (!currentConfig.locks) currentConfig.locks = {};
-    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
-
-    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
-
-    const status = document.getElementById('lockStatus');
-    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
-        (currentConfig.locks[selectedClass][subject]
-            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
-            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
-}
-
-</script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-function populateLockSubjects() {
-    const sel = document.getElementById('lockSubjectSelect');
-    if (!sel) return;
-    sel.innerHTML = '';
-    ALL_SUBJECTS.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        sel.appendChild(opt);
-    });
-}
-
-function toggleSubjectLock() {
-    const classSelect = document.getElementById('classTeacherDropdown');
-    const selectedClass = classSelect ? classSelect.value : '';
-
-    if (!selectedClass) {
-        alert('Please select a Class before locking or unlocking a subject.');
-        return;
-    }
-
-    const subject = document.getElementById('lockSubjectSelect').value;
-    if (!subject) return;
-
-    if (!currentConfig.locks) currentConfig.locks = {};
-    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
-
-    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
-
-    const status = document.getElementById('lockStatus');
-    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
-        (currentConfig.locks[selectedClass][subject]
-            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
-            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
-}
-
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 <script>
+// --- EXCEL EXPORT FUNCTION ---
+function exportToExcel(tableId, filename) {
+    const table = document.getElementById(tableId);
+    if (!table) {
+        alert("Table not found!");
+        return;
+    }
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+    XLSX.writeFile(wb, filename + ".xlsx");
+}
+
+// --- AUTO-LOAD TRIGGER ---
+function checkAndAutoLoad() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+    if (form && subject) {
+        showStudentMarksList();
+    }
+}
+
 function populateLockSubjects() {
     const sel = document.getElementById('lockSubjectSelect');
     if (!sel) return;
@@ -135,53 +82,12 @@ function saveScoresAsExcel() {
     const form = document.getElementById('dataClassSelect').value;
     const subject = document.getElementById('dataSubjectSelect').value;
     
-    if (!form) {
-        alert('Please select a Class first.');
+    if (!form || !subject) {
+        alert('Please select a Class and Subject first.');
         return;
     }
     
-    if (!subject) {
-        alert('Please select a Subject first.');
-        return;
-    }
-    
-    const classData = currentClassData[form];
-    if (!classData || classData.length === 0) {
-        alert('No student data loaded for this class. Please load students first.');
-        return;
-    }
-    
-    // Create Excel data with selected subject only
-    const excelData = classData.map(student => {
-        const row = {
-            'Exam Number': student['Exam Number'],
-            'Student Name': student["STUDENT'S NAME"],
-            [subject]: student[subject] || '-'
-        };
-        return row;
-    });
-    
-    // Create workbook and worksheet
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(excelData);
-    
-    // Set column widths
-    ws['!cols'] = [
-        { wch: 15 }, // Exam Number
-        { wch: 30 }, // Student Name
-        { wch: 15 }  // Subject score
-    ];
-    
-    XLSX.utils.book_append_sheet(wb, ws, `${form}_${subject}`);
-    
-    // Generate filename with date
-    const date = new Date().toISOString().split('T')[0];
-    const fileName = `Scores_${form}_${subject}_${date}.xlsx`;
-    
-    // Download the file
-    XLSX.writeFile(wb, fileName);
-    
-    alert(`Excel file saved: ${fileName}`);
+    exportToExcel('dataEntryTable', `Scores_${form}_${subject}`);
 }
 
 function saveSelectedSubjectsToRepo() {
@@ -204,26 +110,13 @@ function saveSelectedSubjectsToRepo() {
         return;
     }
     
-    // Check if there are any scores entered for this subject
     const classData = currentClassData[form];
     if (!classData || classData.length === 0) {
-        alert('No student data loaded. Please load students first.');
+        alert('No student data loaded.');
         return;
     }
     
-    let hasScores = false;
-    classData.forEach(student => {
-        if (student[subject] && student[subject] !== '-' && student[subject] !== '') {
-            hasScores = true;
-        }
-    });
-    
-    if (!hasScores) {
-        alert(`No scores found for ${subject}. Please enter scores before saving.`);
-        return;
-    }
-    
-    if (!confirm(`Are you sure you want to save scores for ${form} - ${subject}?`)) {
+    if (!confirm(`Are you sure you want to save scores for ${form} - ${subject} to the cloud?`)) {
         return;
     }
     
@@ -246,7 +139,7 @@ function saveSelectedSubjectsToRepo() {
         padding: 20px;
     }
 
-    /* --- NEW Loading Indicator Styles --- */
+    /* --- Loading Indicator Styles --- */
     #loadingOverlay {
         position: fixed;
         top: 0;
@@ -870,7 +763,7 @@ function saveSelectedSubjectsToRepo() {
     <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
 
     <label for="dataClassSelect">Select Class/Form</label>
-    <select id="dataClassSelect" onchange="loadStudentsForDataEntry()">
+    <select id="dataClassSelect" onchange="checkAndAutoLoad()">
         <option value="">-- Select Class --</option>
         <option value="form1">Form 1</option>
         <option value="form2">Form 2</option>
@@ -879,17 +772,16 @@ function saveSelectedSubjectsToRepo() {
     </select>
 
     <label for="dataSubjectSelect">Select Subject</label>
-    <select id="dataSubjectSelect">
+    <select id="dataSubjectSelect" onchange="checkAndAutoLoad()">
         <option value="">-- Select Subject --</option>
     </select>
 
-    <label for="examNumberBox">Click green button below to load students</label>
+    <label for="examNumberBox">Student Scoring Panel</label>
     <input type="text" 
        id="examNumberBox" 
-       placeholder=" " 
+       placeholder="Scores will update in sheets immediately" 
        readonly 
-       onclick="showStudentMarksList()" 
-       style="background-color: #317873; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-color: white;">
+       style="background-color: #f8f9fa; color: #333; border: 1px solid #ddd; padding: 10px; border-radius: 5px; font-weight: bold;">
     <input type="text" id="dataSearchInput" placeholder="Search by name or exam number..." onkeyup="filterStudentMarks()" style="max-width:400px;margin-top:8px;">
     
     <div id="studentMarksPanel" class="hidden">
@@ -908,10 +800,10 @@ function saveSelectedSubjectsToRepo() {
         </div>
     </div>
 
-    <button onclick="saveSelectedSubjectsToRepo()">Save</button>
+    <button onclick="saveSelectedSubjectsToRepo()">Save All Data to Cloud</button>
+    <button onclick="saveScoresAsExcel()" style="background: #28a745;">Export entry list as Excel</button>
     <button onclick="openScoreSheetView()">Mark Sheet</button>
-    <button onclick="saveScoresAsExcel()">Save as Excel</button>
-    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Select a subject above, then click 'Save' to save only that subject, 'Save as Excel' to export scores.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Selection automatically loads students. Scores update marksheets in real-time as you type.</p>
 </div>
 
 <div id="scoreSheetView" class="page">
@@ -929,7 +821,10 @@ function saveSelectedSubjectsToRepo() {
         <option value="form4">Form 4</option>
     </select>
 
-    <button onclick="printSheet('scoreSheetView')" class="small-btn" style="float: right; margin-top: 10px; max-width: 150px;">Print Sheet (Landscape)</button>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+        <button onclick="exportToExcel('scoresTable', 'ScoreSheet')" class="small-btn" style="background: #28a745;">Export to Excel</button>
+        <button onclick="printSheet('scoreSheetView')" class="small-btn" style="max-width: 150px;">Print Sheet</button>
+    </div>
 
     <div id="scoreSheetTableWrapper" class="table-wrapper" style="text-align: center;">
     </div>
@@ -1033,7 +928,10 @@ function saveSelectedSubjectsToRepo() {
         <option value="form4">Form 4</option>
     </select>
 
-    <button onclick="printSheet('gradesPage')" class="small-btn" style="float: right; margin-top: 10px; max-width: 150px;">Print Sheet (Landscape)</button>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+        <button onclick="exportToExcel('gradesTable', 'GradeSheet')" class="small-btn" style="background: #28a745;">Export to Excel</button>
+        <button onclick="printSheet('gradesPage')" class="small-btn" style="max-width: 150px;">Print Sheet</button>
+    </div>
 
     <div id="gradesSheetTableWrapper" class="table-wrapper" style="text-align: center;">
     </div>
@@ -1261,7 +1159,8 @@ function hideLoading() {
 }
 
 function updateLoadingPercent(percent) {
-    document.getElementById('loadingPercent').textContent = `${percent}%`;
+    const el = document.getElementById('loadingPercent');
+    if(el) el.textContent = `${percent}%`;
 }
 
 function goToPage(pageId) {
@@ -1892,41 +1791,6 @@ async function submitAndSaveScores() {
         return;
     }
 
-    // Collect all scores from the table
-    const tbody = document.getElementById('dataEntryTableBody');
-    const rows = tbody.getElementsByTagName('tr');
-    const scoreMap = {};
-    let hasChanges = false;
-
-    for (let row of rows) {
-        const examNo = row.querySelector('input[data-exam-no]').getAttribute('data-exam-no');
-        const index = row.querySelector('input[data-index]').getAttribute('data-index');
-        const scoreInput = row.querySelector('input[type="text"]');
-        const score = scoreInput.value.trim();
-        
-        scoreMap[`${form}_${examNo}_${subject}`] = score;
-        
-        // Update currentClassData
-        if (currentClassData[form] && currentClassData[form][index]) {
-            if (currentClassData[form][index][subject] !== score) {
-                hasChanges = true;
-                currentClassData[form][index][subject] = score;
-            }
-        }
-    }
-
-    // Save scores to localStorage for persistence
-    localStorage.setItem('dataEntryScores', JSON.stringify(scoreMap));
-
-    if (!hasChanges) {
-        alert('No changes detected. All scores are up to date.');
-        return;
-    }
-
-    if (!confirm(`Are you sure you want to save all scores for ${form} - ${subject}?`)) {
-        return;
-    }
-
     showLoading();
     updateLoadingPercent(10);
     
@@ -1950,7 +1814,7 @@ async function submitAndSaveScores() {
         });
         
         const base64Content = btoa(csvString);
-        const commitMessage = `Bulk score entry: ${form} - ${subject} (${new Date().toLocaleString()})`;
+        const commitMessage = `Update: ${form} - ${subject} (${new Date().toLocaleString()})`;
         
         const result = await commitFile(
             fileName,
@@ -1965,31 +1829,13 @@ async function submitAndSaveScores() {
         
         if (result) {
             currentDataSha[form] = result.content.sha;
-            // Clear localStorage after successful save
-            localStorage.removeItem('dataEntryScores');
-            
-            // Force refresh to ensure data consistency
             currentClassData[form] = null;
             await fetchClassData(form);
-            
-            // Refresh the table with saved data
             await showStudentMarksList();
-            
-            // Refresh score sheet if it's currently being viewed
-            const sheetClassSelect = document.getElementById('sheetClassSelect');
-            if (sheetClassSelect && sheetClassSelect.value === form) {
-                await displayScoreSheet();
-            }
-            
-            // Refresh grade sheet if it's currently being viewed
-            const gradesClassSelect = document.getElementById('gradesClassSelect');
-            if (gradesClassSelect && gradesClassSelect.value === form) {
-                await displayGradesSheet();
-            }
             
             updateLoadingPercent(100);
             hideLoading();
-            alert(`All scores saved successfully! ${form} - ${subject}`);
+            alert(`Scores saved successfully to repository!`);
         }
     } catch (error) {
         hideLoading();
@@ -2004,11 +1850,11 @@ async function deleteScore() {
     const subject = document.getElementById('dataSubjectSelect').value;
 
     if (!form || !studentNumber || !subject) {
-        alert('Please select a Class, Student, and Subject to delete the score for.');
+        alert('Please select a Class, Student, and Subject.');
         return;
     }
 
-    if (!confirm(`Are you sure you want to set the score for ${studentNumber} in ${subject} to '-' (Deleted/Missing Mark)?`)) {
+    if (!confirm(`Clear score for ${studentNumber} in ${subject}?`)) {
         return;
     }
 
@@ -2017,7 +1863,7 @@ async function deleteScore() {
 
     const classData = await fetchClassData(form);
     if (!classData || classData.length === 0) {
-        alert(`Could not load data for ${form}. Cannot delete score.`);
+        alert(`Could not load data for ${form}.`);
         hideLoading();
         return;
     }
@@ -2025,7 +1871,7 @@ async function deleteScore() {
     const studentIndex = classData.findIndex(s => s["Exam Number"] === studentNumber);
 
     if (studentIndex === -1) {
-        alert('Student not found in the loaded class data.');
+        alert('Student not found.');
         hideLoading();
         return;
     }
@@ -2035,75 +1881,7 @@ async function deleteScore() {
 
     updateLoadingPercent(100);
     hideLoading();
-    alert(`Score for ${studentNumber} in ${subject} deleted (set to '-'). Click 'Save All Data to Repo' to permanently save changes.`);
-
-    displayScoreSheet();
-}
-
-async function saveAllScoresToRepo() {
-    const token = document.getElementById('githubToken').value;
-    const form = document.getElementById('dataClassSelect').value;
-
-    if (!token) {
-        alert('Please enter Authorization Code in the Admin Dashboard.');
-        return;
-    }
-    if (!form) {
-        alert('Please select a Class whose data you want to save.');
-        return;
-    }
-
-    const classData = currentClassData[form];
-    if (!classData || classData.length === 0) {
-        alert('No data has been loaded or modified for this class to save.');
-        return;
-    }
-
-    if (!confirm(`Are you sure you want to overwrite ${form}.csv on GitHub with the current in-memory data?`)) {
-        return;
-    }
-
-    showLoading();
-    updateLoadingPercent(10);
-
-    const fileName = `${form}.csv`;
-
-    try {
-        const currentSha = await getCSVFileSha(form, token);
-        updateLoadingPercent(30);
-
-        const csvString = Papa.unparse(classData, {
-            header: true,
-            columns: ALL_HEADERS
-        });
-        updateLoadingPercent(60);
-
-        const base64Content = btoa(csvString);
-        const commitMessage = `Data Entry Update for ${form} on ${new Date().toLocaleString()}`;
-        updateLoadingPercent(80);
-
-        const result = await commitFile(
-            fileName,
-            commitMessage,
-            base64Content,
-            currentSha,
-            token,
-            'PUT'
-        );
-
-        hideLoading();
-        if (result) {
-            currentDataSha[form] = result.content.sha;
-            currentClassData[form] = null;
-            await fetchClassData(form);
-
-            alert(`Successfully saved and committed data for ${form}!`);
-        }
-    } catch (error) {
-        hideLoading();
-        console.error('Save Data Failed:', error);
-        alert(`Data Save Failed: ${error.message}`);
-    }
+    alert(`Score set to '-'. Click 'Save All Data to Cloud' to save changes.`);
 }
 
 function populateTeacherInputs() {
@@ -2112,7 +1890,7 @@ function populateTeacherInputs() {
     panel.innerHTML = '';
 
     if (!form || !currentConfig || !currentConfig.teachers[form]) {
-        panel.innerHTML = '<p style="margin-top: 10px;">Configuration not loaded or missing teacher data.</p>';
+        panel.innerHTML = '<p style="margin-top: 10px;">Configuration not loaded.</p>';
         return;
     }
 
@@ -2163,7 +1941,7 @@ function openAdminHome() {
 async function openUploadsAuth() {
     const token = document.getElementById('githubToken').value;
     if (!token) {
-        alert('You need Authorization Code to access this section.');
+        alert('You need Authorization Code.');
         return;
     }
     await initializeConfig(token);
@@ -2172,26 +1950,10 @@ async function openUploadsAuth() {
 }
 
 
-
-// Restore data entry state from localStorage
-function restoreDataEntryState() {
-    const savedForm = localStorage.getItem('dataEntryForm');
-    const savedSubject = localStorage.getItem('dataEntrySubject');
-    
-    if (savedForm) {
-        document.getElementById('dataClassSelect').value = savedForm;
-        loadStudentsForDataEntry();
-    }
-    
-    if (savedSubject) {
-        document.getElementById('dataSubjectSelect').value = savedSubject;
-    }
-}
-
 function openDataEntryAuth() {
     const token = document.getElementById('githubToken').value;
     if (!token) {
-        alert('You need Authorization Code to access this section.');
+        alert('You need Authorization Code.');
         return;
     }
     openDataEntryPage();
@@ -2204,7 +1966,7 @@ async function loadResults(isStudentPortal) {
         const password = document.getElementById('passwordInput').value;
 
         if (!form || !studentNumber || (isStudentPortal && !password)) {
-            alert('Please fill in all required fields (Class, Exam Number, and Password).');
+            alert('Please fill in all required fields.');
             return;
         }
 
@@ -2221,7 +1983,7 @@ async function loadResults(isStudentPortal) {
         updateLoadingPercent(50);
 
         if (data.length === 0) {
-            alert(`No data found for ${form}. Please inform the admin.`);
+            alert(`No data found for ${form}.`);
             hideLoading();
             return;
         }
@@ -2229,14 +1991,14 @@ async function loadResults(isStudentPortal) {
         const student = data.find(s => s["Exam Number"] === studentNumber);
 
         if (!student) {
-            alert('Student not found in the records.');
+            alert('Student not found.');
             hideLoading();
             return;
         }
 
         if (isStudentPortal) {
             if (password !== '000') {
-                alert('Invalid password. Please enter the correct password.');
+                alert('Invalid password.');
                 hideLoading();
                 return;
             }
@@ -2336,7 +2098,7 @@ async function loadResults(isStudentPortal) {
         goToPage('progressReport');
     } catch (error) {
         console.error('Error loading results:', error);
-        alert(`Failed to load results: ${error.message}. Please check the console for details.`);
+        alert(`Failed to load results.`);
         hideLoading();
     }
 }
@@ -2382,7 +2144,7 @@ function openFullPdf() {
         hideLoading();
     }).catch(error => {
         console.error("Error generating PDF:", error);
-        alert("Failed to generate PDF. Check console for details.");
+        alert("Failed to generate PDF.");
         hideLoading();
     });
 }
@@ -2393,7 +2155,7 @@ async function loadBriefResults() {
     const password = document.getElementById('passwordInput').value;
 
     if (!form || !studentNumber || !password) {
-        alert('Please fill in all required fields (Class, Exam Number, and Password).');
+        alert('Please fill in all fields.');
         return;
     }
 
@@ -2408,7 +2170,7 @@ async function loadBriefResults() {
     updateLoadingPercent(50);
 
     if (data.length === 0) {
-        alert(`No data found for ${form}. Please inform the admin.`);
+        alert(`No data found.`);
         hideLoading();
         return;
     }
@@ -2416,13 +2178,13 @@ async function loadBriefResults() {
     const student = data.find(s => s["Exam Number"] === studentNumber);
 
     if (!student) {
-        alert('Student not found in the records.');
+        alert('Student not found.');
         hideLoading();
         return;
     }
 
     if (password !== '000') {
-        alert('Invalid password. Please enter the correct password.');
+        alert('Invalid password.');
         return;
     }
 
@@ -2504,13 +2266,6 @@ function handleBriefBack() {
     goToPage('initialPage');
 }
 
-/* ======================
-   UPDATED: calculateStudentMetrics
-   - ensures BEST-6 aggregate is computed BEFORE ranking metric
-   - uses isStudentPass(form, student) to set overallRemark for LOWER FORMS (form1/form2)
-     so Pass = A-D in at least 6 subjects including English
-   - preserves previous rankable logic and metrics structure
-   ====================== */
 async function calculateStudentMetrics(student, form){
     let totalScore = 0;
     let subjectsCount = 0;
@@ -2519,8 +2274,7 @@ async function calculateStudentMetrics(student, form){
 
     const sortedSubjects = [...ALL_SUBJECTS].sort();
 
-    // Collect numeric scores and grades
-    const gradeNums = []; // numeric grades (1..9) extracted from grade letters/numbers for upper forms
+    const gradeNums = []; 
     for (const subject of sortedSubjects) {
         const rawScore = student[subject];
 
@@ -2535,11 +2289,9 @@ async function calculateStudentMetrics(student, form){
 
         const score = parseInt(rawScore);
         if (!isNaN(score) && isFinite(score)) {
-            // accumulate total/subject count for averages (lower forms)
             totalScore += score;
             subjectsCount++;
 
-            // For upper forms capture the numeric grade (1..9) derived from score
             if (form === 'form3' || form === 'form4') {
                 const { grade } = getGradeAndRemark(form, score);
                 const numericGrade = parseInt(grade);
@@ -2552,25 +2304,20 @@ async function calculateStudentMetrics(student, form){
         }
     }
 
-    // Determine rankable (unchanged criteria)
     if (subjectsCount < 4 || nonNumericSubjectsCount > 5) {
         rankable = false;
     }
 
-    // Compute BEST SIX aggregate for upper forms (if possible)
     let aggregate = '-';
     if (form === 'form3' || form === 'form4') {
         if (gradeNums.length >= 6) {
-            gradeNums.sort((a,b)=>a-b); // lower numeric grade is better
+            gradeNums.sort((a,b)=>a-b); 
             aggregate = gradeNums.slice(0,6).reduce((a,b)=>a+b,0);
         } else {
             aggregate = '-';
         }
     }
 
-    // Compute overallMetric used for ranking:
-    // - For upper forms: use aggregate (lower is better) when rankable and aggregate numeric
-    // - For lower forms: use negative totalScore so sorting ascending gives best first
     let overallMetric;
     if (!rankable) {
         overallMetric = (form === 'form3' || form === 'form4') ? 999 : 99999;
@@ -2582,26 +2329,14 @@ async function calculateStudentMetrics(student, form){
         }
     }
 
-    // Determine overallRemark using the PASS rule requested:
-    // For lower forms (form1/form2) use the exact pass rule:
-    // Pass when student gets a grade of A-D in at least 6 subjects including English.
-    // For upper forms keep the existing rule (grades 1-8 in 6 subjects incl English).
     let overallRemark = '-';
     if (rankable) {
-        if (form === 'form1' || form === 'form2') {
-            // NEW: use isStudentPass which checks A-D in >=6 subjects and English A-D
-            const pass = isStudentPass(form, student);
-            overallRemark = pass ? 'Pass' : 'Fail';
-        } else {
-            // For upper forms use existing pass rule
-            const pass = isStudentPass(form, student);
-            overallRemark = pass ? 'Pass' : 'Fail';
-        }
+        const pass = isStudentPass(form, student);
+        overallRemark = pass ? 'Pass' : 'Fail';
     } else {
         overallRemark = '-';
     }
 
-    // Compute average for lower forms
     const average = subjectsCount > 0 ? totalScore / subjectsCount : 0;
 
     return {
@@ -2647,7 +2382,7 @@ function openScoreSheetView() {
 function openAnalysisPage() {
     const form = document.getElementById('analysisClassSelect').value;
     if (!form) {
-        alert('Please select a class for analysis.');
+        alert('Please select a class.');
         return;
     }
     document.getElementById('analysisTitle').textContent = `${form.toUpperCase()} Class Analysis Report`;
@@ -2658,16 +2393,10 @@ function openAnalysisPage() {
 async function loadStudentsForDataEntry() {
     const form = document.getElementById('dataClassSelect').value;
     if (!form) return;
-    const data = await fetchClassData(form);
-    
-    // Update the button text
-    document.getElementById('examNumberBox').value = 'Click to load student list (' + data.length + ' students)';
-    document.getElementById('examNumberBox').style.backgroundColor = '#28a745';
-    
-    // Save to localStorage for persistence
-    localStorage.setItem('dataEntryForm', form);
+    await fetchClassData(form);
 }
 
+// === SURGICAL FIX: POSITION COLUMN IN SCORE SHEET ===
 async function displayScoreSheet() {
     const form = document.getElementById('sheetClassSelect').value;
     const wrapper = document.getElementById('scoreSheetTableWrapper');
@@ -2675,13 +2404,13 @@ async function displayScoreSheet() {
     if (!form) return;
     const data = await fetchClassData(form);
     if (data.length === 0) {
-        wrapper.innerHTML = '<p>No data available for this class.</p>';
+        wrapper.innerHTML = '<p>No data available.</p>';
         return;
     }
 
     const isLowerForm = form === 'form1' || form === 'form2';
 
-    let html = '<table id="scoresTable"><thead><tr><th>Exam No</th><th>Name</th>';
+    let html = '<table id="scoresTable"><thead><tr><th>POS</th><th>Exam No</th><th>Name</th>';
     ALL_SUBJECTS.forEach(sub => { html += `<th>${getSubjectShortName(sub)}</th>`; });
     if (isLowerForm) {
         html += '<th>Total</th>';
@@ -2694,11 +2423,20 @@ async function displayScoreSheet() {
         studentsWithMetrics.push({ student, metrics });
     }
 
+    // Sort by performance (Ascending metric: lower aggregate is better, or higher negative score is better)
     studentsWithMetrics.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
 
-    studentsWithMetrics.forEach(({ student, metrics }) => {
+    let lastMetric = null;
+    let lastPos = 0;
+
+    studentsWithMetrics.forEach(({ student, metrics }, i) => {
+        const currentMetric = metrics.overallMetric;
+        const pos = (currentMetric === lastMetric) ? lastPos : i + 1;
+        lastMetric = currentMetric;
+        lastPos = pos;
+
         let totalScore = 0;
-        let rowHtml = `<tr><td>${student["Exam Number"]}</td><td>${student["STUDENT'S NAME"]}</td>`;
+        let rowHtml = `<tr><td>${pos}</td><td>${student["Exam Number"]}</td><td>${student["STUDENT'S NAME"]}</td>`;
 
         ALL_SUBJECTS.forEach(sub => {
             const rawScore = student[sub] || '-';
@@ -2712,7 +2450,7 @@ async function displayScoreSheet() {
             rowHtml += `<td>${totalScore}</td>`;
         }
 
-        html += rowHtml;
+        html += rowHtml + `</tr>`;
     });
 
     html += '</tbody></table>';
@@ -2726,7 +2464,7 @@ async function displayGradesSheet() {
     if (!form) return;
     const data = await fetchClassData(form);
     if (data.length === 0) {
-        wrapper.innerHTML = '<p>No data available for this class.</p>';
+        wrapper.innerHTML = '<p>No data available.</p>';
         return;
     }
 
@@ -2743,35 +2481,27 @@ async function displayGradesSheet() {
         studentsWithMetrics.push({ student, metrics, examNo: student["Exam Number"] });
     }
 
-    // Only include rankable students for ranking computation
     let rankableStudents = studentsWithMetrics.filter(s => s.metrics.rankable);
-
-    // Sort by overallMetric (ascending: lower aggregate is better)
     rankableStudents.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
-    const totalRankableStudents = rankableStudents.length;
 
-    // Calculate position for each student first
     studentsWithMetrics.forEach(({ student, metrics, examNo }) => {
         let position = '-';
-        let numericPosition = Infinity; // For sorting purposes
+        let numericPosition = Infinity; 
         
         if (metrics.rankable) {
              const studentMetric = rankableStudents.find(s => s.examNo === examNo);
              if (studentMetric) {
                 const metricValue = studentMetric.metrics.overallMetric;
-                // competition ranking: first index of this metricValue in sorted list + 1
                 let actualRank = rankableStudents.findIndex(s => s.metrics.overallMetric === metricValue) + 1;
                 position = `${actualRank}`;
-                numericPosition = actualRank; // Store numeric position for sorting
+                numericPosition = actualRank;
             }
         }
         
-        // Store position with student for sorting
         student.__position = position;
         student.__numericPosition = numericPosition;
     });
 
-    // Sort students by position in ascending order (1, 2, 3, ...)
     studentsWithMetrics.sort((a, b) => a.student.__numericPosition - b.student.__numericPosition);
 
     studentsWithMetrics.forEach(({ student, metrics }) => {
@@ -2815,7 +2545,7 @@ async function displayAnalysisSheet(form) {
     wrapper.innerHTML = '';
     const data = await fetchClassData(form);
     if (data.length === 0) {
-        wrapper.innerHTML = '<p>No data available for this class.</p>';
+        wrapper.innerHTML = '<p>No data available.</p>';
         return;
     }
 
@@ -2834,9 +2564,7 @@ async function displayAnalysisSheet(form) {
     const subjectMetrics = {};
     ALL_SUBJECTS.forEach(sub => {
         subjectMetrics[sub] = {
-            pass: 0,
-            fail: 0,
-            entries: 0,
+            pass: 0, fail: 0, entries: 0,
             gradeCounts: Object.fromEntries(gradeLabels.map(l => [l, 0]))
         };
     });
@@ -2847,25 +2575,16 @@ async function displayAnalysisSheet(form) {
             const numericScore = parseInt(rawScore);
 
             if (rawScore !== '-' && rawScore !== 'N' && rawScore !== 'X' && !isNaN(numericScore)) {
-                const { grade, remark } = getGradeAndRemark(form, numericScore);
+                const { grade } = getGradeAndRemark(form, numericScore);
                 subjectMetrics[sub].entries++;
                 subjectMetrics[sub].gradeCounts[grade]++;
 
-                // Forms 1 and 2: Pass = A, B, C, D; Fail = F
                 if (isLowerForm) {
-                    if (['A', 'B', 'C', 'D'].includes(grade)) {
-                        subjectMetrics[sub].pass++;
-                    } else if (grade === 'F') {
-                        subjectMetrics[sub].fail++;
-                    }
-                }
-                // Forms 3 and 4: Pass = 1, 2, 3, 4, 5, 6, 7, 8; Fail = 9
-                else {
-                    if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(grade)) {
-                        subjectMetrics[sub].pass++;
-                    } else if (grade === '9') {
-                        subjectMetrics[sub].fail++;
-                    }
+                    if (['A', 'B', 'C', 'D'].includes(grade)) subjectMetrics[sub].pass++;
+                    else if (grade === 'F') subjectMetrics[sub].fail++;
+                } else {
+                    if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(grade)) subjectMetrics[sub].pass++;
+                    else if (grade === '9') subjectMetrics[sub].fail++;
                 }
             }
         });
@@ -2881,25 +2600,15 @@ async function displayAnalysisSheet(form) {
         const metrics = subjectMetrics[sub];
         if (metrics.entries > 0) {
             let rowHtml = `<tr><td>${sub}</td>`;
-
-            gradeLabels.forEach(label => {
-                rowHtml += `<td>${metrics.gradeCounts[label] || 0}</td>`;
-            });
-
+            gradeLabels.forEach(label => { rowHtml += `<td>${metrics.gradeCounts[label] || 0}</td>`; });
             const passPercent = ((metrics.pass / metrics.entries) * 100).toFixed(1);
-            // Fail % = 100 - Pass % as requested
             const failPercent = (100 - parseFloat(passPercent)).toFixed(1);
-
-            rowHtml += `<td>${passPercent}%</td>`;
-            rowHtml += `<td>${failPercent}%</td>`;
-            rowHtml += `<td>${metrics.entries}</td></tr>`;
+            rowHtml += `<td>${passPercent}%</td><td>${failPercent}%</td><td>${metrics.entries}</td></tr>`;
             html += rowHtml;
         } else {
              let rowHtml = `<tr><td>${sub}</td>`;
              gradeLabels.forEach(() => { rowHtml += `<td>0</td>`; });
-             rowHtml += `<td>0.0%</td>`;
-             rowHtml += `<td>0.0%</td>`;
-             rowHtml += `<td>0</td></tr>`;
+             rowHtml += `<td>0.0%</td><td>0.0%</td><td>0</td></tr>`;
              html += rowHtml;
         }
     });
@@ -2908,17 +2617,12 @@ async function displayAnalysisSheet(form) {
     wrapper.innerHTML = html;
 }
 
-// --- NEW FUNCTIONS FOR PROGRESS SHEET SELECTION ---
 async function openStudentProgressSheet() {
     const classSelect = document.getElementById('progressClassSelect').value;
     const examNumber = document.getElementById('progressExamNumber').value.trim().toUpperCase();
 
-    if (!classSelect) {
-        alert('Please select a class.');
-        return;
-    }
-    if (!examNumber) {
-        alert('Please enter an exam number.');
+    if (!classSelect || !examNumber) {
+        alert('Please fill in both fields.');
         return;
     }
 
@@ -2931,17 +2635,14 @@ async function openStudentProgressSheet() {
         await loadResults(false);
         goToPage('progressReport');
     } catch (error) {
-        console.error('Error loading student progress:', error);
-        alert('Failed to load student progress. Please try again.');
+        alert('Failed to load progress.');
     } finally {
         hideLoading();
     }
 }
 
-// --- INITIALIZATION ---
 window.onload = function() {
     initializeConfig(null);
-
     const dataSubjectSelect = document.getElementById('dataSubjectSelect');
     if (dataSubjectSelect) {
         dataSubjectSelect.innerHTML = '<option value="">-- Select Subject --</option>';
@@ -2949,74 +2650,25 @@ window.onload = function() {
             dataSubjectSelect.innerHTML += `<option value="${subject}">${subject}</option>`;
         });
     }
-
     populateTeacherInputs();
     populateLockSubjects();
 };
 
-function populateLockSubjects() {
-    const sel = document.getElementById('lockSubjectSelect');
-    if (!sel) return;
-    sel.innerHTML = '';
-    ALL_SUBJECTS.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        sel.appendChild(opt);
-    });
-}
-
-function toggleSubjectLock() {
-    const classSelect = document.getElementById('classTeacherDropdown');
-    const selectedClass = classSelect ? classSelect.value : '';
-
-    if (!selectedClass) {
-        alert('Please select a Class before locking or unlocking a subject.');
-        return;
-    }
-
-    const subject = document.getElementById('lockSubjectSelect').value;
-    if (!subject) return;
-
-    if (!currentConfig.locks) currentConfig.locks = {};
-    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
-
-    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
-
-    const status = document.getElementById('lockStatus');
-    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
-        (currentConfig.locks[selectedClass][subject]
-            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
-            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
-}
-
-</script>
-
-<script>
 async function showStudentMarksList() {
     const form = document.getElementById('dataClassSelect').value;
     const subject = document.getElementById('dataSubjectSelect').value;
-    if (!form || !subject) {
-        alert('Select Class and Subject first');
-        return;
-    }
+    if (!form || !subject) return;
 
-    // ENSURE students are loaded
     const students = await fetchClassData(form);
-
     const panel = document.getElementById('studentMarksPanel');
     const tbody = document.getElementById('dataEntryTableBody');
     tbody.innerHTML = '';
     panel.classList.remove('hidden');
 
-    // Restore previous scores from localStorage if available
-    const savedScores = localStorage.getItem('dataEntryScores');
-    const scoreMap = savedScores ? JSON.parse(savedScores) : {};
-
     students.forEach((s, i) => {
         const examNo = s["Exam Number"];
         const name = s["STUDENT'S NAME"];
-        const val = s[subject] || scoreMap[`${form}_${examNo}_${subject}`] || '';
+        const val = s[subject] || '';
         
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -3026,72 +2678,26 @@ async function showStudentMarksList() {
                 <input type="text" 
                        id="score_${i}" 
                        value="${val}" 
-                       data-exam-no="${examNo}" 
-                       data-index="${i}"
+                       oninput="updateStudentScore('${form}', ${i}, '${subject}', this.value)"
                        style="width:80px;padding:6px;text-align:center;border:1px solid #cc6600;border-radius:4px;"
-                       placeholder="0-100">
+                       placeholder=" ">
             </td>
         `;
         tbody.appendChild(row);
     });
-
-    // Save current state to localStorage
-    localStorage.setItem('dataEntrySubject', subject);
 }
 
-function populateLockSubjects() {
-    const sel = document.getElementById('lockSubjectSelect');
-    if (!sel) return;
-    sel.innerHTML = '';
-    ALL_SUBJECTS.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        sel.appendChild(opt);
-    });
-}
-
-function toggleSubjectLock() {
-    const classSelect = document.getElementById('classTeacherDropdown');
-    const selectedClass = classSelect ? classSelect.value : '';
-
-    if (!selectedClass) {
-        alert('Please select a Class before locking or unlocking a subject.');
-        return;
+function updateStudentScore(form, index, subject, value) {
+    if (currentClassData[form] && currentClassData[form][index]) {
+        currentClassData[form][index][subject] = value.trim();
     }
-
-    const subject = document.getElementById('lockSubjectSelect').value;
-    if (!subject) return;
-
-    if (!currentConfig.locks) currentConfig.locks = {};
-    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
-
-    currentConfig.locks[selectedClass][subject] = !currentConfig.locks[selectedClass][subject];
-
-    const status = document.getElementById('lockStatus');
-    status.innerHTML = selectedClass.toUpperCase() + ' - ' + subject + ' ' +
-        (currentConfig.locks[selectedClass][subject]
-            ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
-            : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
 }
 
-</script>
-
-<script>
 function filterStudentMarks(){
     const searchText = document.getElementById('dataSearchInput').value.toLowerCase();
-    const tbody = document.getElementById('dataEntryTableBody');
-    const rows = tbody.getElementsByTagName('tr');
-    
+    const rows = document.getElementById('dataEntryTableBody').getElementsByTagName('tr');
     for (let row of rows) {
-        const examNo = row.cells[0].textContent.toLowerCase();
-        const name = row.cells[1].textContent.toLowerCase();
-        
-        if (examNo.includes(searchText) || name.includes(searchText)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+        row.style.display = row.innerText.toLowerCase().includes(searchText) ? '' : 'none';
     }
 }
 function filterScoreSheet(){
@@ -3107,7 +2713,5 @@ function filterGradeSheet(){
   });
 }
 </script>
-
 </body>
-
 </html>
