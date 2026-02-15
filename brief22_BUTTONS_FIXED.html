@@ -1780,42 +1780,42 @@ async function submitAndSaveScores() {
     const form = document.getElementById('dataClassSelect').value;
     const subject = document.getElementById('dataSubjectSelect').value;
     const token = document.getElementById('githubToken').value;
-    
+
     if (!form || !subject) {
         alert('Please select a Class and Subject.');
         return;
     }
 
     if (!token) {
-        alert('Authorization Code required. Please enter it in Admin Dashboard.');
+        alert('Authorization Code required.');
         return;
     }
 
     showLoading();
     updateLoadingPercent(10);
-    
+
     try {
         const fileName = `${form}.csv`;
         const currentSha = await getCSVFileSha(form, token);
         updateLoadingPercent(40);
-        
-        const classData = await fetchClassData(form);
+
+        const classData = currentClassData[form];
         if (!classData || classData.length === 0) {
-            alert(`Could not load data for ${form}. Cannot save scores.`);
             hideLoading();
+            alert('No student data loaded.');
             return;
         }
-        
+
         updateLoadingPercent(60);
-        
+
         const csvString = Papa.unparse(classData, {
             header: true,
             columns: ALL_HEADERS
         });
-        
+
         const base64Content = btoa(csvString);
         const commitMessage = `Update: ${form} - ${subject} (${new Date().toLocaleString()})`;
-        
+
         const result = await commitFile(
             fileName,
             commitMessage,
@@ -1824,22 +1824,29 @@ async function submitAndSaveScores() {
             token,
             'PUT'
         );
-        
-        updateLoadingPercent(90);
-        
+
         if (result) {
             currentDataSha[form] = result.content.sha;
-            currentClassData[form] = null;
-            await fetchClassData(form);
-            await showStudentMarksList();
-            
+
+            // Keep memory data intact (no reset)
+            showStudentMarksList();
+
+            if (document.getElementById('sheetClassSelect').value === form) {
+                displayScoreSheet();
+            }
+
+            if (document.getElementById('gradesClassSelect').value === form) {
+                displayGradesSheet();
+            }
+
             updateLoadingPercent(100);
             hideLoading();
-            alert(`Scores saved successfully to repository!`);
+            
         }
+
     } catch (error) {
         hideLoading();
-        console.error('Score submission failed:', error);
+        console.error('Save failed:', error);
         alert(`Failed to save scores: ${error.message}`);
     }
 }
