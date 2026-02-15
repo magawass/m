@@ -5,27 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magawa Secondary | Official Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { 
-                        primary: "#1a2a6c", 
-                        secondary: "#fdbb2d", 
-                        accent: "#20B2AA",
-                        dark: "#0f172a",
-                        light: "#f8fafc"
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 20px rgba(0,0,0,0.08)',
-                        'glow': '0 4px 30px rgba(26, 42, 108, 0.15)',
-                        'card': '0 2px 12px rgba(0,0,0,0.06)',
-                    }
+                    colors: { primary: "#1a2a6c", secondary: "#fdbb2d", accent: "#20B2AA" }
                 }
             }
         }
@@ -86,6 +73,7 @@
 
         async function loadContent() {
             try {
+                // SURGICAL FIX: use raw.githubusercontent.com for mobile compatibility
                 const rawUrl = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/main/${GITHUB_CONFIG.path}`;
                 const response = await fetch(rawUrl, { cache: 'no-store' });
                 if (response.ok) {
@@ -97,6 +85,7 @@
                 throw new Error("Raw load failed");
             } catch (error) {
                 try {
+                    // fallback to GitHub API (desktop / admin use)
                     const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
                     const response = await fetch(apiUrl);
                     if (response.ok) {
@@ -120,9 +109,9 @@
             document.getElementById('displayUpcoming').innerText = adminContent.upcoming || "";
 
             const renderGrid = (items, type) => (items || []).map(item => `
-                <div class="mb-4 border-b border-gray-100 pb-3 last:border-0">
-                    ${(item.image || item.file) ? `<img src="${item.image || item.file}" class="w-full rounded-xl mb-2 shadow-sm hover:shadow-md transition duration-300">` : ''}
-                    <p class="${type === 'mediaGallery' ? 'text-xs text-center italic text-gray-500' : 'text-sm italic text-gray-600'}">${item.text || item.caption || ''}</p>
+                <div class="mb-4 border-b pb-2">
+                    ${(item.image || item.file) ? `<img src="${item.image || item.file}" class="w-full rounded mb-1">` : ''}
+                    <p class="${type === 'mediaGallery' ? 'text-xs text-center italic' : 'text-sm italic'}">${item.text || item.caption || ''}</p>
                 </div>
             `).join('');
 
@@ -131,6 +120,7 @@
             document.getElementById('galleryDisplay').innerHTML = renderGrid(adminContent.mediaGallery, 'mediaGallery');
         }
 
+        // --- FULL ADMIN FUNCTIONALITY RESTORED ---
         function resizeImage(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -187,9 +177,9 @@
             sections.forEach(sec => {
                 const el = document.getElementById(sec.id);
                 if(el) el.innerHTML = (adminContent[sec.type] || []).map((item, idx) => `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2 text-xs border border-gray-100">
-                        <span class="truncate w-2/3 text-gray-700">${item.text || 'Untitled'}</span>
-                        <button onclick="deleteItem('${sec.type}', ${idx})" class="text-red-500 hover:text-red-700 transition"><i class="fas fa-trash"></i></button>
+                    <div class="flex items-center justify-between p-2 border-b text-xs">
+                        <span class="truncate w-2/3">${item.text || 'Untitled'}</span>
+                        <button onclick="deleteItem('${sec.type}', ${idx})" class="text-red-500"><i class="fas fa-trash"></i></button>
                     </div>
                 `).join('');
             });
@@ -235,7 +225,7 @@
             } catch (err) {
                 setSyncStatus(`❌ ERROR: ${err.message}`, true);
             } finally {
-                btn.innerHTML = '<i class="fas fa-cloud-upload-alt mr-2"></i>PUBLISH ALL CHANGES TO LIVE SITE';
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i>SAVE CHANGES TO REPOSITORY';
                 btn.disabled = false;
             }
         }
@@ -256,358 +246,150 @@
     </script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
         .page { display: none; }
         .page.active { display: block; }
         #portalContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: white; z-index: 1000; }
-        iframe { width: 100%; height: calc(100vh - 70px); border: none; }
-        
-        .admin-input { 
-            border: 2px solid #e5e7eb; 
-            padding: 12px 16px; 
-            border-radius: 12px; 
-            font-size: 14px; 
-            width: 100%; 
-            margin-bottom: 12px;
-            transition: all 0.3s ease;
-            background: #f9fafb;
-        }
-        .admin-input:focus {
-            outline: none;
-            border-color: #1a2a6c;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(26, 42, 108, 0.1);
-        }
-        
-        .section-box { 
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            padding: 24px; 
-            border-radius: 16px; 
-            border: 1px solid #e5e7eb; 
-            margin-bottom: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        }
-        
-        .label-text { 
-            font-size: 11px; 
-            font-weight: 700; 
-            color: #1a2a6c; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-            margin-bottom: 8px; 
-            display: block; 
-        }
-        
-        .gradient-hero {
-            background: linear-gradient(135deg, #1a2a6c 0%, #2d3a8c 50%, #1a2a6c 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .gradient-hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(253,187,45,0.1) 0%, transparent 50%);
-            animation: pulse 15s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #1a2a6c 0%, #2d3a8c 100%);
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(26, 42, 108, 0.3);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(26, 42, 108, 0.4);
-        }
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #fdbb2d 0%, #f9a825 100%);
-            color: #1a2a6c;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(253, 187, 45, 0.3);
-        }
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(253, 187, 45, 0.4);
-        }
-        
-        .btn-accent {
-            background: linear-gradient(135deg, #20B2AA 0%, #17a2a0 100%);
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(32, 178, 170, 0.3);
-        }
-        .btn-accent:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(32, 178, 170, 0.4);
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-        }
-        
-        .nav-link {
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: #fdbb2d;
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-        }
-        .nav-link:hover::after {
-            width: 100%;
-        }
+        iframe { width: 100%; height: calc(100vh - 60px); border: none; }
+        .admin-input { border: 1px solid #ddd; padding: 10px; border-radius: 8px; font-size: 13px; width: 100%; margin-bottom: 10px; }
+        .section-box { background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px solid #eaeaea; margin-bottom: 20px; }
+        .label-text { font-size: 10px; font-weight: 900; color: #1a2a6c; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: block; }
     </style>
-<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+<body class="bg-gray-50 text-gray-800">
 
-    <nav id="mainNav" class="bg-primary text-white sticky top-0 z-50 shadow-lg backdrop-blur-lg bg-opacity-95">
-        <div class="container mx-auto px-4 py-3 md:py-4">
-            <div class="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-                <div class="flex items-center space-x-3 text-center md:text-left">
-                    <i class="fas fa-school text-2xl md:text-3xl text-secondary"></i>
-                    <div>
-                        <span class="font-bold text-lg md:text-xl tracking-wide">MAGAWA SECONDARY</span>
-                        <p class="text-xs md:text-sm text-secondary italic font-medium">Official Portal</p>
-                    </div>
-                </div>
-                <div class="flex flex-wrap justify-center gap-2 md:gap-4 text-xs font-bold uppercase tracking-wider">
-                    <button onclick="showPage('homePage')" class="nav-link px-3 py-2 rounded-lg hover:bg-white/10 transition">Home</button>
-                    <button onclick="openPortal()" class="btn-secondary px-4 py-2 rounded-lg font-bold">Portal</button>
-                    <button onclick="openCA()" class="bg-white text-primary px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition shadow-md">Assessment</button>
-                    <button onclick="openODL()" class="bg-white text-primary px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition shadow-md">ODL</button>
-                    <button onclick="showPage('adminLogin')" class="nav-link px-3 py-2 rounded-lg hover:bg-white/10 transition">Admin</button>
-                </div>
+    <nav id="mainNav" class="bg-primary text-white sticky top-0 z-50 p-3 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <div class="flex items-center space-x-3">
+            <span class="font-bold text-sm md:text-lg">MAGAWA SECONDARY<div class="inline-block border-r-4 border-yellow-400 pr-4">
+  <p class="text-gray-700 font-medium">
+    .
+  </p>
+</div></span>
+            <span class="font-bold text-sm italic text-secondary">Official Portal</span>
+            </div>
+            <div class="hidden md:flex space-x-4 text-xs font-bold uppercase">
+                <button onclick="showPage('homePage')">Home</button>
+                <button onclick="openPortal()" class="bg-secondary text-primary px-3 py-1 rounded">Portal</button>
+                <button onclick="openCA()" class="bg-white text-primary px-3 py-1 rounded">Assessment</button>
+                <button onclick="openODL()" class="bg-white text-primary px-3 py-1 rounded">ODL</button>
+                <button onclick="showPage('adminLogin')">Admin</button>
             </div>
         </div>
     </nav>
 
-    <main class="container mx-auto px-4 md:px-6 py-8 md:py-12">
-        <div id="homePage" class="page active space-y-8 md:space-y-12">
-            <!-- Hero Section -->
-            <div class="gradient-hero rounded-3xl p-8 md:p-12 text-white shadow-glow relative">
-                <div class="relative z-10">
-                    <div class="max-w-3xl">
-                        <div class="flex items-center space-x-3 mb-4">
-                            <div class="h-1 w-12 bg-secondary rounded-full"></div>
-                            <span class="text-secondary text-sm font-bold uppercase tracking-widest">Welcome</span>
-                        </div>
-                        <h2 id="displayHeaderTitle" class="text-3xl md:text-5xl font-black mb-3 leading-tight">Quality Education</h2>
-                        <p id="displayHeaderSub" class="text-xl md:text-2xl font-semibold text-secondary mb-6">Enter to learn, depart to serve</p>
-                        <p id="displayAboutText" class="opacity-90 mb-8 text-sm md:text-base leading-relaxed max-w-2xl"></p>
-                        
-                        <!-- Action Buttons -->
-                        <div class="flex flex-wrap gap-3 md:gap-4">
-                            <button onclick="openPortal()" class="btn-white bg-white text-primary px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition flex items-center space-x-2">
-                                <i class="fas fa-laptop-code"></i>
-                                <span>Exam Day</span>
-                            </button>
-                            <button onclick="openCA()" class="btn-secondary px-6 py-3 rounded-xl font-bold flex items-center space-x-2">
-                                <i class="fas fa-clipboard-check"></i>
-                                <span>Assessment</span>
-                            </button>
-                            <button onclick="openODL()" class="btn-accent px-6 py-3 rounded-xl font-bold flex items-center space-x-2">
-                                <i class="fas fa-book-open"></i>
-                                <span>Exam ODL</span>
-                            </button>
-                        </div>
+    <main class="container mx-auto px-6 py-8">
+        <div id="homePage" class="page active space-y-10">
+            <div class="bg-primary rounded-3xl p-10 text-white flex justify-between items-center shadow-2xl">
+                <div class="w-full md:w-2/3">
+                    <span class="text-secondary text-sm font-bold uppercase tracking-widest"><p style="display: flex; align-items: center;">
+  <span style="
+    display: inline-block; 
+    width: 30px; 
+    height: 3px; 
+    background-color: #FFD700; 
+    margin-right: 10px;">
+  </span>
+  WELCOME
+</p></span>
+                    <h2 id="displayHeaderTitle" class="text-3xl font-black uppercase mb-1">Quality Education</h2>
+                    <p id="displayHeaderSub" class="mb-4 font-bold italic text-secondary">Enter to learn, depart to serve</p>
+                    <p id="displayAboutText" class="opacity-90 mb-6 text-sm"></p>
+                    
+                    <!-- SURGICAL FIX: Buttons now wrap and have vertical gap for mobile -->
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button onclick="openPortal()" class="bg-white text-primary px-4 py-2 rounded-lg font-bold shadow-lg transform active:scale-95 transition"> <i class="fas fa-laptop-code"></i>Exam Day</button>
+                        <button onclick="openCA()" class="bg-secondary text-primary px-4 py-2 rounded-lg font-bold shadow-lg transform active:scale-95 transition"><i class="fas fa-clipboard-check"></i>Assessment</button>
+                        <button onclick="openODL()" class="bg-accent text-white px-4 py-2 rounded-lg font-bold shadow-lg transform active:scale-95 transition"><i class="fas fa-book-open"></i>Exam ODL</button>
                     </div>
                 </div>
-                <i class="hidden md:block fas fa-graduation-cap absolute right-8 top-1/2 -translate-y-1/2 text-[150px] opacity-10"></i>
+                <i class="hidden md:block fas fa-graduation-cap text-[100px] opacity-20"></i>
             </div>
 
             <!-- Content Grids -->
-            <div class="grid md:grid-cols-3 gap-6 md:gap-8">
-                <!-- Announcements -->
-                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-card border-t-4 border-primary card-hover">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-bullhorn text-primary text-lg"></i>
-                        </div>
-                        <h3 class="font-bold uppercase text-xs tracking-widest text-gray-600">Announcements</h3>
-                    </div>
-                    <p id="displayAnnouncement" class="text-sm text-gray-600 leading-relaxed"></p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-primary">
+                    <h3 class="font-bold mb-3 uppercase text-xs tracking-widest"><i class="fas fa-bullhorn text-primary text-lg"></i>Announcements</h3>
+                    <p id="displayAnnouncement" class="text-sm"></p>
                 </div>
-
-                <!-- Gallery -->
-                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-card border-t-4 border-accent card-hover">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-images text-accent text-lg"></i>
-                        </div>
-                        <h3 class="font-bold uppercase text-xs tracking-widest text-gray-600">Gallery</h3>
-                    </div>
-                    <div id="galleryDisplay" class="space-y-4 max-h-80 overflow-y-auto pr-2"></div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-accent">
+                    <h3 class="font-bold mb-3 uppercase text-xs tracking-widest text-accent"><i class="fas fa-images text-accent text-lg"></i>Gallery</h3>
+                    <div id="galleryDisplay" class="space-y-4"></div>
                 </div>
-
-                <!-- Upcoming -->
-                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-card border-t-4 border-secondary card-hover">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-calendar-alt text-secondary text-lg"></i>
-                        </div>
-                        <h3 class="font-bold uppercase text-xs tracking-widest text-gray-600">Upcoming</h3>
-                    </div>
-                    <p id="displayUpcoming" class="text-sm text-gray-600 leading-relaxed"></p>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-secondary">
+                    <h3 class="font-bold mb-3 uppercase text-xs tracking-widest"><i class="fas fa-calendar-alt text-secondary text-lg"></i>Upcoming</h3>
+                    <p id="displayUpcoming" class="text-sm"></p>
                 </div>
             </div>
 
-            <!-- Adverts & Notice Board -->
-            <div class="grid md:grid-cols-2 gap-6 md:gap-8">
-                <!-- Adverts -->
-                <div class="bg-white p-6 md:p-8 rounded-2xl border-t-4 border-green-500 shadow-card card-hover">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-ad text-green-500 text-lg"></i>
-                        </div>
-                        <h3 class="font-bold text-green-600 uppercase text-xs tracking-widest">Adverts</h3>
-                    </div>
-                    <div id="displayAdverts" class="max-h-96 overflow-y-auto"></div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border-t-4 border-green-500 shadow-sm">
+                    <h3 class="font-bold mb-3 text-green-600 uppercase text-xs tracking-widest"><i class="fas fa-ad text-green-500 text-lg"></i>Adverts</h3>
+                    <div id="displayAdverts"></div>
                 </div>
-
-                <!-- Notice Board -->
-                <div class="bg-white p-6 md:p-8 rounded-2xl border-t-4 border-orange-500 shadow-card card-hover">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-clipboard-list text-orange-500 text-lg"></i>
-                        </div>
-                        <h3 class="font-bold text-orange-600 uppercase text-xs tracking-widest">Notice Board</h3>
-                    </div>
-                    <div id="displayNoticeBoard" class="max-h-96 overflow-y-auto"></div>
+                <div class="bg-white p-6 rounded-2xl border-t-4 border-orange-500 shadow-sm">
+                    <h3 class="font-bold mb-3 text-orange-600 uppercase text-xs tracking-widest"><i class="fas fa-clipboard-list text-orange-500 text-lg"></i>Notice Board</h3>
+                    <div id="displayNoticeBoard"></div>
                 </div>
             </div>
         </div>
 
         <!-- Admin Login -->
         <div id="adminLogin" class="page max-w-md mx-auto py-20">
-            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-glow border border-gray-100 text-center">
-                <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-lock text-2xl text-primary"></i>
-                </div>
-                <h2 class="text-xl md:text-2xl font-bold mb-2 text-primary uppercase tracking-wider">Admin Portal</h2>
-                <p class="text-gray-500 text-sm mb-6">Secure access for authorized personnel</p>
-                <input type="password" id="adminPass" placeholder="Enter Password" class="admin-input text-center">
-                <button onclick="authenticateAdmin()" class="btn-primary w-full py-4 rounded-xl font-bold text-white mt-2">
-                    <i class="fas fa-sign-in-alt mr-2"></i>LOG IN
-                </button>
+            <div class="bg-white p-8 rounded-3xl shadow-lg border text-center">
+                <h2 class="text-xl font-bold mb-6 text-primary uppercase">Admin Portal</h2>
+                <input type="password" id="adminPass" placeholder="Password" class="admin-input text-center">
+                <button onclick="authenticateAdmin()" class="w-full bg-primary text-white py-3 rounded-xl font-bold">LOG IN</button>
             </div>
         </div>
 
         <!-- Admin Panel -->
-        <div id="adminPanel" class="page max-w-6xl mx-auto py-6 md:py-8">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b-2 border-gray-100">
-                <div>
-                    <h2 class="text-2xl md:text-3xl font-black text-primary uppercase tracking-wider">Content Editor</h2>
-                    <p class="text-gray-500 text-sm mt-1">Manage and update portal content</p>
-                </div>
-                <div class="flex items-center space-x-4 mt-4 md:mt-0">
-                    <span id="syncStatus" class="text-xs font-bold text-gray-400 italic bg-gray-50 px-3 py-1 rounded-full">Ready</span>
-                    <button onclick="showPage('homePage')" class="text-xs font-bold text-gray-500 hover:text-primary underline transition">Exit</button>
-                </div>
+        <div id="adminPanel" class="page max-w-5xl mx-auto py-6">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 class="text-2xl font-black text-primary uppercase">Editor</h2>
+                <span id="syncStatus" class="text-xs font-bold text-gray-400 italic">Ready</span>
+                <button onclick="showPage('homePage')" class="text-xs font-bold text-gray-500 underline">Exit</button>
             </div>
 
-            <!-- GitHub Configuration -->
-            <div class="bg-gradient-to-r from-primary/5 to-primary/10 p-6 md:p-8 rounded-2xl border-2 border-primary/20 mb-8">
-                <div class="flex items-center space-x-3 mb-4">
-                    <i class="fab fa-github text-2xl text-primary"></i>
-                    <label class="label-text text-lg">GitHub Integration</label>
-                </div>
-                <input type="password" id="ghTokenInput" placeholder="Paste your GitHub Personal Access Token here" class="admin-input">
-                <button onclick="saveToGithub()" class="btn-primary w-full py-4 rounded-xl font-bold text-white mt-2 flex items-center justify-center space-x-2">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <span>PUBLISH ALL CHANGES TO LIVE SITE</span>
+            <div class="bg-white p-4 rounded-xl border-2 border-primary/10 mb-6">
+                <label class="label-text text-red-500">GitHub Access Token</label>
+                <input type="password" id="ghTokenInput" placeholder="Paste Token Here" class="admin-input">
+                <button onclick="saveToGithub()" class="w-full bg-primary text-white py-4 rounded-xl font-bold shadow-lg">
+                    <i class="fas fa-save mr-2"></i>PUBLISH ALL CHANGES TO LIVE SITE
                 </button>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6 md:gap-8">
-                <!-- Text Content -->
+            <div class="grid md:grid-cols-2 gap-6">
                 <div class="section-box">
-                    <div class="flex items-center space-x-2 mb-6">
-                        <i class="fas fa-edit text-primary"></i>
-                        <h3 class="font-bold text-primary uppercase text-sm tracking-wider">Text Content</h3>
-                    </div>
-                    <label class="label-text">Hero Title</label>
-                    <input type="text" id="adminHeaderTitle" class="admin-input" placeholder="Main headline">
-                    <label class="label-text">Hero Subtitle</label>
-                    <input type="text" id="adminHeaderSub" class="admin-input" placeholder="Subtitle text">
-                    <label class="label-text">About Us</label>
-                    <textarea id="adminAboutInput" class="admin-input h-32" placeholder="About section content"></textarea>
-                    <label class="label-text">Announcements</label>
-                    <textarea id="adminAnnounceInput" class="admin-input h-32" placeholder="Announcement text"></textarea>
-                    <label class="label-text">Upcoming Events</label>
-                    <textarea id="adminUpcomingInput" class="admin-input h-32" placeholder="Upcoming events"></textarea>
+                    <label class="label-text">Hero Title</label><input type="text" id="adminHeaderTitle" class="admin-input">
+                    <label class="label-text">Hero Subtitle</label><input type="text" id="adminHeaderSub" class="admin-input">
+                    <label class="label-text">About Us</label><textarea id="adminAboutInput" class="admin-input h-24"></textarea>
+                    <label class="label-text">Announcements</label><textarea id="adminAnnounceInput" class="admin-input h-24"></textarea>
+                    <label class="label-text">Upcoming</label><textarea id="adminUpcomingInput" class="admin-input h-24"></textarea>
                 </div>
                 
-                <!-- Media Content -->
                 <div class="space-y-6">
-                    <!-- Adverts -->
                     <div class="section-box">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i class="fas fa-ad text-green-600"></i>
-                            <h3 class="font-bold text-green-600 uppercase text-sm tracking-wider">Adverts</h3>
-                        </div>
-                        <label class="label-text">Add New Advert</label>
-                        <input type="text" id="adminadvertsText" placeholder="Advert headline" class="admin-input">
-                        <input type="file" id="adminadvertsFile" class="mb-2 text-xs w-full p-2 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-primary transition">
-                        <button onclick="addItem('adverts')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold text-xs transition shadow-md">
-                            <i class="fas fa-plus mr-1"></i> Add to Adverts
-                        </button>
-                        <div id="adminAdList" class="mt-4 max-h-48 overflow-y-auto space-y-2"></div>
+                        <label class="label-text">New Advert</label>
+                        <input type="text" id="adminadvertsText" placeholder="Headline" class="admin-input">
+                        <input type="file" id="adminadvertsFile" class="mb-2 text-xs w-full">
+                        <button onclick="addItem('adverts')" class="w-full bg-green-600 text-white py-2 rounded font-bold text-xs">Add to Adverts</button>
+                        <div id="adminAdList" class="mt-4 max-h-40 overflow-y-auto"></div>
                     </div>
 
-                    <!-- Notice Board -->
                     <div class="section-box">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i class="fas fa-clipboard-list text-orange-600"></i>
-                            <h3 class="font-bold text-orange-600 uppercase text-sm tracking-wider">Notice Board</h3>
-                        </div>
-                        <label class="label-text">Add New Notice</label>
-                        <input type="text" id="adminnoticeBoardText" placeholder="Notice headline" class="admin-input">
-                        <input type="file" id="adminnoticeBoardFile" class="mb-2 text-xs w-full p-2 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-primary transition">
-                        <button onclick="addItem('noticeBoard')" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold text-xs transition shadow-md">
-                            <i class="fas fa-plus mr-1"></i> Add to Notice Board
-                        </button>
-                        <div id="adminNoticeList" class="mt-4 max-h-48 overflow-y-auto space-y-2"></div>
+                        <label class="label-text">New Notice</label>
+                        <input type="text" id="adminnoticeBoardText" placeholder="Headline" class="admin-input">
+                        <input type="file" id="adminnoticeBoardFile" class="mb-2 text-xs w-full">
+                        <button onclick="addItem('noticeBoard')" class="w-full bg-orange-600 text-white py-2 rounded font-bold text-xs">Add to Notice Board</button>
+                        <div id="adminNoticeList" class="mt-4 max-h-40 overflow-y-auto"></div>
                     </div>
 
-                    <!-- Gallery -->
                     <div class="section-box">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i class="fas fa-images text-accent"></i>
-                            <h3 class="font-bold text-accent uppercase text-sm tracking-wider">Media Gallery</h3>
-                        </div>
-                        <label class="label-text">Add Gallery Image</label>
-                        <input type="text" id="adminmediaGalleryText" placeholder="Image caption" class="admin-input">
-                        <input type="file" id="adminmediaGalleryFile" class="mb-2 text-xs w-full p-2 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-primary transition">
-                        <button onclick="addItem('mediaGallery')" class="w-full btn-accent py-3 rounded-xl font-bold text-xs transition">
-                            <i class="fas fa-plus mr-1"></i> Add to Gallery
-                        </button>
-                        <div id="adminGalleryList" class="mt-4 max-h-48 overflow-y-auto space-y-2"></div>
+                        <label class="label-text">New Gallery Image</label>
+                        <input type="text" id="adminmediaGalleryText" placeholder="Caption" class="admin-input">
+                        <input type="file" id="adminmediaGalleryFile" class="mb-2 text-xs w-full">
+                        <button onclick="addItem('mediaGallery')" class="w-full bg-accent text-white py-2 rounded font-bold text-xs">Add to Gallery</button>
+                        <div id="adminGalleryList" class="mt-4 max-h-40 overflow-y-auto"></div>
                     </div>
                 </div>
             </div>
@@ -616,14 +398,9 @@
 
     <!-- Portal Container -->
     <div id="portalContainer" class="page">
-        <div class="bg-primary p-4 flex justify-between items-center text-white shadow-lg">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-external-link-alt"></i>
-                <span class="font-bold text-sm uppercase tracking-wider">Official Portal View</span>
-            </div>
-            <button onclick="showPage('homePage')" class="bg-red-500 hover:bg-red-600 px-6 py-2 rounded-lg font-bold text-xs transition shadow-md">
-                <i class="fas fa-times mr-2"></i>CLOSE PORTAL
-            </button>
+        <div class="bg-primary p-3 flex justify-between items-center text-white">
+            <span class="font-bold text-xs uppercase">Official Portal View</span>
+            <button onclick="showPage('homePage')" class="bg-red-500 px-4 py-1 rounded font-bold text-xs">CLOSE PORTAL</button>
         </div>
         <iframe src=""></iframe>
     </div>
@@ -638,10 +415,11 @@
                 &copy; 2025 Magawa Secondary School. All rights reserved
             </p>
             <p class="text-gray-400 text-xs mt-2">
-                Designed by <span class="text-primary font-semibold">Chiku Lubaini</span> (099 40 39 325)
+                Designed by <span class="text-primary font-semibold">Chikumbutso Lubaini</span> (099 40 39 325)
             </p>
         </div>
     </footer>
+
 
 </body>
 </html>
