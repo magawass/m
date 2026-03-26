@@ -620,7 +620,7 @@ function saveSelectedSubjectsToRepo() {
     </div>
 
     <button onclick="openAdminLogin()">ADMIN LOGIN</button>
-    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Designed by Chikumbutso Lubaini. All rights reserved.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Designed by Chikumbutso Lubaini(099 40 39 325). All rights reserved.</p>
 </div>
 
 <div id="briefReport" class="page">
@@ -2901,8 +2901,18 @@ async function openSubjectEntryMonitor() {
         const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
         const data = parsed.data;
 
-        const entered = [];
-        const notEntered = [];
+        // Construct HTML Table with requested 3-column structure
+        let html = `
+            <h3 style="margin-top:20px; color:#1a2a6c;">Entry Monitor: ${form.toUpperCase()}</h3>
+            <table id="monitorTable" style="width:100%; border-collapse:collapse; margin-top:10px; border: 1px solid black; background-color:white;">
+                <thead>
+                    <tr style="background-color:#ecf0f1;">
+                        <th style="border: 1px solid black; padding:8px;">SUBJECT</th>
+                        <th style="border: 1px solid black; padding:8px;">ENTERED</th>
+                        <th style="border: 1px solid black; padding:8px;">NOT ENTERED</th>
+                    </tr>
+                </thead>
+                <tbody>`;
 
         ALL_SUBJECTS.forEach(sub => {
             // Check if any student has a score that is not empty, not "-", not "N", and not "X"
@@ -2911,35 +2921,17 @@ async function openSubjectEntryMonitor() {
                 return val !== "" && val !== "-" && val.toUpperCase() !== "N" && val.toUpperCase() !== "X";
             });
 
-            if (hasData) {
-                entered.push(sub);
-            } else {
-                notEntered.push(sub);
-            }
-        });
+            const enteredMark = hasData ? '<b style="color:green;">✅</b>' : "";
+            const notEnteredMark = !hasData ? '<b style="color:red;">❌</b>' : "";
 
-        // Construct HTML Table
-        let html = `
-            <h3 style="margin-top:20px; color:#1a2a6c;">Entry Monitor: ${form.toUpperCase()}</h3>
-            <table id="monitorTable" style="width:100%; border-collapse:collapse; margin-top:10px; border: 1px solid black; background-color:white;">
-                <thead>
-                    <tr style="background-color:#ecf0f1;">
-                        <th style="border: 1px solid black; padding:8px; width:50%;">Subjects Entered</th>
-                        <th style="border: 1px solid black; padding:8px; width:50%;">Not Entered</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-        const rowCount = Math.max(entered.length, notEntered.length);
-        for (let i = 0; i < rowCount; i++) {
-            const ok = entered[i] ? `${entered[i]} <b style="color:green;">✅</b>` : "";
-            const bad = notEntered[i] ? `${notEntered[i]} <b style="color:red;">❌</b>` : "";
             html += `
                 <tr>
-                    <td style="border: 1px solid black; padding:8px; text-align:left;">${ok}</td>
-                    <td style="border: 1px solid black; padding:8px; text-align:left;">${bad}</td>
+                    <td style="border: 1px solid black; padding:8px; text-align:left; font-weight:bold;">${sub}</td>
+                    <td style="border: 1px solid black; padding:8px; text-align:center;">${enteredMark}</td>
+                    <td style="border: 1px solid black; padding:8px; text-align:center;">${notEnteredMark}</td>
                 </tr>`;
-        }
+        });
+
         html += `</tbody></table>`;
         
         container.innerHTML = html;
