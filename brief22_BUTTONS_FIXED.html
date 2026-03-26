@@ -755,6 +755,20 @@ function saveSelectedSubjectsToRepo() {
     <button onclick="openDataEntryAuth()">DATA ENTRY</button>
     <button onclick="openUploadsAuth()">FILE UPLOADS</button>
     <button onclick="openSheetsPage()">PROGRESS,GRADE,ANALYSIS SHEETS</button>
+    <button onclick="openSubjectEntryMonitor()">Subject Score Entry Monitor Below</button>
+   
+    <select id="monitorClassSelect" onchange="openSubjectEntryMonitor()">
+        <option value="">Collapsible</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    
+    
+    <!-- Container for Subject Entry Monitor Table -->
+    <div id="monitorTableContainer" class="table-wrapper" style="margin-top: 20px;"></div>
+
     <button onclick="backToInitialPage()">Logout</button>
 </div>
 
@@ -905,6 +919,7 @@ function saveSelectedSubjectsToRepo() {
         <label for="progressExamNumber">Enter Exam Number</label>
         <input type="text" id="progressExamNumber" placeholder="e.g. J047 or M047">
         <button onclick="openStudentProgressSheet()" style="margin-top: 10px;">View Student Progress</button>
+        <button onclick="generateAllProgressReports()" style="margin-top: 10px; background: #28a745;">Progress Report Generator (Batch PDF)</button>
     </div>
 
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
@@ -1024,7 +1039,7 @@ function computeGradeSheetPositions(students) {
     sorted.forEach((s,i)=>{
         const pos = (s.aggregate === lastAgg) ? lastPos : i + 1;
         s.__gradePosition = pos;
-        lastAgg = s.aggregate;
+        lastAgg = lastAgg;
         lastPos = pos;
     });
     return sorted;
@@ -1039,7 +1054,7 @@ function computePositionsByAggregate(students) {
     sorted.forEach((s,i)=>{
         const pos = (s.aggregate === lastAgg) ? lastPos : i + 1;
         s.position = pos;
-        lastAgg = s.aggregate;
+        lastAgg = lastAgg;
         lastPos = pos;
     });
     return sorted;
@@ -2095,7 +2110,8 @@ async function loadResults(isStudentPortal) {
         } else {
             averageLine.classList.remove('hidden');
             aggregateLine.classList.add('hidden');
-            document.getElementById('reportAverage').textContent = studentMetrics.average > 0 ? studentMetrics.average.toFixed(2) : '0.00';
+            // SURGICAL FIX: Use totalScore for Forms 1 and 2
+            document.getElementById('reportAverage').textContent = studentMetrics.totalScore > 0 ? studentMetrics.totalScore : '0';
         }
 
         document.getElementById('gradeKeyPlaceholder').innerHTML = getGradeKeyTableHTML(form);
@@ -2261,7 +2277,8 @@ async function loadBriefResults() {
     } else {
         averageLine.classList.remove('hidden');
         aggregateLine.classList.add('hidden');
-        document.getElementById('briefReportAverage').textContent = studentMetrics.average > 0 ? studentMetrics.average.toFixed(2) : '0.00';
+        // SURGICAL FIX: Use totalScore for Forms 1 and 2
+        document.getElementById('briefReportAverage').textContent = studentMetrics.totalScore > 0 ? studentMetrics.totalScore : '0';
     }
 
     updateLoadingPercent(100);
@@ -2719,6 +2736,221 @@ function filterGradeSheet(){
     r.style.display=r.innerText.toLowerCase().includes(q)?'':'none';
   });
 }
+
+// --- NEW FUNCTION: BATCH PROGRESS REPORT GENERATOR ---
+async function generateAllProgressReports() {
+    const form = document.getElementById('progressClassSelect').value;
+    if (!form) {
+        alert('Please select a Class/Form first.');
+        return;
+    }
+
+    const data = await fetchClassData(form);
+    if (!data || data.length === 0) {
+        alert('No student data found for this class.');
+        return;
+    }
+
+    const confirmGen = confirm(`Generate and download ${data.length} progress reports for ${form.toUpperCase()}? \n\nNote: Your browser may ask for permission to download multiple files. Please allow it.`);
+    if (!confirmGen) return;
+
+    showLoading();
+    const originalLoadingText = document.getElementById('loadingText').textContent;
+
+    // Ensure config is loaded
+    if (!currentConfig) await initializeConfig(null);
+
+    // Pre-calculate class-wide subject positions for efficiency
+    const subjectPositions = {};
+    ALL_SUBJECTS.forEach(sub => {
+        subjectPositions[sub] = computeSubjectPositions(form, sub, data);
+    });
+
+    // Prepare ranking list
+    const studentsWithMetrics = [];
+    for (const s of data) {
+        const metrics = await calculateStudentMetrics(s, form);
+        studentsWithMetrics.push({
+            examNo: s["Exam Number"],
+            metric: metrics.overallMetric,
+            rankable: metrics.rankable
+        });
+    }
+    let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
+    rankableStudents.sort((a, b) => a.metric - b.metric);
+    const totalRankable = rankableStudents.length;
+
+    // Iterate and Generate
+    for (let i = 0; i < data.length; i++) {
+        const student = data[i];
+        const studentNumber = student["Exam Number"];
+        
+        // Update Loading UI
+        const percent = Math.round(((i + 1) / data.length) * 100);
+        updateLoadingPercent(percent);
+        document.getElementById('loadingText').textContent = `Processing ${i + 1} of ${data.length}: ${student["STUDENT'S NAME"]}`;
+
+        // 1. Populate the hidden report template
+        const metrics = await calculateStudentMetrics(student, form);
+        document.getElementById('reportStudentName').textContent = student["STUDENT'S NAME"] || '-';
+        document.getElementById('reportForm').textContent = form.toUpperCase();
+        document.getElementById('reportExamNo').textContent = studentNumber;
+        document.getElementById('reportTerm').textContent = currentConfig.term;
+        document.getElementById('reportComment').textContent = currentConfig.generalComment;
+
+        const reportBody = document.getElementById('reportBody');
+        reportBody.innerHTML = '';
+
+        [...ALL_SUBJECTS].sort().forEach(subject => {
+            const rawScore = student[subject];
+            const gr = getGradeAndRemark(form, rawScore);
+            const pos = subjectPositions[subject][studentNumber] || '-';
+            const teacher = currentConfig.teachers[form][subject] || DEFAULT_TEACHER;
+            const remark = (form === 'form1' || form === 'form2') ? lowerFormRemarkFromGrade(gr.grade) : gr.remark;
+
+            const row = reportBody.insertRow();
+            row.insertCell().textContent = subject;
+            row.insertCell().textContent = rawScore || '-';
+            row.insertCell().textContent = gr.grade;
+            row.insertCell().textContent = pos;
+            row.insertCell().textContent = remark;
+            row.insertCell().textContent = teacher;
+        });
+
+        // 2. Set Summary Details
+        let overallRank = 'N/A';
+        if (metrics.rankable) {
+            const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
+            if (studentMetric) {
+                const idx = rankableStudents.findIndex(s => s.metric === studentMetric.metric) + 1;
+                overallRank = `${idx}/${totalRankable}`;
+            }
+        }
+        document.getElementById('reportPosition').textContent = overallRank;
+        document.getElementById('reportOverallRemark').textContent = computeFinalRemark(form, student);
+
+        const isUpper = (form === 'form3' || form === 'form4');
+        document.getElementById('aggregateLine').classList.toggle('hidden', !isUpper);
+        document.getElementById('averageLine').classList.toggle('hidden', isUpper);
+        if (isUpper) document.getElementById('reportAggregate').textContent = metrics.aggregate;
+        // SURGICAL FIX: Use totalScore for Forms 1 and 2 in PDF Generator
+        else document.getElementById('reportAverage').textContent = metrics.totalScore;
+
+        document.getElementById('gradeKeyPlaceholder').innerHTML = getGradeKeyTableHTML(form);
+
+        // 3. Convert to PDF and Trigger Download
+        const element = document.getElementById('progressReport');
+        // Temporarily render correctly for capture
+        element.style.display = 'block';
+        element.style.position = 'fixed';
+        element.style.left = '-5000px';
+
+        try {
+            const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [canvas.width, canvas.height]
+            });
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+            
+            const fileName = `${studentNumber}_${student["STUDENT'S NAME"].replace(/\s+/g, '_')}_Report.pdf`;
+            pdf.save(fileName);
+        } catch (err) {
+            console.error(`Failed generating PDF for ${studentNumber}`, err);
+        }
+
+        // Reset visibility
+        element.style.display = 'none';
+        element.style.position = '';
+        element.style.left = '';
+        
+        // Brief pause to prevent browser hang
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    hideLoading();
+    document.getElementById('loadingText').textContent = originalLoadingText;
+    alert('All reports have been generated and sent to your downloads folder.');
+}
+
 </script>
+
+<script>
+// --- SURGICAL FIX: SUBJECT ENTRY MONITOR ---
+async function openSubjectEntryMonitor() {
+    const form = document.getElementById('monitorClassSelect').value;
+    const container = document.getElementById('monitorTableContainer');
+
+    if (!form) {
+        container.innerHTML = '';
+        return;
+    }
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/magawass/m/main/' + form + '.csv');
+        if (!response.ok) throw new Error("Could not find data for " + form.toUpperCase());
+        
+        const csv = await response.text();
+        updateLoadingPercent(70);
+        
+        const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
+        const data = parsed.data;
+
+        const entered = [];
+        const notEntered = [];
+
+        ALL_SUBJECTS.forEach(sub => {
+            // Check if any student has a score that is not empty, not "-", not "N", and not "X"
+            const hasData = data.some(st => {
+                const val = st[sub] ? st[sub].toString().trim() : "";
+                return val !== "" && val !== "-" && val.toUpperCase() !== "N" && val.toUpperCase() !== "X";
+            });
+
+            if (hasData) {
+                entered.push(sub);
+            } else {
+                notEntered.push(sub);
+            }
+        });
+
+        // Construct HTML Table
+        let html = `
+            <h3 style="margin-top:20px; color:#1a2a6c;">Entry Monitor: ${form.toUpperCase()}</h3>
+            <table id="monitorTable" style="width:100%; border-collapse:collapse; margin-top:10px; border: 1px solid black; background-color:white;">
+                <thead>
+                    <tr style="background-color:#ecf0f1;">
+                        <th style="border: 1px solid black; padding:8px; width:50%;">Subjects Entered</th>
+                        <th style="border: 1px solid black; padding:8px; width:50%;">Not Entered</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+        const rowCount = Math.max(entered.length, notEntered.length);
+        for (let i = 0; i < rowCount; i++) {
+            const ok = entered[i] ? `${entered[i]} <b style="color:green;">✅</b>` : "";
+            const bad = notEntered[i] ? `${notEntered[i]} <b style="color:red;">❌</b>` : "";
+            html += `
+                <tr>
+                    <td style="border: 1px solid black; padding:8px; text-align:left;">${ok}</td>
+                    <td style="border: 1px solid black; padding:8px; text-align:left;">${bad}</td>
+                </tr>`;
+        }
+        html += `</tbody></table>`;
+        
+        container.innerHTML = html;
+        hideLoading();
+    } catch (err) {
+        hideLoading();
+        alert("Error: " + err.message);
+        container.innerHTML = `<p style="color:red;">Failed to load monitor data.</p>`;
+    }
+}
+</script>
+
 </body>
 </html>
