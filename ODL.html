@@ -610,7 +610,7 @@ function saveSelectedSubjectsToRepo() {
       <option value="form4">Form 4</option>
     </select>
     <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
-    <input type="text" id="studentNumberInput" placeholder="e.g. J8047 or M8047">
+    <input type="text" id="studentNumberInput" placeholder="e.g. J047 or M047">
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
     <input type="password" id="passwordInput" placeholder="Here / Pano">
 
@@ -620,7 +620,7 @@ function saveSelectedSubjectsToRepo() {
     </div>
 
     <button onclick="openAdminLogin()">ADMIN LOGIN</button>
-    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Designed by Chikumbutso Lubaini(099 40 39 325). All rights reserved.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">For Magawa Exam Department. Designed by Chikumbutso Lubaini. All rights reserved.</p>
 </div>
 
 <div id="briefReport" class="page">
@@ -2714,6 +2714,12 @@ async function showStudentMarksList() {
 function updateStudentScore(form, index, subject, value) {
     if (currentClassData[form] && currentClassData[form][index]) {
         currentClassData[form][index][subject] = value.trim();
+        
+        // AUTO-UPDATE MONITOR: Trigger refresh if the monitor select is set to this form
+        const monitorSelect = document.getElementById('monitorClassSelect');
+        if (monitorSelect && monitorSelect.value === form) {
+            refreshSubjectMonitor(form);
+        }
     }
 }
 
@@ -2878,69 +2884,81 @@ async function generateAllProgressReports() {
 </script>
 
 <script>
-// --- SURGICAL FIX: SUBJECT ENTRY MONITOR ---
+// --- UPDATED SUBJECT ENTRY MONITOR: AUTO-UPDATING COLUMNS ---
 async function openSubjectEntryMonitor() {
     const form = document.getElementById('monitorClassSelect').value;
     const container = document.getElementById('monitorTableContainer');
+    if (!form) { 
+        container.innerHTML = ''; 
+        return; 
+    }
+    await refreshSubjectMonitor(form);
+}
 
-    if (!form) {
-        container.innerHTML = '';
-        return;
+async function refreshSubjectMonitor(form) {
+    const container = document.getElementById('monitorTableContainer');
+    
+    // Check if data is already in memory; if not, fetch it.
+    let data = currentClassData[form];
+    if (!data || data.length === 0) {
+        try {
+            const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`);
+            if (!response.ok) throw new Error("File not found");
+            const csv = await response.text();
+            const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
+            data = parsed.data;
+            currentClassData[form] = data; // Cache in memory
+        } catch (err) {
+            container.innerHTML = `<p style="color:red;margin-top:10px;">No data file found for ${form.toUpperCase()}.</p>`;
+            return;
+        }
     }
 
-    showLoading();
-    updateLoadingPercent(10);
+    let enteredSubjects = [];
+    let notEnteredSubjects = [];
 
-    try {
-        const response = await fetch('https://raw.githubusercontent.com/magawass/m/main/' + form + '.csv');
-        if (!response.ok) throw new Error("Could not find data for " + form.toUpperCase());
-        
-        const csv = await response.text();
-        updateLoadingPercent(70);
-        
-        const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
-        const data = parsed.data;
-
-        // Construct HTML Table with requested 3-column structure
-        let html = `
-            <h3 style="margin-top:20px; color:#1a2a6c;">Entry Monitor: ${form.toUpperCase()}</h3>
-            <table id="monitorTable" style="width:100%; border-collapse:collapse; margin-top:10px; border: 1px solid black; background-color:white;">
-                <thead>
-                    <tr style="background-color:#ecf0f1;">
-                        <th style="border: 1px solid black; padding:8px;">SUBJECT</th>
-                        <th style="border: 1px solid black; padding:8px;">ENTERED</th>
-                        <th style="border: 1px solid black; padding:8px;">NOT ENTERED</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-        ALL_SUBJECTS.forEach(sub => {
-            // Check if any student has a score that is not empty, not "-", not "N", and not "X"
-            const hasData = data.some(st => {
-                const val = st[sub] ? st[sub].toString().trim() : "";
-                return val !== "" && val !== "-" && val.toUpperCase() !== "N" && val.toUpperCase() !== "X";
-            });
-
-            const enteredMark = hasData ? '<b style="color:green;">✅</b>' : "";
-            const notEnteredMark = !hasData ? '<b style="color:red;">❌</b>' : "";
-
-            html += `
-                <tr>
-                    <td style="border: 1px solid black; padding:8px; text-align:left; font-weight:bold;">${sub}</td>
-                    <td style="border: 1px solid black; padding:8px; text-align:center;">${enteredMark}</td>
-                    <td style="border: 1px solid black; padding:8px; text-align:center;">${notEnteredMark}</td>
-                </tr>`;
+    // Logic: A subject is "Entered" if at least ONE student has a numeric score.
+    ALL_SUBJECTS.forEach(sub => {
+        const hasScore = data.some(student => {
+            const score = student[sub] ? student[sub].toString().trim() : "";
+            // Check for valid entry: not empty, not just a dash, and not N/X indicators
+            return score !== "" && score !== "-" && score.toUpperCase() !== "N" && score.toUpperCase() !== "X" && !isNaN(parseInt(score));
         });
 
-        html += `</tbody></table>`;
-        
-        container.innerHTML = html;
-        hideLoading();
-    } catch (err) {
-        hideLoading();
-        alert("Error: " + err.message);
-        container.innerHTML = `<p style="color:red;">Failed to load monitor data.</p>`;
+        if (hasScore) {
+            enteredSubjects.push(sub);
+        } else {
+            notEnteredSubjects.push(sub);
+        }
+    });
+
+    // Build the Monitor Table
+    let html = `<h3 style="margin-top:20px;color:#1a2a6c;text-align:center;">Real-time Monitor: ${form.toUpperCase()}</h3>
+        <table id="monitorTable" style="width:100%;border-collapse:collapse;margin-top:10px;border:2px solid #1a2a6c;background-color:white;">
+        <thead>
+            <tr style="background-color:#1a2a6c; color: white;">
+                <th style="border:1px solid #ddd;padding:12px;width:50%;">SUBJECTS ENTERED ✅</th>
+                <th style="border:1px solid #ddd;padding:12px;width:50%;">SUBJECTS NOT ENTERED ❌</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+    const rowCount = Math.max(enteredSubjects.length, notEnteredSubjects.length);
+    if (rowCount === 0) {
+        html += `<tr><td colspan="2" style="padding:20px;text-align:center;">No subjects found for this class.</td></tr>`;
+    } else {
+        for (let i = 0; i < rowCount; i++) {
+            html += `<tr>
+                <td style="border:1px solid #ddd;padding:10px;text-align:center;color:green;font-weight:bold;">${enteredSubjects[i] || ''}</td>
+                <td style="border:1px solid #ddd;padding:10px;text-align:center;color:red;font-weight:bold;">${notEnteredSubjects[i] || ''}</td>
+            </tr>`;
+        }
     }
+
+    html += `</tbody></table>
+    <p style="font-size:10px; color:#7f8c8d; margin-top:5px;">*Monitor updates instantly as you type scores in the Data Entry section.</p>`;
+    
+    container.innerHTML = html;
 }
 </script>
 
