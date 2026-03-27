@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -128,15 +128,16 @@ function saveSelectedSubjectsToRepo() {
     /* Global Reset and Box Sizing */
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Body - Full view height, professional background */
+    /* Body - SURGICAL FIX: Align to flex-start and enable scrolling to prevent chopping */
     body {
         background: #1a2a6c;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         min-height: 100vh;
         padding: 20px;
+        overflow-y: auto;
     }
 
     /* --- Loading Indicator Styles --- */
@@ -186,7 +187,7 @@ function saveSelectedSubjectsToRepo() {
         100% { transform: rotate(360deg); }
     }
 
-    /* Page Container */
+    /* Page Container - SURGICAL FIX: Auto margins for horizontal centering and vertical space */
     .page {
         display: none;
         width: 95%;
@@ -195,8 +196,10 @@ function saveSelectedSubjectsToRepo() {
         background: #ffffff;
         border-radius: 12px;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        margin: 20px 0;
+        margin: 20px auto;
         text-align: center;
+        height: auto;
+        overflow: visible;
     }
 
     #initialPage { display: block; text-align: center; }
@@ -587,6 +590,15 @@ function saveSelectedSubjectsToRepo() {
     }
 }
 
+.teacher-input-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
 </style>
 </head>
 <body>
@@ -884,6 +896,25 @@ function saveSelectedSubjectsToRepo() {
     </select>
     <input type="file" id="csvUpload" accept=".csv">
     <button onclick="uploadCSV()">Upload CSV</button>
+
+    <hr style="margin: 20px 0; border: 1px solid #ccc;">
+    <h3>Manual Student Entry</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Add individual students missed during CSV upload.</p>
+    
+    <label for="manualClassSelect">Select Class:</label>
+    <select id="manualClassSelect">
+        <option value="">--Select Class--</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    <input type="text" id="manualStudentName" placeholder="Full Student Name">
+    <input type="text" id="manualExamNumber" placeholder="Exam Number (e.g. J047)">
+    <input type="text" id="manualDOB" placeholder="Date of Birth (e.g. 2005-12-01)">
+    <button onclick="addStudentManually()" style="background: #17a2b8;">Add Student to List</button>
+
+    <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <label for="deleteDropdown">Select File to Delete:</label>
     <select id="deleteDropdown">
         <option value="">-- Select CSV File --</option>
@@ -2959,6 +2990,122 @@ async function refreshSubjectMonitor(form) {
     <p style="font-size:10px; color:#7f8c8d; margin-top:5px;">*Monitor updates instantly as you type scores in the Data Entry section.</p>`;
     
     container.innerHTML = html;
+}
+
+// --- SURGICAL FIX: MANUAL STUDENT ENTRY LOGIC ---
+async function addStudentManually() {
+    const token = document.getElementById('githubToken').value;
+    const form = document.getElementById('manualClassSelect').value;
+    const name = document.getElementById('manualStudentName').value.trim();
+    const examNo = document.getElementById('manualExamNumber').value.trim().toUpperCase();
+    const dob = document.getElementById('manualDOB').value.trim();
+
+    if (!token) { alert('Authorization Code required.'); return; }
+    if (!form || !name || !examNo) { alert('Form, Name, and Exam Number are required.'); return; }
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    try {
+        // Fetch existing data to append to
+        let classData = await fetchClassData(form);
+        updateLoadingPercent(40);
+
+        // Check for duplicate exam number
+        if (classData.some(s => s["Exam Number"] === examNo)) {
+            hideLoading();
+            alert('Student with this Exam Number already exists.');
+            return;
+        }
+
+        // Create the new student object based on ALL_HEADERS
+        const newStudent = {};
+        ALL_HEADERS.forEach(header => {
+            if (header === "STUDENT'S NAME") newStudent[header] = name;
+            else if (header === "Exam Number") newStudent[header] = examNo;
+            else if (header === "Date of Birth") newStudent[header] = dob;
+            else newStudent[header] = '-'; // Set default score to dash
+        });
+
+        // Add to local memory
+        classData.push(newStudent);
+        currentClassData[form] = classData;
+
+        // Save entire updated class file back to GitHub
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(60);
+
+        const csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(csvString);
+        const commitMessage = `Added student: ${name} (${examNo}) to ${form}`;
+
+        const result = await commitFile(fileName, commitMessage, base64Content, currentSha, token, 'PUT');
+
+        hideLoading();
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            alert(`${name} added successfully to ${form.toUpperCase()}!`);
+            // Clear inputs
+            document.getElementById('manualStudentName').value = '';
+            document.getElementById('manualExamNumber').value = '';
+            document.getElementById('manualDOB').value = '';
+        }
+    } catch (error) {
+        hideLoading();
+        console.error('Manual add failed:', error);
+        alert(`Failed to add student: ${error.message}`);
+    }
+}
+</script>
+
+
+<script>
+/* SURGICAL FIX: Override teacher input rendering */
+function populateTeacherInputs() {
+    const panel = document.getElementById('teacherAssignmentPanel');
+    const selectedClass = document.getElementById('classTeacherDropdown').value;
+
+    if (!panel || !selectedClass) return;
+
+    panel.innerHTML = '';
+
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+    table.style.marginTop = '10px';
+
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr style="background:#ecf0f1;">
+            <th style="border:1px solid #ccc; padding:10px;">SUBJECT</th>
+            <th style="border:1px solid #ccc; padding:10px;">TEACHER</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+
+    ALL_SUBJECTS.forEach(subject => {
+        const shortName = getSubjectShortName(subject);
+        const inputId = `${selectedClass}_${shortName}`;
+        const teacherName = (currentConfig && currentConfig.teachers && currentConfig.teachers[selectedClass] && currentConfig.teachers[selectedClass][subject]) || '';
+
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td style="border:1px solid #ccc; padding:10px;">${subject}</td>
+            <td style="border:1px solid #ccc; padding:10px;">
+                <input type="text" id="${inputId}" value="${teacherName}"
+                style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; text-align:center;">
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    panel.appendChild(table);
 }
 </script>
 
