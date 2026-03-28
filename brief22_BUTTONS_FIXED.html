@@ -1,3 +1,4 @@
+<DOCUMENT filename="DAY Final2 (3).html">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,6 +65,30 @@ function toggleSubjectLock() {
         (currentConfig.locks[selectedClass][subject]
             ? '<span class="lock-indicator locked">🔒 LOCKED</span>'
             : '<span class="lock-indicator unlocked">🔓 UNLOCKED</span>');
+}
+
+function togglePasswordAccess() {
+    if (!currentConfig) {
+        alert('Configuration not loaded. Please enter Authorization Code.');
+        return;
+    }
+    
+    currentConfig.passwordEnabled = !currentConfig.passwordEnabled;
+    
+    updatePasswordAccessStatus();
+}
+
+function updatePasswordAccessStatus() {
+    const status = document.getElementById('passwordAccessStatus');
+    if (!status) return;
+    
+    if (currentConfig.passwordEnabled !== false) {
+        status.textContent = 'Password access is currently ENABLED.';
+        status.style.color = '#2ecc71';
+    } else {
+        status.textContent = 'Password access is currently DISABLED.';
+        status.style.color = '#e74c3c';
+    }
 }
 
 function populateDataSubjectSelect() {
@@ -979,6 +1004,12 @@ function saveSelectedSubjectsToRepo() {
     </div>
 </div>
 
+<hr style="margin: 20px 0; border: 1px solid #ccc;">
+<h3>Portal Access Control</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Enable or disable password requirement on the exam portal front page.</p>
+<button onclick="togglePasswordAccess()" id="passwordAccessBtn">Toggle Password Access</button>
+<p id="passwordAccessStatus" style="font-size:11px; color:#2ecc71;"></p>
+
 </div>
 
 <div id="sheetsPage" class="page">
@@ -1282,7 +1313,8 @@ function getDefaultConfig() {
         generalComment: 'Excellent effort. Keep up the hard work.',
         gradeKeyLower: GRADE_KEY_LOWER,
         gradeKeyUpper: GRADE_KEY_UPPER,
-        teachers: teachers
+        teachers: teachers,
+        passwordEnabled: true
     };
 }
 
@@ -1679,7 +1711,8 @@ async function handleSaveConfig() {
         generalComment: document.getElementById('generalCommentInput').value,
         gradeKeyLower: currentConfig.gradeKeyLower,
         gradeKeyUpper: currentConfig.gradeKeyUpper,
-        teachers: {}
+        teachers: {},
+        passwordEnabled: currentConfig.passwordEnabled
     };
 
     ALL_CLASSES.forEach(form => {
@@ -2048,6 +2081,7 @@ async function openUploadsAuth() {
     await initializeConfig(token);
     await refreshFileList();
     populateGradeEditors();
+    updatePasswordAccessStatus();
     goToPage('uploadsPage');
 }
 
@@ -2061,19 +2095,42 @@ function openDataEntryAuth() {
     openDataEntryPage();
 }
 
+// SURGICAL FIX - Password logic when disabled
 async function loadResults(isStudentPortal) {
     try {
         const form = document.getElementById('selectedForm').value;
         const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
         const password = document.getElementById('passwordInput').value;
 
-        if (!form || !studentNumber || (isStudentPortal && !password)) {
-            alert('Please fill in all required fields.');
+        if (!form || !studentNumber) {
+            alert('Please select a form and enter exam number.');
             return;
         }
 
         if (!currentConfig) {
             await initializeConfig(null);
+        }
+
+        const passwordRequired = currentConfig.passwordEnabled !== false;
+
+        // When password is DISABLED, deny access regardless of whether password is entered or not
+        if (isStudentPortal && !passwordRequired) {
+            alert('Access denied. End of Term Exams not yet out.');
+            document.getElementById('passwordInput').value = '';
+            return;
+        }
+
+        // When password is ENABLED, require correct password
+        if (isStudentPortal && passwordRequired) {
+            if (!password) {
+                alert('Please enter password.');
+                return;
+            }
+            if (password !== '000') {
+                alert('Invalid password.');
+                hideLoading();
+                return;
+            }
         }
 
         showLoading();
@@ -2096,14 +2153,6 @@ async function loadResults(isStudentPortal) {
             alert('Student not found.');
             hideLoading();
             return;
-        }
-
-        if (isStudentPortal) {
-            if (password !== '000') {
-                alert('Invalid password.');
-                hideLoading();
-                return;
-            }
         }
 
         const studentsWithMetrics = [];
@@ -2190,7 +2239,6 @@ async function loadResults(isStudentPortal) {
         } else {
             averageLine.classList.remove('hidden');
             aggregateLine.classList.add('hidden');
-            // SURGICAL FIX: Use totalScore for Forms 1 and 2
             document.getElementById('reportAverage').textContent = studentMetrics.totalScore > 0 ? studentMetrics.totalScore : '0';
         }
 
@@ -2257,13 +2305,27 @@ async function loadBriefResults() {
     const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
     const password = document.getElementById('passwordInput').value;
 
-    if (!form || !studentNumber || !password) {
-        alert('Please fill in all fields.');
+    if (!form || !studentNumber) {
+        alert('Please select a form and enter exam number.');
         return;
     }
 
     if (!currentConfig) {
         await initializeConfig(null);
+    }
+
+    const passwordRequiredBrief = currentConfig.passwordEnabled !== false;
+
+    // SURGICAL FIX: When disabled, deny access whether password entered or not
+    if (passwordRequiredBrief === false) {
+        alert('Access denied. End of Term Exams not yet out.');
+        document.getElementById('passwordInput').value = '';
+        return;
+    }
+
+    if (passwordRequiredBrief && !password) {
+        alert('Please enter password.');
+        return;
     }
 
     showLoading();
@@ -2286,7 +2348,7 @@ async function loadBriefResults() {
         return;
     }
 
-    if (password !== '000') {
+    if (passwordRequiredBrief && password !== '000') {
         alert('Invalid password.');
         return;
     }
@@ -2357,7 +2419,6 @@ async function loadBriefResults() {
     } else {
         averageLine.classList.remove('hidden');
         aggregateLine.classList.add('hidden');
-        // SURGICAL FIX: Use totalScore for Forms 1 and 2
         document.getElementById('briefReportAverage').textContent = studentMetrics.totalScore > 0 ? studentMetrics.totalScore : '0';
     }
 
@@ -3281,3 +3342,4 @@ async function shareProgressReportOnWhatsApp() {
 
 </body>
 </html>
+</DOCUMENT>
