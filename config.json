@@ -1,6 +1,5 @@
 {
-  "selectedYear": "2025",
-  "selectedTerm": "1",
+  "term": "3",
   "generalComment": "Uniform:   Girls   -   white blouse,   black skirt, black shoe.           Boys - white shirt,   black pair of trousers,   Both  - black shoes and  jersey(optional)                                                                \nNext Term opens on 5th January 2026",
   "gradeKeyLower": {
     "A": 80,
@@ -73,5 +72,6 @@
       "Physics": "Master",
       "Social/Life": "Banda G"
     }
-  }
+  },
+  "passwordEnabled": false
 }
