@@ -1,4 +1,3 @@
-<DOCUMENT filename="DAY Final2 (3).html">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -435,6 +434,18 @@ function saveSelectedSubjectsToRepo() {
         .teacher-input-group { flex-direction: column; align-items: stretch; }
         .teacher-input-group label { flex-basis: auto; text-align: center !important; }
         .teacher-input-group input[type="text"] { flex-basis: auto; text-align: center !important; }
+
+        /* Surgical Fix: Sheets Overview & Initial Page Mobile Layout Alignment */
+        #sheetsPage h2, #initialPage h2 { margin-top: 40px; }
+        #sheetsPage div[style*="display: flex"], #initialPage div[style*="display: flex"] { 
+            flex-direction: column !important; 
+            align-items: center !important; 
+        }
+        #sheetsPage div[style*="display: flex"] button, #initialPage div[style*="display: flex"] button { 
+            width: 100% !important; 
+            max-width: 400px !important; 
+            margin: 10px auto 0 auto !important; 
+        }
     }
 
     /* Desktop Table Adjustments */
@@ -3342,4 +3353,3 @@ async function shareProgressReportOnWhatsApp() {
 
 </body>
 </html>
-</DOCUMENT>
