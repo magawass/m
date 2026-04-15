@@ -10,7 +10,16 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script>
+window.alert = function(){};
+window.confirm = function(){return true;};
 // --- EXCEL EXPORT FUNCTION ---
+function getExcelExportPrefix() {
+    const schoolName = 'Magawa_Secondary';
+    const term = (currentConfig && currentConfig.term) ? 'Term' + currentConfig.term : 'Term1';
+    const year = new Date().getFullYear();
+    return schoolName + '_' + term + '_' + year + '_';
+}
+
 function exportToExcel(tableId, filename) {
     const table = document.getElementById(tableId);
     if (!table) {
@@ -111,7 +120,7 @@ function saveScoresAsExcel() {
         return;
     }
     
-    exportToExcel('dataEntryTable', `Scores_${form}_${subject}`);
+    exportToExcel('dataEntryTable', getExcelExportPrefix() + 'Scores_' + form + '_' + subject);
 }
 
 function saveSelectedSubjectsToRepo() {
@@ -824,7 +833,7 @@ function saveSelectedSubjectsToRepo() {
     <h2>Enter code to load and upload</h2>
     <input type="password" id="githubToken" placeholder="" style="margin-bottom: 20px;">
     <button onclick="openDataEntryAuth()">DATA ENTRY</button>
-    <button onclick="openUploadsAuth()">FILE UPLOADS</button>
+    <button onclick="goToPage('uploadsLoginPage')">FILE UPLOADS</button>
     <button onclick="openSheetsPage()">PROGRESS,GRADE,ANALYSIS SHEETS</button>
     <button onclick="openSubjectEntryMonitor()">Subject Score Entry Monitor Below</button>
    
@@ -841,6 +850,13 @@ function saveSelectedSubjectsToRepo() {
     <div id="monitorTableContainer" class="table-wrapper" style="margin-top: 20px;"></div>
 
     <button onclick="backToInitialPage()">Logout</button>
+</div>
+
+<div id="uploadsLoginPage" class="page">
+    <h2>Enter Uploads Password</h2>
+    <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    <input type="password" id="uploadsPassword" placeholder="Enter password">
+    <button onclick="verifyUploadsAccess()">Access Uploads</button>
 </div>
 
 <div id="dataEntryPage" class="page">
@@ -892,12 +908,14 @@ function saveSelectedSubjectsToRepo() {
 </div>
 
 <div id="scoreSheetView" class="page">
-    <h2>Mark Sheet</h2>
-<input type="text" id="scoreSearchInput" placeholder="Search student..." onkeyup="filterScoreSheet()" style="max-width:300px;">
-
     <button onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
 
-    <label for="sheetClassSelect">Select Class/Form</label>
+    <div id="markSheetHeader" style="text-align:center; margin-bottom:10px;">
+        <h2 style="margin:0;">MAGAWA SECONDARY SCHOOL</h2>
+        <p style="margin:2px 0; font-size:0.95em;"><strong>Mark Sheet</strong> | Class: <span id="markSheetClassLabel">--</span> | Term: <span id="markSheetTermLabel">--</span> | Year: <span id="markSheetYearLabel">--</span></p>
+    </div>
+<input type="text" id="scoreSearchInput" placeholder="Search student..." onkeyup="filterScoreSheet()" style="max-width:300px;">
+
     <select id="sheetClassSelect" onchange="displayScoreSheet()">
         <option value="">-- Select Class --</option>
         <option value="form1">Form 1</option>
@@ -907,7 +925,7 @@ function saveSelectedSubjectsToRepo() {
     </select>
 
     <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <button onclick="exportToExcel('scoresTable', 'ScoreSheet')" class="small-btn" style="background: #28a745; margin: 5px;">Export to Excel</button>
+        <button onclick="exportToExcel('scoresTable', 'Magawa_Secondary_Mark_Sheet')" class="small-btn" style="background: #28a745; margin: 5px;">Export to Excel</button>
         <button onclick="printSheet('scoreSheetView')" class="small-btn" style="max-width: 150px; margin: 5px;">Print Sheet</button>
     </div>
 
@@ -992,10 +1010,18 @@ function saveSelectedSubjectsToRepo() {
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Grade Range Editor</h3>
-<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Update the grade boundaries below. Changes apply instantly to all calculations, reports, and sheets.</p>
-<div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; margin-top: 15px;">
-    <div style="min-width: 280px; flex: 1;">
-        <h4 style="text-align: center; margin-bottom: 10px; color: #1a2a6c;">Forms 1 &amp; 2 (A-F Grades)</h4>
+<label for="gradeEditorClassSelect">Select Class to Upgrade Grading System:</label>
+<select id="gradeEditorClassSelect" onchange="populateGradeEditors()">
+    <option value="">-- Select Class --</option>
+    <option value="form1">Form 1</option>
+    <option value="form2">Form 2</option>
+    <option value="form3">Form 3</option>
+    <option value="form4">Form 4</option>
+</select>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Select a class above, then update the grade boundaries. Changes save instantly to GitHub and update all sheets immediately.</p>
+<div id="gradeEditorContainer" style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; margin-top: 15px;">
+    <div id="lowerGradeEditorWrapper" style="min-width: 280px; flex: 1; display: none;">
+        <h4 style="text-align: center; margin-bottom: 10px; color: #1a2a6c;" id="lowerGradeEditorTitle">Forms 1 &amp; 2 (A-F Grades)</h4>
         <div class="table-wrapper">
             <table id="lowerGradeEditor">
                 <thead>
@@ -1008,8 +1034,8 @@ function saveSelectedSubjectsToRepo() {
             </table>
         </div>
     </div>
-    <div style="min-width: 280px; flex: 1;">
-        <h4 style="text-align: center; margin-bottom: 10px; color: #1a2a6c;">Forms 3 &amp; 4 (1-9 Grades)</h4>
+    <div id="upperGradeEditorWrapper" style="min-width: 280px; flex: 1; display: none;">
+        <h4 style="text-align: center; margin-bottom: 10px; color: #1a2a6c;" id="upperGradeEditorTitle">Forms 3 &amp; 4 (1-9 Grades)</h4>
         <div class="table-wrapper">
             <table id="upperGradeEditor">
                 <thead>
@@ -1023,12 +1049,104 @@ function saveSelectedSubjectsToRepo() {
         </div>
     </div>
 </div>
+<p id="gradeEditorStatus" style="font-size:11px; color:#2ecc71; margin-top:10px;"></p>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Portal Access Control</h3>
 <p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Enable or disable password requirement on the exam portal front page.</p>
 <button onclick="togglePasswordAccess()" id="passwordAccessBtn">Toggle Password Access</button>
 <p id="passwordAccessStatus" style="font-size:11px; color:#2ecc71;"></p>
+
+<hr style="margin: 20px 0; border: 1px solid #ccc;">
+<h3>Archive Results to m2</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Archive current class results to the m2 repository for safekeeping.</p>
+<label for="archiveClassSelect">Select Class:</label>
+<select id="archiveClassSelect">
+    <option value="">-- Select Class --</option>
+    <option value="form1">Form 1</option>
+    <option value="form2">Form 2</option>
+    <option value="form3">Form 3</option>
+    <option value="form4">Form 4</option>
+</select>
+<label for="archiveTermSelect">Select Term:</label>
+<select id="archiveTermSelect">
+    <option value="">-- Select Term --</option>
+    <option value="1">Term 1</option>
+    <option value="2">Term 2</option>
+    <option value="3">Term 3</option>
+</select>
+<label for="archiveYearSelect">Select Year:</label>
+<select id="archiveYearSelect">
+    <option value="">-- Select Year --</option>
+</select>
+<button onclick="archiveResultsToM2()" style="background: #8e44ad;">Archive to m2</button>
+<p id="archiveStatus" style="font-size:11px; color:#2ecc71;"></p>
+
+<hr style="margin: 20px 0; border: 1px solid #ccc;">
+<h3>Clear Archived Results from m2</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Remove archived results from the m2 repository.</p>
+<label for="clearArchiveClassSelect">Select Class:</label>
+<select id="clearArchiveClassSelect">
+    <option value="">-- Select Class --</option>
+    <option value="form1">Form 1</option>
+    <option value="form2">Form 2</option>
+    <option value="form3">Form 3</option>
+    <option value="form4">Form 4</option>
+</select>
+<label for="clearArchiveTermSelect">Select Term:</label>
+<select id="clearArchiveTermSelect">
+    <option value="">-- Select Term --</option>
+    <option value="1">Term 1</option>
+    <option value="2">Term 2</option>
+    <option value="3">Term 3</option>
+</select>
+<label for="clearArchiveYearSelect">Select Year:</label>
+<select id="clearArchiveYearSelect">
+    <option value="">-- Select Year --</option>
+</select>
+<button onclick="clearArchivedResults()" style="background: #c0392b;">Clear Archive from m2</button>
+<p id="clearArchiveStatus" style="font-size:11px; color:#e74c3c;"></p>
+
+<hr style="margin: 20px 0; border: 1px solid #ccc;">
+<h3>View Archived Results from m2</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Load and view previously archived results.</p>
+<label for="viewArchiveYearSelect">Select Year:</label>
+<select id="viewArchiveYearSelect" onchange="loadArchiveFolderList()">
+    <option value="">-- Select Year --</option>
+</select>
+<label for="viewArchiveClassSelect">Select Class:</label>
+<select id="viewArchiveClassSelect" onchange="loadArchiveTermList()">
+    <option value="">-- Select Class --</option>
+    <option value="form1">Form 1</option>
+    <option value="form2">Form 2</option>
+    <option value="form3">Form 3</option>
+    <option value="form4">Form 4</option>
+</select>
+<label for="viewArchiveTermSelect">Select Term:</label>
+<select id="viewArchiveTermSelect" onchange="loadArchivedData()">
+    <option value="">-- Select Term --</option>
+    <option value="1">Term 1</option>
+    <option value="2">Term 2</option>
+    <option value="3">Term 3</option>
+</select>
+<input type="text" id="viewArchiveSearchInput" placeholder="Search by name or exam number..." onkeyup="filterArchivedResults()" style="max-width:400px;margin-top:8px;">
+<button onclick="viewArchivedResults()" style="background: #2980b9;">View Archive</button>
+<p id="viewArchiveStatus" style="font-size:11px; color:#2980b9;"></p>
+<div id="archivedResultsContainer" class="table-wrapper" style="margin-top:10px; display:none;">
+    <table id="archivedResultsTable" style="width:100%; border-collapse:collapse; font-size:0.9em; border:1px solid black;">
+        <thead>
+            <tr style="background:#ecf0f1;">
+                <th style="border:1px solid black; padding:8px;">Exam Number</th>
+                <th style="border:1px solid black; padding:8px;">Name</th>
+                <th style="border:1px solid black; padding:8px;" id="archivedSubjectHeader">Subject</th>
+                <th style="border:1px solid black; padding:8px;">Score</th>
+                <th style="border:1px solid black; padding:8px;">Grade</th>
+                <th style="border:1px solid black; padding:8px;">Remark</th>
+            </tr>
+        </thead>
+        <tbody id="archivedResultsBody"></tbody>
+    </table>
+</div>
 
 </div>
 
@@ -1059,12 +1177,14 @@ function saveSelectedSubjectsToRepo() {
 </div>
 
 <div id="gradesPage" class="page">
-    <h2>Grades Sheet</h2>
-<input type="text" id="gradeSearchInput" placeholder="Search student..." onkeyup="filterGradeSheet()" style="max-width:300px;">
-
     <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
 
-    <label for="gradesClassSelect">Select Class/Form</label>
+    <div id="gradeSheetHeader" style="text-align:center; margin-bottom:10px;">
+        <h2 style="margin:0;">MAGAWA SECONDARY SCHOOL</h2>
+        <p style="margin:2px 0; font-size:0.95em;"><strong>Grade Sheet</strong> | Class: <span id="gradeSheetClassLabel">--</span> | Term: <span id="gradeSheetTermLabel">--</span> | Year: <span id="gradeSheetYearLabel">--</span></p>
+    </div>
+<input type="text" id="gradeSearchInput" placeholder="Search student..." onkeyup="filterGradeSheet()" style="max-width:300px;">
+
     <select id="gradesClassSelect" onchange="displayGradesSheet()">
         <option value="">-- Select Class --</option>
         <option value="form1">Form 1</option>
@@ -1074,7 +1194,7 @@ function saveSelectedSubjectsToRepo() {
     </select>
 
     <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <button onclick="exportToExcel('gradesTable', 'GradeSheet')" class="small-btn" style="background: #28a745; margin: 5px;">Export to Excel</button>
+        <button onclick="exportToExcel('gradesTable', 'Magawa_Secondary_Grade_Sheet')" class="small-btn" style="background: #28a745; margin: 5px;">Export to Excel</button>
         <button onclick="printSheet('gradesPage')" class="small-btn" style="max-width: 150px; margin: 5px;">Print Sheet</button>
     </div>
 
@@ -1098,9 +1218,16 @@ function saveSelectedSubjectsToRepo() {
 </div>
 
 <div id="analysisPage" class="page">
-    <h2 id="analysisTitle">Class Analysis Report</h2>
     <button onclick="openAnalysisSelector()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
-    <button onclick="printSheet('analysisPage')" class="small-btn" style="float: right; margin-top: 10px; max-width: 150px;">Print Analysis (Landscape)</button>
+
+    <div id="analysisSheetHeader" style="text-align:center; margin-bottom:10px;">
+        <h2 style="margin:0;">MAGAWA SECONDARY SCHOOL</h2>
+        <p style="margin:2px 0; font-size:0.95em;"><strong>Analysis Sheet</strong> | Class: <span id="analysisSheetClassLabel">--</span> | Term: <span id="analysisSheetTermLabel">--</span> | Year: <span id="analysisSheetYearLabel">--</span></p>
+    </div>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button onclick="exportToExcel('analysisTable', 'Magawa_Secondary_Analysis_Sheet')" class="small-btn" style="background: #28a745; margin: 5px;">Export to Excel</button>
+        <button onclick="printSheet('analysisPage')" class="small-btn" style="max-width: 150px; margin: 5px;">Print Analysis (Landscape)</button>
+    </div>
     <div id="analysisTableWrapper" class="table-wrapper"> </div>
 </div>
 
@@ -2092,6 +2219,14 @@ function openAdminHome() {
     goToPage('adminHomePage');
 }
 
+async function verifyUploadsAccess() {
+    const password = document.getElementById('uploadsPassword').value;
+    if (password === 'exam0') {
+        document.getElementById('uploadsPassword').value = '';
+        await openUploadsAuth();
+    }
+}
+
 async function openUploadsAuth() {
     const token = document.getElementById('githubToken').value;
     if (!token) {
@@ -2101,6 +2236,7 @@ async function openUploadsAuth() {
     await initializeConfig(token);
     await refreshFileList();
     populateGradeEditors();
+    populateArchiveYearDropdowns();
     updatePasswordAccessStatus();
     goToPage('uploadsPage');
 }
@@ -2570,7 +2706,10 @@ function openAnalysisPage() {
         alert('Please select a class.');
         return;
     }
-    document.getElementById('analysisTitle').textContent = `${form.toUpperCase()} Class Analysis Report`;
+    // Update analysis sheet header
+    document.getElementById('analysisSheetClassLabel').textContent = form.toUpperCase();
+    document.getElementById('analysisSheetTermLabel').textContent = currentConfig && currentConfig.term ? 'Term ' + currentConfig.term : 'Term 1';
+    document.getElementById('analysisSheetYearLabel').textContent = new Date().getFullYear();
     displayAnalysisSheet(form);
     goToPage('analysisPage');
 }
@@ -2640,6 +2779,11 @@ async function displayScoreSheet() {
 
     html += '</tbody></table>';
     wrapper.innerHTML = html;
+
+    // Update mark sheet header
+    document.getElementById('markSheetClassLabel').textContent = form.toUpperCase();
+    document.getElementById('markSheetTermLabel').textContent = currentConfig && currentConfig.term ? 'Term ' + currentConfig.term : 'Term 1';
+    document.getElementById('markSheetYearLabel').textContent = new Date().getFullYear();
 }
 
 async function displayGradesSheet() {
@@ -2722,7 +2866,12 @@ async function displayGradesSheet() {
     });
 
     html += '</tbody></table>';
-    wrapper.innerHTML = html;      
+    wrapper.innerHTML = html;
+
+    // Update grade sheet header
+    document.getElementById('gradeSheetClassLabel').textContent = form.toUpperCase();
+    document.getElementById('gradeSheetTermLabel').textContent = currentConfig && currentConfig.term ? 'Term ' + currentConfig.term : 'Term 1';
+    document.getElementById('gradeSheetYearLabel').textContent = new Date().getFullYear();
 }
 
 async function displayAnalysisSheet(form) {
@@ -3241,51 +3390,72 @@ function populateTeacherInputs() {
 </script>
 
 <script>
-// --- SURGICAL FIX: Grade Range Editor and WhatsApp Share ---
+// --- SURGICAL FIX: Grade Range Editor with Class Dropdown and Instant GitHub Sync ---
 function populateGradeEditors() {
     if (!currentConfig) {
         console.warn('Config not loaded for grade editors');
         return;
     }
-    // Lower Forms 1 & 2
-    let lowerTable = document.getElementById('lowerGradeEditor');
-    if (lowerTable) {
-        const tbody = lowerTable.querySelector('tbody');
-        tbody.innerHTML = '';
-        const lowerKeys = Object.keys(currentConfig.gradeKeyLower).sort((a, b) => currentConfig.gradeKeyLower[b] - currentConfig.gradeKeyLower[a]);
-        lowerKeys.forEach(grade => {
-            const minScore = currentConfig.gradeKeyLower[grade];
-            const rowHTML = `
-                <tr>
-                    <td style="border:1px solid #ccc; padding:8px; text-align:center; font-weight:bold;">${grade}</td>
-                    <td style="border:1px solid #ccc; padding:8px;">
-                        <input type="number" value="${minScore}" style="width:100%; padding:5px; text-align:center; border:1px solid #98FB98;" 
-                        onchange="updateGradeRange('lower', '${grade}', this.value)">
-                    </td>
-                </tr>
-            `;
-            tbody.innerHTML += rowHTML;
-        });
-    }
-    // Upper Forms 3 & 4
-    let upperTable = document.getElementById('upperGradeEditor');
-    if (upperTable) {
-        const tbody = upperTable.querySelector('tbody');
-        tbody.innerHTML = '';
-        const upperKeys = Object.keys(currentConfig.gradeKeyUpper).sort((a, b) => parseInt(a) - parseInt(b));
-        upperKeys.forEach(grade => {
-            const minScore = currentConfig.gradeKeyUpper[grade];
-            const rowHTML = `
-                <tr>
-                    <td style="border:1px solid #ccc; padding:8px; text-align:center; font-weight:bold;">${grade}</td>
-                    <td style="border:1px solid #ccc; padding:8px;">
-                        <input type="number" value="${minScore}" style="width:100%; padding:5px; text-align:center; border:1px solid #98FB98;" 
-                        onchange="updateGradeRange('upper', '${grade}', this.value)">
-                    </td>
-                </tr>
-            `;
-            tbody.innerHTML += rowHTML;
-        });
+
+    const selectedClass = document.getElementById('gradeEditorClassSelect').value;
+    const lowerWrapper = document.getElementById('lowerGradeEditorWrapper');
+    const upperWrapper = document.getElementById('upperGradeEditorWrapper');
+    const lowerTitle = document.getElementById('lowerGradeEditorTitle');
+    const upperTitle = document.getElementById('upperGradeEditorTitle');
+
+    // Hide both by default when no class is selected
+    lowerWrapper.style.display = 'none';
+    upperWrapper.style.display = 'none';
+
+    if (!selectedClass) return;
+
+    const isLowerForm = (selectedClass === 'form1' || selectedClass === 'form2');
+    const classLabel = selectedClass === 'form1' ? 'Form 1' : selectedClass === 'form2' ? 'Form 2' : selectedClass === 'form3' ? 'Form 3' : 'Form 4';
+
+    if (isLowerForm) {
+        lowerWrapper.style.display = 'block';
+        lowerTitle.textContent = classLabel + ' (A-F Grades)';
+        let lowerTable = document.getElementById('lowerGradeEditor');
+        if (lowerTable) {
+            const tbody = lowerTable.querySelector('tbody');
+            tbody.innerHTML = '';
+            const lowerKeys = Object.keys(currentConfig.gradeKeyLower).sort((a, b) => currentConfig.gradeKeyLower[b] - currentConfig.gradeKeyLower[a]);
+            lowerKeys.forEach(grade => {
+                const minScore = currentConfig.gradeKeyLower[grade];
+                const rowHTML = `
+                    <tr>
+                        <td style="border:1px solid #ccc; padding:8px; text-align:center; font-weight:bold;">${grade}</td>
+                        <td style="border:1px solid #ccc; padding:8px;">
+                            <input type="number" value="${minScore}" style="width:100%; padding:5px; text-align:center; border:1px solid #98FB98;" 
+                            onchange="updateGradeRange('lower', '${grade}', this.value)">
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += rowHTML;
+            });
+        }
+    } else {
+        upperWrapper.style.display = 'block';
+        upperTitle.textContent = classLabel + ' (1-9 Grades)';
+        let upperTable = document.getElementById('upperGradeEditor');
+        if (upperTable) {
+            const tbody = upperTable.querySelector('tbody');
+            tbody.innerHTML = '';
+            const upperKeys = Object.keys(currentConfig.gradeKeyUpper).sort((a, b) => parseInt(a) - parseInt(b));
+            upperKeys.forEach(grade => {
+                const minScore = currentConfig.gradeKeyUpper[grade];
+                const rowHTML = `
+                    <tr>
+                        <td style="border:1px solid #ccc; padding:8px; text-align:center; font-weight:bold;">${grade}</td>
+                        <td style="border:1px solid #ccc; padding:8px;">
+                            <input type="number" value="${minScore}" style="width:100%; padding:5px; text-align:center; border:1px solid #98FB98;" 
+                            onchange="updateGradeRange('upper', '${grade}', this.value)">
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += rowHTML;
+            });
+        }
     }
 }
 
@@ -3301,9 +3471,305 @@ function updateGradeRange(type, gradeKey, newValue) {
     } else if (type === 'upper') {
         currentConfig.gradeKeyUpper[gradeKey] = val;
     }
-    console.log(`Grade range updated: ${type} ${gradeKey} = ${val}`);
-    // Changes reflect immediately since getGradeAndRemark uses currentConfig
+    console.log('Grade range updated: ' + type + ' ' + gradeKey + ' = ' + val);
+
+    // --- INSTANT: Save to GitHub immediately ---
+    pushGradeChangesToGitHub(type, gradeKey);
+
+    // --- INSTANT: Refresh all visible sheets immediately ---
+    refreshAllVisibleSheets();
 }
+
+async function pushGradeChangesToGitHub(changeType, changeGradeKey) {
+    const token = document.getElementById('githubToken').value;
+    const statusEl = document.getElementById('gradeEditorStatus');
+    if (!token) {
+        if (statusEl) { statusEl.textContent = 'No Authorization Code set. Changes saved locally only.'; statusEl.style.color = '#e74c3c'; }
+        return;
+    }
+    if (statusEl) { statusEl.textContent = 'Saving to cloud...'; statusEl.style.color = '#f39c12'; }
+
+    try {
+        const newConfig = {
+            term: currentConfig.term,
+            generalComment: currentConfig.generalComment || '',
+            gradeKeyLower: currentConfig.gradeKeyLower,
+            gradeKeyUpper: currentConfig.gradeKeyUpper,
+            teachers: currentConfig.teachers || {},
+            passwordEnabled: currentConfig.passwordEnabled
+        };
+        const jsonContent = JSON.stringify(newConfig, null, 2);
+        const base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+        const commitMessage = 'Grade range update: ' + changeType + ' ' + changeGradeKey + ' (' + new Date().toLocaleString() + ')';
+
+        const result = await commitFile(
+            CONFIG_FILE,
+            commitMessage,
+            base64Content,
+            configSha,
+            token,
+            'PUT'
+        );
+
+        if (result) {
+            configSha = result.content.sha;
+            currentConfig = newConfig;
+            if (statusEl) { statusEl.textContent = 'Grade changes saved to cloud and applied instantly!'; statusEl.style.color = '#2ecc71'; }
+        }
+    } catch (error) {
+        console.error('Instant grade save failed:', error);
+        if (statusEl) { statusEl.textContent = 'Cloud save failed. Changes applied locally only.'; statusEl.style.color = '#e74c3c'; }
+    }
+}
+
+function refreshAllVisibleSheets() {
+    // Refresh score sheet if visible and class is selected
+    const sheetClass = document.getElementById('sheetClassSelect');
+    if (sheetClass && sheetClass.value) {
+        displayScoreSheet();
+    }
+    // Refresh grades sheet if visible and class is selected
+    const gradesClass = document.getElementById('gradesClassSelect');
+    if (gradesClass && gradesClass.value) {
+        displayGradesSheet();
+    }
+    // Refresh analysis if visible and class is selected
+    const analysisClass = document.getElementById('analysisClassSelect');
+    if (analysisClass && analysisClass.value) {
+        displayAnalysisSheet(analysisClass.value);
+    }
+}
+
+// --- SURGICAL FIX: Archive Results to m2 Repository ---
+const ARCHIVE_REPO = 'm2';
+const ARCHIVE_API_BASE = 'https://api.github.com/repos/' + GITHUB_USER + '/' + ARCHIVE_REPO + '/contents/';
+var archivedResultsCache = []; // Holds loaded archive data for viewing/filtering
+
+// Populate year dropdowns for archive sections
+function populateArchiveYearDropdowns() {
+    var currentYear = new Date().getFullYear();
+    var ids = ['archiveYearSelect', 'clearArchiveYearSelect', 'viewArchiveYearSelect'];
+    ids.forEach(function(id) {
+        var sel = document.getElementById(id);
+        if (!sel) return;
+        var placeholder = sel.querySelector('option[value=""]');
+        sel.innerHTML = '';
+        if (placeholder) sel.appendChild(placeholder);
+        for (var y = currentYear + 1; y >= currentYear - 10; y--) {
+            var opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            sel.appendChild(opt);
+        }
+    });
+}
+
+// Generic GitHub API call for archive repo
+async function archiveApiCall(path, method, body, token) {
+    var url = ARCHIVE_API_BASE + path;
+    var headers = {
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+    };
+    var options = { method: method, headers: headers };
+    if (body) options.body = JSON.stringify(body);
+
+    var response = await fetch(url, options);
+    if (!response.ok) {
+        var errorData = await response.json().catch(function() { return {}; });
+        throw new Error('GitHub API Error (' + method + ' ' + path + '): ' + response.status + ' - ' + (errorData.message || response.statusText));
+    }
+    if (method === 'DELETE') return null;
+    return await response.json();
+}
+
+// Get SHA of a file in m2 repo
+async function getArchiveFileSha(path, token) {
+    try {
+        var data = await archiveApiCall(path, 'GET', null, token);
+        return data.sha;
+    } catch (e) {
+        if (e.message && e.message.indexOf('404') !== -1) return null;
+        throw e;
+    }
+}
+
+// --- ARCHIVE RESULTS TO M2 ---
+async function archiveResultsToM2() {
+    var token = document.getElementById('githubToken').value;
+    var form = document.getElementById('archiveClassSelect').value;
+    var term = document.getElementById('archiveTermSelect').value;
+    var year = document.getElementById('archiveYearSelect').value;
+    var statusEl = document.getElementById('archiveStatus');
+
+    if (!token) { alert('Please enter Authorization Code.'); return; }
+    if (!form) { alert('Please select a Class.'); return; }
+    if (!term) { alert('Please select a Term.'); return; }
+    if (!year) { alert('Please select a Year.'); return; }
+
+    var classData = currentClassData[form];
+    if (!classData || classData.length === 0) {
+        alert('No student data loaded for ' + form + '. Please load data from Data Entry first.');
+        return;
+    }
+
+    if (!confirm('Archive ' + form + ' Term ' + term + ' ' + year + ' results to m2 repository?')) return;
+
+    if (statusEl) { statusEl.textContent = 'Archiving...'; statusEl.style.color = '#f39c12'; }
+
+    try {
+        var csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+        var base64Content = btoa(unescape(encodeURIComponent(csvString)));
+
+        // File path in m2: year/form/form_term_year.csv
+        var filePath = year + '/' + form + '/' + form + '_term' + term + '_' + year + '.csv';
+        var sha = await getArchiveFileSha(filePath, token);
+
+        var commitBody = {
+            message: 'Archive: ' + form + ' Term ' + term + ' ' + year + ' (' + new Date().toLocaleString() + ')',
+            content: base64Content,
+            branch: 'main'
+        };
+        if (sha) commitBody.sha = sha;
+
+        await archiveApiCall(filePath, 'PUT', commitBody, token);
+
+        if (statusEl) { statusEl.textContent = 'Results archived successfully in m2/' + filePath; statusEl.style.color = '#2ecc71'; }
+    } catch (error) {
+        console.error('Archive failed:', error);
+        if (statusEl) { statusEl.textContent = 'Archive failed: ' + error.message; statusEl.style.color = '#e74c3c'; }
+    }
+}
+
+// --- CLEAR ARCHIVED RESULTS FROM M2 ---
+async function clearArchivedResults() {
+    var token = document.getElementById('githubToken').value;
+    var form = document.getElementById('clearArchiveClassSelect').value;
+    var term = document.getElementById('clearArchiveTermSelect').value;
+    var year = document.getElementById('clearArchiveYearSelect').value;
+    var statusEl = document.getElementById('clearArchiveStatus');
+
+    if (!token) { alert('Please enter Authorization Code.'); return; }
+    if (!form) { alert('Please select a Class.'); return; }
+    if (!term) { alert('Please select a Term.'); return; }
+    if (!year) { alert('Please select a Year.'); return; }
+
+    var filePath = year + '/' + form + '/' + form + '_term' + term + '_' + year + '.csv';
+
+    if (!confirm('Permanently delete archived results for ' + form + ' Term ' + term + ' ' + year + ' from m2? This cannot be undone.')) return;
+
+    if (statusEl) { statusEl.textContent = 'Deleting archive...'; statusEl.style.color = '#f39c12'; }
+
+    try {
+        var sha = await getArchiveFileSha(filePath, token);
+        if (!sha) {
+            if (statusEl) { statusEl.textContent = 'No archived results found for ' + form + ' Term ' + term + ' ' + year + '.'; statusEl.style.color = '#e67e22'; }
+            return;
+        }
+
+        await archiveApiCall(filePath, 'DELETE', {
+            message: 'Delete archive: ' + form + ' Term ' + term + ' ' + year + ' (' + new Date().toLocaleString() + ')',
+            sha: sha,
+            branch: 'main'
+        }, token);
+
+        if (statusEl) { statusEl.textContent = 'Archived results cleared successfully from m2.'; statusEl.style.color = '#2ecc71'; }
+    } catch (error) {
+        console.error('Clear archive failed:', error);
+        if (statusEl) { statusEl.textContent = 'Delete failed: ' + error.message; statusEl.style.color = '#e74c3c'; }
+    }
+}
+
+// --- VIEW ARCHIVED RESULTS FROM M2 ---
+function viewArchivedResults() {
+    loadArchivedData();
+}
+
+async function loadArchivedData() {
+    var token = document.getElementById('githubToken').value;
+    var year = document.getElementById('viewArchiveYearSelect').value;
+    var form = document.getElementById('viewArchiveClassSelect').value;
+    var term = document.getElementById('viewArchiveTermSelect').value;
+    var statusEl = document.getElementById('viewArchiveStatus');
+    var container = document.getElementById('archivedResultsContainer');
+    var tbody = document.getElementById('archivedResultsBody');
+
+    if (!token) { alert('Please enter Authorization Code.'); return; }
+    if (!year) { alert('Please select a Year.'); return; }
+    if (!form) { alert('Please select a Class.'); return; }
+    if (!term) { alert('Please select a Term.'); return; }
+
+    if (statusEl) { statusEl.textContent = 'Loading archived results...'; statusEl.style.color = '#2980b9'; }
+    container.style.display = 'none';
+    tbody.innerHTML = '';
+
+    try {
+        var filePath = year + '/' + form + '/' + form + '_term' + term + '_' + year + '.csv';
+        var fileData = await archiveApiCall(filePath, 'GET', null, token);
+
+        if (!fileData || !fileData.content) {
+            if (statusEl) { statusEl.textContent = 'No archived results found for ' + form + ' Term ' + term + ' ' + year + '.'; statusEl.style.color = '#e67e22'; }
+            return;
+        }
+
+        var decodedContent = decodeURIComponent(escape(atob(fileData.content)));
+        var parsed = Papa.parse(decodedContent, { header: true, skipEmptyLines: true });
+
+        archivedResultsCache = [];
+        parsed.data.forEach(function(student) {
+            ALL_SUBJECTS.forEach(function(subject) {
+                var score = student[subject];
+                var result = getGradeAndRemark(form, score);
+                archivedResultsCache.push({
+                    examNumber: student['Exam Number'] || '',
+                    name: student["STUDENT'S NAME"] || '',
+                    subject: subject,
+                    score: score || '',
+                    grade: result.grade,
+                    remark: result.remark
+                });
+            });
+        });
+
+        renderArchivedResults(archivedResultsCache);
+        container.style.display = 'block';
+        if (statusEl) { statusEl.textContent = 'Showing ' + parsed.data.length + ' students (' + archivedResultsCache.length + ' entries).'; statusEl.style.color = '#2ecc71'; }
+    } catch (error) {
+        console.error('Load archive failed:', error);
+        if (statusEl) { statusEl.textContent = 'Failed to load: ' + error.message; statusEl.style.color = '#e74c3c'; }
+    }
+}
+
+function renderArchivedResults(data) {
+    var tbody = document.getElementById('archivedResultsBody');
+    tbody.innerHTML = '';
+    data.forEach(function(row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td style="border:1px solid black; padding:6px; text-align:left;">' + row.examNumber + '</td>' +
+            '<td style="border:1px solid black; padding:6px; text-align:left;">' + row.name + '</td>' +
+            '<td style="border:1px solid black; padding:6px; text-align:center;">' + row.subject + '</td>' +
+            '<td style="border:1px solid black; padding:6px; text-align:center;">' + row.score + '</td>' +
+            '<td style="border:1px solid black; padding:6px; text-align:center; font-weight:bold;">' + row.grade + '</td>' +
+            '<td style="border:1px solid black; padding:6px; text-align:center;">' + row.remark + '</td>';
+        tbody.appendChild(tr);
+    });
+}
+
+function filterArchivedResults() {
+    var query = document.getElementById('viewArchiveSearchInput').value.toLowerCase().trim();
+    if (!query) {
+        renderArchivedResults(archivedResultsCache);
+        return;
+    }
+    var filtered = archivedResultsCache.filter(function(row) {
+        return row.name.toLowerCase().indexOf(query) !== -1 || row.examNumber.toLowerCase().indexOf(query) !== -1;
+    });
+    renderArchivedResults(filtered);
+}
+
+// Auto-initialize year dropdowns
+setTimeout(populateArchiveYearDropdowns, 500);
 
 async function shareProgressReportOnWhatsApp() {
     const studentName = document.getElementById('reportStudentName').textContent || 'Student';
