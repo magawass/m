@@ -329,7 +329,9 @@ function saveSelectedSubjectsToRepo() {
         width: 100%;
         border-collapse: collapse;
         font-size: 0.9em;
-        border: 1px solid black;
+        border: 3px double black;
+        outline: 3px double black;
+        outline-offset: 2px;
     }
 
     .table-wrapper {
@@ -358,7 +360,7 @@ function saveSelectedSubjectsToRepo() {
         text-align: center;
     }
 
-    #resultsTable td:first-child, #gradesTable td:first-child, #scoresTable td:nth-child(2), #briefResultsTable td:first-child { text-align: left; }
+    #resultsTable td:first-child, #gradesTable td:first-child, #gradesTable td:nth-child(3), #scoresTable td:nth-child(2), #scoresTable td:nth-child(3), #briefResultsTable td:first-child { text-align: left; }
     #resultsTable td:not(:first-child), #gradesTable td:not(:first-child), #scoresTable td:not(:nth-child(2)), #briefResultsTable td:not(:first-child) { text-align: center; }
     #analysisTable td { text-align: center; }
 
@@ -391,6 +393,7 @@ function saveSelectedSubjectsToRepo() {
         min-height: auto;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         margin: 20px auto;
+        border: 4px double #000;
     }
 
     #reportDetails div { color: black; }
@@ -500,6 +503,7 @@ function saveSelectedSubjectsToRepo() {
         padding: 20px 20px !important;
         max-height: 1123px !important;
         overflow: hidden !important;
+        border: 4px double #000 !important;
     }
 
     /* Make table compact */
@@ -547,6 +551,7 @@ function saveSelectedSubjectsToRepo() {
             margin: 0 !important;
             padding: 15px !important;
             box-shadow: none !important;
+            border: 4px double #000 !important;
             font-size: 10pt;
             page-break-after: avoid !important;
             page-break-before: avoid !important;
@@ -612,6 +617,7 @@ function saveSelectedSubjectsToRepo() {
             max-width: 794px;
             min-height: auto !important;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border: 4px double #000 !important;
         }
 
         #progressReport #reportHeader .logo, #briefReport #briefReportHeader .logo { width: 200px; height: 100px; }
@@ -810,8 +816,11 @@ function saveSelectedSubjectsToRepo() {
         </div>
     </div>
 
-    <p style="margin-top: 20px; color: black;"><strong><p style="text-align: left;">COMMENT:</strong></p>
-    <div id="reportComment" style="padding: 10px; border: 1px solid black; min-height: 40px; text-align: left;">
+    <p style="margin-top: 10px; color: black; text-align: left; font-size: 9pt; margin-bottom: 2px;"><strong>FORM TEACHER'S COMMENT:</strong> <span id="reportFormTeacherComment" style="font-style: italic;"></span></p>
+    <p style="color: black; text-align: left; font-size: 9pt; margin-bottom: 2px;"><strong>HEADTEACHER'S COMMENT:</strong> <span id="reportHeadTeacherComment" style="font-style: italic;"></span></p>
+    <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9pt;color:black;text-align:left;">
+        <div><strong>NEXT TERM OPENS:</strong> <span id="reportNextTermOpens"></span></div>
+        <div><strong>FEES IS AS FOLLOWS:</strong> <span id="reportFees"></span></div>
     </div>
 
     <div style="text-align: right; margin-top: 20px;">
@@ -833,7 +842,7 @@ function saveSelectedSubjectsToRepo() {
     <h2>Enter code to load and upload</h2>
     <input type="password" id="githubToken" placeholder="" style="margin-bottom: 20px;">
     <button onclick="openDataEntryAuth()">DATA ENTRY</button>
-    <button onclick="goToPage('uploadsLoginPage')">FILE UPLOADS</button>
+    <button onclick="openUploadsAuth()">FILE UPLOADS</button>
     <button onclick="openSheetsPage()">PROGRESS,GRADE,ANALYSIS SHEETS</button>
     <button onclick="openSubjectEntryMonitor()">Subject Score Entry Monitor Below</button>
    
@@ -850,13 +859,6 @@ function saveSelectedSubjectsToRepo() {
     <div id="monitorTableContainer" class="table-wrapper" style="margin-top: 20px;"></div>
 
     <button onclick="backToInitialPage()">Logout</button>
-</div>
-
-<div id="uploadsLoginPage" class="page">
-    <h2>Enter Uploads Password</h2>
-    <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
-    <input type="password" id="uploadsPassword" placeholder="Enter password">
-    <button onclick="verifyUploadsAccess()">Access Uploads</button>
 </div>
 
 <div id="dataEntryPage" class="page">
@@ -939,14 +941,19 @@ function saveSelectedSubjectsToRepo() {
 
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <h3>Report Configuration</h3>
+    <label for="reportYearSelect">Select Year:</label>
+    <select id="reportYearSelect">
+    </select>
     <label for="reportTermSelect">Select Current Term:</label>
     <select id="reportTermSelect">
         <option value="1">Term 1</option>
         <option value="2">Term 2</option>
         <option value="3">Term 3</option>
     </select>
-    <label for="generalCommentInput">General Report Comment:</label>
-    <textarea id="generalCommentInput" rows="3" placeholder="Enter comment for all reports..."></textarea>
+    <label for="nextTermOpensInput">Next Term Opens:</label>
+    <input type="text" id="nextTermOpensInput" placeholder="e.g. 15 May 2026">
+    <label for="feesInput">Fees Is As Follows:</label>
+    <input type="text" id="feesInput" placeholder="e.g. MK 150,000">
 
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <h3>Assign Subject Teachers (Per Class)</h3>
@@ -975,6 +982,14 @@ function saveSelectedSubjectsToRepo() {
     <button onclick="uploadCSV()">Upload CSV</button>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
+    <label for="deleteDropdown">Select File to Delete:</label>
+    <select id="deleteDropdown">
+        <option value="">-- Select CSV File --</option>
+    </select>
+    <button onclick="deleteCSV()">Delete Selected CSV</button>
+    <button onclick="refreshFileList()">↻ Refresh List</button>
+
+    <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Manual Student Entry</h3>
     <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Add individual students missed during CSV upload.</p>
     
@@ -992,12 +1007,40 @@ function saveSelectedSubjectsToRepo() {
     <button onclick="addStudentManually()" style="background: #17a2b8;">Add Student to List</button>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
-    <label for="deleteDropdown">Select File to Delete:</label>
-    <select id="deleteDropdown">
-        <option value="">-- Select CSV File --</option>
+    <h3>Overwrite Existing Student</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Enter the Exam Number of an existing student to overwrite their Name and/or Date of Birth. Scores are kept unchanged.</p>
+
+    <label for="overwriteClassSelect">Select Class:</label>
+    <select id="overwriteClassSelect">
+        <option value="">--Select Class--</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
     </select>
-    <button onclick="deleteCSV()">Delete Selected CSV</button>
-    <button onclick="refreshFileList()">↻ Refresh List</button>
+    <input type="text" id="overwriteExamNumber" placeholder="Exam Number to find (e.g. J047)">
+    <input type="text" id="overwriteStudentName" placeholder="New Full Name (leave blank to keep current)">
+    <input type="text" id="overwriteDOB" placeholder="New Date of Birth (leave blank to keep current)">
+    <button onclick="overwriteStudent()" style="background: #e67e22;">Overwrite Student</button>
+    <p id="overwriteStatus" style="font-size:11px; color:#2ecc71;"></p>
+
+    <hr style="margin: 20px 0; border: 1px solid #ccc;">
+    <h3>Clear Scores</h3>
+    <p style="font-size:0.9em;color:#7f8c8d;margin-bottom:10px;">Clear scores for a specific subject or clear all subject scores for a class. Changes are saved to cloud immediately.</p>
+    <label for="clearScoresClassSelect">Select Class:</label>
+    <select id="clearScoresClassSelect">
+        <option value="">--Select Class--</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    <label for="clearScoresSubjectSelect">Select Subject (leave blank to clear all):</label>
+    <select id="clearScoresSubjectSelect">
+        <option value="">-- All Subjects --</option>
+    </select>
+    <button onclick="clearScoresBySubjectOrAll()" style="background:#e74c3c;">Clear Scores</button>
+    <p id="clearScoresStatus" style="font-size:11px;color:#2ecc71;"></p>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Lock / Unlock Score Entry</h3>
@@ -1058,8 +1101,9 @@ function saveSelectedSubjectsToRepo() {
 <p id="passwordAccessStatus" style="font-size:11px; color:#2ecc71;"></p>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
-<h3>Archive Results to m2</h3>
-<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Archive current class results to the m2 repository for safekeeping.</p>
+<h3>ARCHIVE SECTION</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Select class, year and term, then click to archive current exam data to the archive repository.</p>
+
 <label for="archiveClassSelect">Select Class:</label>
 <select id="archiveClassSelect">
     <option value="">-- Select Class --</option>
@@ -1068,84 +1112,73 @@ function saveSelectedSubjectsToRepo() {
     <option value="form3">Form 3</option>
     <option value="form4">Form 4</option>
 </select>
-<label for="archiveTermSelect">Select Term:</label>
+
+<label for="archiveYearInput">Year:</label>
+<input type="text" id="archiveYearInput" placeholder="e.g. 2025">
+
+<label for="archiveTermSelect">Term:</label>
 <select id="archiveTermSelect">
-    <option value="">-- Select Term --</option>
     <option value="1">Term 1</option>
     <option value="2">Term 2</option>
     <option value="3">Term 3</option>
 </select>
-<label for="archiveYearSelect">Select Year:</label>
-<select id="archiveYearSelect">
-    <option value="">-- Select Year --</option>
-</select>
-<button onclick="archiveResultsToM2()" style="background: #8e44ad;">Archive to m2</button>
-<p id="archiveStatus" style="font-size:11px; color:#2ecc71;"></p>
+
+<button onclick="archiveExamData()" style="background: #8e44ad;">Exam Archived</button>
+<p id="archiveStatus" style="font-size:11px;color:#8e44ad;"></p>
+
+<button onclick="clearArchiveData()" style="background: #e74c3c; margin-top: 10px;">Clear Archive Data</button>
+<p id="archiveClearStatus" style="font-size:11px;color:#e74c3c;"></p>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
-<h3>Clear Archived Results from m2</h3>
-<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Remove archived results from the m2 repository.</p>
-<label for="clearArchiveClassSelect">Select Class:</label>
-<select id="clearArchiveClassSelect">
-    <option value="">-- Select Class --</option>
-    <option value="form1">Form 1</option>
-    <option value="form2">Form 2</option>
-    <option value="form3">Form 3</option>
-    <option value="form4">Form 4</option>
-</select>
-<label for="clearArchiveTermSelect">Select Term:</label>
-<select id="clearArchiveTermSelect">
-    <option value="">-- Select Term --</option>
-    <option value="1">Term 1</option>
-    <option value="2">Term 2</option>
-    <option value="3">Term 3</option>
-</select>
-<label for="clearArchiveYearSelect">Select Year:</label>
-<select id="clearArchiveYearSelect">
-    <option value="">-- Select Year --</option>
-</select>
-<button onclick="clearArchivedResults()" style="background: #c0392b;">Clear Archive from m2</button>
-<p id="clearArchiveStatus" style="font-size:11px; color:#e74c3c;"></p>
+<h3>SEARCH ARCHIVED RESULTS</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Filter by any combination below, then click Search.</p>
 
-<hr style="margin: 20px 0; border: 1px solid #ccc;">
-<h3>View Archived Results from m2</h3>
-<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Load and view previously archived results.</p>
-<label for="viewArchiveYearSelect">Select Year:</label>
-<select id="viewArchiveYearSelect" onchange="loadArchiveFolderList()">
-    <option value="">-- Select Year --</option>
-</select>
-<label for="viewArchiveClassSelect">Select Class:</label>
-<select id="viewArchiveClassSelect" onchange="loadArchiveTermList()">
-    <option value="">-- Select Class --</option>
-    <option value="form1">Form 1</option>
-    <option value="form2">Form 2</option>
-    <option value="form3">Form 3</option>
-    <option value="form4">Form 4</option>
-</select>
-<label for="viewArchiveTermSelect">Select Term:</label>
-<select id="viewArchiveTermSelect" onchange="loadArchivedData()">
-    <option value="">-- Select Term --</option>
-    <option value="1">Term 1</option>
-    <option value="2">Term 2</option>
-    <option value="3">Term 3</option>
-</select>
-<input type="text" id="viewArchiveSearchInput" placeholder="Search by name or exam number..." onkeyup="filterArchivedResults()" style="max-width:400px;margin-top:8px;">
-<button onclick="viewArchivedResults()" style="background: #2980b9;">View Archive</button>
-<p id="viewArchiveStatus" style="font-size:11px; color:#2980b9;"></p>
-<div id="archivedResultsContainer" class="table-wrapper" style="margin-top:10px; display:none;">
-    <table id="archivedResultsTable" style="width:100%; border-collapse:collapse; font-size:0.9em; border:1px solid black;">
-        <thead>
-            <tr style="background:#ecf0f1;">
-                <th style="border:1px solid black; padding:8px;">Exam Number</th>
-                <th style="border:1px solid black; padding:8px;">Name</th>
-                <th style="border:1px solid black; padding:8px;" id="archivedSubjectHeader">Subject</th>
-                <th style="border:1px solid black; padding:8px;">Score</th>
-                <th style="border:1px solid black; padding:8px;">Grade</th>
-                <th style="border:1px solid black; padding:8px;">Remark</th>
-            </tr>
-        </thead>
-        <tbody id="archivedResultsBody"></tbody>
-    </table>
+<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px;">
+    <select id="archiveSearchClass" style="max-width:120px;">
+        <option value="">Class</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    <input type="text" id="archiveSearchYear" placeholder="Year (e.g. 2025)" style="max-width:120px;">
+    <select id="archiveSearchTerm" style="max-width:120px;">
+        <option value="">Term</option>
+        <option value="Term1">Term 1</option>
+        <option value="Term2">Term 2</option>
+        <option value="Term3">Term 3</option>
+    </select>
+    <input type="text" id="archiveSearchName" placeholder="Student Name..." style="max-width:130px;">
+    <input type="text" id="archiveSearchExamNo" placeholder="Exam Number..." style="max-width:130px;">
+    <button onclick="searchArchiveResults()" class="small-btn" style="background:#17a2b8;color:white;max-width:100px;padding:12px 10px;margin-top:0;">Search</button>
+</div>
+
+<div id="archiveSearchResults" class="table-wrapper" style="margin-top:10px;"></div>
+
+<div id="archiveStudentDetail" class="hidden" style="margin-top:15px;">
+    <div id="archiveDetailContent" style="background:white;border:3px double black;outline:3px double black;outline-offset:3px;padding:25px 20px;width:95%;max-width:650px;margin:0 auto;color:black;">
+        <div id="archiveStudentInfo" style="text-align:left;margin-bottom:10px;font-size:11pt;color:black;"></div>
+        <div class="table-wrapper">
+            <table id="archiveResultsTable" style="width:100%;border-collapse:collapse;border:1px solid black;font-size:9pt;">
+                <thead>
+                    <tr>
+                        <th style="border:1px solid black;padding:4px 3px;">SUBJECT</th>
+                        <th style="border:1px solid black;padding:4px 3px;">SCORE</th>
+                        <th style="border:1px solid black;padding:4px 3px;">GRADE</th>
+                        <th style="border:1px solid black;padding:4px 3px;">POSITION</th>
+                        <th style="border:1px solid black;padding:4px 3px;">REMARK</th>
+                    </tr>
+                </thead>
+                <tbody id="archiveResultsBody"></tbody>
+            </table>
+        </div>
+        <div id="archiveSummaryInfo" style="margin-top:10px;text-align:left;font-size:9pt;color:black;"></div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:10px;margin-top:15px;">
+        <button onclick="printArchiveDetail()" class="small-btn" style="background:#17a2b8;color:white;max-width:150px;">Print Result</button>
+        <button onclick="saveArchiveDetailPdf()" class="small-btn" style="background:#17a2b8;color:white;max-width:150px;">Download PDF</button>
+        <button onclick="closeArchiveDetail()" class="small-btn" style="background:#e74c3c;color:white;max-width:150px;">Close</button>
+    </div>
 </div>
 
 </div>
@@ -1287,6 +1320,45 @@ const GRADE_KEY_UPPER = {
     9: 0
 }; // Upper forms use 1-9 (Aggregate)
 
+// --- HEADER NORMALIZATION: Accepts any capitalization of CSV headers ---
+function normalizeHeaders(data) {
+    if (!data || !Array.isArray(data) || data.length === 0) return data;
+    const firstRow = data[0];
+    const rawKeys = Object.keys(firstRow);
+
+    // Build map: normalized lowercase key → canonical key
+    const canonicalMap = {};
+    const allCanonical = [...BASE_HEADERS, ...ALL_SUBJECTS];
+
+    // Map canonical keys to their lowercase forms for matching
+    const canonicalLowerMap = {};
+    allCanonical.forEach(function(key) {
+        canonicalLowerMap[key.toLowerCase().replace(/\s+/g, ' ').trim()] = key;
+    });
+
+    rawKeys.forEach(function(rawKey) {
+        var normalized = rawKey.toLowerCase().replace(/\s+/g, ' ').trim();
+        // Handle apostrophe variations: student's name, student name, students name
+        normalized = normalized.replace(/students?'/g, "student's");
+
+        if (canonicalLowerMap[normalized]) {
+            canonicalMap[rawKey] = canonicalLowerMap[normalized];
+        } else {
+            canonicalMap[rawKey] = rawKey; // keep unknown headers as-is
+        }
+    });
+
+    // Remap each row's keys to canonical names
+    return data.map(function(row) {
+        var newRow = {};
+        rawKeys.forEach(function(rawKey) {
+            var canonical = canonicalMap[rawKey];
+            newRow[canonical] = row[rawKey];
+        });
+        return newRow;
+    });
+}
+
 // --- UTILITY FUNCTIONS ---
 
 function computeGradeSheetPositions(students) {
@@ -1394,6 +1466,95 @@ function lowerFormRemarkFromGrade(g){
     if(g==='F') return 'Fail';
     return '-';
 }
+
+function generateFormTeacherComment(form, student, studentMetrics, positionInClass, totalStudents) {
+    const isLower = form === 'form1' || form === 'form2';
+    const isUpper = form === 'form3' || form === 'form4';
+    const totalScore = studentMetrics.totalScore || 0;
+    const subjectsCount = studentMetrics.subjectsCount || 0;
+    const passFail = computeFinalRemark(form, student);
+
+    let gradeCount = { A: 0, B: 0, C: 0, D: 0, F: 0 };
+    let numGrades = [];
+    ALL_SUBJECTS.forEach(sub => {
+        const raw = student[sub];
+        if (raw && raw !== 'N' && raw !== 'X' && raw !== '-' && !isNaN(parseInt(raw))) {
+            const gr = getGradeAndRemark(form, parseInt(raw)).grade;
+            if (isLower) {
+                if (gradeCount.hasOwnProperty(gr)) gradeCount[gr]++;
+            } else {
+                const n = parseInt(gr);
+                if (!isNaN(n)) numGrades.push(n);
+            }
+        }
+    });
+
+    let comment = '';
+
+    if (isLower) {
+        const avgScore = subjectsCount > 0 ? Math.round(totalScore / subjectsCount) : 0;
+        const posNum = parseInt(String(positionInClass).split('/')[0]) || 999;
+        const topCount = gradeCount.A + gradeCount.B;
+
+        if (topCount >= 8 && posNum <= 5) {
+            comment = 'An outstanding student with an excellent performance across all subjects. Keep up the brilliant work!';
+        } else if (topCount >= 6 && posNum <= 10) {
+            comment = 'A very good performance this term. Continue working hard to maintain and improve further.';
+        } else if (gradeCount.A + gradeCount.B + gradeCount.C >= 6) {
+            comment = 'A good effort overall. With more dedication and consistent revision, improvement is achievable.';
+        } else if (gradeCount.D >= 4) {
+            comment = 'Performance is average. Needs to put in more effort and seek extra help in weak subjects.';
+        } else if (gradeCount.F >= 5) {
+            comment = 'Performance is below average. Urgent improvement is needed. Extra tuition and serious commitment to studies are recommended.';
+        } else {
+            comment = 'A fair performance. More focus on revision and class participation will lead to better results.';
+        }
+    } else {
+        const aggregate = studentMetrics.aggregate;
+        if (typeof aggregate !== 'number' || aggregate === '-') {
+            comment = 'Insufficient subjects scored for a complete assessment. Please ensure all subjects are attempted.';
+        } else if (aggregate <= 12) {
+            comment = 'Excellent aggregate. A top-performing student with outstanding results. Maintain this standard.';
+        } else if (aggregate <= 18) {
+            comment = 'Very good aggregate. Strong performance across subjects. Keep pushing for even better results.';
+        } else if (aggregate <= 24) {
+            comment = 'Good aggregate. A commendable effort. Consistent hard work will see further improvement.';
+        } else if (aggregate <= 30) {
+            comment = 'Average aggregate. More effort is needed, particularly in weaker subjects. Seek guidance from teachers.';
+        } else if (aggregate <= 36) {
+            comment = 'Below average performance. Serious commitment to studies and extra tuition are strongly recommended.';
+        } else {
+            comment = 'Poor performance. Urgent intervention is required. Meet with teachers to develop an improvement plan.';
+        }
+    }
+
+    return comment;
+}
+
+function generateHeadTeacherComment(form, student, studentMetrics, positionInClass, totalStudents) {
+    const passFail = computeFinalRemark(form, student);
+    const isUpper = form === 'form3' || form === 'form4';
+    const aggregate = studentMetrics.aggregate;
+    const posNum = parseInt(String(positionInClass).split('/')[0]) || 999;
+
+    if (passFail === 'Pass') {
+        if (isUpper && typeof aggregate === 'number' && aggregate <= 12 && posNum <= 3) {
+            return 'Exceptional academic achievement. This student is a role model. Deserves recognition and encouragement.';
+        }
+        if (posNum <= 5) {
+            return 'Commendable performance. Keep up the good work and continue striving for excellence.';
+        }
+        if (posNum <= 15) {
+            return 'Satisfactory progress. Continue working hard and aim higher next term.';
+        }
+        return 'Adequate performance. There is room for improvement. Put more effort into studies.';
+    } else {
+        if (isUpper && typeof aggregate === 'number' && aggregate > 36) {
+            return 'Performance is critically below standard. Parents are strongly urged to meet with teachers for intervention.';
+        }
+        return 'Performance is unsatisfactory. Serious improvement is needed next term. Parents please support your child.';
+    }
+}
 /* === COMPETITION RANKING (1,1,1,4) === */
 function computeCompetitionRanks(entries, valueFn) {
     const sorted = entries
@@ -1457,7 +1618,9 @@ function getDefaultConfig() {
     return {
         locks: {},
         term: '3',
-        generalComment: 'Excellent effort. Keep up the hard work.',
+        year: String(new Date().getFullYear()),
+        nextTermOpens: '',
+        fees: '',
         gradeKeyLower: GRADE_KEY_LOWER,
         gradeKeyUpper: GRADE_KEY_UPPER,
         teachers: teachers,
@@ -1529,11 +1692,7 @@ function getGradeAndRemark(form, score) {
             } else {
                 grade = 'F';
             }
-            if (numericScore >= key.C) {
-                remark = 'Pass';
-            } else {
-                remark = 'Fail';
-            }
+            remark = lowerFormRemarkFromGrade(grade);
         } else {
             if (numericScore >= key[1]) {
                 grade = '1';
@@ -1777,8 +1936,8 @@ async function fetchClassData(form) {
             return [];
         }
         const csv = await response.text();
-        const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true, columns: ALL_HEADERS });
-        const data = parsed.data.filter(s => s && s["Exam Number"]);
+        const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
+        const data = normalizeHeaders(parsed.data).filter(s => s && s["Exam Number"]);
         currentClassData[form] = data;
         updateLoadingPercent(80);
         return data;
@@ -1835,12 +1994,32 @@ async function initializeConfig(token) {
     if(document.getElementById('reportTermSelect')) {
          document.getElementById('reportTermSelect').value = currentConfig.term;
     }
-    if(document.getElementById('generalCommentInput')) {
-        document.getElementById('generalCommentInput').value = currentConfig.generalComment;
+    if(document.getElementById('reportYearSelect')) {
+         document.getElementById('reportYearSelect').value = currentConfig.year || new Date().getFullYear();
+    }
+    if(document.getElementById('nextTermOpensInput')) {
+        document.getElementById('nextTermOpensInput').value = currentConfig.nextTermOpens || '';
+    }
+    if(document.getElementById('feesInput')) {
+        document.getElementById('feesInput').value = currentConfig.fees || '';
+    }
+
+    // Populate year dropdown if empty
+    const yearSel = document.getElementById('reportYearSelect');
+    if (yearSel && yearSel.options.length === 0) {
+        const cy = new Date().getFullYear();
+        for (let y = cy + 1; y >= cy - 10; y--) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            yearSel.appendChild(opt);
+        }
+        yearSel.value = currentConfig.year || cy;
     }
 
     populateTeacherInputs();
     populateLockSubjects();
+    populateClearScoresSubjectSelect();
 }
 
 async function handleSaveConfig() {
@@ -1855,7 +2034,9 @@ async function handleSaveConfig() {
 
     const newConfig = {
         term: document.getElementById('reportTermSelect').value,
-        generalComment: document.getElementById('generalCommentInput').value,
+        year: document.getElementById('reportYearSelect').value,
+        nextTermOpens: document.getElementById('nextTermOpensInput').value,
+        fees: document.getElementById('feesInput').value,
         gradeKeyLower: currentConfig.gradeKeyLower,
         gradeKeyUpper: currentConfig.gradeKeyUpper,
         teachers: {},
@@ -2165,6 +2346,95 @@ async function deleteScore() {
     alert(`Score set to '-'. Click 'Save All Data to Cloud' to save changes.`);
 }
 
+function populateClearScoresSubjectSelect() {
+    const sel = document.getElementById('clearScoresSubjectSelect');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">-- All Subjects --</option>';
+    ALL_SUBJECTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+    });
+}
+
+async function clearScoresBySubjectOrAll() {
+    const token = document.getElementById('githubToken').value;
+    const form = document.getElementById('clearScoresClassSelect').value;
+    const subject = document.getElementById('clearScoresSubjectSelect').value;
+    const statusEl = document.getElementById('clearScoresStatus');
+
+    if (!token) { statusEl.textContent = 'Authorization Code required.'; statusEl.style.color = '#e74c3c'; return; }
+    if (!form) { statusEl.textContent = 'Please select a Class.'; statusEl.style.color = '#e74c3c'; return; }
+
+    const targetLabel = subject ? subject : 'ALL SUBJECTS';
+    if (!confirm(`WARNING: This will clear scores for ${targetLabel} in ${form.toUpperCase()}.\n\nAll student scores for ${targetLabel} will be set to empty.\nThis will be saved to cloud immediately. Continue?`)) {
+        return;
+    }
+
+    statusEl.textContent = 'Clearing scores...';
+    statusEl.style.color = '#f39c12';
+
+    try {
+        showLoading();
+        updateLoadingPercent(10);
+
+        const classData = await fetchClassData(form);
+        if (!classData || classData.length === 0) {
+            hideLoading();
+            statusEl.textContent = 'No student data found for ' + form + '.';
+            statusEl.style.color = '#e74c3c';
+            return;
+        }
+
+        updateLoadingPercent(40);
+
+        if (subject) {
+            // Clear specific subject
+            classData.forEach(s => { s[subject] = ''; });
+        } else {
+            // Clear all subjects
+            ALL_SUBJECTS.forEach(sub => {
+                classData.forEach(s => { s[sub] = ''; });
+            });
+        }
+
+        currentClassData[form] = classData;
+        updateLoadingPercent(60);
+
+        const fileName = `${form}.csv`;
+        const csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(csvString);
+        const currentSha = await getCSVFileSha(form, token);
+
+        updateLoadingPercent(80);
+
+        const commitMessage = subject
+            ? `Clear scores: ${subject} for ${form} (${new Date().toLocaleString()})`
+            : `Clear ALL scores for ${form} (${new Date().toLocaleString()})`;
+
+        const result = await commitFile(fileName, commitMessage, base64Content, currentSha, token, 'PUT');
+
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            updateLoadingPercent(100);
+            hideLoading();
+            statusEl.textContent = `Successfully cleared ${targetLabel} scores for ${form.toUpperCase()}!`;
+            statusEl.style.color = '#2ecc71';
+        } else {
+            hideLoading();
+            statusEl.textContent = 'Failed to save cleared scores.';
+            statusEl.style.color = '#e74c3c';
+        }
+
+    } catch (error) {
+        hideLoading();
+        console.error('Clear scores failed:', error);
+        statusEl.textContent = 'Failed to clear scores: ' + safeMsg(error);
+        statusEl.style.color = '#e74c3c';
+    }
+}
+
 function populateTeacherInputs() {
     const form = document.getElementById('classTeacherDropdown').value;
     const panel = document.getElementById('teacherAssignmentPanel');
@@ -2219,18 +2489,66 @@ function openAdminHome() {
     goToPage('adminHomePage');
 }
 
-async function verifyUploadsAccess() {
-    const password = document.getElementById('uploadsPassword').value;
-    if (password === 'exam0') {
-        document.getElementById('uploadsPassword').value = '';
-        await openUploadsAuth();
-    }
+function showPasswordModal(message) {
+    return new Promise((resolve) => {
+        const existing = document.getElementById('customPasswordModalOverlay');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'customPasswordModalOverlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;justify-content:center;align-items:center;';
+
+        const modal = document.createElement('div');
+        modal.style.cssText = 'background:white;padding:25px 30px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);text-align:center;min-width:300px;max-width:400px;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;';
+
+        const msg = document.createElement('p');
+        msg.textContent = message;
+        msg.style.cssText = 'margin-bottom:15px;font-size:14px;color:#2c3e50;font-weight:500;';
+
+        const input = document.createElement('input');
+        input.type = 'password';
+        input.placeholder = 'Enter password';
+        input.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:14px;text-align:center;box-sizing:border-box;';
+
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:10px;margin-top:15px;justify-content:center;';
+
+        const okBtn = document.createElement('button');
+        okBtn.textContent = 'OK';
+        okBtn.style.cssText = 'padding:10px 25px;background:#1a2a6c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:0;';
+        okBtn.onclick = () => { overlay.remove(); resolve(input.value); };
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.style.cssText = 'padding:10px 25px;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:0;';
+        cancelBtn.onclick = () => { overlay.remove(); resolve(null); };
+
+        btnRow.appendChild(okBtn);
+        btnRow.appendChild(cancelBtn);
+        modal.appendChild(msg);
+        modal.appendChild(input);
+        modal.appendChild(btnRow);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        input.focus();
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { overlay.remove(); resolve(input.value); }
+            if (e.key === 'Escape') { overlay.remove(); resolve(null); }
+        });
+    });
 }
 
 async function openUploadsAuth() {
     const token = document.getElementById('githubToken').value;
     if (!token) {
         alert('You need Authorization Code.');
+        return;
+    }
+    const pass = await showPasswordModal('Enter password to access File Uploads:');
+    if (pass === null) return;
+    if (pass !== ADMIN_PASSWORD) {
+        alert('Incorrect password. Access denied.');
         return;
     }
     await initializeConfig(token);
@@ -2332,7 +2650,8 @@ async function loadResults(isStudentPortal) {
         document.getElementById('reportForm').textContent = form.toUpperCase();
         document.getElementById('reportExamNo').textContent = studentNumber;
         document.getElementById('reportTerm').textContent = currentConfig.term;
-        document.getElementById('reportComment').textContent = currentConfig.generalComment;
+        document.getElementById('reportNextTermOpens').textContent = currentConfig.nextTermOpens || '-';
+        document.getElementById('reportFees').textContent = currentConfig.fees || '-';
 
         const reportBody = document.getElementById('reportBody');
         reportBody.innerHTML = '';
@@ -2399,6 +2718,9 @@ async function loadResults(isStudentPortal) {
         }
 
         document.getElementById('gradeKeyPlaceholder').innerHTML = getGradeKeyTableHTML(form);
+
+        document.getElementById('reportFormTeacherComment').textContent = generateFormTeacherComment(form, student, studentMetrics, overallRank, totalRankableStudents);
+        document.getElementById('reportHeadTeacherComment').textContent = generateHeadTeacherComment(form, student, studentMetrics, overallRank, totalRankableStudents);
 
         updateLoadingPercent(100);
         hideLoading();
@@ -2709,7 +3031,7 @@ function openAnalysisPage() {
     // Update analysis sheet header
     document.getElementById('analysisSheetClassLabel').textContent = form.toUpperCase();
     document.getElementById('analysisSheetTermLabel').textContent = currentConfig && currentConfig.term ? 'Term ' + currentConfig.term : 'Term 1';
-    document.getElementById('analysisSheetYearLabel').textContent = new Date().getFullYear();
+    document.getElementById('analysisSheetYearLabel').textContent = currentConfig && currentConfig.year ? currentConfig.year : new Date().getFullYear();
     displayAnalysisSheet(form);
     goToPage('analysisPage');
 }
@@ -2783,7 +3105,7 @@ async function displayScoreSheet() {
     // Update mark sheet header
     document.getElementById('markSheetClassLabel').textContent = form.toUpperCase();
     document.getElementById('markSheetTermLabel').textContent = currentConfig && currentConfig.term ? 'Term ' + currentConfig.term : 'Term 1';
-    document.getElementById('markSheetYearLabel').textContent = new Date().getFullYear();
+    document.getElementById('markSheetYearLabel').textContent = currentConfig && currentConfig.year ? currentConfig.year : new Date().getFullYear();
 }
 
 async function displayGradesSheet() {
@@ -2871,7 +3193,7 @@ async function displayGradesSheet() {
     // Update grade sheet header
     document.getElementById('gradeSheetClassLabel').textContent = form.toUpperCase();
     document.getElementById('gradeSheetTermLabel').textContent = currentConfig && currentConfig.term ? 'Term ' + currentConfig.term : 'Term 1';
-    document.getElementById('gradeSheetYearLabel').textContent = new Date().getFullYear();
+    document.getElementById('gradeSheetYearLabel').textContent = currentConfig && currentConfig.year ? currentConfig.year : new Date().getFullYear();
 }
 
 async function displayAnalysisSheet(form) {
@@ -2986,6 +3308,7 @@ window.onload = function() {
     }
     populateTeacherInputs();
     populateLockSubjects();
+    populateClearScoresSubjectSelect();
     populateGradeEditors();
 };
 
@@ -3113,7 +3436,6 @@ async function generateAllProgressReports() {
         document.getElementById('reportForm').textContent = form.toUpperCase();
         document.getElementById('reportExamNo').textContent = studentNumber;
         document.getElementById('reportTerm').textContent = currentConfig.term;
-        document.getElementById('reportComment').textContent = currentConfig.generalComment;
 
         const reportBody = document.getElementById('reportBody');
         reportBody.innerHTML = '';
@@ -3155,7 +3477,13 @@ async function generateAllProgressReports() {
 
         document.getElementById('gradeKeyPlaceholder').innerHTML = getGradeKeyTableHTML(form);
 
-        // 3. Convert to PDF and Trigger Download
+        // 3. Set Comments and Term Info
+        document.getElementById('reportFormTeacherComment').textContent = generateFormTeacherComment(form, student, metrics, overallRank, totalRankable);
+        document.getElementById('reportHeadTeacherComment').textContent = generateHeadTeacherComment(form, student, metrics, overallRank, totalRankable);
+        document.getElementById('reportNextTermOpens').textContent = currentConfig.nextTermOpens || '-';
+        document.getElementById('reportFees').textContent = currentConfig.fees || '-';
+
+        // 4. Convert to PDF and Trigger Download
         const element = document.getElementById('progressReport');
         // Temporarily render correctly for capture
         element.style.display = 'block';
@@ -3217,7 +3545,7 @@ async function refreshSubjectMonitor(form) {
             if (!response.ok) throw new Error("File not found");
             const csv = await response.text();
             const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
-            data = parsed.data;
+            data = normalizeHeaders(parsed.data);
             currentClassData[form] = data; // Cache in memory
         } catch (err) {
             container.innerHTML = `<p style="color:red;margin-top:10px;">No data file found for ${form.toUpperCase()}.</p>`;
@@ -3335,6 +3663,78 @@ async function addStudentManually() {
         hideLoading();
         console.error('Manual add failed:', error);
         alert(`Failed to add student: ${error.message}`);
+    }
+}
+
+async function overwriteStudent() {
+    const token = document.getElementById('githubToken').value;
+    const form = document.getElementById('overwriteClassSelect').value;
+    const examNo = document.getElementById('overwriteExamNumber').value.trim().toUpperCase();
+    const newName = document.getElementById('overwriteStudentName').value.trim();
+    const newDob = document.getElementById('overwriteDOB').value.trim();
+    const statusEl = document.getElementById('overwriteStatus');
+
+    if (!token) { alert('Authorization Code required.'); return; }
+    if (!form || !examNo) { alert('Class and Exam Number are required to find the student.'); return; }
+    if (!newName && !newDob) { alert('Enter a new Name or Date of Birth to overwrite.'); return; }
+
+    statusEl.textContent = '';
+    showLoading();
+    updateLoadingPercent(10);
+
+    try {
+        let classData = await fetchClassData(form);
+        updateLoadingPercent(40);
+
+        const studentIndex = classData.findIndex(s => s["Exam Number"] === examNo);
+        if (studentIndex === -1) {
+            hideLoading();
+            alert('No student found with Exam Number ' + examNo + ' in ' + form.toUpperCase() + '.');
+            return;
+        }
+
+        const currentName = classData[studentIndex]["STUDENT'S NAME"] || '';
+        const currentDob = classData[studentIndex]["Date of Birth"] || '';
+
+        let changes = [];
+        if (newName) {
+            classData[studentIndex]["STUDENT'S NAME"] = newName;
+            changes.push('Name');
+        }
+        if (newDob) {
+            classData[studentIndex]["Date of Birth"] = newDob;
+            changes.push('DOB');
+        }
+
+        currentClassData[form] = classData;
+
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(60);
+
+        const csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(csvString);
+        const commitMessage = `Overwrote ${changes.join('/')} for ${examNo} in ${form}`;
+
+        const result = await commitFile(fileName, commitMessage, base64Content, currentSha, token, 'PUT');
+
+        updateLoadingPercent(100);
+        hideLoading();
+
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            statusEl.textContent = `Updated ${changes.join(' and ')} for ${examNo} (${newName || currentName}) in ${form.toUpperCase()}.`;
+            statusEl.style.color = '#2ecc71';
+            document.getElementById('overwriteExamNumber').value = '';
+            document.getElementById('overwriteStudentName').value = '';
+            document.getElementById('overwriteDOB').value = '';
+        }
+    } catch (error) {
+        hideLoading();
+        console.error('Overwrite failed:', error);
+        alert('Failed to overwrite student: ' + error.message);
+        statusEl.textContent = 'Failed: ' + error.message;
+        statusEl.style.color = '#e74c3c';
     }
 }
 </script>
@@ -3492,7 +3892,8 @@ async function pushGradeChangesToGitHub(changeType, changeGradeKey) {
     try {
         const newConfig = {
             term: currentConfig.term,
-            generalComment: currentConfig.generalComment || '',
+            nextTermOpens: currentConfig.nextTermOpens || '',
+            fees: currentConfig.fees || '',
             gradeKeyLower: currentConfig.gradeKeyLower,
             gradeKeyUpper: currentConfig.gradeKeyUpper,
             teachers: currentConfig.teachers || {},
@@ -3540,236 +3941,665 @@ function refreshAllVisibleSheets() {
     }
 }
 
-// --- SURGICAL FIX: Archive Results to m2 Repository ---
+// --- ARCHIVE SECTION FUNCTIONS ---
 const ARCHIVE_REPO = 'm2';
-const ARCHIVE_API_BASE = 'https://api.github.com/repos/' + GITHUB_USER + '/' + ARCHIVE_REPO + '/contents/';
-var archivedResultsCache = []; // Holds loaded archive data for viewing/filtering
+const ARCHIVE_API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${ARCHIVE_REPO}/contents/`;
+const ARCHIVE_RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${ARCHIVE_REPO}/main/`;
 
-// Populate year dropdowns for archive sections
-function populateArchiveYearDropdowns() {
-    var currentYear = new Date().getFullYear();
-    var ids = ['archiveYearSelect', 'clearArchiveYearSelect', 'viewArchiveYearSelect'];
-    ids.forEach(function(id) {
-        var sel = document.getElementById(id);
-        if (!sel) return;
-        var placeholder = sel.querySelector('option[value=""]');
-        sel.innerHTML = '';
-        if (placeholder) sel.appendChild(placeholder);
-        for (var y = currentYear + 1; y >= currentYear - 10; y--) {
-            var opt = document.createElement('option');
-            opt.value = y;
-            opt.textContent = y;
-            sel.appendChild(opt);
+// Helper for safe error messages
+function safeMsg(error) {
+    let msg = error.message || String(error);
+    return msg.replace(/https?:\/\/[^\s]+/g, '[connection error]');
+}
+
+// CSV normalization for archive files
+const ALL_HEADERS_LOWER_MAP = {};
+ALL_HEADERS.forEach(h => { ALL_HEADERS_LOWER_MAP[h.toLowerCase()] = h; });
+
+function normalizeCSVData(csvText) {
+    const rawParsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+    if (!rawParsed.data || rawParsed.data.length === 0) return [];
+
+    const rawFields = rawParsed.meta.fields || [];
+    if (rawFields.length === 0) return rawParsed.data;
+
+    const fieldMap = {};
+    rawFields.forEach(f => {
+        const trimmed = f.trim();
+        const lower = trimmed.toLowerCase();
+        if (ALL_HEADERS_LOWER_MAP[lower]) {
+            fieldMap[f] = ALL_HEADERS_LOWER_MAP[lower];
+        } else if (lower === 'sn' || lower === 'sne' || lower === 'special needs') {
+            fieldMap[f] = 'SN';
+        } else {
+            fieldMap[f] = trimmed;
         }
+    });
+
+    return rawParsed.data.map(row => {
+        const newRow = {};
+        Object.keys(row).forEach(key => {
+            newRow[fieldMap[key] || key] = row[key];
+        });
+        return newRow;
     });
 }
 
-// Generic GitHub API call for archive repo
-async function archiveApiCall(path, method, body, token) {
-    var url = ARCHIVE_API_BASE + path;
-    var headers = {
-        'Authorization': 'Bearer ' + token,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-    };
-    var options = { method: method, headers: headers };
-    if (body) options.body = JSON.stringify(body);
-
-    var response = await fetch(url, options);
-    if (!response.ok) {
-        var errorData = await response.json().catch(function() { return {}; });
-        throw new Error('GitHub API Error (' + method + ' ' + path + '): ' + response.status + ' - ' + (errorData.message || response.statusText));
-    }
-    if (method === 'DELETE') return null;
-    return await response.json();
+function populateArchiveYearDropdowns() {
+    // No year dropdowns needed in new archive layout (uses text input)
 }
 
-// Get SHA of a file in m2 repo
-async function getArchiveFileSha(path, token) {
-    try {
-        var data = await archiveApiCall(path, 'GET', null, token);
-        return data.sha;
-    } catch (e) {
-        if (e.message && e.message.indexOf('404') !== -1) return null;
-        throw e;
-    }
-}
-
-// --- ARCHIVE RESULTS TO M2 ---
-async function archiveResultsToM2() {
-    var token = document.getElementById('githubToken').value;
-    var form = document.getElementById('archiveClassSelect').value;
-    var term = document.getElementById('archiveTermSelect').value;
-    var year = document.getElementById('archiveYearSelect').value;
-    var statusEl = document.getElementById('archiveStatus');
+async function archiveExamData() {
+    const token = document.getElementById('githubToken').value;
+    const form = document.getElementById('archiveClassSelect').value;
+    const year = document.getElementById('archiveYearInput').value.trim();
+    const term = document.getElementById('archiveTermSelect').value;
+    const statusEl = document.getElementById('archiveStatus');
 
     if (!token) { alert('Please enter Authorization Code.'); return; }
     if (!form) { alert('Please select a Class.'); return; }
-    if (!term) { alert('Please select a Term.'); return; }
-    if (!year) { alert('Please select a Year.'); return; }
+    if (!year) { alert('Please enter a Year.'); return; }
 
-    var classData = currentClassData[form];
-    if (!classData || classData.length === 0) {
-        alert('No student data loaded for ' + form + '. Please load data from Data Entry first.');
-        return;
-    }
+    const confirmArchive = confirm(`Archive exam data for ${form.toUpperCase()} - Year ${year} - Term ${term}?\n\nThis will send a copy of the current data to the archive repository.`);
+    if (!confirmArchive) return;
 
-    if (!confirm('Archive ' + form + ' Term ' + term + ' ' + year + ' results to m2 repository?')) return;
-
-    if (statusEl) { statusEl.textContent = 'Archiving...'; statusEl.style.color = '#f39c12'; }
+    statusEl.textContent = 'Archiving...';
+    statusEl.style.color = '#f39c12';
 
     try {
-        var csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
-        var base64Content = btoa(unescape(encodeURIComponent(csvString)));
+        showLoading();
+        updateLoadingPercent(10);
 
-        // File path in m2: year/form/form_term_year.csv
-        var filePath = year + '/' + form + '/' + form + '_term' + term + '_' + year + '.csv';
-        var sha = await getArchiveFileSha(filePath, token);
+        const classData = await fetchClassData(form);
+        if (!classData || classData.length === 0) {
+            hideLoading();
+            statusEl.textContent = 'No student data found for ' + form + '.';
+            statusEl.style.color = '#e74c3c';
+            return;
+        }
 
-        var commitBody = {
-            message: 'Archive: ' + form + ' Term ' + term + ' ' + year + ' (' + new Date().toLocaleString() + ')',
+        updateLoadingPercent(40);
+
+        const csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+
+        const archiveFileName = `${form}_${year}_Term${term}.csv`;
+        const base64Content = btoa(unescape(encodeURIComponent(csvString)));
+
+        updateLoadingPercent(60);
+
+        let existingSha = null;
+        try {
+            const checkResponse = await fetch(`${ARCHIVE_API_BASE}${archiveFileName}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (checkResponse.ok) {
+                const existingData = await checkResponse.json();
+                existingSha = existingData.sha;
+            }
+        } catch (e) { /* file doesn't exist yet, which is fine */ }
+
+        updateLoadingPercent(80);
+
+        const commitUrl = ARCHIVE_API_BASE + archiveFileName;
+        const commitBody = {
+            message: `Archive: ${form} - Year ${year} Term ${term} (${new Date().toLocaleString()})`,
             content: base64Content,
             branch: 'main'
         };
-        if (sha) commitBody.sha = sha;
+        if (existingSha) commitBody.sha = existingSha;
 
-        await archiveApiCall(filePath, 'PUT', commitBody, token);
-
-        if (statusEl) { statusEl.textContent = 'Results archived successfully in m2/' + filePath; statusEl.style.color = '#2ecc71'; }
-    } catch (error) {
-        console.error('Archive failed:', error);
-        if (statusEl) { statusEl.textContent = 'Archive failed: ' + error.message; statusEl.style.color = '#e74c3c'; }
-    }
-}
-
-// --- CLEAR ARCHIVED RESULTS FROM M2 ---
-async function clearArchivedResults() {
-    var token = document.getElementById('githubToken').value;
-    var form = document.getElementById('clearArchiveClassSelect').value;
-    var term = document.getElementById('clearArchiveTermSelect').value;
-    var year = document.getElementById('clearArchiveYearSelect').value;
-    var statusEl = document.getElementById('clearArchiveStatus');
-
-    if (!token) { alert('Please enter Authorization Code.'); return; }
-    if (!form) { alert('Please select a Class.'); return; }
-    if (!term) { alert('Please select a Term.'); return; }
-    if (!year) { alert('Please select a Year.'); return; }
-
-    var filePath = year + '/' + form + '/' + form + '_term' + term + '_' + year + '.csv';
-
-    if (!confirm('Permanently delete archived results for ' + form + ' Term ' + term + ' ' + year + ' from m2? This cannot be undone.')) return;
-
-    if (statusEl) { statusEl.textContent = 'Deleting archive...'; statusEl.style.color = '#f39c12'; }
-
-    try {
-        var sha = await getArchiveFileSha(filePath, token);
-        if (!sha) {
-            if (statusEl) { statusEl.textContent = 'No archived results found for ' + form + ' Term ' + term + ' ' + year + '.'; statusEl.style.color = '#e67e22'; }
-            return;
-        }
-
-        await archiveApiCall(filePath, 'DELETE', {
-            message: 'Delete archive: ' + form + ' Term ' + term + ' ' + year + ' (' + new Date().toLocaleString() + ')',
-            sha: sha,
-            branch: 'main'
-        }, token);
-
-        if (statusEl) { statusEl.textContent = 'Archived results cleared successfully from m2.'; statusEl.style.color = '#2ecc71'; }
-    } catch (error) {
-        console.error('Clear archive failed:', error);
-        if (statusEl) { statusEl.textContent = 'Delete failed: ' + error.message; statusEl.style.color = '#e74c3c'; }
-    }
-}
-
-// --- VIEW ARCHIVED RESULTS FROM M2 ---
-function viewArchivedResults() {
-    loadArchivedData();
-}
-
-async function loadArchivedData() {
-    var token = document.getElementById('githubToken').value;
-    var year = document.getElementById('viewArchiveYearSelect').value;
-    var form = document.getElementById('viewArchiveClassSelect').value;
-    var term = document.getElementById('viewArchiveTermSelect').value;
-    var statusEl = document.getElementById('viewArchiveStatus');
-    var container = document.getElementById('archivedResultsContainer');
-    var tbody = document.getElementById('archivedResultsBody');
-
-    if (!token) { alert('Please enter Authorization Code.'); return; }
-    if (!year) { alert('Please select a Year.'); return; }
-    if (!form) { alert('Please select a Class.'); return; }
-    if (!term) { alert('Please select a Term.'); return; }
-
-    if (statusEl) { statusEl.textContent = 'Loading archived results...'; statusEl.style.color = '#2980b9'; }
-    container.style.display = 'none';
-    tbody.innerHTML = '';
-
-    try {
-        var filePath = year + '/' + form + '/' + form + '_term' + term + '_' + year + '.csv';
-        var fileData = await archiveApiCall(filePath, 'GET', null, token);
-
-        if (!fileData || !fileData.content) {
-            if (statusEl) { statusEl.textContent = 'No archived results found for ' + form + ' Term ' + term + ' ' + year + '.'; statusEl.style.color = '#e67e22'; }
-            return;
-        }
-
-        var decodedContent = decodeURIComponent(escape(atob(fileData.content)));
-        var parsed = Papa.parse(decodedContent, { header: true, skipEmptyLines: true });
-
-        archivedResultsCache = [];
-        parsed.data.forEach(function(student) {
-            ALL_SUBJECTS.forEach(function(subject) {
-                var score = student[subject];
-                var result = getGradeAndRemark(form, score);
-                archivedResultsCache.push({
-                    examNumber: student['Exam Number'] || '',
-                    name: student["STUDENT'S NAME"] || '',
-                    subject: subject,
-                    score: score || '',
-                    grade: result.grade,
-                    remark: result.remark
-                });
-            });
+        const commitResponse = await fetch(commitUrl, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(commitBody)
         });
 
-        renderArchivedResults(archivedResultsCache);
-        container.style.display = 'block';
-        if (statusEl) { statusEl.textContent = 'Showing ' + parsed.data.length + ' students (' + archivedResultsCache.length + ' entries).'; statusEl.style.color = '#2ecc71'; }
+        if (!commitResponse.ok) {
+            const errData = await commitResponse.json();
+            throw new Error(errData.message || 'Archive commit failed');
+        }
+
+        updateLoadingPercent(100);
+        hideLoading();
+
+        statusEl.textContent = `Successfully archived ${form} - ${year} Term ${term}!`;
+        statusEl.style.color = '#2ecc71';
+
     } catch (error) {
-        console.error('Load archive failed:', error);
-        if (statusEl) { statusEl.textContent = 'Failed to load: ' + error.message; statusEl.style.color = '#e74c3c'; }
+        hideLoading();
+        console.error('Archive failed:', error);
+        statusEl.textContent = 'Archive failed: ' + safeMsg(error);
+        statusEl.style.color = '#e74c3c';
     }
 }
 
-function renderArchivedResults(data) {
-    var tbody = document.getElementById('archivedResultsBody');
-    tbody.innerHTML = '';
-    data.forEach(function(row) {
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td style="border:1px solid black; padding:6px; text-align:left;">' + row.examNumber + '</td>' +
-            '<td style="border:1px solid black; padding:6px; text-align:left;">' + row.name + '</td>' +
-            '<td style="border:1px solid black; padding:6px; text-align:center;">' + row.subject + '</td>' +
-            '<td style="border:1px solid black; padding:6px; text-align:center;">' + row.score + '</td>' +
-            '<td style="border:1px solid black; padding:6px; text-align:center; font-weight:bold;">' + row.grade + '</td>' +
-            '<td style="border:1px solid black; padding:6px; text-align:center;">' + row.remark + '</td>';
-        tbody.appendChild(tr);
-    });
-}
+// --- FUNCTION TO CLEAR ARCHIVE DATA ---
+async function clearArchiveData() {
+    const token = document.getElementById('githubToken').value;
+    const form = document.getElementById('archiveClassSelect').value;
+    const year = document.getElementById('archiveYearInput').value.trim();
+    const term = document.getElementById('archiveTermSelect').value;
+    const statusEl = document.getElementById('archiveClearStatus');
 
-function filterArchivedResults() {
-    var query = document.getElementById('viewArchiveSearchInput').value.toLowerCase().trim();
-    if (!query) {
-        renderArchivedResults(archivedResultsCache);
+    if (!token) {
+        statusEl.textContent = 'Authorization Code required.';
+        statusEl.style.color = '#e74c3c';
         return;
     }
-    var filtered = archivedResultsCache.filter(function(row) {
-        return row.name.toLowerCase().indexOf(query) !== -1 || row.examNumber.toLowerCase().indexOf(query) !== -1;
-    });
-    renderArchivedResults(filtered);
+    if (!form) {
+        statusEl.textContent = 'Please select a Class.';
+        statusEl.style.color = '#e74c3c';
+        return;
+    }
+    if (!year) {
+        statusEl.textContent = 'Please enter a Year.';
+        statusEl.style.color = '#e74c3c';
+        return;
+    }
+    if (!term) {
+        statusEl.textContent = 'Please select a Term.';
+        statusEl.style.color = '#e74c3c';
+        return;
+    }
+
+    const archiveFileName = `${form}_${year}_Term${term}.csv`;
+
+    if (!confirm(`WARNING: This will permanently delete the archived data for:\n\n${form.toUpperCase()} - Year ${year} - Term ${term}\n\nFile: ${archiveFileName}\n\nThis action cannot be undone. Continue?`)) {
+        return;
+    }
+
+    statusEl.textContent = 'Deleting archive...';
+    statusEl.style.color = '#f39c12';
+
+    try {
+        const checkResponse = await fetch(`${ARCHIVE_API_BASE}${archiveFileName}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!checkResponse.ok) {
+            statusEl.textContent = `No archive found for ${form.toUpperCase()} - ${year} Term ${term}. Nothing to delete.`;
+            statusEl.style.color = '#e74c3c';
+            return;
+        }
+
+        const fileData = await checkResponse.json();
+        const fileSha = fileData.sha;
+
+        const deleteResponse = await fetch(`${ARCHIVE_API_BASE}${archiveFileName}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: `Delete archive: ${form} - Year ${year} Term ${term} (${new Date().toLocaleString()})`,
+                sha: fileSha,
+                branch: 'main'
+            })
+        });
+
+        if (!deleteResponse.ok) {
+            const errData = await deleteResponse.json();
+            throw new Error(errData.message || 'Delete failed');
+        }
+
+        archiveDataCache = {};
+
+        statusEl.textContent = `Successfully deleted archive for ${form.toUpperCase()} - ${year} Term ${term}!`;
+        statusEl.style.color = '#2ecc71';
+
+    } catch (error) {
+        console.error('Archive delete failed:', error);
+        statusEl.textContent = 'Failed to delete archive: ' + safeMsg(error);
+        statusEl.style.color = '#e74c3c';
+    }
 }
 
-// Auto-initialize year dropdowns
-setTimeout(populateArchiveYearDropdowns, 500);
+// Global cache for archive data
+let archiveDataCache = {};
+
+async function searchArchiveResults() {
+    const filterClass = document.getElementById('archiveSearchClass').value;
+    const filterYear = document.getElementById('archiveSearchYear').value.trim();
+    const filterName = document.getElementById('archiveSearchName').value.trim().toLowerCase();
+    const filterExamNo = document.getElementById('archiveSearchExamNo').value.trim().toLowerCase();
+    const filterTermRaw = document.getElementById('archiveSearchTerm').value;
+    const filterTerm = filterTermRaw;
+    const resultsDiv = document.getElementById('archiveSearchResults');
+
+    if (!filterClass && !filterYear && !filterTermRaw && !filterName && !filterExamNo) {
+        resultsDiv.innerHTML = '<p style="color:#e74c3c;">Please enter at least one filter.</p>';
+        return;
+    }
+
+    const token = document.getElementById('githubToken').value;
+    if (!token) {
+        resultsDiv.innerHTML = '<p style="color:#e74c3c;">Authorization Code required to search archives.</p>';
+        return;
+    }
+
+    resultsDiv.innerHTML = '<p style="color:#7f8c8d;">Searching archives...</p>';
+
+    let matches = [];
+
+    try {
+        // FAST PATH: If class + year + term are all given, fetch exact file via authenticated API
+        if (filterClass && filterYear && filterTermRaw) {
+            const exactFileName = `${filterClass}_${filterYear}_${filterTerm}.csv`;
+            const cacheKey = 'api_' + exactFileName;
+
+            try {
+                if (!archiveDataCache[cacheKey]) {
+                    const apiResponse = await fetch(`${ARCHIVE_API_BASE}${exactFileName}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (apiResponse.ok) {
+                        const fileData = await apiResponse.json();
+                        const csvText = decodeURIComponent(escape(atob(fileData.content)));
+                        archiveDataCache[cacheKey] = normalizeCSVData(csvText);
+                    }
+                }
+
+                const students = archiveDataCache[cacheKey];
+                if (students) {
+                    for (const student of students) {
+                        if (filterName) {
+                            const name = (student["STUDENT'S NAME"] || '').toLowerCase();
+                            if (!name.includes(filterName)) continue;
+                        }
+                        if (filterExamNo) {
+                            const examNo = (student["Exam Number"] || '').toLowerCase();
+                            if (!examNo.includes(filterExamNo)) continue;
+                        }
+                        matches.push({
+                            name: student["STUDENT'S NAME"],
+                            examNo: student["Exam Number"],
+                            form: filterClass,
+                            year: filterYear,
+                            term: filterTerm,
+                            student: student,
+                            fileName: exactFileName,
+                            allStudents: students
+                        });
+                        if (matches.length >= 50) break;
+                    }
+                }
+            } catch (e) { /* file not found or fetch error */ }
+
+        } else {
+            // PARTIAL FILTER: List repo files via authenticated API, then fetch matching CSVs in parallel
+            const response = await fetch(ARCHIVE_API_BASE, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                resultsDiv.innerHTML = '<p style="color:#e74c3c;">Failed to access archive repository.</p>';
+                return;
+            }
+
+            const files = await response.json();
+            const csvFiles = files.filter(f => f.name.endsWith('.csv'));
+
+            if (csvFiles.length === 0) {
+                resultsDiv.innerHTML = '<p style="color:#7f8c8d;">No archived files found.</p>';
+                return;
+            }
+
+            // Filter files by filename pattern first (fast, no network)
+            const matchingFiles = csvFiles.filter(file => {
+                const parts = file.name.replace('.csv', '').split('_');
+                const fileForm = parts[0] || '';
+                const fileYear = parts[parts.length - 2] || '';
+                const fileTerm = parts[parts.length - 1] || '';
+                if (filterClass && fileForm !== filterClass) return false;
+                if (filterYear && fileYear !== filterYear) return false;
+                if (filterTermRaw && fileTerm !== filterTermRaw) return false;
+                return true;
+            });
+
+            // Fetch ALL matching CSVs in parallel using download_url (has temp auth token for private repos)
+            const fetchPromises = matchingFiles.map(async (file) => {
+                const cacheKey = 'dl_' + file.name;
+                if (archiveDataCache[cacheKey]) return { fileName: file.name, students: archiveDataCache[cacheKey] };
+                try {
+                    const csvResponse = await fetch(file.download_url);
+                    if (!csvResponse.ok) return { fileName: file.name, students: null };
+                    const csvText = await csvResponse.text();
+                    const students = normalizeCSVData(csvText);
+                    archiveDataCache[cacheKey] = students;
+                    return { fileName: file.name, students };
+                } catch (e) {
+                    return { fileName: file.name, students: null };
+                }
+            });
+
+            const fetchedResults = await Promise.all(fetchPromises);
+
+            for (const { fileName, students } of fetchedResults) {
+                if (!students) continue;
+
+                const parts = fileName.replace('.csv', '').split('_');
+                const fileForm = parts[0] || '';
+                const fileYear = parts[parts.length - 2] || '';
+                const fileTerm = parts[parts.length - 1] || '';
+
+                for (const student of students) {
+                    if (filterName) {
+                        const name = (student["STUDENT'S NAME"] || '').toLowerCase();
+                        if (!name.includes(filterName)) continue;
+                    }
+                    if (filterExamNo) {
+                        const examNo = (student["Exam Number"] || '').toLowerCase();
+                        if (!examNo.includes(filterExamNo)) continue;
+                    }
+
+                    matches.push({
+                        name: student["STUDENT'S NAME"],
+                        examNo: student["Exam Number"],
+                        form: fileForm,
+                        year: fileYear,
+                        term: fileTerm,
+                        student: student,
+                        fileName: fileName,
+                        allStudents: students
+                    });
+
+                    if (matches.length >= 50) break;
+                }
+                if (matches.length >= 50) break;
+            }
+        }
+
+        if (matches.length === 0) {
+            resultsDiv.innerHTML = '<p style="color:#7f8c8d;">No results found for the given filters.</p>';
+            return;
+        }
+
+        let html = `<table style="width:100%;border-collapse:collapse;border:1px solid black;font-size:0.85em;">
+            <thead>
+                <tr style="background:#ecf0f1;">
+                    <th style="border:1px solid black;padding:6px;">Name</th>
+                    <th style="border:1px solid black;padding:6px;">Exam No</th>
+                    <th style="border:1px solid black;padding:6px;">Class</th>
+                    <th style="border:1px solid black;padding:6px;">Year</th>
+                    <th style="border:1px solid black;padding:6px;">Term</th>
+                    <th style="border:1px solid black;padding:6px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+        matches.forEach((m, i) => {
+            html += `<tr>
+                <td style="border:1px solid black;padding:6px;text-align:left;">${m.name}</td>
+                <td style="border:1px solid black;padding:6px;text-align:center;">${m.examNo}</td>
+                <td style="border:1px solid black;padding:6px;text-align:center;">${m.form.toUpperCase().replace('FORM', 'Form ')}</td>
+                <td style="border:1px solid black;padding:6px;text-align:center;">${m.year}</td>
+                <td style="border:1px solid black;padding:6px;text-align:center;">${m.term}</td>
+                <td style="border:1px solid black;padding:6px;text-align:center;">
+                    <button onclick="viewArchivedStudent(${i})" class="small-btn" style="background:#17a2b8;color:white;padding:4px 10px;font-size:0.8em;max-width:80px;">View</button>
+                </td>
+            </tr>`;
+        });
+
+        html += '</tbody></table>';
+        html += `<p style="font-size:0.8em;color:#7f8c8d;margin-top:5px;">Found ${matches.length} result${matches.length > 1 ? 's' : ''}. Showing up to 50.</p>`;
+
+        window._archiveMatches = matches;
+        resultsDiv.innerHTML = html;
+
+    } catch (error) {
+        console.error('Search failed:', error);
+        resultsDiv.innerHTML = '<p style="color:#e74c3c;">Search failed: ' + safeMsg(error) + '</p>';
+    }
+}
+
+function viewArchivedStudent(index) {
+    const match = window._archiveMatches[index];
+    if (!match) return;
+
+    const student = match.student;
+    const form = match.form;
+    const term = match.term.replace('Term', 'Term ');
+    const year = match.year;
+    const allStudents = match.allStudents;
+
+    document.getElementById('archiveStudentInfo').innerHTML = `
+        <strong>${student["STUDENT'S NAME"] || '-'}</strong>&nbsp;&nbsp;
+        Exam No: <strong>${student["Exam Number"] || '-'}</strong>&nbsp;&nbsp;
+        Sex: <strong>${student["Sex"] || '-'}</strong>&nbsp;&nbsp;
+        Class: <strong>${form.toUpperCase().replace('FORM', 'Form ')}</strong>&nbsp;&nbsp;
+        Term: <strong>${term}</strong>&nbsp;&nbsp;
+        Year: <strong>${year}</strong>
+    `;
+
+    const subjectPositions = {};
+    ALL_SUBJECTS.forEach(sub => {
+        const scores = [];
+        allStudents.forEach(s => {
+            const raw = s[sub];
+            if (raw !== undefined && raw !== null && raw.toString().trim() !== '' && !isNaN(parseInt(raw))) {
+                scores.push({ score: parseInt(raw), examNo: s["Exam Number"] });
+            }
+        });
+        scores.sort((a, b) => b.score - a.score);
+        subjectPositions[sub] = {};
+        scores.forEach((item, i) => {
+            if (i === 0) {
+                subjectPositions[sub][item.examNo] = 1;
+            } else if (item.score === scores[i - 1].score) {
+                subjectPositions[sub][item.examNo] = subjectPositions[sub][scores[i - 1].examNo];
+            } else {
+                subjectPositions[sub][item.examNo] = i + 1;
+            }
+        });
+    });
+
+    const isLowerForm = form === 'form1' || form === 'form2';
+    const studentExamNo = student["Exam Number"];
+
+    const tbody = document.getElementById('archiveResultsBody');
+    tbody.innerHTML = '';
+
+    let passCount = 0;
+    let subjectCount = 0;
+
+    ALL_SUBJECTS.forEach(sub => {
+        const rawScore = student[sub];
+        if (rawScore === undefined || rawScore === null || rawScore.toString().trim() === '') return;
+
+        const score = parseInt(rawScore);
+        let grade = '-';
+        let position = '-';
+        let remark = '-';
+
+        if (!isNaN(score)) {
+            const gr = getGradeAndRemark(form, score);
+            grade = gr.grade;
+            remark = gr.remark;
+            subjectCount++;
+
+            if (subjectPositions[sub] && subjectPositions[sub][studentExamNo] !== undefined) {
+                position = subjectPositions[sub][studentExamNo];
+            }
+
+            if (isLowerForm) {
+                if (['A', 'B', 'C', 'D'].includes(grade)) passCount++;
+            } else {
+                if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(grade)) passCount++;
+            }
+        }
+
+        const remarkColor = (remark === 'Fail') ? 'red' : (['Excellent','Very Good','Good','Distinction','Strong Credit','Credit','Pass'].includes(remark) ? 'green' : 'black');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="border:1px solid black;padding:4px 3px;text-align:left;">${sub}</td>
+            <td style="border:1px solid black;padding:4px 3px;text-align:center;">${rawScore}</td>
+            <td style="border:1px solid black;padding:4px 3px;text-align:center;">${grade}</td>
+            <td style="border:1px solid black;padding:4px 3px;text-align:center;">${position}</td>
+            <td style="border:1px solid black;padding:4px 3px;text-align:center;color:${remarkColor};font-weight:bold;">${remark}</td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    const overallStatus = subjectCount >= 4 ? (passCount >= 6 ? 'Pass' : 'Fail') : '-';
+    const statusColor = overallStatus === 'Pass' ? 'green' : (overallStatus === 'Fail' ? 'red' : 'black');
+
+    let allScoresWithGrades = [];
+    ALL_SUBJECTS.forEach(sub => {
+        const raw = student[sub];
+        if (raw && !isNaN(parseInt(raw))) {
+            const gr = getGradeAndRemark(form, parseInt(raw));
+            allScoresWithGrades.push({ subject: sub, score: parseInt(raw), grade: gr.grade });
+        }
+    });
+
+    const sortedByScore = [...allScoresWithGrades].sort((a, b) => b.score - a.score);
+    const best6Scores = sortedByScore.slice(0, 6);
+    const best6Total = best6Scores.reduce((s, x) => s + x.score, 0);
+    const avgBest6 = best6Scores.length > 0 ? (best6Total / best6Scores.length).toFixed(1) : '0.0';
+
+    let gradeValues = allScoresWithGrades.map(x => x.grade).filter(g => !isNaN(parseInt(g))).map(g => parseInt(g));
+    gradeValues.sort((a, b) => a - b);
+    const aggregate = gradeValues.length >= 6 ? gradeValues.slice(0, 6).reduce((s, v) => s + v, 0) : '-';
+
+    let allStudentAggregates = [];
+    allStudents.forEach(s => {
+        let vals = [];
+        ALL_SUBJECTS.forEach(sub => {
+            const raw = s[sub];
+            if (raw && !isNaN(parseInt(raw))) {
+                const gr = getGradeAndRemark(form, parseInt(raw));
+                if (!isNaN(parseInt(gr.grade))) vals.push(parseInt(gr.grade));
+                else vals.push(gr.grade === '-' ? 99 : (['A','B','C','D','F'].indexOf(gr.grade) >= 0 ? ['A','B','C','D','F'].indexOf(gr.grade) : 99));
+            }
+        });
+        if (isLowerForm) {
+            let sc = [];
+            ALL_SUBJECTS.forEach(sub => {
+                const raw = s[sub];
+                if (raw && !isNaN(parseInt(raw))) sc.push(parseInt(raw));
+            });
+            sc.sort((a, b) => b - a);
+            const b6 = sc.slice(0, 6).reduce((x, y) => x + y, 0);
+            allStudentAggregates.push({ examNo: s["Exam Number"], agg: b6 });
+        } else {
+            let gv = [];
+            ALL_SUBJECTS.forEach(sub => {
+                const raw = s[sub];
+                if (raw && !isNaN(parseInt(raw))) {
+                    const gr = getGradeAndRemark(form, parseInt(raw));
+                    if (!isNaN(parseInt(gr.grade))) gv.push(parseInt(gr.grade));
+                }
+            });
+            gv.sort((a, b) => a - b);
+            const ag = gv.length >= 6 ? gv.slice(0, 6).reduce((x, y) => x + y, 0) : 999;
+            allStudentAggregates.push({ examNo: s["Exam Number"], agg: ag });
+        }
+    });
+
+    if (isLowerForm) {
+        allStudentAggregates.sort((a, b) => b.agg - a.agg);
+    } else {
+        allStudentAggregates.sort((a, b) => a.agg - b.agg);
+    }
+    let lastAgg = null, lastPos = 0;
+    allStudentAggregates.forEach((item, i) => {
+        const pos = (item.agg === lastAgg) ? lastPos : i + 1;
+        item.position = pos;
+        lastAgg = item.agg;
+        lastPos = pos;
+    });
+    const studentRank = allStudentAggregates.find(x => x.examNo === studentExamNo);
+    const positionInClass = studentRank ? studentRank.position : '-';
+
+    let summaryHTML = '';
+    if (isLowerForm) {
+        summaryHTML = `
+            <div style="margin-top:10px;text-align:left;font-size:9pt;color:black;line-height:1.8;">
+                <div>Total (Best 6): <strong>${best6Total}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Average: <strong>${avgBest6}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Position in Class: <strong>${positionInClass}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Status: <strong style="color:${statusColor};">${overallStatus}</strong></div>
+            </div>
+        `;
+    } else {
+        summaryHTML = `
+            <div style="margin-top:10px;text-align:left;font-size:9pt;color:black;line-height:1.8;">
+                <div>Aggregate: <strong>${aggregate}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Position in Class: <strong>${positionInClass}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Status: <strong style="color:${statusColor};">${overallStatus}</strong></div>
+            </div>
+        `;
+    }
+    document.getElementById('archiveSummaryInfo').innerHTML = summaryHTML;
+
+    document.getElementById('archiveStudentDetail').classList.remove('hidden');
+    window._currentArchiveMatch = match;
+}
+
+function closeArchiveDetail() {
+    document.getElementById('archiveStudentDetail').classList.add('hidden');
+}
+
+function printArchiveDetail() {
+    const detailContent = document.getElementById('archiveDetailContent');
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Archived Result - Print</title>
+            <style>
+                body { margin: 0; padding: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+                table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+                th, td { border: 1px solid black; padding: 4px 3px; }
+                th { background: #ecf0f1; color: #2c3e50; font-weight: 600; text-align: center; }
+                @page { size: A4 portrait; margin: 1cm; }
+            </style>
+        </head>
+        <body>${detailContent.innerHTML}</body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
+
+function saveArchiveDetailPdf() {
+    const detailContent = document.getElementById('archiveDetailContent');
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    html2canvas(detailContent, {
+        scale: 2,
+        allowTaint: true,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+    }).then(canvas => {
+        updateLoadingPercent(50);
+        const { jsPDF } = window.jspdf;
+        const imgData = canvas.toDataURL('image/png');
+
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+
+        updateLoadingPercent(90);
+        const studentName = window._currentArchiveMatch ? window._currentArchiveMatch.name : 'Student';
+        pdf.save(`${studentName.replace(/ /g, '_')}_Archived_Result.pdf`);
+
+        updateLoadingPercent(100);
+        hideLoading();
+    }).catch(err => {
+        hideLoading();
+        alert('PDF generation failed: ' + err.message);
+    });
+}
 
 async function shareProgressReportOnWhatsApp() {
     const studentName = document.getElementById('reportStudentName').textContent || 'Student';
