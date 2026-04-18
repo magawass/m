@@ -72,16 +72,16 @@
             document.getElementById('welcomeOverlay').classList.remove('active');
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('portalContainer').classList.remove('hidden');
-            document.querySelector('#portalContainer iframe').src = 'https://magawass.github.io/m/DAY.html';
+            document.querySelector('#portalContainer iframe').src = 'https://magawass.github.io/m/ODL.html';
         }
 
-        function openODL() {
+        function openPortal() {
             document.getElementById('mainNav').style.display = 'none';
             document.getElementById('mainFooter').style.display = 'none';
             document.getElementById('welcomeOverlay').classList.remove('active');
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('portalContainer').classList.remove('hidden');
-            document.querySelector('#portalContainer iframe').src = 'https://magawass.github.io/m/ODL.html';
+            document.querySelector('#portalContainer iframe').src = 'https://magawass.github.io/m/DAY.html';
         }
 
         function setSyncStatus(msg, isError = false) {
