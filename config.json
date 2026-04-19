@@ -75,5 +75,6 @@
       "Social/Life": "Banda G"
     }
   },
-  "passwordEnabled": true
+  "passwordEnabled": true,
+  "vaultEnabled": true
 }
