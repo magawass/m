@@ -296,7 +296,7 @@ function saveSelectedSubjectsToRepo() {
         max-width: 400px;
         margin-top: 20px;
         padding: 14px;
-        background: #1a2a6c;
+        background: #20B2AA;
         color: #fff;
         border: none;
         border-radius: 8px;
@@ -684,7 +684,7 @@ function saveSelectedSubjectsToRepo() {
 
 <div id="initialPage" class="page">
     <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Secondary School Logo" class="logo">
-    <h1><p style="font-size:28px;">MAGAWA SECONDARY</p></h1>
+    <h1><p style="font-size:28px;">MAGAWA SECONDARY-ODL</p></h1>
     <h2>EXAM PORTAL</h2>
     <label for="selectedForm">Select Form / Sankhani Kalasi</label>
     <select id="selectedForm">
@@ -839,9 +839,8 @@ function saveSelectedSubjectsToRepo() {
 </div>
 
 <div id="adminHomePage" class="page">
-    <h2>Enter Vault Key</h2>
+    <h2>Enter code to load and upload</h2>
     <input type="password" id="githubToken" placeholder="" style="margin-bottom: 20px;">
-    <p id="vaultStatusIndicator" style="font-size:11px; margin-top: 5px; margin-bottom: 5px; color: #7f8c8d;"></p>
     <button onclick="openDataEntryAuth()">DATA ENTRY</button>
     <button onclick="openUploadsAuth()">FILE UPLOADS</button>
     <button onclick="openSheetsPage()">PROGRESS,GRADE,ANALYSIS SHEETS</button>
@@ -968,17 +967,6 @@ function saveSelectedSubjectsToRepo() {
     <div id="teacherAssignmentPanel">
     </div>
     <button onclick="handleSaveConfig()">Save Configuration</button>
-
-    <hr style="margin: 20px 0; border: 1px solid #ccc;">
-    <h3>Token Vault Management</h3>
-    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Store your Authorization Code securely encrypted in the repo. Teachers only need the vault key to access it.</p>
-    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; max-width: 400px; margin: 0 auto;">
-        <button onclick="showVaultSetupModal()" class="small-btn" style="max-width:180px;margin-top:0;background:#28a745;">Store Token Securely</button>
-        <button onclick="showVaultUnlockModal()" class="small-btn" style="max-width:180px;margin-top:0;background:#17a2b8;">Unlock Token Vault</button>
-        <button onclick="deleteTokenVault()" class="small-btn" style="max-width:180px;margin-top:0;background:#e74c3c;">Remove Vault</button>
-    </div>
-    <p id="vaultStatusIndicator2" style="font-size:11px; margin-top: 8px; color: #7f8c8d;"></p>
-    <button onclick="handleSaveVaultConfig()" class="small-btn" style="max-width:220px;margin-top:8px;background:#1a2a6c;display:block;margin-left:auto;margin-right:auto;">Save Vault Configuration</button>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Manage CSV Files</h3>
@@ -1279,394 +1267,9 @@ function saveSelectedSubjectsToRepo() {
 <script>
 // --- GITHUB CONSTANTS ---
 const GITHUB_USER = 'magawass';
-const GITHUB_REPO = 'm';
+const GITHUB_REPO = 'm1';
 const CONFIG_FILE = 'config.json';
 const ADMIN_PASSWORD = '0'; // Placeholder for security testing/local use
-
-// === ENCRYPTED TOKEN VAULT SYSTEM ===
-// Stores the GitHub token encrypted in the repo as '.token_vault.enc'
-// Uses AES-256-GCM via Web Crypto API. Master key is derived from user's vault password via PBKDF2.
-const VAULT_FILE = '.token_vault.enc';
-let _sessionToken = null; // In-memory token reference during session
-
-async function _deriveVaultKey(masterPassword, salt) {
-    const encoder = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey(
-        'raw', encoder.encode(masterPassword), 'PBKDF2', false, ['deriveKey']
-    );
-    return crypto.subtle.deriveKey(
-        { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
-        keyMaterial,
-        { name: 'AES-GCM', length: 256 },
-        false,
-        ['encrypt', 'decrypt']
-    );
-}
-
-async function _encryptForVault(plainText, masterPassword) {
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const key = await _deriveVaultKey(masterPassword, salt);
-    const encoder = new TextEncoder();
-    const ciphertext = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv: iv }, key, encoder.encode(plainText)
-    );
-    return {
-        salt: btoa(String.fromCharCode.apply(null, salt)),
-        iv: btoa(String.fromCharCode.apply(null, iv)),
-        ciphertext: btoa(String.fromCharCode.apply(null, new Uint8Array(ciphertext)))
-    };
-}
-
-async function _decryptFromVault(encryptedObj, masterPassword) {
-    const salt = Uint8Array.from(atob(encryptedObj.salt), function(c) { return c.charCodeAt(0); });
-    const iv = Uint8Array.from(atob(encryptedObj.iv), function(c) { return c.charCodeAt(0); });
-    const ciphertext = Uint8Array.from(atob(encryptedObj.ciphertext), function(c) { return c.charCodeAt(0); });
-    const key = await _deriveVaultKey(masterPassword, salt);
-    var decrypted = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv: iv }, key, ciphertext
-    );
-    return new TextDecoder().decode(decrypted);
-}
-
-async function _checkVaultExists() {
-    try {
-        var resp = await fetch('https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/main/' + VAULT_FILE);
-        return resp.ok;
-    } catch(e) { return false; }
-}
-
-function _updateVaultStatus(exists) {
-    var indicator = document.getElementById('vaultStatusIndicator');
-    if (!indicator) return;
-    if (exists) {
-        indicator.textContent = 'Token Vault: Active';
-        indicator.style.color = '#2ecc71';
-    } else {
-        indicator.textContent = 'Token Vault: Not Set';
-        indicator.style.color = '#e74c3c';
-    }
-}
-
-function _injectToken(token) {
-    if (!token) return;
-    _sessionToken = token;
-    var field = document.getElementById('githubToken');
-    if (field) field.value = token;
-}
-
-function _wipeToken() {
-    _sessionToken = null;
-    var field = document.getElementById('githubToken');
-    if (field) field.value = '';
-}
-
-async function saveTokenVaultToRepo(githubToken, masterPassword) {
-    if (!githubToken) { alert('Enter your Authorization Code first.'); return false; }
-    if (!masterPassword) { alert('Vault key is required.'); return false; }
-    if (masterPassword.length < 4) { alert('Vault key must be at least 4 characters.'); return false; }
-
-    showLoading();
-    updateLoadingPercent(10);
-    try {
-        var encrypted = await _encryptForVault(githubToken, masterPassword);
-        var content = btoa(JSON.stringify(encrypted));
-
-        var sha = null;
-        try {
-            var checkResp = await fetch(API_BASE + VAULT_FILE, {
-                headers: { 'Authorization': 'Bearer ' + githubToken }
-            });
-            if (checkResp.ok) {
-                var data = await checkResp.json();
-                sha = data.sha;
-            }
-        } catch(e) { /* vault file doesn't exist yet */ }
-
-        updateLoadingPercent(50);
-
-        var result = await commitFile(VAULT_FILE, 'Update encrypted token vault', content, sha, githubToken, 'PUT');
-
-        hideLoading();
-        if (result) {
-            alert('Token vault saved successfully! Your token is now stored securely encrypted.');
-            _updateVaultStatus(true);
-            return true;
-        }
-    } catch (error) {
-        hideLoading();
-        console.error('Vault save failed:', error);
-        alert('Failed to save token vault: ' + error.message);
-    }
-    return false;
-}
-
-async function loadTokenVaultFromRepo(masterPassword) {
-    try {
-        var resp = await fetch('https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/main/' + VAULT_FILE);
-        if (!resp.ok) return null;
-        var raw = await resp.text();
-        var content = atob(raw.trim());
-        var encrypted = JSON.parse(content);
-        var token = await _decryptFromVault(encrypted, masterPassword);
-        return token;
-    } catch (error) {
-        console.error('Vault load failed:', error);
-        if (error.name === 'OperationError') {
-            throw new Error('Incorrect vault key. Decryption failed.');
-        }
-        return null;
-    }
-}
-
-async function showVaultSetupModal() {
-    var existing = document.getElementById('vaultSetupOverlay');
-    if (existing) existing.remove();
-
-    var overlay = document.createElement('div');
-    overlay.id = 'vaultSetupOverlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;justify-content:center;align-items:center;';
-
-    var modal = document.createElement('div');
-    modal.style.cssText = 'background:white;padding:25px 30px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);text-align:center;min-width:300px;max-width:400px;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;';
-
-    var title = document.createElement('p');
-    title.textContent = 'Store Token in Vault';
-    title.style.cssText = 'margin-bottom:5px;font-size:14px;color:#2c3e50;font-weight:500;';
-
-    var hint = document.createElement('p');
-    hint.textContent = 'Enter your GitHub Authorization Code and set a vault key to encrypt it.';
-    hint.style.cssText = 'font-size:11px;color:#7f8c8d;margin-bottom:10px;';
-
-    var tokenInput = document.createElement('input');
-    tokenInput.type = 'password';
-    tokenInput.id = 'vaultSetupToken';
-    tokenInput.placeholder = 'Enter your GitHub Authorization Code';
-    tokenInput.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:14px;text-align:center;box-sizing:border-box;margin-bottom:8px;';
-
-    var key1 = document.createElement('input');
-    key1.type = 'password';
-    key1.id = 'vaultSetupKey1';
-    key1.placeholder = 'Create vault key (min 4 chars)';
-    key1.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:14px;text-align:center;box-sizing:border-box;margin-bottom:8px;';
-
-    var key2 = document.createElement('input');
-    key2.type = 'password';
-    key2.id = 'vaultSetupKey2';
-    key2.placeholder = 'Confirm vault key';
-    key2.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:14px;text-align:center;box-sizing:border-box;margin-bottom:15px;';
-
-    var btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:flex;gap:10px;justify-content:center;';
-
-    var okBtn = document.createElement('button');
-    okBtn.textContent = 'Save Vault';
-    okBtn.style.cssText = 'padding:10px 25px;background:#1a2a6c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:0;';
-    okBtn.onclick = async function() {
-        var ghToken = document.getElementById('vaultSetupToken').value;
-        var k1 = document.getElementById('vaultSetupKey1').value;
-        var k2 = document.getElementById('vaultSetupKey2').value;
-        if (!ghToken) { alert('Please enter your GitHub Authorization Code.'); return; }
-        if (k1 !== k2) { alert('Vault keys do not match.'); return; }
-        if (k1.length < 4) { alert('Vault key must be at least 4 characters.'); return; }
-        overlay.remove();
-        var saved = await saveTokenVaultToRepo(ghToken, k1);
-        if (saved) {
-            _injectToken(ghToken);
-            var vStat2 = document.getElementById('vaultStatusIndicator2');
-            if (vStat2) { vStat2.textContent = 'Token Vault: Active'; vStat2.style.color = '#2ecc71'; }
-        }
-    };
-
-    var cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.style.cssText = 'padding:10px 25px;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:0;';
-    cancelBtn.onclick = function() { overlay.remove(); };
-
-    btnRow.appendChild(okBtn);
-    btnRow.appendChild(cancelBtn);
-    modal.appendChild(title);
-    modal.appendChild(hint);
-    modal.appendChild(tokenInput);
-    modal.appendChild(key1);
-    modal.appendChild(key2);
-    modal.appendChild(btnRow);
-    overlay.appendChild(modal);
-    document.body.appendChild(overlay);
-
-    tokenInput.focus();
-    tokenInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') key1.focus(); });
-    key1.addEventListener('keydown', function(e) { if (e.key === 'Enter') key2.focus(); });
-    key2.addEventListener('keydown', function(e) { if (e.key === 'Enter') okBtn.click(); });
-}
-
-async function showVaultUnlockModal() {
-    var existing = document.getElementById('vaultUnlockOverlay');
-    if (existing) existing.remove();
-
-    var overlay = document.createElement('div');
-    overlay.id = 'vaultUnlockOverlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;justify-content:center;align-items:center;';
-
-    var modal = document.createElement('div');
-    modal.style.cssText = 'background:white;padding:25px 30px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);text-align:center;min-width:300px;max-width:400px;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;';
-
-    var title = document.createElement('p');
-    title.textContent = 'Enter Vault Key to Unlock Token';
-    title.style.cssText = 'margin-bottom:5px;font-size:14px;color:#2c3e50;font-weight:500;';
-
-    var hint = document.createElement('p');
-    hint.textContent = 'Your stored token will be decrypted and loaded automatically.';
-    hint.style.cssText = 'font-size:11px;color:#7f8c8d;margin-bottom:10px;';
-
-    var keyInput = document.createElement('input');
-    keyInput.type = 'password';
-    keyInput.id = 'vaultUnlockKey';
-    keyInput.placeholder = 'Enter vault key';
-    keyInput.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:14px;text-align:center;box-sizing:border-box;margin-bottom:15px;';
-
-    var btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:flex;gap:10px;justify-content:center;';
-
-    var unlockBtn = document.createElement('button');
-    unlockBtn.textContent = 'Unlock';
-    unlockBtn.style.cssText = 'padding:10px 25px;background:#1a2a6c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:0;';
-    unlockBtn.onclick = async function() {
-        var key = keyInput.value;
-        if (!key) { alert('Vault key is required.'); return; }
-        unlockBtn.textContent = 'Decrypting...';
-        unlockBtn.disabled = true;
-        try {
-            var token = await loadTokenVaultFromRepo(key);
-            if (token) {
-                _injectToken(token);
-                overlay.remove();
-                _updateVaultStatus(true);
-            } else {
-                alert('Vault file not found. Please store your token first.');
-                unlockBtn.textContent = 'Unlock';
-                unlockBtn.disabled = false;
-            }
-        } catch (error) {
-            alert(error.message);
-            unlockBtn.textContent = 'Unlock';
-            unlockBtn.disabled = false;
-        }
-    };
-
-    var skipBtn = document.createElement('button');
-    skipBtn.textContent = 'Enter Manually';
-    skipBtn.style.cssText = 'padding:10px 25px;background:#7f8c8d;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:0;';
-    skipBtn.onclick = function() { overlay.remove(); };
-
-    btnRow.appendChild(unlockBtn);
-    btnRow.appendChild(skipBtn);
-    modal.appendChild(title);
-    modal.appendChild(hint);
-    modal.appendChild(keyInput);
-    modal.appendChild(btnRow);
-    overlay.appendChild(modal);
-    document.body.appendChild(overlay);
-
-    keyInput.focus();
-    keyInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') unlockBtn.click(); });
-}
-
-async function deleteTokenVault() {
-    var token = _sessionToken || document.getElementById('githubToken').value;
-    if (!token) { alert('No active session. Unlock the vault first to remove it.'); return; }
-
-    if (!confirm('Remove stored token vault? You will need to enter your token manually next time.')) return;
-
-    try {
-        var checkResp = await fetch(API_BASE + VAULT_FILE, {
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
-        if (checkResp.ok) {
-            var data = await checkResp.json();
-            showLoading();
-            var result = await commitFile(VAULT_FILE, 'Remove token vault', null, data.sha, token, 'DELETE');
-            hideLoading();
-            if (result) {
-                alert('Token vault removed successfully.');
-                _updateVaultStatus(false);
-                _wipeToken();
-                var vStat2 = document.getElementById('vaultStatusIndicator2');
-                if (vStat2) { vStat2.textContent = 'Token Vault: Removed'; vStat2.style.color = '#e74c3c'; }
-            }
-        } else {
-            alert('No vault found to remove.');
-        }
-    } catch (error) {
-        hideLoading();
-        alert('Failed to remove vault: ' + error.message);
-    }
-}
-
-async function handleSaveVaultConfig() {
-    var token = _sessionToken || document.getElementById('githubToken').value;
-    if (!token) {
-        alert('No active token. Unlock or store the vault first.');
-        return;
-    }
-
-    var vaultActive = !!_sessionToken;
-    var vaultExists = await _checkVaultExists();
-
-    showLoading();
-    updateLoadingPercent(10);
-
-    try {
-        // Read current config from repo to merge
-        var resp = await fetch(API_BASE + CONFIG_FILE, {
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
-        var existingConfig = {};
-        var sha = null;
-        if (resp.ok) {
-            var data = await resp.json();
-            existingConfig = JSON.parse(atob(data.content));
-            sha = data.sha;
-        }
-
-        updateLoadingPercent(40);
-
-        // Build updated config with vault persistence
-        var updatedConfig = Object.assign({}, existingConfig);
-        updatedConfig.vaultEnabled = vaultExists;
-
-        var jsonContent = JSON.stringify(updatedConfig, null, 2);
-        var base64Content = btoa(jsonContent);
-
-        updateLoadingPercent(60);
-
-        var commitMsg = vaultExists
-            ? 'Enable token vault persistence: ' + new Date().toLocaleString()
-            : 'Disable token vault persistence: ' + new Date().toLocaleString();
-
-        var result = await commitFile(CONFIG_FILE, commitMsg, base64Content, sha, token, 'PUT');
-
-        hideLoading();
-        if (result) {
-            configSha = result.content.sha;
-            currentConfig = updatedConfig;
-            var vStat2 = document.getElementById('vaultStatusIndicator2');
-            if (vStat2) {
-                if (vaultExists) {
-                    vStat2.textContent = 'Token Vault: Active & Saved';
-                    vStat2.style.color = '#2ecc71';
-                } else {
-                    vStat2.textContent = 'Token Vault: Not Set';
-                    vStat2.style.color = '#e74c3c';
-                }
-            }
-            alert('Configuration saved! Vault setting is now persisted.');
-        }
-    } catch (error) {
-        hideLoading();
-        alert('Failed to save configuration: ' + error.message);
-    }
-}
 
 // --- CONFIGURATION STATE ---
 let currentConfig = null;
@@ -2860,16 +2463,12 @@ function populateTeacherInputs() {
 function backToInitialPage() {
     goToPage('initialPage');
     document.getElementById('adminPassword').value = '';
-    // Securely wipe token from memory and DOM
-    _wipeToken();
+    document.getElementById('githubToken').value = '';
     currentConfig = null;
     configSha = null;
     currentClassData = {};
     currentDataSha = {};
     initializeConfig(null);
-    // Clear vault status indicator
-    var indicator = document.getElementById('vaultStatusIndicator');
-    if (indicator) indicator.textContent = '';
 }
 
 function openAdminLogin() {
@@ -2879,14 +2478,8 @@ function openAdminLogin() {
 async function verifyAdmin() {
     const password = document.getElementById('adminPassword').value;
     if (password === ADMIN_PASSWORD) {
+        await initializeConfig(document.getElementById('githubToken').value);
         goToPage('adminHomePage');
-        await initializeConfig(null);
-        // Restore vault status indicator from persisted config
-        if (currentConfig && currentConfig.vaultEnabled) {
-            _updateVaultStatus(true);
-        } else {
-            _updateVaultStatus(false);
-        }
     } else {
         alert('Invalid Password.');
     }
@@ -2947,105 +2540,33 @@ function showPasswordModal(message) {
 }
 
 async function openUploadsAuth() {
-    const vaultKey = document.getElementById('githubToken').value;
-
-    // Ask for admin password first
+    const token = document.getElementById('githubToken').value;
+    if (!token) {
+        alert('You need Authorization Code.');
+        return;
+    }
     const pass = await showPasswordModal('Enter password to access File Uploads:');
     if (pass === null) return;
     if (pass !== ADMIN_PASSWORD) {
         alert('Incorrect password. Access denied.');
         return;
     }
-
-    // Try to decrypt token from vault (if vault key was provided, with retry for CDN delay)
-    var token = null;
-    if (vaultKey) {
-        for (var attempt = 0; attempt < 3; attempt++) {
-            try {
-                token = await loadTokenVaultFromRepo(vaultKey);
-                if (token) break;
-            } catch (error) {
-                if (attempt === 2) { alert('Incorrect vault key: ' + error.message); return; }
-            }
-            if (!token && attempt < 2) {
-                await new Promise(function(r) { setTimeout(r, 2000); });
-            }
-        }
-    }
-
-    if (token) {
-        _injectToken(token);
-        _updateVaultStatus(true);
-        await initializeConfig(token);
-    } else {
-        // No vault or no vault key - allow access for first-time setup
-        _updateVaultStatus(false);
-        await initializeConfig(null);
-    }
-
+    await initializeConfig(token);
     await refreshFileList();
     populateGradeEditors();
     populateArchiveYearDropdowns();
     updatePasswordAccessStatus();
-
-    // Update vault status in uploads section (respect persisted vaultEnabled config)
-    var vStat2 = document.getElementById('vaultStatusIndicator2');
-    if (vStat2) {
-        var vaultPersisted = currentConfig && currentConfig.vaultEnabled;
-        if (token || vaultPersisted) {
-            vStat2.textContent = 'Token Vault: Active';
-            vStat2.style.color = '#2ecc71';
-        } else {
-            vStat2.textContent = 'Token Vault: Not Set';
-            vStat2.style.color = '#e74c3c';
-        }
-    }
-
     goToPage('uploadsPage');
 }
 
 
-async function openDataEntryAuth() {
-    // If token already injected from a previous action, go directly
-    if (_sessionToken) {
-        openDataEntryPage();
+function openDataEntryAuth() {
+    const token = document.getElementById('githubToken').value;
+    if (!token) {
+        alert('You need Authorization Code.');
         return;
     }
-
-    var indicator = document.getElementById('vaultStatusIndicator');
-    var vaultKey = document.getElementById('githubToken').value;
-    if (!vaultKey) {
-        if (indicator) { indicator.textContent = 'Enter Vault Key above first.'; indicator.style.color = '#e74c3c'; }
-        return;
-    }
-
-    if (indicator) { indicator.textContent = 'Decrypting vault...'; indicator.style.color = '#f39c12'; }
-
-    // Try to decrypt token from vault (with retry for GitHub CDN propagation delay)
-    var token = null;
-    for (var attempt = 0; attempt < 3; attempt++) {
-        try {
-            token = await loadTokenVaultFromRepo(vaultKey);
-            if (token) break;
-        } catch (error) {
-            if (attempt === 2) {
-                if (indicator) { indicator.textContent = 'Incorrect vault key.'; indicator.style.color = '#e74c3c'; }
-                return;
-            }
-        }
-        if (!token && attempt < 2) {
-            if (indicator) { indicator.textContent = 'Retrying... (' + (attempt + 2) + '/3)'; }
-            await new Promise(function(r) { setTimeout(r, 2000); });
-        }
-    }
-
-    if (token) {
-        _injectToken(token);
-        _updateVaultStatus(true);
-        openDataEntryPage();
-    } else {
-        if (indicator) { indicator.textContent = 'Vault not found. Set it up in FILE UPLOADS first.'; indicator.style.color = '#e74c3c'; }
-    }
+    openDataEntryPage();
 }
 
 // SURGICAL FIX - Password logic when disabled
