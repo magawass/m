@@ -225,6 +225,77 @@ function updatePasswordAccessStatus() {
     }
 }
 
+// === SURGICAL FIX: Popup-based subject hide/unhide with checkboxes ===
+function openHideSubjectPopup() {
+    var classSelect = document.getElementById('lockClassSelect');
+    var selectedClass = classSelect ? classSelect.value : '';
+    if (!selectedClass) {
+        alert('Please select a Class first.');
+        return;
+    }
+    var overlay = document.getElementById('subjectHidePopupOverlay');
+    var classLabel = document.getElementById('subjectHidePopupClass');
+    var listEl = document.getElementById('subjectHideCheckboxList');
+    classLabel.textContent = 'Class: ' + selectedClass.toUpperCase().replace('FORM', 'Form ');
+    listEl.innerHTML = '';
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+    ALL_SUBJECTS.forEach(function(s) {
+        var isHidden = !!currentConfig.locks[selectedClass][s];
+        var lbl = document.createElement('label');
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = s;
+        cb.checked = isHidden;
+        cb.addEventListener('change', function() {
+            applySubjectHiding(selectedClass, s, cb.checked);
+            // Update status tag immediately
+            var tag = lbl.querySelector('.subject-hide-status');
+            if (cb.checked) {
+                tag.textContent = 'HIDDEN';
+                tag.className = 'subject-hide-status hidden-tag';
+            } else {
+                tag.textContent = 'VISIBLE';
+                tag.className = 'subject-hide-status visible-tag';
+            }
+        });
+        var nameSpan = document.createElement('span');
+        nameSpan.textContent = s;
+        var tag = document.createElement('span');
+        tag.className = 'subject-hide-status ' + (isHidden ? 'hidden-tag' : 'visible-tag');
+        tag.textContent = isHidden ? 'HIDDEN' : 'VISIBLE';
+        lbl.appendChild(cb);
+        lbl.appendChild(nameSpan);
+        lbl.appendChild(tag);
+        listEl.appendChild(lbl);
+    });
+    overlay.classList.add('active');
+}
+
+function closeHideSubjectPopup() {
+    var overlay = document.getElementById('subjectHidePopupOverlay');
+    overlay.classList.remove('active');
+}
+
+function applySubjectHiding(selectedClass, subject, shouldHide) {
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+    currentConfig.locks[selectedClass][subject] = shouldHide;
+    // Immediately refresh the data entry subject dropdown so hidden/unhidden subjects appear instantly
+    populateDataSubjectSelect();
+    // Immediately refresh the monitor table if currently visible
+    var monitorClass = document.getElementById('monitorClassSelect');
+    if (monitorClass && monitorClass.value) {
+        refreshSubjectMonitor(monitorClass.value);
+    }
+    // If the data entry page is currently showing this class+subject, refresh it
+    var dataForm = document.getElementById('dataClassSelect');
+    var dataSubject = document.getElementById('dataSubjectSelect');
+    if (dataForm && dataSubject && dataForm.value === selectedClass && dataSubject.value === subject) {
+        showStudentMarksList();
+    }
+}
+
 function populateDataSubjectSelect() {
     const sel = document.getElementById('dataSubjectSelect');
     const form = document.getElementById('dataClassSelect').value;
@@ -469,7 +540,7 @@ function saveSelectedSubjectsToRepo() {
     /* Buttons */
     button {
         width: 100%;
-	        max-width: 400px;
+                max-width: 400px;
         margin-top: 20px;
         padding: 14px;
         background: #1a2a6c;
@@ -1085,6 +1156,89 @@ function saveSelectedSubjectsToRepo() {
 .locked { color: #e74c3c; }
 .unlocked { color: #2ecc71; }
 
+/* === SUBJECT HIDE/UNHIDE POPUP MODAL === */
+#subjectHidePopupOverlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 9000;
+    justify-content: center;
+    align-items: center;
+}
+#subjectHidePopupOverlay.active {
+    display: flex;
+}
+#subjectHidePopupBox {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 20px 18px;
+    max-width: 420px;
+    width: 92%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    max-height: 80vh;
+    overflow-y: auto;
+    text-align: center;
+}
+#subjectHidePopupBox h3 {
+    color: #1a2a6c;
+    margin: 0 0 6px 0;
+    font-size: 1.15em;
+}
+#subjectHidePopupClass {
+    color: #e67e22;
+    font-weight: 700;
+    font-size: 0.95em;
+    margin-bottom: 12px;
+}
+#subjectHideCheckboxList {
+    text-align: left;
+    max-height: 45vh;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 14px;
+}
+#subjectHideCheckboxList label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 6px;
+    margin: 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    font-size: 0.95em;
+    color: #2c3e50;
+    transition: background 0.15s;
+}
+#subjectHideCheckboxList label:last-child {
+    border-bottom: none;
+}
+#subjectHideCheckboxList label:hover {
+    background: #f7f7f7;
+}
+#subjectHideCheckboxList input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    max-width: 18px;
+    margin: 0;
+    accent-color: #e74c3c;
+    cursor: pointer;
+}
+.subject-hide-status {
+    font-size: 0.8em;
+    margin-left: auto;
+    font-weight: 600;
+}
+.subject-hide-status.hidden-tag {
+    color: #e74c3c;
+}
+.subject-hide-status.visible-tag {
+    color: #2ecc71;
+}
+
 
 /* === MOBILE DATA ENTRY ALIGNMENT FIX (SURGICAL) === */
 @media (max-width: 480px) {
@@ -1611,21 +1765,18 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Hide / Unhide Subject Score Entry</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Select a class, then click the button below to choose which subjects to hide from data entry. Checked subjects will be invisible until unchecked.</p>
 
 <label for="lockClassSelect">Select Class:</label>
-<select id="lockClassSelect" onchange="populateLockSubjects()">
+<select id="lockClassSelect">
     <option value="form1">Form 1</option>
     <option value="form2">Form 2</option>
     <option value="form3">Form 3</option>
     <option value="form4">Form 4</option>
 </select>
 
-<label for="lockSubjectSelect">Select Subject:</label>
-<select id="lockSubjectSelect"></select>
-
-<button onclick="toggleSubjectLock()">Subject Score Entry Hidden/Unhidden</button>
+<button onclick="openHideSubjectPopup()" style="background: #e67e22;">Hide / Unhide Subjects</button>
 <button onclick="handleSaveConfig()" style="background: #28a745; margin-top: 10px;">Save</button>
-<p id="lockStatus" style="font-size:11px;color:#e74c3c;"></p>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Grade Range Editor</h3>
@@ -6645,6 +6796,16 @@ async function saveEditedNames() {
             <li>Replace it with the copied encrypted text</li>
             <li>Save and re-upload to GitHub</li>
         </ol>
+    </div>
+</div>
+
+<!-- === SUBJECT HIDE/UNHIDE POPUP MODAL === -->
+<div id="subjectHidePopupOverlay" onclick="if(event.target===this)closeHideSubjectPopup()">
+    <div id="subjectHidePopupBox">
+        <h3>Hide / Unhide Subjects</h3>
+        <p id="subjectHidePopupClass"></p>
+        <div id="subjectHideCheckboxList"></div>
+        <button onclick="closeHideSubjectPopup()" style="max-width:200px;">Done</button>
     </div>
 </div>
 
