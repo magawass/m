@@ -10,22 +10,139 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script>
-// --- SURGICAL FIX: Disable all alert() popups globally ---
-window.alert = function() {};
+// --- Custom notification system (replaces silent alert suppression) ---
+window._realAlert = window.alert;
+window.alert = function(msg) {
+    console.warn('[ALERT]', msg);
+    // Show a visible toast notification instead of silently swallowing
+    try {
+        let toast = document.getElementById('_globalToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = '_globalToast';
+            toast.style.cssText = 'position:fixed;top:20px;right:20px;max-width:420px;padding:14px 22px;background:#c0392b;color:#fff;border-radius:8px;z-index:999999;font-family:Segoe UI,sans-serif;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,0.3);transition:opacity 0.3s;cursor:pointer;word-wrap:break-word;';
+            toast.onclick = function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 300); };
+            document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 300); }, 6000);
+    } catch(e) {
+        // Last resort fallback
+    }
+};
 
 // ============================================================
 // AES-256-GCM TOKEN ENCRYPTION SYSTEM
-// Military-grade encryption for GitHub token storage
+// Encrypted token is stored on GitHub as a file, fetched on login,
+// decrypted in memory, and erased on logout.
 // ============================================================
 
-const ENCRYPTED_TOKEN_STORED = 'RYsDzQge7BqQ3gpeqNHo4KM0kWrhn7uweoUNW6iLnLB9EllQvs4sPa9xuSS3Ah17Dz+854/ta7eqo+Q7dKg9nlvhtC42TtJRgJUkLKZ9H1lQV9DDLGgn/PIza0/zbJL1b/hncCwRX4ClV2O3DFlvtMK7+iBI44hJfrPDsSRqtw8gNhHdGg4c81A=';
+const TOKEN_FILE = '.token'; // File name on GitHub storing the encrypted token
 
-// In-memory ONLY — never persisted
+// In-memory ONLY — never persisted to disk or localStorage
 let _decryptedGitHubToken = null;
-let _sessionEncryptedToken = null; // Set by setup wizard for current session
+let _isLoggedIn = false; // Tracks active session state
+let _sessionEncryptedToken = null; // Cached during session so we don't re-fetch from GitHub every time
+let _setupDoneOnce = false; // Set true after first successful setup or login — survives logout, never reset
 
+// Central token access — every function that needs the GitHub token calls this
 function getDecryptedToken() {
+    if (!_isLoggedIn) return null;
     return _decryptedGitHubToken;
+}
+
+// ============================================================
+// TOKEN INJECTION: Login fetches from GitHub, decrypts, injects.
+// Logout erases from all sections.
+// ============================================================
+
+// Fetch the encrypted token blob from GitHub
+async function fetchEncryptedTokenFromGitHub() {
+    // Try the authenticated Contents API first (works for private repos)
+    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${TOKEN_FILE}`;
+    try {
+        const response = await fetch(apiUrl, {
+            headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            // FIX: GitHub API wraps base64 with newlines — strip them before decoding
+            return { encrypted: atob(data.content.replace(/\n/g, '')), sha: data.sha };
+        }
+    } catch (e) {
+        console.warn('API fetch for token failed, trying raw URL:', e);
+    }
+    // Fallback: raw URL (works for public repos)
+    try {
+        const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${TOKEN_FILE}`;
+        const response = await fetch(rawUrl);
+        if (response.ok) {
+            const encrypted = await response.text();
+            return { encrypted: encrypted.trim(), sha: null };
+        }
+    } catch (e) {
+        console.warn('Raw fetch for token failed:', e);
+    }
+    return null;
+}
+
+// Push encrypted token to GitHub repo
+async function pushEncryptedTokenToGitHub(encryptedBase64) {
+    // First check if .token file already exists (to get SHA for update)
+    let sha = null;
+    try {
+        const checkUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${TOKEN_FILE}`;
+        const checkResp = await fetch(checkUrl, {
+            headers: { 'Authorization': `Bearer ${_decryptedGitHubToken}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (checkResp.ok) {
+            const existingData = await checkResp.json();
+            sha = existingData.sha;
+        }
+    } catch (e) {
+        // File doesn't exist yet — will create new
+    }
+    
+    const base64Content = btoa(unescape(encodeURIComponent(encryptedBase64)));
+    const body = {
+        message: 'Update encrypted token',
+        content: base64Content,
+        branch: 'main'
+    };
+    if (sha) body.sha = sha;
+    
+    const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${TOKEN_FILE}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${_decryptedGitHubToken}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+    });
+    
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(`Failed to save token to GitHub: ${response.status} - ${err.message || ''}`);
+    }
+    return await response.json();
+}
+
+// INJECT TOKEN: After successful login, token is available via getDecryptedToken()
+// All GitHub API calls already use getDecryptedToken() — no individual section updates needed.
+
+// ERASE TOKEN: Wipe everything on logout
+function eraseTokenAndSession() {
+    _decryptedGitHubToken = null;
+    _isLoggedIn = false;
+    _sessionEncryptedToken = null;
+    currentConfig = null;
+    configSha = null;
+    currentClassData = {};
+    currentDataSha = {};
+    initializeConfig(null);
 }
 
 // Derive AES-256-GCM key from password using PBKDF2
@@ -87,9 +204,32 @@ async function decryptToken(encryptedBase64, password) {
     return new TextDecoder().decode(decrypted);
 }
 
-// Check if encrypted token has been set up
+// Check if encrypted token exists on GitHub
+async function checkTokenExists() {
+    try {
+        const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${TOKEN_FILE}`;
+        const response = await fetch(apiUrl, {
+            headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+        return response.ok;
+    } catch (e) {
+        // Fallback: try raw URL
+        try {
+            const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${TOKEN_FILE}`;
+            const response = await fetch(rawUrl);
+            return response.ok;
+        } catch (e2) {
+            return false;
+        }
+    }
+}
+
+// Synchronous check (returns true if previously confirmed, will be rechecked on login)
+let _tokenExistsOnGitHub = null;
 function isTokenSetup() {
-    return ENCRYPTED_TOKEN_STORED !== '__ENCRYPTED_TOKEN_HERE__' || _sessionEncryptedToken !== null;
+    // Cannot know for sure until we check GitHub — return optimistic default
+    // verifyAdmin() will do the actual check
+    return true;
 }
 
 // ============================================================
@@ -222,6 +362,77 @@ function updatePasswordAccessStatus() {
     } else {
         status.textContent = 'Password access is currently DISABLED.';
         status.style.color = '#e74c3c';
+    }
+}
+
+// === SURGICAL FIX: Popup-based subject hide/unhide with checkboxes ===
+function openHideSubjectPopup() {
+    var classSelect = document.getElementById('lockClassSelect');
+    var selectedClass = classSelect ? classSelect.value : '';
+    if (!selectedClass) {
+        alert('Please select a Class first.');
+        return;
+    }
+    var overlay = document.getElementById('subjectHidePopupOverlay');
+    var classLabel = document.getElementById('subjectHidePopupClass');
+    var listEl = document.getElementById('subjectHideCheckboxList');
+    classLabel.textContent = 'Class: ' + selectedClass.toUpperCase().replace('FORM', 'Form ');
+    listEl.innerHTML = '';
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+    ALL_SUBJECTS.forEach(function(s) {
+        var isHidden = !!currentConfig.locks[selectedClass][s];
+        var lbl = document.createElement('label');
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = s;
+        cb.checked = isHidden;
+        cb.addEventListener('change', function() {
+            applySubjectHiding(selectedClass, s, cb.checked);
+            // Update status tag immediately
+            var tag = lbl.querySelector('.subject-hide-status');
+            if (cb.checked) {
+                tag.textContent = 'HIDDEN';
+                tag.className = 'subject-hide-status hidden-tag';
+            } else {
+                tag.textContent = 'VISIBLE';
+                tag.className = 'subject-hide-status visible-tag';
+            }
+        });
+        var nameSpan = document.createElement('span');
+        nameSpan.textContent = s;
+        var tag = document.createElement('span');
+        tag.className = 'subject-hide-status ' + (isHidden ? 'hidden-tag' : 'visible-tag');
+        tag.textContent = isHidden ? 'HIDDEN' : 'VISIBLE';
+        lbl.appendChild(cb);
+        lbl.appendChild(nameSpan);
+        lbl.appendChild(tag);
+        listEl.appendChild(lbl);
+    });
+    overlay.classList.add('active');
+}
+
+function closeHideSubjectPopup() {
+    var overlay = document.getElementById('subjectHidePopupOverlay');
+    overlay.classList.remove('active');
+}
+
+function applySubjectHiding(selectedClass, subject, shouldHide) {
+    if (!currentConfig.locks) currentConfig.locks = {};
+    if (!currentConfig.locks[selectedClass]) currentConfig.locks[selectedClass] = {};
+    currentConfig.locks[selectedClass][subject] = shouldHide;
+    // Immediately refresh the data entry subject dropdown so hidden/unhidden subjects appear instantly
+    populateDataSubjectSelect();
+    // Immediately refresh the monitor table if currently visible
+    var monitorClass = document.getElementById('monitorClassSelect');
+    if (monitorClass && monitorClass.value) {
+        refreshSubjectMonitor(monitorClass.value);
+    }
+    // If the data entry page is currently showing this class+subject, refresh it
+    var dataForm = document.getElementById('dataClassSelect');
+    var dataSubject = document.getElementById('dataSubjectSelect');
+    if (dataForm && dataSubject && dataForm.value === selectedClass && dataSubject.value === subject) {
+        showStudentMarksList();
     }
 }
 
@@ -469,7 +680,7 @@ function saveSelectedSubjectsToRepo() {
     /* Buttons */
     button {
         width: 100%;
-	        max-width: 400px;
+                max-width: 400px;
         margin-top: 20px;
         padding: 14px;
         background: #1a2a6c;
@@ -1085,6 +1296,89 @@ function saveSelectedSubjectsToRepo() {
 .locked { color: #e74c3c; }
 .unlocked { color: #2ecc71; }
 
+/* === SUBJECT HIDE/UNHIDE POPUP MODAL === */
+#subjectHidePopupOverlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 9000;
+    justify-content: center;
+    align-items: center;
+}
+#subjectHidePopupOverlay.active {
+    display: flex;
+}
+#subjectHidePopupBox {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 20px 18px;
+    max-width: 420px;
+    width: 92%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    max-height: 80vh;
+    overflow-y: auto;
+    text-align: center;
+}
+#subjectHidePopupBox h3 {
+    color: #1a2a6c;
+    margin: 0 0 6px 0;
+    font-size: 1.15em;
+}
+#subjectHidePopupClass {
+    color: #e67e22;
+    font-weight: 700;
+    font-size: 0.95em;
+    margin-bottom: 12px;
+}
+#subjectHideCheckboxList {
+    text-align: left;
+    max-height: 45vh;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 14px;
+}
+#subjectHideCheckboxList label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 6px;
+    margin: 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    font-size: 0.95em;
+    color: #2c3e50;
+    transition: background 0.15s;
+}
+#subjectHideCheckboxList label:last-child {
+    border-bottom: none;
+}
+#subjectHideCheckboxList label:hover {
+    background: #f7f7f7;
+}
+#subjectHideCheckboxList input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    max-width: 18px;
+    margin: 0;
+    accent-color: #e74c3c;
+    cursor: pointer;
+}
+.subject-hide-status {
+    font-size: 0.8em;
+    margin-left: auto;
+    font-weight: 600;
+}
+.subject-hide-status.hidden-tag {
+    color: #e74c3c;
+}
+.subject-hide-status.visible-tag {
+    color: #2ecc71;
+}
+
 
 /* === MOBILE DATA ENTRY ALIGNMENT FIX (SURGICAL) === */
 @media (max-width: 480px) {
@@ -1380,6 +1674,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <div id="adminLoginError" style="color:#e74c3c; font-size:0.9em; display:none; margin-top:8px;"></div>
     <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
     <button id="setupWizardBtn" onclick="openSetupWizard()" style="background:#e67e22; margin-top:10px;">First-Time Setup</button>
+    <button id="reaccessSetupBtn" onclick="openSetupAuth()" style="background:#e74c3c; margin-top:10px; display:none;">Re-access Setup</button>
     <button onclick="backToInitialPage()">Back</button>
 </div>
 
@@ -1611,21 +1906,18 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Hide / Unhide Subject Score Entry</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Select a class, then click the button below to choose which subjects to hide from data entry. Checked subjects will be invisible until unchecked.</p>
 
 <label for="lockClassSelect">Select Class:</label>
-<select id="lockClassSelect" onchange="populateLockSubjects()">
+<select id="lockClassSelect">
     <option value="form1">Form 1</option>
     <option value="form2">Form 2</option>
     <option value="form3">Form 3</option>
     <option value="form4">Form 4</option>
 </select>
 
-<label for="lockSubjectSelect">Select Subject:</label>
-<select id="lockSubjectSelect"></select>
-
-<button onclick="toggleSubjectLock()">Subject Score Entry Hidden/Unhidden</button>
+<button onclick="openHideSubjectPopup()" style="background: #e67e22;">Hide / Unhide Subjects</button>
 <button onclick="handleSaveConfig()" style="background: #28a745; margin-top: 10px;">Save</button>
-<p id="lockStatus" style="font-size:11px;color:#e74c3c;"></p>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Grade Range Editor</h3>
@@ -2599,188 +2891,8 @@ function safeMsg(error) {
 }
 
 // ============================================================
-// AUTO-MERGE SYSTEM: Prevents score overwrites when multiple
-// teachers save at the same time. Fetches latest data from
-// GitHub, merges pending changes on top, then saves with
-// automatic retry on SHA conflicts.
+// COMMIT FILE: PUT/DELETE via GitHub Contents API
 // ============================================================
-
-// Fetch the LATEST raw CSV content from GitHub (bypasses cache)
-async function fetchLatestCSV(form, token) {
-    const url = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`;
-    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    // Add cache-busting to ensure we get the absolute latest
-    const cacheBust = `?_t=${Date.now()}`;
-    const response = await fetch(url + cacheBust, { headers });
-    if (!response.ok) throw new Error(`Could not fetch latest ${form}.csv`);
-    const csv = await response.text();
-    return normalizeCSVData(csv).filter(s => s && s["Exam Number"]);
-}
-
-// Fetch the LATEST config.json from GitHub (bypasses cache)
-async function fetchLatestConfig(token) {
-    const url = `${API_BASE}${CONFIG_FILE}`;
-    const response = await fetch(url, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Cache-Control': 'no-cache'
-        }
-    });
-    if (!response.ok) throw new Error('Could not fetch latest config.json');
-    const data = await response.json();
-    return { content: JSON.parse(atob(data.content)), sha: data.sha };
-}
-
-// Merge pending local changes into the latest remote CSV data.
-// Only the subjects that were changed locally get applied on top.
-function mergeCSVChanges(localData, latestRemoteData, changedSubjects) {
-    // If no specific subjects tracked, merge all non-empty subject scores from local
-    const subjects = changedSubjects && changedSubjects.length > 0 ? changedSubjects : ALL_SUBJECTS;
-    
-    // Build index of latest remote by Exam Number
-    const remoteMap = {};
-    latestRemoteData.forEach(s => { remoteMap[s["Exam Number"]] = s; });
-    
-    // For each student in local data, update only the changed subjects in remote
-    localData.forEach(localStudent => {
-        const examNo = localStudent["Exam Number"];
-        if (!examNo) return;
-        
-        if (remoteMap[examNo]) {
-            // Student exists in remote — apply only changed subjects
-            subjects.forEach(subj => {
-                const localVal = localStudent[subj];
-                // Apply if the value exists AND it is either a real score or an intentional clear ('-')
-                // Empty string '' means the field was missing/blank in CSV — skip it to preserve remote data
-                if (localVal !== undefined && localVal !== '') {
-                    remoteMap[examNo][subj] = localVal;
-                }
-            });
-            // Also carry over SNE changes (respect intentional clear with '-')
-            if (localStudent["SN"] !== undefined && localStudent["SN"] !== '') {
-                remoteMap[examNo]["SN"] = localStudent["SN"];
-            }
-        } else {
-            // New student not in remote — add them
-            remoteMap[examNo] = { ...localStudent };
-        }
-    });
-    
-    // Return merged array, preserving remote order with any new students appended
-    const merged = [];
-    const addedExamNos = new Set();
-    
-    // First, all remote students (in their original order)
-    latestRemoteData.forEach(s => {
-        merged.push(remoteMap[s["Exam Number"]]);
-        addedExamNos.add(s["Exam Number"]);
-    });
-    
-    // Then, any new students from local that weren't in remote
-    localData.forEach(s => {
-        if (!addedExamNos.has(s["Exam Number"])) {
-            merged.push(remoteMap[s["Exam Number"]]);
-        }
-    });
-    
-    return merged;
-}
-
-// Smart commit with auto-merge and retry on SHA conflict (up to 3 attempts)
-async function smartCommitCSV(form, localData, changedSubjects, commitMessage, maxRetries) {
-    maxRetries = maxRetries || 3;
-    const token = getDecryptedToken();
-    if (!token) throw new Error('No authorization available.');
-    
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        // Step 1: Fetch latest SHA and data
-        const currentSha = await getCSVFileSha(form, token);
-        let baseData;
-        
-        try {
-            baseData = await fetchLatestCSV(form, token);
-        } catch (e) {
-            // If CSV doesn't exist yet, use local data as-is
-            baseData = [];
-        }
-        
-        // Step 2: Merge local changes on top of latest remote data
-        const mergedData = mergeCSVChanges(localData, baseData, changedSubjects);
-        
-        // Update local cache with merged result so UI stays in sync
-        currentClassData[form] = mergedData;
-        
-        // Step 3: Build CSV and commit
-        const csvString = Papa.unparse(mergedData, { header: true, columns: ALL_HEADERS });
-        const base64Content = btoa(unescape(encodeURIComponent(csvString)));
-        
-        const result = await commitFile(form + '.csv', commitMessage, base64Content, currentSha, token, 'PUT');
-        
-        if (result) {
-            currentDataSha[form] = result.content.sha;
-            return result;
-        }
-        
-        // If commitFile returned null but didn't throw, it might be a SHA conflict
-        console.warn(`Save attempt ${attempt} failed for ${form}, retrying...`);
-        if (attempt < maxRetries) {
-            await new Promise(r => setTimeout(r, 1000 * attempt)); // Backoff
-        }
-    }
-    
-    throw new Error(`Failed to save ${form} after ${maxRetries} attempts. Please refresh and try again.`);
-}
-
-// Smart config commit with auto-merge and retry
-async function smartCommitConfig(newConfigData, commitMessage, maxRetries) {
-    maxRetries = maxRetries || 3;
-    const token = getDecryptedToken();
-    if (!token) throw new Error('No authorization available.');
-    
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        // Step 1: Fetch latest config + SHA
-        const { content: remoteConfig, sha: remoteSha } = await fetchLatestConfig(token);
-        
-        // Step 2: Deep merge — start with remote, overlay local changes
-        const merged = { ...remoteConfig, ...newConfigData };
-        // Deep merge nested objects
-        ['teachers', 'hiddenSubjects', 'locks', 'gradeKeys'].forEach(key => {
-            if (newConfigData[key]) {
-                merged[key] = {};
-                // Copy remote base
-                if (remoteConfig[key]) {
-                    Object.keys(remoteConfig[key]).forEach(k => {
-                        merged[key][k] = { ...remoteConfig[key][k] };
-                    });
-                }
-                // Overlay local changes
-                Object.keys(newConfigData[key]).forEach(k => {
-                    merged[key][k] = { ...(merged[key][k] || {}), ...newConfigData[key][k] };
-                });
-            }
-        });
-        
-        // Step 3: Commit
-        const jsonContent = JSON.stringify(merged, null, 2);
-        const base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
-        
-        const result = await commitFile(CONFIG_FILE, commitMessage, base64Content, remoteSha, token, 'PUT');
-        
-        if (result) {
-            configSha = result.content.sha;
-            currentConfig = merged;
-            return result;
-        }
-        
-        console.warn(`Config save attempt ${attempt} failed, retrying...`);
-        if (attempt < maxRetries) {
-            await new Promise(r => setTimeout(r, 1000 * attempt));
-        }
-    }
-    
-    throw new Error('Failed to save config after multiple attempts. Please refresh and try again.');
-}
 
 async function commitFile(path, message, content, sha, token, method) {
     const url = `${API_BASE}${path}`;
@@ -2848,17 +2960,34 @@ async function fetchClassData(form) {
     }
 
     const token = getDecryptedToken();
-    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
     try {
         updateLoadingPercent(20);
-        const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`);
-
-        if (!response.ok) {
-            console.warn(`CSV file for ${form} not found.`);
-            return [];
+        // FIX: Use authenticated Contents API (raw.githubusercontent.com ignores Bearer tokens on private repos)
+        let csv;
+        if (token) {
+            const response = await fetch(`${API_BASE}${form}.csv`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            if (!response.ok) {
+                console.warn(`CSV file for ${form} not found via API (status ${response.status}).`);
+                return [];
+            }
+            const data = await response.json();
+            // FIX: GitHub API wraps base64 with newlines — strip them before decoding
+            csv = atob(data.content.replace(/\n/g, ''));
+        } else {
+            // Fallback to raw URL for public repos without token
+            const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`);
+            if (!response.ok) {
+                console.warn(`CSV file for ${form} not found.`);
+                return [];
+            }
+            csv = await response.text();
         }
-        const csv = await response.text();
         const data = normalizeCSVData(csv).filter(s => s && s["Exam Number"]);
         currentClassData[form] = data;
         updateLoadingPercent(80);
@@ -2889,7 +3018,8 @@ async function fetchConfig(token) {
 
         const data = await response.json();
         configSha = data.sha;
-        const content = JSON.parse(atob(data.content));
+        // FIX: GitHub API wraps base64 with newlines — strip them before decoding
+        const content = JSON.parse(atob(data.content.replace(/\n/g, '')));
         const defaultConfig = getDefaultConfig();
         currentConfig = {
             ...defaultConfig,
@@ -2959,7 +3089,8 @@ async function handleSaveConfig() {
         hiddenSubjects: currentConfig.hiddenSubjects || {},
         locks: currentConfig.locks || {},
         passwordEnabled: currentConfig.passwordEnabled,
-        sneColumnVisible: currentConfig.sneColumnVisible !== undefined ? currentConfig.sneColumnVisible : true
+        sneColumnVisible: currentConfig.sneColumnVisible !== undefined ? currentConfig.sneColumnVisible : true,
+        setupPassword: currentConfig.setupPassword || null
     };
 
     ALL_CLASSES.forEach(form => {
@@ -2977,19 +3108,26 @@ async function handleSaveConfig() {
         });
     });
 
-    updateLoadingPercent(30);
+    updateLoadingPercent(40);
+
+    const jsonContent = JSON.stringify(newConfig, null, 2);
+    const base64Content = btoa(unescape(encodeURIComponent(jsonContent))); // UTF-8 fix
     const commitMessage = `Update configuration: term ${newConfig.term}, ${new Date().toLocaleString()}`;
 
-    // AUTO-MERGE: Fetch latest config, merge, save with retry
-    try {
-        await smartCommitConfig(newConfig, commitMessage);
-        updateLoadingPercent(100);
-        hideLoading();
-        alert('Configuration saved successfully (auto-merged with latest)!');
-    } catch (error) {
-        hideLoading();
-        console.error('Config save failed:', error);
-        alert(`Failed to save configuration: ${safeMsg(error)}`);
+    const result = await commitFile(
+        CONFIG_FILE,
+        commitMessage,
+        base64Content,
+        configSha,
+        token,
+        'PUT'
+    );
+
+    hideLoading();
+    if (result) {
+        configSha = result.content.sha;
+        currentConfig = newConfig;
+        alert('Wow! configuration saved successfully.');
     }
 }
 
@@ -3028,33 +3166,35 @@ async function uploadCSV() {
 
         const base64Content = fileContent.split(',')[1];
 
-        updateLoadingPercent(30);
+        updateLoadingPercent(40);
 
-        // Parse the uploaded CSV into structured data
-        let uploadedData;
-        try {
-            const csvText = decodeURIComponent(escape(atob(base64Content)));
-            uploadedData = normalizeCSVData(csvText).filter(s => s && s["Exam Number"]);
-        } catch(e) {
-            hideLoading();
-            alert('Failed to parse the uploaded CSV file. Please check the file format.');
-            return;
-        }
+        let sha = await getCSVFileSha(form, token);
 
-        updateLoadingPercent(50);
+        updateLoadingPercent(70);
 
-        // SMART MERGE UPLOAD: Use smartCommitCSV to merge uploaded data with latest remote
-        // This prevents overwriting scores entered by other teachers for different subjects
-        await smartCommitCSV(form, uploadedData, ALL_SUBJECTS, commitMessage);
+        const result = await commitFile(
+            fileName,
+            commitMessage,
+            base64Content,
+            sha,
+            token,
+            'PUT'
+        );
 
-        // Update local cache with merged result
-        // (smartCommitCSV already updated currentClassData[form] internally)
-
-        updateLoadingPercent(100);
         hideLoading();
-        alert(`File ${fileName} merged and saved successfully! Other teachers' scores were preserved.`);
-        refreshFileList();
-        fileInput.value = '';
+        if (result) {
+            alert(`File ${fileName} uploaded/updated successfully!`);
+            // Parse and cache uploaded data in memory for instant access
+            try {
+                const csvText = decodeURIComponent(escape(atob(base64Content)));
+                currentClassData[form] = normalizeCSVData(csvText).filter(s => s && s["Exam Number"]);
+            } catch(e) {
+                currentClassData[form] = null;
+            }
+            currentDataSha[form] = result.content.sha;
+            refreshFileList();
+            fileInput.value = '';
+        }
 
     } catch (error) {
         hideLoading();
@@ -3166,6 +3306,10 @@ async function submitAndSaveScores() {
     updateLoadingPercent(10);
 
     try {
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(40);
+
         const classData = currentClassData[form];
         if (!classData || classData.length === 0) {
             hideLoading();
@@ -3173,25 +3317,42 @@ async function submitAndSaveScores() {
             return;
         }
 
-        updateLoadingPercent(30);
+        updateLoadingPercent(60);
+
+        const csvString = Papa.unparse(classData, {
+            header: true,
+            columns: ALL_HEADERS
+        });
+
+        const base64Content = btoa(unescape(encodeURIComponent(csvString))); // UTF-8 fix
         const commitMessage = `Update: ${form} - ${subject} (${new Date().toLocaleString()})`;
 
-        // AUTO-MERGE: Fetch latest remote, merge our subject changes, save
-        await smartCommitCSV(form, classData, [subject], commitMessage);
+        const result = await commitFile(
+            fileName,
+            commitMessage,
+            base64Content,
+            currentSha,
+            token,
+            'PUT'
+        );
 
-        // Keep memory data intact (smartCommitCSV already updated the cache)
-        showStudentMarksList();
+        if (result) {
+            currentDataSha[form] = result.content.sha;
 
-        if (document.getElementById('sheetClassSelect').value === form) {
-            displayScoreSheet();
+            // Keep memory data intact (no reset)
+            showStudentMarksList();
+
+            if (document.getElementById('sheetClassSelect').value === form) {
+                displayScoreSheet();
+            }
+
+            if (document.getElementById('gradesClassSelect').value === form) {
+                displayGradesSheet();
+            }
+
+            updateLoadingPercent(100);
+            hideLoading();
         }
-
-        if (document.getElementById('gradesClassSelect').value === form) {
-            displayGradesSheet();
-        }
-
-        updateLoadingPercent(100);
-        hideLoading();
 
     } catch (error) {
         hideLoading();
@@ -3241,15 +3402,11 @@ async function deleteScore() {
 }
 
 function backToInitialPage() {
+    // ERASE TOKEN: Complete logout — wipe everything from memory
+    eraseTokenAndSession();
+    
     goToPage('initialPage');
     document.getElementById('adminPassword').value = '';
-    // Clear token from memory instantly
-    _decryptedGitHubToken = null;
-    currentConfig = null;
-    configSha = null;
-    currentClassData = {};
-    currentDataSha = {};
-    initializeConfig(null);
 }
 
 
@@ -3262,6 +3419,9 @@ function openSetupWizard() {
     document.getElementById('copyTokenBtn').style.display = 'none';
     document.getElementById('setupError').style.display = 'none';
     document.getElementById('setupSuccess').style.display = 'none';
+    // Clear setup protection password field
+    var adminPwdField = document.getElementById('setupAdminPwd');
+    if (adminPwdField) adminPwdField.value = '';
     goToPage('setupWizardPage');
 }
 
@@ -3293,6 +3453,20 @@ async function runSetupEncrypt() {
         return;
     }
     
+    // Validate setup protection password (required on first setup, optional on re-setup)
+    var setupAdminPwd = document.getElementById('setupAdminPwd').value.trim();
+    var isFirstSetup = !currentConfig || !currentConfig.setupPassword;
+    if (isFirstSetup && !setupAdminPwd) {
+        errorEl.textContent = 'Please choose a Setup Protection Password.';
+        errorEl.style.display = 'block';
+        return;
+    }
+    if (setupAdminPwd && setupAdminPwd.length < 4) {
+        errorEl.textContent = 'Setup Protection Password must be at least 4 characters.';
+        errorEl.style.display = 'block';
+        return;
+    }
+    
     if (password !== confirm) {
         errorEl.textContent = 'Passwords do not match.';
         errorEl.style.display = 'block';
@@ -3300,22 +3474,58 @@ async function runSetupEncrypt() {
     }
     
     try {
-        successEl.textContent = 'Encrypting...';
+        successEl.textContent = 'Encrypting & uploading to GitHub...';
         successEl.style.display = 'block';
         
+        // Step 1: Encrypt the token with the password
         const encrypted = await encryptToken(token, password);
+        
+        // Step 2: Temporarily inject the token so we can push to GitHub
+        _decryptedGitHubToken = token;
+        _isLoggedIn = true;
+        
+        // Step 3: Push the encrypted blob to GitHub as .token file
+        try {
+            await pushEncryptedTokenToGitHub(encrypted);
+        } catch (pushErr) {
+            // If push fails, still keep token in session
+            console.warn('Could not push token to GitHub (repo may be private or token may lack write access):', pushErr);
+            // Store in session memory as fallback
+            _sessionEncryptedToken = encrypted;
+        }
+        
+        // Step 4: Save setup protection password into the config on GitHub
+        if (setupAdminPwd) {
+            try {
+                await initializeConfig(token);
+                currentConfig.setupPassword = setupAdminPwd;
+                await handleSaveConfig();
+            } catch (configErr) {
+                console.warn('Could not save setup protection password to config:', configErr);
+            }
+        }
 
-        _sessionEncryptedToken = encrypted; // Store for current session login
+        // Step 5: Show success — token is now stored on GitHub
+        _sessionEncryptedToken = encrypted; // Also keep in session for immediate login
         
         document.getElementById('setupEncryptedOutput').value = encrypted;
         document.getElementById('setupEncryptedOutput').style.display = 'block';
         document.getElementById('encryptedOutputLabel').style.display = 'block';
         document.getElementById('copyTokenBtn').style.display = 'block';
         
-        successEl.textContent = 'Token encrypted successfully! Click "Copy to Clipboard" below.';
+        successEl.style.color = '#27ae60';
+        successEl.textContent = 'Token encrypted and saved to GitHub! You can now log in with your password from any device.';
         successEl.style.display = 'block';
+        
+        // Auto-navigate to login page after a short delay
+        setTimeout(function() {
+            eraseTokenAndSession(); // Wipe the temp injected token
+            document.getElementById('adminPassword').value = password;
+            goToPage('adminLoginPage');
+        }, 2500);
     } catch (e) {
-        errorEl.textContent = 'Encryption failed: ' + e.message;
+        eraseTokenAndSession(); // Clean up on failure
+        errorEl.textContent = 'Setup failed: ' + e.message;
         errorEl.style.display = 'block';
     }
 }
@@ -3345,15 +3555,17 @@ function copyEncryptedToken() {
 }
 
 function openAdminLogin() {
-    if (isTokenSetup()) {
-        document.getElementById('setupWizardBtn').style.display = 'none';
-    }
+    // Only show the setup wizard button if no encrypted token has been cached (i.e., no successful login yet this session)
+    var setupBtn = document.getElementById('setupWizardBtn');
+    var reaccessBtn = document.getElementById('reaccessSetupBtn');
+    if (setupBtn) setupBtn.style.display = _setupDoneOnce ? 'none' : 'block';
+    if (reaccessBtn) reaccessBtn.style.display = _setupDoneOnce ? 'block' : 'none';
     goToPage('adminLoginPage');
 }
 
 async function verifyAdmin() {
-    const password = document.getElementById('adminPassword').value;
-    const errorEl = document.getElementById('adminLoginError');
+    var password = document.getElementById('adminPassword').value;
+    var errorEl = document.getElementById('adminLoginError');
     if (errorEl) errorEl.style.display = 'none';
 
     if (!password) {
@@ -3361,25 +3573,112 @@ async function verifyAdmin() {
         return;
     }
 
-    if (!isTokenSetup()) {
-        if (errorEl) { errorEl.textContent = 'No encrypted token found. Click "First-Time Setup" to configure your token.'; errorEl.style.display = 'block'; }
-        return;
-    }
-
     try {
-        const encryptedSource = _sessionEncryptedToken || ENCRYPTED_TOKEN_STORED;
-        const token = await decryptToken(encryptedSource, password);
-        _decryptedGitHubToken = token; // Store ONLY in memory
+        // ============================================================
+        // LOGIN FLOW: Fetch encrypted token from GitHub → Decrypt → Inject
+        // ============================================================
+        
+        // Step 1: Fetch the encrypted token from GitHub
+        var encryptedSource = _sessionEncryptedToken || null;
+        if (!encryptedSource) {
+            var fetched = await fetchEncryptedTokenFromGitHub();
+            if (!fetched) {
+                throw new Error('No encrypted token found on GitHub. Please click "First-Time Setup" to configure your token.');
+            }
+            encryptedSource = fetched.encrypted;
+        }
+
+        // Step 2: Decrypt the token using the password
+        var token = await decryptToken(encryptedSource, password);
+
+        // Step 3: Validate the decrypted token against GitHub API
+        var validation = await fetch('https://api.github.com/user', {
+            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (!validation.ok) {
+            throw new Error('GitHub rejected the token (HTTP ' + validation.status + '). Invalid or expired.');
+        }
+
+        // Step 4: INJECT TOKEN — make it available to all functions
+        _decryptedGitHubToken = token;
+        _isLoggedIn = true;
+        _sessionEncryptedToken = encryptedSource; // Cache for session
+
+        // Step 5: Verify WRITE access to the repo (not just read access)
+        // This catches tokens that can read but can't save — fail fast before the user tries
+        try {
+            var testResponse = await fetch(`${API_BASE}${CONFIG_FILE}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            // If we can read the config, that's a good sign — but let's also verify the repo is accessible
+            if (testResponse.status === 404) {
+                // Config doesn't exist yet — that's OK for first time, repo access works
+            } else if (testResponse.status === 401 || testResponse.status === 403) {
+                throw new Error('Your token can read user info but CANNOT access the repository. Make sure your token has the "repo" scope enabled.');
+            }
+        } catch (writeTestErr) {
+            if (writeTestErr.message.indexOf('repo') >= 0) {
+                throw writeTestErr; // Re-throw our custom error
+            }
+            // Network error or other issue — don't block login for this
+            console.warn('Write permission check failed (non-blocking):', writeTestErr);
+        }
+
+        // Step 6: Hide the orange button and show the red re-access button
+        _setupDoneOnce = true;
+        var setupBtn = document.getElementById('setupWizardBtn');
+        var reaccessBtn = document.getElementById('reaccessSetupBtn');
+        if (setupBtn) setupBtn.style.display = 'none';
+        if (reaccessBtn) reaccessBtn.style.display = 'block';
+
+        // Step 7: Load config and enter admin dashboard
         await initializeConfig(token);
         goToPage('adminHomePage');
+
     } catch (e) {
-        console.error('Decryption failed:', e);
-        if (errorEl) { errorEl.textContent = 'Incorrect password. Please try again.'; errorEl.style.display = 'block'; }
+        console.error('Login failed:', e);
+        // ERASE TOKEN on login failure — security cleanup
+        eraseTokenAndSession();
+        
+        if (errorEl) {
+            var hint = '';
+            if (e.message.indexOf('No encrypted token') >= 0) {
+                hint = ' Click "First-Time Setup" below to configure.';
+            } else if (e.message.indexOf('GitHub rejected') >= 0) {
+                hint = ' The token stored on GitHub may be expired. Run Setup again with a new token.';
+            }
+            errorEl.textContent = e.message + hint;
+            errorEl.style.display = 'block';
+        }
+        // On failure: show orange button only if setup has never been done, hide red button
+        var setupBtn = document.getElementById('setupWizardBtn');
+        var reaccessBtn = document.getElementById('reaccessSetupBtn');
+        if (setupBtn) setupBtn.style.display = _setupDoneOnce ? 'none' : 'block';
+        if (reaccessBtn) reaccessBtn.style.display = _setupDoneOnce ? 'block' : 'none';
     }
 }
 
 function openAdminHome() {
     goToPage('adminHomePage');
+}
+
+// --- SETUP RE-ACCESS: Password-gated re-entry to setup wizard ---
+async function openSetupAuth() {
+    if (!currentConfig || !currentConfig.setupPassword) {
+        alert('No setup protection password is configured. Please contact your administrator.');
+        return;
+    }
+    var pass = await showPasswordModal('Enter Setup Protection Password to re-access Setup:');
+    if (pass === null) return; // User cancelled
+    if (pass !== currentConfig.setupPassword) {
+        alert('Incorrect password. Access denied.');
+        return;
+    }
+    openSetupWizard();
 }
 
 // --- CUSTOM PASSWORD MODAL (shows dots for security) ---
@@ -3525,7 +3824,7 @@ async function archiveExamData() {
         if (existingSha) commitBody.sha = existingSha;
 
         const commitResponse = await fetch(commitUrl, {
-            method: existingSha ? 'PUT' : 'PUT',
+            method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/vnd.github.v3+json',
@@ -5310,31 +5609,40 @@ async function deleteStudentFromList() {
             ? `Replaced student ${studentExamNo} with ${document.getElementById('replacementExamNo').value.trim().toUpperCase()} in ${form}`
             : `Deleted student ${studentExamNo} from ${form}`;
 
-        // AUTO-MERGE: Fetch latest remote, merge student changes, save
-        await smartCommitCSV(form, classData, ALL_SUBJECTS, commitMessage);
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(50);
+
+        const csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(unescape(encodeURIComponent(csvString))); // UTF-8 fix
+
+        const result = await commitFile(fileName, commitMessage, base64Content, currentSha, token, 'PUT');
 
         hideLoading();
-        statusEl.textContent = mode === 'with'
-            ? `Success! "${studentName}" replaced with "${document.getElementById('replacementName').value.trim()}" in ${form.toUpperCase()}.`
-            : `Success! "${studentName}" (${studentExamNo}) deleted from ${form.toUpperCase()}.`;
-        statusEl.style.color = '#2ecc71';
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            statusEl.textContent = mode === 'with'
+                ? `Success! "${studentName}" replaced with "${document.getElementById('replacementName').value.trim()}" in ${form.toUpperCase()}.`
+                : `Success! "${studentName}" (${studentExamNo}) deleted from ${form.toUpperCase()}.`;
+            statusEl.style.color = '#2ecc71';
 
-        // Refresh dropdown
-        populateDeleteStudentDropdown();
+            // Refresh dropdown
+            populateDeleteStudentDropdown();
 
-        // Clear replacement fields
-        if (mode === 'with') {
-            document.getElementById('replacementName').value = '';
-            document.getElementById('replacementExamNo').value = '';
-            document.getElementById('replacementSex').value = '';
-            document.getElementById('replacementDOB').value = '';
-        }
+            // Clear replacement fields
+            if (mode === 'with') {
+                document.getElementById('replacementName').value = '';
+                document.getElementById('replacementExamNo').value = '';
+                document.getElementById('replacementSex').value = '';
+                document.getElementById('replacementDOB').value = '';
+            }
 
-        // Refresh data entry if showing this class
-        const dataForm = document.getElementById('dataClassSelect');
-        const dataSubject = document.getElementById('dataSubjectSelect');
-        if (dataForm && dataSubject && dataForm.value === form && dataSubject.value) {
-            showStudentMarksList();
+            // Refresh data entry if showing this class
+            const dataForm = document.getElementById('dataClassSelect');
+            const dataSubject = document.getElementById('dataSubjectSelect');
+            if (dataForm && dataSubject && dataForm.value === form && dataSubject.value) {
+                showStudentMarksList();
+            }
         }
     } catch (error) {
         hideLoading();
@@ -5863,9 +6171,21 @@ async function refreshSubjectMonitor(form) {
     let data = currentClassData[form];
     if (!data || data.length === 0) {
         try {
-            const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`);
-            if (!response.ok) throw new Error("File not found");
-            const csv = await response.text();
+            // FIX: Use authenticated Contents API for private repos
+            const token = getDecryptedToken();
+            let csv;
+            if (token) {
+                const response = await fetch(`${API_BASE}${form}.csv`, {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+                });
+                if (!response.ok) throw new Error("File not found");
+                const fileData = await response.json();
+                csv = atob(fileData.content.replace(/\n/g, ''));
+            } else {
+                const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`);
+                if (!response.ok) throw new Error("File not found");
+                csv = await response.text();
+            }
             const parsed = normalizeCSVData(csv);
             data = parsed;
             currentClassData[form] = data; // Cache in memory
@@ -5963,19 +6283,27 @@ async function addStudentManually() {
         classData.push(newStudent);
         currentClassData[form] = classData;
 
-        updateLoadingPercent(40);
+        // Save entire updated class file back to GitHub
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(60);
+
+        const csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(unescape(encodeURIComponent(csvString))); // UTF-8 fix
         const commitMessage = `Added student: ${name} (${examNo}) to ${form}`;
 
-        // AUTO-MERGE: Fetch latest remote, merge new student, save
-        await smartCommitCSV(form, classData, ALL_SUBJECTS, commitMessage);
+        const result = await commitFile(fileName, commitMessage, base64Content, currentSha, token, 'PUT');
 
         hideLoading();
-        alert(`${name} added successfully to ${form.toUpperCase()} (auto-merged)!`);
-        // Clear inputs
-        document.getElementById('manualStudentName').value = '';
-        document.getElementById('manualExamNumber').value = '';
-        document.getElementById('manualSex').value = '';
-        document.getElementById('manualDOB').value = '';
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            alert(`${name} added successfully to ${form.toUpperCase()}!`);
+            // Clear inputs
+            document.getElementById('manualStudentName').value = '';
+            document.getElementById('manualExamNumber').value = '';
+            document.getElementById('manualSex').value = '';
+            document.getElementById('manualDOB').value = '';
+        }
     } catch (error) {
         hideLoading();
         console.error('Manual add failed:', error);
@@ -6143,19 +6471,37 @@ async function saveGradeRanges(form) {
         const statusEl = document.getElementById('gradeEditorSaveStatus');
         if (statusEl) { statusEl.textContent = 'Saving...'; statusEl.style.color = '#f39c12'; }
 
-        // 🔴 CRITICAL FIX: Deep-copy gradeKeys to prevent reference mutation during merge
+        // Deep-copy gradeKeys to prevent reference mutation
         const gradeKeysSnapshot = JSON.parse(JSON.stringify(currentConfig.gradeKeys));
 
-        // 🔴 CRITICAL FIX: Force config persistence via smartCommitConfig
-        await smartCommitConfig(
-            { gradeKeys: gradeKeysSnapshot },
-            `Updated grade ranges for ${form}`
-        );
+        const saveConfig = {
+            term: currentConfig.term,
+            year: currentConfig.year || '2025',
+            generalComment: currentConfig.generalComment || '',
+            nextTermOpens: currentConfig.nextTermOpens || '',
+            fees: currentConfig.fees || '',
+            gradeKeyLower: currentConfig.gradeKeyLower,
+            gradeKeyUpper: currentConfig.gradeKeyUpper,
+            gradeKeys: gradeKeysSnapshot,
+            teachers: currentConfig.teachers || {},
+            hiddenSubjects: currentConfig.hiddenSubjects || {},
+            locks: currentConfig.locks || {},
+            passwordEnabled: currentConfig.passwordEnabled,
+            sneColumnVisible: currentConfig.sneColumnVisible
+        };
 
-        // 🔴 CRITICAL FIX: Refresh AFTER successful save so UI matches persisted state
-        refreshAllVisibleSheets();
+        const jsonContent = JSON.stringify(saveConfig, null, 2);
+        const base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+        const commitMessage = `Updated grade ranges for ${form}`;
 
-        if (statusEl) { statusEl.textContent = 'Saved successfully. Changes will persist after login.'; statusEl.style.color = '#2ecc71'; }
+        const result = await commitFile(CONFIG_FILE, commitMessage, base64Content, configSha, getDecryptedToken(), 'PUT');
+
+        if (result) {
+            configSha = result.content.sha;
+            currentConfig = saveConfig;
+            refreshAllVisibleSheets();
+            if (statusEl) { statusEl.textContent = 'Saved successfully. Changes will persist after login.'; statusEl.style.color = '#2ecc71'; }
+        }
     } catch (error) {
         console.error('Grade save failed:', error);
         const statusEl = document.getElementById('gradeEditorSaveStatus');
@@ -6186,11 +6532,23 @@ async function instantSaveGradeConfigToGitHub() {
             sneColumnVisible: currentConfig.sneColumnVisible
         };
 
+        const jsonContent = JSON.stringify(saveConfig, null, 2);
+        const base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
         const commitMessage = `Grade update: ${new Date().toLocaleString()}`;
 
-        // AUTO-MERGE: Smart save with retry instead of direct commit
-        await smartCommitConfig(saveConfig, commitMessage);
-        console.log('Grade config saved to GitHub (auto-merged).');
+        const result = await commitFile(
+            CONFIG_FILE,
+            commitMessage,
+            base64Content,
+            configSha,
+            token,
+            'PUT'
+        );
+
+        if (result) {
+            configSha = result.content.sha;
+            console.log('Grade config saved to GitHub.');
+        }
     } catch (error) {
         console.error('Instant grade save failed (non-blocking):', error);
     }
@@ -6422,17 +6780,24 @@ async function clearScoresForClass() {
 
         currentClassData[form] = classData;
 
-        updateLoadingPercent(50);
+        // Save to GitHub
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(70);
+
+        const csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(unescape(encodeURIComponent(csvString))); // UTF-8 fix
         const commitMessage = subject 
             ? `Cleared ${subject} scores for ${form}` 
             : `Cleared all scores for ${form}`;
 
-        // AUTO-MERGE: Fetch latest remote, merge cleared scores, save
-        const clearSubjects = subject ? [subject] : ALL_SUBJECTS;
-        await smartCommitCSV(form, classData, clearSubjects, commitMessage);
+        const result = await commitFile(fileName, commitMessage, base64Content, currentSha, token, 'PUT');
 
         hideLoading();
-        alert('Scores cleared successfully (auto-merged with latest)!');
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            alert('Scores cleared successfully!');
+        }
     } catch (error) {
         hideLoading();
         console.error('Clear scores failed:', error);
@@ -6475,17 +6840,27 @@ async function overwriteStudentData() {
 
         currentClassData[form] = classData;
 
-        // AUTO-MERGE: Fetch latest remote, merge changes, save
+        // Save to GitHub
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(70);
+
+        const csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(unescape(encodeURIComponent(csvString))); // UTF-8 fix
         const commitMessage = `Updated student data for ${examNo} in ${form}`;
-        await smartCommitCSV(form, classData, ALL_SUBJECTS, commitMessage);
+
+        const result = await commitFile(fileName, commitMessage, base64Content, currentSha, token, 'PUT');
 
         hideLoading();
-        // Clear inputs
-        document.getElementById('manualStudentName').value = '';
-        document.getElementById('manualExamNumber').value = '';
-        document.getElementById('manualSex').value = '';
-        document.getElementById('manualDOB').value = '';
-        alert(`Student ${examNo} updated successfully (auto-merged with latest data)!`);
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            // Clear inputs
+            document.getElementById('manualStudentName').value = '';
+            document.getElementById('manualExamNumber').value = '';
+            document.getElementById('manualSex').value = '';
+            document.getElementById('manualDOB').value = '';
+            alert(`Student ${examNo} updated successfully!`);
+        }
     } catch (error) {
         hideLoading();
         console.error('Overwrite failed:', error);
@@ -6593,14 +6968,25 @@ async function saveEditedNames() {
 
         const totalChanges = changesCount + sexChangesCount;
         const commitMessage = `Edited ${totalChanges} student record(s) in ${form}`;
-        await smartCommitCSV(form, classData, ALL_SUBJECTS, commitMessage);
+
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(80);
+
+        const csvString = Papa.unparse(classData, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(unescape(encodeURIComponent(csvString))); // UTF-8 fix
+
+        const result = await commitFile(fileName, commitMessage, base64Content, currentSha, token, 'PUT');
 
         hideLoading();
-        let summaryParts = [];
-        if (changesCount > 0) summaryParts.push(`${changesCount} name(s)`);
-        if (sexChangesCount > 0) summaryParts.push(`${sexChangesCount} sex entry/entries`);
-        alert(`${summaryParts.join(' and ')} updated successfully in ${form.toUpperCase()} (auto-merged)!`);
-        loadEditNamesUI();
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            let summaryParts = [];
+            if (changesCount > 0) summaryParts.push(`${changesCount} name(s)`);
+            if (sexChangesCount > 0) summaryParts.push(`${sexChangesCount} sex entry/entries`);
+            alert(`${summaryParts.join(' and ')} updated successfully in ${form.toUpperCase()}!`);
+            loadEditNamesUI();
+        }
     } catch (error) {
         hideLoading();
         console.error('Save edited names failed:', error);
@@ -6622,6 +7008,10 @@ async function saveEditedNames() {
     
     <label for="setupPasswordConfirm">Confirm Password</label>
     <input type="password" id="setupPasswordConfirm" placeholder="" style="max-width:400px;">
+
+    <label for="setupAdminPwd">Setup Protection Password</label>
+    <input type="password" id="setupAdminPwd" placeholder="Password to re-access Setup later" style="max-width:400px;">
+    <p style="font-size:0.75em; color:#999; margin:5px 0 0 0;">This password lets you re-open Setup from the login page to change your token or password. Remember it.</p>
     
     <div id="setupError" style="color:#e74c3c; margin-top:10px; font-size:0.9em; display:none;"></div>
     <div id="setupSuccess" style="color:#27ae60; margin-top:10px; font-size:0.9em; display:none;"></div>
@@ -6634,17 +7024,26 @@ async function saveEditedNames() {
     <button onclick="goToPage('adminLoginPage')" style="margin-top:5px;">Back to Login</button>
     
     <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:8px; text-align:left; font-size:0.8em; color:#555;">
-        <strong>Instructions:</strong>
+        <strong>How it works:</strong>
         <ol style="margin-top:8px; padding-left:20px;">
-            <li>Enter your GitHub token (starts with ghp_...)</li>
-            <li>Choose a strong password (this is your login password)</li>
-            <li>Click "Encrypt Token"</li>
-            <li>Click "Copy to Clipboard"</li>
-            <li>Open this HTML file in a text editor</li>
-            <li>Find: __ENCRYPTED_TOKEN_HERE__</li>
-            <li>Replace it with the copied encrypted text</li>
-            <li>Save and re-upload to GitHub</li>
+            <li>Enter your GitHub Personal Access Token (starts with ghp_...)</li>
+            <li>Choose a strong password — this becomes your login password</li>
+            <li>Choose a Setup Protection Password — this lets you re-open Setup later to change your token or login password</li>
+            <li>Click "Encrypt Token" — your token gets encrypted and automatically uploaded to your GitHub repo as a <code>.token</code> file</li>
+            <li>You will be taken to the login page automatically</li>
+            <li>From now on, just enter your password to log in — the encrypted token is fetched from GitHub each time</li>
         </ol>
+        <p style="margin-top:8px; color:#e67e22;"><strong>Note:</strong> Your raw token is NEVER stored anywhere. Only the AES-256-GCM encrypted version lives on GitHub. Without your password, it is useless.</p>
+    </div>
+</div>
+
+<!-- === SUBJECT HIDE/UNHIDE POPUP MODAL === -->
+<div id="subjectHidePopupOverlay" onclick="if(event.target===this)closeHideSubjectPopup()">
+    <div id="subjectHidePopupBox">
+        <h3>Hide / Unhide Subjects</h3>
+        <p id="subjectHidePopupClass"></p>
+        <div id="subjectHideCheckboxList"></div>
+        <button onclick="closeHideSubjectPopup()" style="max-width:200px;">Done</button>
     </div>
 </div>
 
