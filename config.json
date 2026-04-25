@@ -170,7 +170,37 @@
   },
   "locks": {
     "form1": {
-      "Agriculture": true
+      "Agriculture": true,
+      "Biology": true,
+      "Chemistry": true,
+      "Chichewa": true,
+      "History": true,
+      "Physics": true
+    },
+    "form2": {
+      "Bible Knowledge": true,
+      "Biology": true,
+      "Chichewa": true,
+      "English": true,
+      "Social/Life": true
+    },
+    "form3": {
+      "Mathematics": true,
+      "Physics": true,
+      "Social/Life": true
+    },
+    "form4": {
+      "Agriculture": true,
+      "Bible Knowledge": true,
+      "Biology": true,
+      "Chemistry": true,
+      "Chichewa": true,
+      "English": true,
+      "Geography": true,
+      "History": true,
+      "Mathematics": true,
+      "Physics": true,
+      "Social/Life": true
     }
   },
   "passwordEnabled": true,
