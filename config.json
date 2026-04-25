@@ -174,5 +174,6 @@
     }
   },
   "passwordEnabled": true,
-  "sneColumnVisible": false
+  "sneColumnVisible": false,
+  "setupPassword": "0000"
 }
