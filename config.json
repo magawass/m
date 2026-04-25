@@ -67,7 +67,7 @@
       "Biology": "Mr Chipoya",
       "Chemistry": "Mrs Masepa",
       "Chichewa": "Mrs Masoambeta",
-      "English": "Mrs Namfuko",
+      "English": "Mrs Cosmas",
       "Geography": "Mrs Henderson",
       "History": "Mr Herbert",
       "Mathematics": "Mr Master",
@@ -174,5 +174,6 @@
     }
   },
   "passwordEnabled": true,
-  "sneColumnVisible": false
+  "sneColumnVisible": false,
+  "setupPassword": null
 }
