@@ -170,5 +170,5 @@
   },
   "locks": {},
   "passwordEnabled": true,
-  "sneColumnVisible": true
+  "sneColumnVisible": false
 }
