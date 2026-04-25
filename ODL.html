@@ -3554,8 +3554,12 @@ function copyEncryptedToken() {
     });
 }
 
-function openAdminLogin() {
-    // Only show the setup wizard button if no encrypted token has been cached (i.e., no successful login yet this session)
+async function openAdminLogin() {
+    // Check GitHub to see if encrypted token exists — persistent across all devices
+    if (!_setupDoneOnce) {
+        var tokenExists = await checkTokenExists();
+        if (tokenExists) _setupDoneOnce = true;
+    }
     var setupBtn = document.getElementById('setupWizardBtn');
     var reaccessBtn = document.getElementById('reaccessSetupBtn');
     if (setupBtn) setupBtn.style.display = _setupDoneOnce ? 'none' : 'block';
