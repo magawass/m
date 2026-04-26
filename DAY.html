@@ -6721,7 +6721,7 @@ async function exportMarkSheetWithFilename() {
     const formDisplay = form.toUpperCase().replace('FORM', 'Form ');
     const term = currentConfig ? currentConfig.term : '';
     const year = currentConfig ? (currentConfig.year || '2025') : '2025';
-    const filename = `Namitete_Secondary_${formDisplay}_MarkSheet_Term${term}_${year}`;
+    const filename = `Magawa_Secondary_${formDisplay}_MarkSheet_Term${term}_${year}`;
     exportToExcel('scoresTable', filename);
 }
 
@@ -6737,7 +6737,7 @@ async function exportGradeSheetWithFilename() {
     const formDisplay = form.toUpperCase().replace('FORM', 'Form ');
     const term = currentConfig ? currentConfig.term : '';
     const year = currentConfig ? (currentConfig.year || '2025') : '2025';
-    const filename = `Namitete_Secondary_${formDisplay}_GradeSheet_Term${term}_${year}`;
+    const filename = `Magawa_Secondary_${formDisplay}_GradeSheet_Term${term}_${year}`;
     exportToExcel('gradesTable', filename);
 }
 
