@@ -172,7 +172,7 @@
     "form1": {
       "Agriculture": true,
       "Biology": true,
-      "Chemistry": true,
+      "Chemistry": false,
       "Chichewa": true,
       "History": false,
       "Physics": true
