@@ -203,7 +203,7 @@
       "Social/Life": true
     }
   },
-  "passwordEnabled": true,
+  "passwordEnabled": false,
   "sneColumnVisible": false,
   "setupPassword": "0000",
   "studentPasswords": {}
