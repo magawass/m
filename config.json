@@ -185,9 +185,9 @@
       "Social/Life": true
     },
     "form3": {
-      "Mathematics": true,
-      "Physics": true,
-      "Social/Life": true
+      "Mathematics": false,
+      "Physics": false,
+      "Social/Life": false
     },
     "form4": {
       "Agriculture": true,
