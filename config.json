@@ -3,7 +3,7 @@
   "year": "2026",
   "generalComment": "Excellent effort. Keep up the hard work.",
   "nextTermOpens": "20th April,2026",
-  "fees": "K45,000.00",
+  "fees": "K180,000.00",
   "gradeKeyLower": {
     "A": 80,
     "B": 65,
@@ -173,7 +173,7 @@
       "Agriculture": true,
       "Biology": true,
       "Chemistry": false,
-      "Chichewa": true,
+      "Chichewa": false,
       "History": false,
       "Physics": true
     },
