@@ -180,7 +180,7 @@
     "form2": {
       "Bible Knowledge": false,
       "Biology": false,
-      "Chichewa": true,
+      "Chichewa": false,
       "English": false,
       "Social/Life": true
     },
