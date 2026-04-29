@@ -170,8 +170,8 @@
   },
   "locks": {
     "form1": {
-      "Agriculture": true,
-      "Biology": true,
+      "Agriculture": false,
+      "Biology": false,
       "Chemistry": false,
       "Chichewa": false,
       "History": false,
