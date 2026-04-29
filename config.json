@@ -179,9 +179,9 @@
     },
     "form2": {
       "Bible Knowledge": false,
-      "Biology": true,
+      "Biology": false,
       "Chichewa": true,
-      "English": true,
+      "English": false,
       "Social/Life": true
     },
     "form3": {
@@ -205,6 +205,5 @@
   },
   "passwordEnabled": false,
   "sneColumnVisible": false,
-  "setupPassword": "0000",
-  "studentPasswords": {}
+  "setupPassword": "0000"
 }
