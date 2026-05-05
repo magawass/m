@@ -5844,12 +5844,43 @@ function filterStudentMarks(){
 // Single START/STOP button for voice score entry
 // Default: voice is OFF, button shows START (green)
 var _voiceIsRunning = false;
+var _micPermissionReady = false;
+var _micStream = null; // Keep mic stream alive during entire voice session
+
+// Pre-request microphone permission so it is auto-granted before SpeechRecognition starts
+// Stream is KEPT alive (not stopped) so the mic stays active for SpeechRecognition
+function _ensureMicPermission() {
+    if (_micPermissionReady && _micStream && _micStream.active) return Promise.resolve();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return Promise.resolve(); // Fallback: let SpeechRecognition handle the prompt
+    }
+    // Release any previous stream first
+    _releaseMicStream();
+    return navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+        _micStream = stream; // Keep stream alive — do NOT stop tracks
+        _micPermissionReady = true;
+    }).catch(function(e) {
+        console.warn('Mic permission pre-request failed:', e);
+        _micPermissionReady = false;
+    });
+}
+
+// Release the mic stream when voice entry stops
+function _releaseMicStream() {
+    if (_micStream) {
+        try { _micStream.getTracks().forEach(function(t) { t.stop(); }); } catch(e) {}
+        _micStream = null;
+    }
+}
+
 function toggleVoiceStartStop() {
     var btn = document.getElementById('voiceStartStopBtn');
     if (!btn) return;
     if (_voiceIsRunning) {
-        // STOP: cancel voice entry
+        // STOP: cancel voice entry and release mic
         _cancelVoiceEntry();
+        _releaseMicStream();
+        _micPermissionReady = false;
         _voiceIsRunning = false;
         btn.innerHTML = '&#9654; START';
         btn.style.background = '#27ae60';
@@ -5857,26 +5888,18 @@ function toggleVoiceStartStop() {
         _setVoiceHeard('');
         document.getElementById('voiceCurrentStudent').style.display = 'none';
     } else {
-        // START: begin voice exam number calling
-
-        // SURGICAL FIX: Automatically request and activate microphone access
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(function(stream) {
-                    // Immediately stop tracks after permission granted (keeps mic allowed)
-                    stream.getTracks().forEach(function(track){ track.stop(); });
-                    startVoiceExamNumber();
-                })
-                .catch(function() {
-                    _setVoiceStatus('Microphone access required. Please allow mic.', '#e74c3c');
-                });
-        } else {
+        // START: ensure mic permission first, then begin voice exam number calling
+        _setVoiceStatus('Requesting microphone access...', '#8e44ad');
+        _ensureMicPermission().then(function() {
+            if (!_micPermissionReady) {
+                _setVoiceStatus('Microphone access denied. Allow mic access in browser settings.', '#e74c3c');
+                return;
+            }
+            _voiceIsRunning = true;
+            btn.innerHTML = '&#9632; STOP';
+            btn.style.background = '#e74c3c';
             startVoiceExamNumber();
-        }
-
-        _voiceIsRunning = true;
-        btn.innerHTML = '&#9632; STOP';
-        btn.style.background = '#e74c3c';
+        });
     }
 }
 
