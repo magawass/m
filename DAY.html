@@ -5844,58 +5844,12 @@ function filterStudentMarks(){
 // Single START/STOP button for voice score entry
 // Default: voice is OFF, button shows START (green)
 var _voiceIsRunning = false;
-var _micStream = null; // Forced-open mic stream — kept alive during entire voice session
-
-// Force-open the microphone using getUserMedia. Keeps stream alive so mic stays active.
-function _forceMicOpen() {
-    // Stop any previous stream first
-    _forceMicClose();
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        return Promise.resolve(); // Browser doesn't support getUserMedia — let SpeechRecognition try alone
-    }
-    return navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
-        _micStream = stream; // Keep alive — do NOT stop tracks until STOP is clicked
-    }).catch(function(e) {
-        console.warn('getUserMedia mic error:', e.name, e.message);
-        _micStream = null;
-        throw e;
-    });
-}
-
-// Release the forced mic stream
-function _forceMicClose() {
-    if (_micStream) {
-        try { _micStream.getTracks().forEach(function(t) { t.stop(); }); } catch(e) {}
-        _micStream = null;
-    }
-}
-
-// Show mic-blocked banner with reset instructions
-function _showMicBlockedBanner() {
-    var existing = document.getElementById('_micResetBanner');
-    if (existing) existing.remove();
-    var banner = document.createElement('div');
-    banner.id = '_micResetBanner';
-    banner.style.cssText = 'background:#fff3cd;border:2px solid #e74c3c;border-radius:10px;padding:14px;margin:10px auto;max-width:400px;text-align:center;font-size:0.85em;color:#333;';
-    banner.innerHTML = '<p style="margin:0 0 8px 0;font-weight:700;color:#e74c3c;">Microphone is blocked for this site.</p>'
-        + '<p style="margin:0 0 6px 0;"><b>Step 1:</b> Click the lock (&#128274;) or tune (&#127799;) icon in the address bar</p>'
-        + '<p style="margin:0 0 6px 0;"><b>Step 2:</b> Set <b>Microphone</b> to <b>Allow</b></p>'
-        + '<p style="margin:0 0 10px 0;"><b>Step 3:</b> Click the button below</p>'
-        + '<button onclick="document.getElementById(\'_micResetBanner\').remove();_voiceIsRunning=false;toggleVoiceStartStop();" '
-        + 'style="background:#27ae60;color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-size:1em;font-weight:600;width:auto;max-width:none;display:inline-block;">Done — Try Again</button>';
-    var voiceBtn = document.getElementById('voiceStartStopBtn');
-    if (voiceBtn && voiceBtn.parentNode) {
-        voiceBtn.parentNode.insertBefore(banner, voiceBtn.nextSibling);
-    }
-}
-
 function toggleVoiceStartStop() {
     var btn = document.getElementById('voiceStartStopBtn');
     if (!btn) return;
     if (_voiceIsRunning) {
-        // STOP: cancel voice entry and release mic
+        // STOP: cancel voice entry
         _cancelVoiceEntry();
-        _forceMicClose();
         _voiceIsRunning = false;
         btn.innerHTML = '&#9654; START';
         btn.style.background = '#27ae60';
@@ -5903,23 +5857,11 @@ function toggleVoiceStartStop() {
         _setVoiceHeard('');
         document.getElementById('voiceCurrentStudent').style.display = 'none';
     } else {
-        // START: force mic open first, then begin voice exam number calling
-        _setVoiceStatus('Opening microphone...', '#8e44ad');
-        _forceMicOpen().then(function() {
-            _voiceIsRunning = true;
-            btn.innerHTML = '&#9632; STOP';
-            btn.style.background = '#e74c3c';
-            startVoiceExamNumber();
-        }).catch(function(e) {
-            _voiceIsRunning = false;
-            btn.innerHTML = '&#9654; START';
-            btn.style.background = '#27ae60';
-            var msg = (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError')
-                ? 'Microphone blocked. See instructions below.'
-                : 'Could not access microphone (' + (e.message || e.name) + ').';
-            _setVoiceStatus(msg, '#e74c3c');
-            _showMicBlockedBanner();
-        });
+        // START: begin voice exam number calling
+        _voiceIsRunning = true;
+        btn.innerHTML = '&#9632; STOP';
+        btn.style.background = '#e74c3c';
+        startVoiceExamNumber();
     }
 }
 
@@ -6063,7 +6005,6 @@ function _removeClickBlocker() {
 // --- Cancel voice entry and reset buttons ---
 function _cancelVoiceEntry() {
     _stopRecognition();
-    _forceMicClose(); // Always release mic stream on cancel
     _voiceCallActive = false;
     _voiceMode = 'exam';
     _voiceCurrentIndex = null;
