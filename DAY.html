@@ -5844,7 +5844,46 @@ function filterStudentMarks(){
 // Single START/STOP button for voice score entry
 // Default: voice is OFF, button shows START (green)
 var _voiceIsRunning = false;
-function toggleVoiceStartStop() {
+var _micPermissionGranted = false; // Track whether mic permission has been granted this session
+
+// --- SURGICAL FIX: Explicitly request microphone permission via getUserMedia ---
+// On many browsers (Safari iOS, Firefox, Edge), SpeechRecognition does NOT trigger
+// the mic permission prompt. Without calling getUserMedia first, the mic is denied
+// silently and voice entry fails. This function forces the browser to show the
+// permission dialog, then immediately releases the stream.
+async function _ensureMicrophonePermission() {
+    // If already granted this session, skip re-requesting
+    if (_micPermissionGranted) return true;
+
+    // Check if getUserMedia is available (requires HTTPS or localhost)
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        // Insecure context — SpeechRecognition won't work either, but let it try
+        console.warn('getUserMedia not available (insecure context?). Proceeding with SpeechRecognition directly.');
+        return true;
+    }
+
+    try {
+        var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Permission granted — immediately stop all tracks (we only needed the prompt)
+        stream.getTracks().forEach(function(track) { track.stop(); });
+        _micPermissionGranted = true;
+        return true;
+    } catch (err) {
+        console.error('Microphone permission denied:', err);
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            _setVoiceStatus('Microphone access was denied. Please allow microphone access in your browser settings and try again.', '#e74c3c');
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+            _setVoiceStatus('No microphone found. Please connect a microphone and try again.', '#e74c3c');
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+            _setVoiceStatus('Microphone is in use by another application. Please close it and try again.', '#e74c3c');
+        } else {
+            _setVoiceStatus('Could not access microphone (' + (err.name || err.message) + '). Please allow mic access and try again.', '#e74c3c');
+        }
+        return false;
+    }
+}
+
+async function toggleVoiceStartStop() {
     var btn = document.getElementById('voiceStartStopBtn');
     if (!btn) return;
     if (_voiceIsRunning) {
@@ -5857,7 +5896,16 @@ function toggleVoiceStartStop() {
         _setVoiceHeard('');
         document.getElementById('voiceCurrentStudent').style.display = 'none';
     } else {
-        // START: begin voice exam number calling
+        // START: request microphone permission FIRST, then begin voice exam number calling
+        _setVoiceStatus('Requesting microphone access...', '#8e44ad');
+        var micOk = await _ensureMicrophonePermission();
+        if (!micOk) {
+            // Permission denied — reset button state
+            _voiceIsRunning = false;
+            btn.innerHTML = '&#9654; START';
+            btn.style.background = '#27ae60';
+            return;
+        }
         _voiceIsRunning = true;
         btn.innerHTML = '&#9632; STOP';
         btn.style.background = '#e74c3c';
