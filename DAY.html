@@ -475,7 +475,7 @@ function saveScoresAsExcel() {
     const formDisplay = form.toUpperCase().replace('FORM', 'Form ');
     const term = currentConfig ? currentConfig.term : '';
     const year = currentConfig ? (currentConfig.year || '2025') : '2025';
-    const filename = `Magawa_Secondary_${formDisplay}_${subject}_Term${term}_${year}`;
+    const filename = `Namitete_Secondary_${formDisplay}_${subject}_Term${term}_${year}`;
     
     try {
         // Build data array programmatically from currentClassData
@@ -1628,7 +1628,7 @@ function saveSelectedSubjectsToRepo() {
 
     <header id="reportHeader" style="width: 100%;">
         <img 
-src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
+src="https://raw.githubusercontent.com/magawa/m/main/logo.png" class="logo" alt="School Logo">
         <div id="reportHeaderCenter">
             <div style="font-family: 'Times New Roman', Times, serif;">
  <div style="text-align: center;">
@@ -1789,7 +1789,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 
 <div id="scoreSheetView" class="page">
-    <h2 id="markSheetHeader">SECONDARY SCHOOL - Mark Sheet - <span id="markSheetForm"></span> - Term <span id="markSheetTerm"></span></h2>
+    <h2 id="markSheetHeader">MAGAWA SECONDARY SCHOOL - Mark Sheet - <span id="markSheetForm"></span> - Term <span id="markSheetTerm"></span></h2>
 <input type="text" id="scoreSearchInput" placeholder="Search student..." onkeyup="filterScoreSheet()" style="max-width:300px;">
 
     <button onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
@@ -2105,7 +2105,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <div id="archiveStudentDetail" class="hidden" style="margin-top:15px;">
     <div id="archiveDetailContent" style="background:white;border:3px double black;outline:3px double black;outline-offset:3px;padding:25px 20px;width:95%;max-width:650px;margin:0 auto;color:black;">
         <header id="archiveReportHeader" style="width:100%;text-align:center;">
-            <img src="https://raw.githubusercontent.com/magawa/m/main/logo.png" class="logo" alt="School Logo">
+            <img src="https://raw.githubusercontent.com/enitac/a/main/logo.png" class="logo" alt="School Logo">
             <h3 style="font-size:1.3em;margin:0 0 5px 0;color:black;">MAGAWA SECONDARY SCHOOL</h3>
             <p style="margin:5px 0;font-size:14pt;"><strong>Private Bag 17,<br>MAGAWA, MCHINJI.</strong></p>
         </header>
@@ -2195,7 +2195,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 
 <div id="gradesPage" class="page">
-    <h2 id="gradeSheetHeader">SECONDARY SCHOOL - Grade Sheet - <span id="gradeSheetForm"></span> - Term <span id="gradeSheetTerm"></span></h2>
+    <h2 id="gradeSheetHeader">MAGAWA SECONDARY SCHOOL - Grade Sheet - <span id="gradeSheetForm"></span> - Term <span id="gradeSheetTerm"></span></h2>
 <input type="text" id="gradeSearchInput" placeholder="Search student..." onkeyup="filterGradeSheet()" style="max-width:300px;">
 
     <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
@@ -4041,7 +4041,7 @@ async function openUploadsAuth() {
 }
 
 // --- ARCHIVE SECTION FUNCTIONS ---
-const ARCHIVE_REPO = 'm2';
+const ARCHIVE_REPO = 'a2';
 const ARCHIVE_API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${ARCHIVE_REPO}/contents/`;
 
 async function archiveExamData() {
@@ -7769,7 +7769,7 @@ async function shareProgressReportOnWhatsApp() {
             await navigator.share({
                 files: [pdfFile],
                 title: `Progress Report - ${studentName}`,
-                text: `Here is the progress report for ${studentName} from Magawa Secondary School.`
+                text: `Here is the progress report for ${studentName} from Namitete Secondary School.`
             });
             console.log('Shared via WhatsApp or system share');
         } else {
