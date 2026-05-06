@@ -190,7 +190,7 @@
       "Social/Life": false
     },
     "form4": {
-      "Agriculture": true,
+      "Agriculture": false,
       "Bible Knowledge": true,
       "Biology": true,
       "Chemistry": true,
@@ -205,5 +205,6 @@
   },
   "passwordEnabled": false,
   "sneColumnVisible": false,
-  "setupPassword": "0000"
+  "setupPassword": "0000",
+  "studentPasswords": {}
 }
