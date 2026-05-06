@@ -1762,22 +1762,31 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <p id="voiceStatus" style="font-size:0.82em;color:#999;margin-top:6px;">Click START to begin voice score entry.</p>
     <p id="voiceCurrentStudent" style="font-size:1.05em;color:#1a2a6c;font-weight:700;margin-top:4px;display:none;background:#d4edda;padding:6px 12px;border-radius:8px;border:2px solid #28a745;"></p>
     <p id="voiceHeardText" style="font-size:0.8em;color:#999;font-style:italic;margin-top:2px;"></p>
-    
+
+    <!-- Paste Grades Per Subject (hidden by default) -->
+    <button onclick="togglePasteGrades()" class="small-btn" style="background:#8e44ad;color:#fff;max-width:200px;margin-top:10px;margin-bottom:0;font-size:0.9em;padding:10px;">Paste Grades</button>
+
     <div id="studentMarksPanel" class="hidden">
-        <div class="table-wrapper" style="margin-top:15px;">
-            <table id="dataEntryTable">
-                <thead>
-                    <tr style="background:#ecf0f1;">
-                        <th style="border:1px solid #cc6600;padding:10px;">Exam Number</th>
-                        <th style="border:1px solid #cc6600;padding:10px;">Name</th>
-                        <th style="border:1px solid #cc6600;padding:10px;width:40px;">SEX</th>
-                        <th id="sneColumnHeader" style="border:1px solid #cc6600;padding:10px;width:30px;">SNE<br><span style="font-weight:normal;font-size:0.8em;">(SN)</span></th>
-                        <th style="border:1px solid #cc6600;padding:10px;">Score</th>
-                    </tr>
-                </thead>
-                <tbody id="dataEntryTableBody">
-                </tbody>
-            </table>
+        <div style="display:flex;max-height:500px;overflow-y:auto;margin-top:15px;border:1px solid #6c3483;border-radius:6px;">
+            <div class="table-wrapper" style="flex:1;min-width:0;margin-top:0;border:none;">
+                <table id="dataEntryTable">
+                    <thead>
+                        <tr style="background:#ecf0f1;">
+                            <th style="border:1px solid #cc6600;padding:10px;">Exam Number</th>
+                            <th style="border:1px solid #cc6600;padding:10px;">Name</th>
+                            <th style="border:1px solid #cc6600;padding:10px;width:40px;">SEX</th>
+                            <th id="sneColumnHeader" style="border:1px solid #cc6600;padding:10px;width:30px;">SNE<br><span style="font-weight:normal;font-size:0.8em;">(SN)</span></th>
+                            <th style="border:1px solid #cc6600;padding:10px;">Score</th>
+                            <th id="pasteScoreHeader" style="border:1px solid #8e44ad;padding:10px;background:#d7bde2;color:#6c3483;display:none;text-align:center;">PASTE SCORE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataEntryTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="pasteApplyRow" style="display:none;text-align:center;">
+            <button onclick="applyPasteColumnScores()" class="small-btn" style="background:#6c3483;color:#fff;max-width:180px;margin-top:8px;padding:8px;font-size:0.95em;">Apply Pasted Scores</button>
         </div>
     </div>
 
@@ -1883,6 +1892,20 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="uploadCSV()">Upload CSV</button>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
+    <h3>Paste Student List</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Paste student list with exam numbers below. One student per line. Format: <strong>ExamNumber, Name, Sex</strong> (comma, tab, or pipe separated). This will overwrite existing students for the selected class.</p>
+    <label for="pasteListClassSelect">Select Class:</label>
+    <select id="pasteListClassSelect">
+        <option value="">--Select Class--</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    <textarea id="pasteStudentListArea" rows="6" placeholder="Paste here, e.g.:&#10;1001, John Banda, M&#10;1002, Mary Phiri, F&#10;1003, Peter Mwale, M" style="max-width:400px;font-size:0.85em;"></textarea>
+    <button onclick="savePastedStudentList()" style="background:#8e44ad;">Save Pasted List</button>
+
+    <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Manual Student Entry</h3>
     <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Add individual students missed during CSV upload.</p>
     
@@ -1902,8 +1925,8 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="overwriteStudentData()" style="background: #e67e22;">Overwrite Existing Student</button>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
-    <h3>Edit Student Names &amp; Sex</h3>
-    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Select a class to edit student names and sex in bulk.</p>
+    <h3>Edit Student Names, Exam Numbers &amp; Sex</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Select a class to edit student names, exam numbers and sex in bulk.</p>
     <label for="editNamesClassSelect">Select Class:</label>
     <select id="editNamesClassSelect" onchange="loadEditNamesUI()">
         <option value="">--Select Class--</option>
@@ -5386,6 +5409,9 @@ async function displayGradesSheet() {
     // Cache for toggle re-use
     _gradeSheetData = { form, isUpperForm, studentsWithMetrics };
 
+    // Default sort by position
+    studentsWithMetrics.sort((a, b) => a.student.__numericPosition - b.student.__numericPosition);
+
     // Render table
     renderGradeSheetTable(form, isUpperForm, studentsWithMetrics);
     document.getElementById('gradeSortToggleBtn').style.display = '';
@@ -5789,6 +5815,13 @@ async function showStudentMarksList() {
                        id="score_${i}" 
                        value="${val}" 
                        ${inputDisabled}
+                       placeholder=" ">
+            </td>
+            <td class="paste-score-cell" style="border:2px solid #8e44ad;padding:8px 6px;text-align:center;background:#f5eef8;display:none;">
+                <input type="text" 
+                       id="pasteScore_${i}" 
+                       onpaste="distributePasteScores(event, ${i})"
+                       style="width:80px;padding:6px;text-align:center;border:2px solid #8e44ad;border-radius:8px;background:#fff;color:#6c3483;font-weight:700;font-size:1em;"
                        placeholder=" ">
             </td>
         `;
@@ -7982,6 +8015,170 @@ async function overwriteStudentData() {
     }
 }
 
+// === PASTE STUDENT LIST (Uploads Section) ===
+async function savePastedStudentList() {
+    const form = document.getElementById('pasteListClassSelect').value;
+    const token = getDecryptedToken();
+    const text = document.getElementById('pasteStudentListArea').value.trim();
+
+    if (!form) { alert('Please select a Class.'); return; }
+    if (!token) { alert('Authorization Code required. Please enter it in Admin Dashboard.'); return; }
+    if (!text) { alert('Please paste a student list first.'); return; }
+
+    // Parse: support comma, tab, or pipe separation; one student per line
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    if (lines.length === 0) { alert('No valid lines found in the pasted text.'); return; }
+
+    const newStudents = [];
+    lines.forEach((line, i) => {
+        // Try comma, then tab, then pipe
+        let parts = line.includes('\t') ? line.split('\t') : line.includes('|') ? line.split('|') : line.split(',');
+        if (parts.length < 2) return;
+        const examNo = parts[0].trim();
+        const name = parts[1].trim();
+        const sex = parts.length >= 3 ? parts[2].trim().toUpperCase() : '';
+        if (!examNo || !name) return;
+        const student = {};
+        student["Exam Number"] = examNo;
+        student["STUDENT'S NAME"] = name;
+        student["Sex"] = (sex === 'M' || sex === 'F') ? sex : '';
+        student["Date of Birth"] = '';
+        student["SN"] = '';
+        ALL_SUBJECTS.forEach(s => { student[s] = ''; });
+        newStudents.push(student);
+    });
+
+    if (newStudents.length === 0) { alert('Could not parse any students. Use format: ExamNumber, Name, Sex (one per line).'); return; }
+
+    if (!confirm(`Parsed ${newStudents.length} student(s). This will OVERWRITE all existing students in ${form.toUpperCase()}. Continue?`)) return;
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    try {
+        currentClassData[form] = newStudents;
+        updateLoadingPercent(50);
+
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(70);
+
+        const csvString = Papa.unparse(newStudents, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(unescape(encodeURIComponent(csvString)));
+
+        const result = await commitFile(fileName, `Pasted ${newStudents.length} students into ${form}`, base64Content, currentSha, token, 'PUT');
+
+        hideLoading();
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            document.getElementById('pasteStudentListArea').value = '';
+            alert(`${newStudents.length} student(s) saved successfully to ${form.toUpperCase()}!`);
+        }
+    } catch (error) {
+        hideLoading();
+        console.error('Paste student list failed:', error);
+        alert(`Failed to save pasted list: ${safeMsg(error)}`);
+    }
+}
+
+// === PASTE GRADES (Data Entry Section) ===
+
+// Toggle the paste score column in the student marks table (hidden by default)
+function togglePasteGrades() {
+    const header = document.getElementById('pasteScoreHeader');
+    const cells = document.querySelectorAll('.paste-score-cell');
+    const applyRow = document.getElementById('pasteApplyRow');
+    const btn = document.querySelector('[onclick="togglePasteGrades()"]');
+    if (!header || cells.length === 0) return;
+
+    const isHidden = header.style.display === 'none';
+    header.style.display = isHidden ? '' : 'none';
+    cells.forEach(function(cell) { cell.style.display = isHidden ? '' : 'none'; });
+    applyRow.style.display = isHidden ? 'block' : 'none';
+    if (btn) { btn.textContent = isHidden ? 'Hide Paste Grades' : 'Paste Grades'; btn.style.background = isHidden ? '#e74c3c' : '#8e44ad'; }
+    // Clear paste inputs when showing
+    if (isHidden) {
+        document.querySelectorAll('[id^="pasteScore_"]').forEach(function(inp) { inp.value = ''; });
+    }
+}
+
+// When pasting into any paste-score input, detect multiple values and distribute across rows
+function distributePasteScores(event, startRow) {
+    var clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) return;
+    var pasted = clipboardData.getData('text');
+    // Split by newlines, tabs, or multiple spaces — handles paste from spreadsheets
+    var values = pasted.split(/[\r\n\t]+/).map(function(v) { return v.trim(); }).filter(function(v) { return v !== ''; });
+    if (values.length <= 1) return; // single value — let default paste happen
+
+    event.preventDefault();
+    // Count total paste-score inputs available
+    var totalInputs = document.querySelectorAll('[id^="pasteScore_"]').length;
+    for (var j = 0; j < values.length && (startRow + j) < totalInputs; j++) {
+        var inp = document.getElementById('pasteScore_' + (startRow + j));
+        if (inp) inp.value = values[j];
+    }
+}
+
+// Apply scores from the inline paste-score inputs directly into student data
+function applyPasteColumnScores() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+
+    if (!form || !subject) { alert('Please select a Class and Subject first.'); return; }
+
+    const students = currentClassData[form];
+    if (!students || students.length === 0) { alert('No students loaded.'); return; }
+
+    // Read scores from the inline paste-score inputs
+    let appliedCount = 0;
+    for (let i = 0; i < students.length; i++) {
+        const pasteInput = document.getElementById('pasteScore_' + i);
+        if (pasteInput) {
+            const val = pasteInput.value.trim();
+            if (val !== '') {
+                students[i][subject] = val;
+                const scoreInput = document.getElementById('score_' + i);
+                if (scoreInput && !scoreInput.readOnly) {
+                    scoreInput.value = val;
+                }
+                appliedCount++;
+            }
+        }
+    }
+
+    if (appliedCount === 0) { alert('No scores to apply. Enter scores in the PASTE SCORE column first.'); return; }
+
+    // Trigger real-time sync updates
+    const monitorSelect = document.getElementById('monitorClassSelect');
+    if (monitorSelect && monitorSelect.value === form) {
+        refreshSubjectMonitor(form);
+    }
+    const scoreSheetClass = document.getElementById('sheetClassSelect');
+    if (scoreSheetClass && scoreSheetClass.value === form && document.getElementById('scoreSheetView').style.display === 'block') {
+        displayScoreSheet();
+    }
+    const gradesClass = document.getElementById('gradesClassSelect');
+    if (gradesClass && gradesClass.value === form && document.getElementById('gradesPage').style.display === 'block') {
+        displayGradesSheet();
+    }
+
+    let msg = appliedCount + ' score(s) applied for ' + subject + '.';
+    if (appliedCount < students.length) {
+        msg += ' Note: only ' + appliedCount + ' of ' + students.length + ' students had pasted scores.';
+    }
+    msg += ' Click Save to persist.';
+    alert(msg);
+
+    // Hide paste column and reset button
+    const header = document.getElementById('pasteScoreHeader');
+    if (header) header.style.display = 'none';
+    document.querySelectorAll('.paste-score-cell').forEach(function(cell) { cell.style.display = 'none'; });
+    document.getElementById('pasteApplyRow').style.display = 'none';
+    var toggleBtn = document.querySelector('[onclick="togglePasteGrades()"]');
+    if (toggleBtn) { toggleBtn.textContent = 'Paste Grades'; toggleBtn.style.background = '#8e44ad'; }
+}
+
 // === EDIT STUDENT NAMES ===
 async function loadEditNamesUI() {
     const form = document.getElementById('editNamesClassSelect').value;
@@ -8007,14 +8204,14 @@ async function loadEditNamesUI() {
         }
 
         let html = '<table style="width:100%;border-collapse:collapse;font-size:0.85em;">';
-        html += '<thead><tr style="background:#ecf0f1;position:sticky;top:0;z-index:1;"><th style="border:1px solid #bbb;padding:6px;text-align:center;width:30%;">Exam No</th><th style="border:1px solid #bbb;padding:6px;text-align:center;width:15%;">Sex</th><th style="border:1px solid #bbb;padding:6px;text-align:center;">Student Name</th></tr></thead><tbody>';
+        html += '<thead><tr style="background:#ecf0f1;position:sticky;top:0;z-index:1;"><th style="border:1px solid #bbb;padding:6px;text-align:center;width:25%;">Exam No</th><th style="border:1px solid #bbb;padding:6px;text-align:center;width:12%;">Sex</th><th style="border:1px solid #bbb;padding:6px;text-align:center;">Student Name</th></tr></thead><tbody>';
 
         classData.forEach((student, index) => {
             const examNo = student["Exam Number"] || '';
             const name = student["STUDENT'S NAME"] || '';
             const sex = student["Sex"] || '-';
             html += `<tr style="background:${index % 2 === 0 ? '#fff' : '#f9f9f9'};">
-                <td style="border:1px solid #ddd;padding:5px 8px;text-align:center;font-weight:bold;">${examNo}</td>
+                <td style="border:1px solid #ddd;padding:5px 8px;text-align:center;"><input type="text" data-edit-examno="${index}" value="${examNo}" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;text-align:center;font-weight:bold;" /></td>
                 <td style="border:1px solid #ddd;padding:5px 8px;text-align:center;"><select data-examno-sex="${examNo}" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;text-align:center;"><option value="M"${sex==='M'?' selected':''}>M</option><option value="F"${sex==='F'?' selected':''}>F</option></select></td>
                 <td style="border:1px solid #ddd;padding:4px;"><input type="text" data-examno="${examNo}" value="${name.replace(/"/g, '&quot;')}" style="width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;" /></td>
             </tr>`;
@@ -8038,6 +8235,7 @@ async function saveEditedNames() {
 
     const inputs = document.querySelectorAll('#editNamesContainer input[data-examno]');
     const sexSelects = document.querySelectorAll('#editNamesContainer select[data-examno-sex]');
+    const examNoInputs = document.querySelectorAll('#editNamesContainer input[data-edit-examno]');
     if (inputs.length === 0) { alert('No students to update.'); return; }
 
     showLoading();
@@ -8049,6 +8247,7 @@ async function saveEditedNames() {
 
         let changesCount = 0;
         let sexChangesCount = 0;
+        let examNoChangesCount = 0;
         inputs.forEach(input => {
             const examNo = input.getAttribute('data-examno');
             const newName = input.value.trim();
@@ -8071,16 +8270,27 @@ async function saveEditedNames() {
             }
         });
 
-        if (changesCount === 0 && sexChangesCount === 0) {
+        // Save edited exam numbers
+        examNoInputs.forEach(examInput => {
+            const idx = parseInt(examInput.getAttribute('data-edit-examno'));
+            const newExamNo = examInput.value.trim();
+            if (!newExamNo || !classData[idx]) return;
+            if (classData[idx]["Exam Number"] !== newExamNo) {
+                classData[idx]["Exam Number"] = newExamNo;
+                examNoChangesCount++;
+            }
+        });
+
+        if (changesCount === 0 && sexChangesCount === 0 && examNoChangesCount === 0) {
             hideLoading();
-            alert('No name or sex changes detected.');
+            alert('No name, sex or exam number changes detected.');
             return;
         }
 
         currentClassData[form] = classData;
         updateLoadingPercent(60);
 
-        const totalChanges = changesCount + sexChangesCount;
+        const totalChanges = changesCount + sexChangesCount + examNoChangesCount;
         const commitMessage = `Edited ${totalChanges} student record(s) in ${form}`;
 
         const fileName = `${form}.csv`;
@@ -8098,6 +8308,7 @@ async function saveEditedNames() {
             let summaryParts = [];
             if (changesCount > 0) summaryParts.push(`${changesCount} name(s)`);
             if (sexChangesCount > 0) summaryParts.push(`${sexChangesCount} sex entry/entries`);
+            if (examNoChangesCount > 0) summaryParts.push(`${examNoChangesCount} exam number(s)`);
             alert(`${summaryParts.join(' and ')} updated successfully in ${form.toUpperCase()}!`);
             loadEditNamesUI();
         }
