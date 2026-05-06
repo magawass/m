@@ -1628,7 +1628,7 @@ function saveSelectedSubjectsToRepo() {
 
     <header id="reportHeader" style="width: 100%;">
         <img 
-src="https://raw.githubusercontent.com/magawa/m/main/logo.png" class="logo" alt="School Logo">
+src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
         <div id="reportHeaderCenter">
             <div style="font-family: 'Times New Roman', Times, serif;">
  <div style="text-align: center;">
@@ -1782,7 +1782,7 @@ src="https://raw.githubusercontent.com/magawa/m/main/logo.png" class="logo" alt=
     </div>
 
     <p id="dataEntryLockIndicator" style="display:none; margin-top: 15px;"></p>
-    <button onclick="saveSelectedSubjectsToRepo()">Save All Data to Cloud</button>
+    <button onclick="saveSelectedSubjectsToRepo()">Save</button>
     <button onclick="saveScoresAsExcel()" style="background: #28a745;">Export list as Excel</button>
     <button onclick="openScoreSheetView()">Mark Sheet</button>
     <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Selection automatically loads students. Scores update marksheets in real-time as you type.</p>
@@ -2105,7 +2105,7 @@ src="https://raw.githubusercontent.com/magawa/m/main/logo.png" class="logo" alt=
 <div id="archiveStudentDetail" class="hidden" style="margin-top:15px;">
     <div id="archiveDetailContent" style="background:white;border:3px double black;outline:3px double black;outline-offset:3px;padding:25px 20px;width:95%;max-width:650px;margin:0 auto;color:black;">
         <header id="archiveReportHeader" style="width:100%;text-align:center;">
-            <img src="https://raw.githubusercontent.com/enitac/a/main/logo.png" class="logo" alt="School Logo">
+            <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
             <h3 style="font-size:1.3em;margin:0 0 5px 0;color:black;">MAGAWA SECONDARY SCHOOL</h3>
             <p style="margin:5px 0;font-size:14pt;"><strong>Private Bag 17,<br>MAGAWA, MCHINJI.</strong></p>
         </header>
@@ -4041,7 +4041,7 @@ async function openUploadsAuth() {
 }
 
 // --- ARCHIVE SECTION FUNCTIONS ---
-const ARCHIVE_REPO = 'a2';
+const ARCHIVE_REPO = 'm2';
 const ARCHIVE_API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${ARCHIVE_REPO}/contents/`;
 
 async function archiveExamData() {
@@ -4753,12 +4753,14 @@ async function loadResults(isStudentPortal) {
             studentsWithMetrics.push({
                 examNo: s["Exam Number"],
                 metric: metrics.overallMetric,
-                rankable: metrics.rankable
+                rankable: metrics.rankable,
+                remark: metrics.overallRemark
             });
         }
 
         studentsWithMetrics.sort((a, b) => a.metric - b.metric);
         let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
+        rankableStudents = rankStudentsByGradeSheetOrder(rankableStudents);
         const totalRankableStudents = rankableStudents.length;
 
         const studentMetrics = await calculateStudentMetrics(student, form);
@@ -4854,10 +4856,8 @@ async function loadResults(isStudentPortal) {
         if (studentMetrics.rankable) {
             const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
             if (studentMetric) {
-                const metricValue = studentMetric.metric;
-                let actualRank = rankableStudents.findIndex(s => s.metric === metricValue) + 1;
-                positionNum = actualRank;
-                overallRank = actualRank;
+                positionNum = studentMetric.__pos;
+                overallRank = studentMetric.__pos;
             }
         }
 
@@ -5008,11 +5008,12 @@ async function loadBriefResults() {
         studentsWithMetrics.push({
             examNo: s["Exam Number"],
             metric: metrics.overallMetric,
-            rankable: metrics.rankable
+            rankable: metrics.rankable,
+            remark: metrics.overallRemark
         });
     }
     let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
-    rankableStudents.sort((a, b) => a.metric - b.metric);
+    rankableStudents = rankStudentsByGradeSheetOrder(rankableStudents);
     const totalRankableStudents = rankableStudents.length;
 
     const studentMetrics = await calculateStudentMetrics(student, form);
@@ -5054,9 +5055,7 @@ async function loadBriefResults() {
     if (studentMetrics.rankable) {
          const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
         if (studentMetric) {
-            const metricValue = studentMetric.metric;
-            let actualRank = rankableStudents.findIndex(s => s.metric === metricValue) + 1;
-            overallRank = `${actualRank}/${totalRankableStudents}`;
+            overallRank = studentMetric.__pos + '/' + totalRankableStudents;
         }
     }
     document.getElementById('briefReportPosition').textContent = overallRank;
@@ -5184,6 +5183,23 @@ async function calculateStudentMetrics(student, form){
         overallRemark: overallRemark,
         overallMetric: overallMetric,
     };
+}
+
+// === HELPER: Rank students the same way the grade sheet does (passed first, then failed) ===
+function rankStudentsByGradeSheetOrder(rankableStudents) {
+    var passed = rankableStudents.filter(function(s) { return s.remark === 'Pass'; });
+    var failed = rankableStudents.filter(function(s) { return s.remark !== 'Pass'; });
+    passed.sort(function(a, b) { return a.metric - b.metric; });
+    failed.sort(function(a, b) { return a.metric - b.metric; });
+    var combined = passed.concat(failed);
+    var lastMetric = null, lastPos = 0;
+    combined.forEach(function(s, i) {
+        var pos = (s.metric === lastMetric) ? lastPos : i + 1;
+        s.__pos = pos;
+        lastMetric = s.metric;
+        lastPos = pos;
+    });
+    return combined;
 }
 
 function openSheetsPage() {
@@ -6795,11 +6811,12 @@ async function generateAllProgressReports() {
         studentsWithMetrics.push({
             examNo: s["Exam Number"],
             metric: metrics.overallMetric,
-            rankable: metrics.rankable
+            rankable: metrics.rankable,
+            remark: metrics.overallRemark
         });
     }
     let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
-    rankableStudents.sort((a, b) => a.metric - b.metric);
+    rankableStudents = rankStudentsByGradeSheetOrder(rankableStudents);
     const totalRankable = rankableStudents.length;
 
     // Iterate and Generate
@@ -6888,9 +6905,8 @@ async function generateAllProgressReports() {
         if (metrics.rankable) {
             const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
             if (studentMetric) {
-                const idx = rankableStudents.findIndex(s => s.metric === studentMetric.metric) + 1;
-                positionNum = idx;
-                overallRank = idx;
+                positionNum = studentMetric.__pos;
+                overallRank = studentMetric.__pos;
             }
         }
 
@@ -7088,10 +7104,10 @@ async function executeBatchPrint() {
     const studentsWithMetrics = [];
     for (const s of allData) {
         const metrics = await calculateStudentMetrics(s, form);
-        studentsWithMetrics.push({ examNo: s["Exam Number"], metric: metrics.overallMetric, rankable: metrics.rankable });
+        studentsWithMetrics.push({ examNo: s["Exam Number"], metric: metrics.overallMetric, rankable: metrics.rankable, remark: metrics.overallRemark });
     }
     let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
-    rankableStudents.sort((a, b) => a.metric - b.metric);
+    rankableStudents = rankStudentsByGradeSheetOrder(rankableStudents);
     const totalRankable = rankableStudents.length;
 
     // Create or reuse batch print area
@@ -7170,9 +7186,8 @@ async function executeBatchPrint() {
         if (metrics.rankable) {
             const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
             if (studentMetric) {
-                const idx = rankableStudents.findIndex(s => s.metric === studentMetric.metric) + 1;
-                positionNum = idx;
-                overallRank = idx;
+                positionNum = studentMetric.__pos;
+                overallRank = studentMetric.__pos;
             }
         }
 
