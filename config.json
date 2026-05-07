@@ -191,16 +191,16 @@
     },
     "form4": {
       "Agriculture": false,
-      "Bible Knowledge": true,
+      "Bible Knowledge": false,
       "Biology": false,
-      "Chemistry": true,
-      "Chichewa": true,
-      "English": true,
-      "Geography": true,
-      "History": true,
-      "Mathematics": true,
-      "Physics": true,
-      "Social/Life": true
+      "Chemistry": false,
+      "Chichewa": false,
+      "English": false,
+      "Geography": false,
+      "History": false,
+      "Mathematics": false,
+      "Physics": false,
+      "Social/Life": false
     }
   },
   "passwordEnabled": true,
