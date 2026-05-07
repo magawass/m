@@ -1552,9 +1552,9 @@ function saveSelectedSubjectsToRepo() {
       <option value="form4">Form 4</option>
     </select>
     <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
-    <input type="text" id="studentNumberInput" placeholder=" ">
+    <input type="text" id="studentNumberInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
-    <input type="password" id="passwordInput" placeholder="Here / Pano">
+    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off">
 
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
         <button onclick="loadResults(true)" style="width: 195px; max-width: 195px; margin-top: 0;">View Results/Onani Zotsatira</button>
@@ -4714,7 +4714,7 @@ async function loadResults(isStudentPortal) {
     try {
         const form = document.getElementById('selectedForm').value;
         const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
-        const password = document.getElementById('passwordInput').value;
+        const password = document.getElementById('passwordInput').value.trim();
 
         if (!form || !studentNumber) {
             showFrontPagePopup('Please select a class, enter your exam number and password to view results.');
@@ -4741,7 +4741,7 @@ async function loadResults(isStudentPortal) {
                 return;
             }
             const studentPw = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
-            if (!studentPw || password !== studentPw) {
+            if (!studentPw || password !== (studentPw + '').trim()) {
                 showFrontPagePopup('Incorrect password.');
                 hideLoading();
                 return;
@@ -4762,7 +4762,7 @@ async function loadResults(isStudentPortal) {
             return;
         }
 
-        const student = data.find(s => s["Exam Number"] === studentNumber);
+        const student = data.find(s => (s["Exam Number"] + '').trim().toUpperCase() === studentNumber);
 
         if (!student) {
             showFrontPagePopup('Incorrect exam number.');
@@ -4972,7 +4972,7 @@ function openFullPdf() {
 async function loadBriefResults() {
     const form = document.getElementById('selectedForm').value;
     const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
-    const password = document.getElementById('passwordInput').value;
+    const password = document.getElementById('passwordInput').value.trim();
 
     if (!form || !studentNumber) {
         showFrontPagePopup('Please select a class, enter your exam number and password to view results.');
@@ -5009,7 +5009,7 @@ async function loadBriefResults() {
         return;
     }
 
-    const student = data.find(s => s["Exam Number"] === studentNumber);
+    const student = data.find(s => (s["Exam Number"] + '').trim().toUpperCase() === studentNumber);
 
     if (!student) {
         showFrontPagePopup('Incorrect exam number.');
@@ -5019,7 +5019,7 @@ async function loadBriefResults() {
 
     if (passwordRequiredBrief) {
         const studentPwBrief = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
-        if (!studentPwBrief || password !== studentPwBrief) {
+        if (!studentPwBrief || password !== (studentPwBrief + '').trim()) {
             showFrontPagePopup('Incorrect password.');
             return;
         }
