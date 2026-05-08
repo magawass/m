@@ -205,7 +205,7 @@
   },
   "passwordEnabled": true,
   "sneColumnVisible": false,
-  "sexColumnVisible": false,
+  "sexColumnVisible": true,
   "setupPassword": "0000",
   "studentPasswords": {
     "form1": {
