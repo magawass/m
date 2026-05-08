@@ -720,33 +720,6 @@ function saveSelectedSubjectsToRepo() {
         table-layout: fixed;
     }
 
-    /* Data Entry Table */
-    #dataEntryTable {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed;
-    }
-
-    /* Data entry column widths: Exam# 16%, Name 34%, Sex 8%, SNE 8%, Score 34% */
-    #dataEntryTable th:nth-child(1),
-    #dataEntryTable td:nth-child(1) { width: 16%; }
-    #dataEntryTable th:nth-child(2),
-    #dataEntryTable td:nth-child(2) { width: 34%; }
-    #dataEntryTable th:nth-child(3),
-    #dataEntryTable td:nth-child(3) { width: 8%; }
-    #dataEntryTable th:nth-child(4),
-    #dataEntryTable td:nth-child(4) { width: 8%; }
-    #dataEntryTable th:nth-child(5),
-    #dataEntryTable td:nth-child(5) { width: 34%; }
-
-    /* Data entry cells: allow Name text to wrap, prevent overflow */
-    #dataEntryTable td { word-wrap: break-word; overflow-wrap: break-word; }
-    #dataEntryTable input[type="text"] {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-
     .table-wrapper {
         overflow-x: auto;
         width: 100%;
@@ -962,47 +935,6 @@ function saveSelectedSubjectsToRepo() {
             max-width: 100% !important;
             margin: 8px auto !important;
         }
-
-        /* Data Entry Table: fit within mobile screen, no horizontal scroll */
-        #dataEntryTable {
-            table-layout: fixed !important;
-            width: 100% !important;
-        }
-        #dataEntryTable th,
-        #dataEntryTable td {
-            padding: 4px 2px !important;
-            font-size: 0.8em !important;
-            white-space: normal !important;
-            overflow: hidden !important;
-            text-overflow: unset !important;
-        }
-        #dataEntryTable th:nth-child(1),
-        #dataEntryTable td:nth-child(1) { width: 14% !important; }
-        #dataEntryTable th:nth-child(2),
-        #dataEntryTable td:nth-child(2) { width: 36% !important; }
-        #dataEntryTable th:nth-child(3),
-        #dataEntryTable td:nth-child(3) { width: 8% !important; }
-        #dataEntryTable th:nth-child(4),
-        #dataEntryTable td:nth-child(4) { width: 8% !important; }
-        #dataEntryTable th:nth-child(5),
-        #dataEntryTable td:nth-child(5) { width: 34% !important; }
-        #dataEntryTable input[type="text"] {
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 2px 1px !important;
-            font-size: 0.95em !important;
-            box-sizing: border-box !important;
-            border: none !important;
-            background: transparent !important;
-            border-radius: 0 !important;
-        }
-        /* No horizontal scroll for data entry table wrapper on mobile */
-        #studentMarksPanel .table-wrapper {
-            overflow-x: hidden !important;
-        }
-        /* Shorten header labels on mobile */
-        #dataEntryTable th:nth-child(1) { font-size: 0.7em !important; }
-        #dataEntryTable th:nth-child(5) { font-size: 0.8em !important; }
     }
 
     /* Desktop Table Adjustments */
@@ -1835,16 +1767,17 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="togglePasteGrades()" class="small-btn" style="background:#8e44ad;color:#fff;max-width:200px;margin-top:10px;margin-bottom:0;font-size:0.9em;padding:10px;">Paste Grades</button>
 
     <div id="studentMarksPanel" class="hidden">
-        <div style="max-height:500px;overflow-y:auto;margin-top:15px;border:1px solid #6c3483;border-radius:6px;max-width:400px;margin-left:auto;margin-right:auto;">
-            <div class="table-wrapper" style="margin-top:0;border:none;">
+        <div style="display:flex;max-height:500px;overflow-y:auto;margin-top:15px;border:1px solid #6c3483;border-radius:6px;">
+            <div class="table-wrapper" style="flex:1;min-width:0;margin-top:0;border:none;">
                 <table id="dataEntryTable">
                     <thead>
                         <tr style="background:#ecf0f1;">
                             <th style="border:1px solid #cc6600;padding:10px;">Exam Number</th>
                             <th style="border:1px solid #cc6600;padding:10px;">Name</th>
-                            <th id="sexColumnHeader" style="border:1px solid #cc6600;padding:10px;">SEX</th>
-                            <th id="sneColumnHeader" style="border:1px solid #cc6600;padding:10px;">SNE<br><span style="font-weight:normal;font-size:0.8em;">(SN)</span></th>
-                            <th id="scoreColumnHeader" style="border:1px solid #cc6600;padding:10px;">Score</th>
+                            <th style="border:1px solid #cc6600;padding:10px;width:40px;">SEX</th>
+                            <th id="sneColumnHeader" style="border:1px solid #cc6600;padding:10px;width:30px;">SNE<br><span style="font-weight:normal;font-size:0.8em;">(SN)</span></th>
+                            <th style="border:1px solid #cc6600;padding:10px;">Score</th>
+                            <th id="pasteScoreHeader" style="border:1px solid #8e44ad;padding:10px;background:#d7bde2;color:#6c3483;display:none;text-align:center;">PASTE SCORE</th>
                         </tr>
                     </thead>
                     <tbody id="dataEntryTableBody">
@@ -2087,16 +2020,6 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 <p id="passwordGenStatus" style="font-size:11px; color:#2ecc71;"></p>
 <div id="passwordGenTableContainer" style="margin-top:10px;max-height:400px;overflow-y:auto;"></div>
-
-<hr style="margin: 20px 0; border: 1px solid #ccc;">
-<h3>SEX Column Visibility (Data Entry)</h3>
-<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Control whether the SEX column appears in the Data Entry scoring panel. This setting persists until you change it.</p>
-<div style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:10px;">
-    <input type="checkbox" id="sexVisibilityCheckbox" onchange="toggleSEXVisibility()" style="width:20px; height:20px; margin:0;">
-    <label for="sexVisibilityCheckbox" style="margin:0; font-weight:bold;">Show SEX Column in Data Entry</label>
-</div>
-<p id="sexVisibilityStatus" style="font-size:11px; color:#2ecc71;"></p>
-<button onclick="handleSaveSEXConfig()" style="background:#28a745;">Save SEX Visibility</button>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>SNE Column Visibility (Data Entry)</h3>
@@ -2635,7 +2558,6 @@ function getDefaultConfig() {
         hiddenSubjects: hiddenSubjects,
         passwordEnabled: true,
         sneColumnVisible: true,
-        sexColumnVisible: true,
         studentPasswords: {}
     };
 }
@@ -3470,7 +3392,6 @@ async function handleSaveConfig() {
         locks: currentConfig.locks || {},
         passwordEnabled: currentConfig.passwordEnabled,
         sneColumnVisible: currentConfig.sneColumnVisible !== undefined ? currentConfig.sneColumnVisible : true,
-        sexColumnVisible: currentConfig.sexColumnVisible !== undefined ? currentConfig.sexColumnVisible : true,
         setupPassword: currentConfig.setupPassword || null,
         studentPasswords: currentConfig.studentPasswords || {}
     };
@@ -4139,7 +4060,6 @@ async function openUploadsAuth() {
     populateClearSubjectSelect();
     updatePasswordAccessStatus();
     initSNEVisibilityUI();
-    initSEXVisibilityUI();
     goToPage('uploadsPage');
 }
 
@@ -4807,24 +4727,20 @@ async function loadResults(isStudentPortal) {
 
         const passwordRequired = currentConfig.passwordEnabled !== false;
 
+        // When password is DISABLED, deny access regardless of whether password is entered or not
+        if (isStudentPortal && !passwordRequired) {
+            showFrontPagePopup('Results not yet out.');
+            document.getElementById('passwordInput').value = '';
+            return;
+        }
+
         // When password is ENABLED, require correct individual student password
         if (isStudentPortal && passwordRequired) {
             if (!password) {
                 showFrontPagePopup('Please enter your password.');
                 return;
             }
-            // Look up password using case-insensitive and trimmed exam number match
-            let studentPw = null;
-            const pwMap = currentConfig.studentPasswords && currentConfig.studentPasswords[form];
-            if (pwMap) {
-                // Try exact match first, then case-insensitive lookup
-                studentPw = pwMap[studentNumber];
-                if (!studentPw) {
-                    const keys = Object.keys(pwMap);
-                    const matchKey = keys.find(k => k.trim().toUpperCase() === studentNumber);
-                    if (matchKey) studentPw = pwMap[matchKey];
-                }
-            }
+            const studentPw = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
             if (!studentPw || password !== (studentPw + '').trim()) {
                 showFrontPagePopup('Incorrect password.');
                 hideLoading();
@@ -5069,7 +4985,13 @@ async function loadBriefResults() {
 
     const passwordRequiredBrief = currentConfig.passwordEnabled !== false;
 
-    // When password is ENABLED, require correct individual student password
+    // SURGICAL FIX: When disabled, deny access whether password entered or not
+    if (passwordRequiredBrief === false) {
+        showFrontPagePopup('Results not yet out.');
+        document.getElementById('passwordInput').value = '';
+        return;
+    }
+
     if (passwordRequiredBrief && !password) {
         showFrontPagePopup('Please enter your password.');
         return;
@@ -5096,17 +5018,7 @@ async function loadBriefResults() {
     }
 
     if (passwordRequiredBrief) {
-        // Look up password using case-insensitive and trimmed exam number match
-        let studentPwBrief = null;
-        const pwMapBrief = currentConfig.studentPasswords && currentConfig.studentPasswords[form];
-        if (pwMapBrief) {
-            studentPwBrief = pwMapBrief[studentNumber];
-            if (!studentPwBrief) {
-                const keys = Object.keys(pwMapBrief);
-                const matchKey = keys.find(k => k.trim().toUpperCase() === studentNumber);
-                if (matchKey) studentPwBrief = pwMapBrief[matchKey];
-            }
-        }
+        const studentPwBrief = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
         if (!studentPwBrief || password !== (studentPwBrief + '').trim()) {
             showFrontPagePopup('Incorrect password.');
             return;
@@ -5885,24 +5797,31 @@ async function showStudentMarksList() {
         const snVal = s["SN"] || '';
         const sneVisible = currentConfig && currentConfig.sneColumnVisible !== false;
         const row = document.createElement('tr');
-        const inputDisabled = isLocked ? 'readonly style="padding:2px;text-align:center;border:none;background:transparent;color:#999;width:100%;"' : 'oninput="updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" style="padding:2px;text-align:center;border:none;background:transparent;color:#c2185b;font-weight:700;font-size:1em;width:100%;"';
+        const inputDisabled = isLocked ? 'readonly style="width:80px;padding:6px;text-align:center;border:1px solid #e74c3c;border-radius:4px;background:#f5f5f5;color:#999;"' : 'oninput="updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" style="width:80px;padding:6px;text-align:center;border:2px solid #e91e8c;border-radius:8px;background:#fce4ec;color:#c2185b;font-weight:700;font-size:1em;"';
         row.innerHTML = `
             <td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#f3e5f5;font-weight:600;font-size:0.9em;">${examNo}</td>
             <td style="border:2px solid #6c3483;padding:8px 6px;text-align:left;background:#f5f5f5;font-size:0.9em;">${name}</td>
-            <td class="sex-cell" style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#ede7f6;font-weight:600;font-size:0.9em;">${sex}</td>
-            ${sneVisible ? `<td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#ede7f6;font-size:0.85em;">
+            <td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;width:40px;background:#ede7f6;font-weight:600;font-size:0.9em;">${sex}</td>
+            ${sneVisible ? `<td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;width:30px;background:#ede7f6;font-size:0.85em;">
                 <input type="text" 
                        id="sn_${i}" 
                        value="${snVal}" 
                        oninput="updateStudentSN('${form}', ${i}, this.value)"
-                       style="padding:2px;text-align:center;border:none;font-size:0.85em;background:transparent;width:100%;"
+                       style="width:35px;padding:4px;text-align:center;border:2px solid #6c3483;border-radius:6px;font-size:0.85em;background:#f3e5f5;"
                        placeholder=" ">
             </td>` : ''}
-            <td class="score-cell" style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#fce4ec;">
+            <td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#fce4ec;">
                 <input type="text" 
                        id="score_${i}" 
                        value="${val}" 
                        ${inputDisabled}
+                       placeholder=" ">
+            </td>
+            <td class="paste-score-cell" style="border:2px solid #8e44ad;padding:8px 6px;text-align:center;background:#f5eef8;display:none;">
+                <input type="text" 
+                       id="pasteScore_${i}" 
+                       onpaste="distributePasteScores(event, ${i})"
+                       style="width:80px;padding:6px;text-align:center;border:2px solid #8e44ad;border-radius:8px;background:#fff;color:#6c3483;font-weight:700;font-size:1em;"
                        placeholder=" ">
             </td>
         `;
@@ -5928,9 +5847,6 @@ async function showStudentMarksList() {
 
     // Apply SNE column visibility to header
     applySNEColumnToTable();
-
-    // Apply SEX column visibility to header
-    applySEXColumnToTable();
 
     // Voice mic now activates when user clicks "Show Voice Entry" button
 }
@@ -6726,111 +6642,11 @@ function initSNEVisibilityUI() {
     updateSNEVisibilityStatus();
 }
 
-// --- SEX COLUMN VISIBILITY FUNCTIONS ---
-function toggleSEXVisibility() {
-    const checkbox = document.getElementById('sexVisibilityCheckbox');
-    if (!currentConfig) return;
-    currentConfig.sexColumnVisible = checkbox.checked;
-    updateSEXVisibilityStatus();
-}
-
-function updateSEXVisibilityStatus() {
-    const status = document.getElementById('sexVisibilityStatus');
-    if (!status || !currentConfig) return;
-    if (currentConfig.sexColumnVisible !== false) {
-        status.textContent = 'SEX column is currently VISIBLE.';
-        status.style.color = '#2ecc71';
-    } else {
-        status.textContent = 'SEX column is currently INVISIBLE.';
-        status.style.color = '#e74c3c';
-    }
-}
-
-function initSEXVisibilityUI() {
-    const checkbox = document.getElementById('sexVisibilityCheckbox');
-    if (!checkbox || !currentConfig) return;
-    checkbox.checked = currentConfig.sexColumnVisible !== false;
-    updateSEXVisibilityStatus();
-}
-
-function applySEXColumnToTable() {
-    const header = document.getElementById('sexColumnHeader');
-    const visible = currentConfig && currentConfig.sexColumnVisible !== false;
-    if (visible) {
-        // Show: re-add header if missing
-        if (!header) {
-            const theadRow = document.querySelector('#dataEntryTable thead tr');
-            if (theadRow) {
-                const th = document.createElement('th');
-                th.id = 'sexColumnHeader';
-                th.style.cssText = 'border:1px solid #cc6600;padding:10px;';
-                th.textContent = 'SEX';
-                // Insert after Name column (2nd position)
-                const nameHeader = theadRow.children[1];
-                if (nameHeader && nameHeader.nextSibling) {
-                    theadRow.insertBefore(th, nameHeader.nextSibling);
-                } else {
-                    theadRow.appendChild(th);
-                }
-            }
-        } else {
-            header.style.display = '';
-        }
-        // Show all SEX column body cells
-        const cells = document.querySelectorAll('#dataEntryTableBody .sex-cell');
-        cells.forEach(function(cell) { cell.style.display = ''; });
-    } else {
-        // Hide: remove header and body cells from DOM to prevent empty column frame
-        if (header) header.remove();
-        const cells = document.querySelectorAll('#dataEntryTableBody .sex-cell');
-        cells.forEach(function(cell) { cell.remove(); });
-    }
-}
-
-async function handleSaveSEXConfig() {
-    if (!currentConfig) {
-        alert('Configuration not loaded. Please enter Authorization Code.');
-        return;
-    }
-    const checkbox = document.getElementById('sexVisibilityCheckbox');
-    currentConfig.sexColumnVisible = checkbox.checked;
-    await handleSaveConfig();
-    updateSEXVisibilityStatus();
-    // Immediately refresh data entry table if visible
-    const form = document.getElementById('dataClassSelect');
-    const subject = document.getElementById('dataSubjectSelect');
-    if (form && subject && form.value && subject.value) {
-        showStudentMarksList();
-    }
-}
-
 function applySNEColumnToTable() {
     const header = document.getElementById('sneColumnHeader');
+    if (!header) return;
     const visible = currentConfig && currentConfig.sneColumnVisible !== false;
-    if (visible) {
-        // Show: re-add header if missing
-        if (!header) {
-            const theadRow = document.querySelector('#dataEntryTable thead tr');
-            if (theadRow) {
-                const th = document.createElement('th');
-                th.id = 'sneColumnHeader';
-                th.style.cssText = 'border:1px solid #cc6600;padding:10px;';
-                th.innerHTML = 'SNE<br><span style="font-weight:normal;font-size:0.8em;">(SN)</span>';
-                // Insert after SEX column (4th position) or before Score
-                const scoreHeader = document.getElementById('scoreColumnHeader');
-                if (scoreHeader) {
-                    theadRow.insertBefore(th, scoreHeader);
-                } else {
-                    theadRow.appendChild(th);
-                }
-            }
-        } else {
-            header.style.display = '';
-        }
-    } else {
-        // Hide: remove header from DOM to prevent empty column frame
-        if (header) header.remove();
-    }
+    header.style.display = visible ? '' : 'none';
 }
 
 async function handleSaveSNEConfig() {
@@ -7815,7 +7631,6 @@ async function saveGradeRanges(form) {
             locks: currentConfig.locks || {},
             passwordEnabled: currentConfig.passwordEnabled,
             sneColumnVisible: currentConfig.sneColumnVisible,
-            sexColumnVisible: currentConfig.sexColumnVisible,
             setupPassword: currentConfig.setupPassword || null,
             studentPasswords: currentConfig.studentPasswords || {}
         };
@@ -7860,7 +7675,6 @@ async function instantSaveGradeConfigToGitHub() {
             locks: currentConfig.locks || {},
             passwordEnabled: currentConfig.passwordEnabled,
             sneColumnVisible: currentConfig.sneColumnVisible,
-            sexColumnVisible: currentConfig.sexColumnVisible,
             setupPassword: currentConfig.setupPassword || null,
             studentPasswords: currentConfig.studentPasswords || {}
         };
@@ -8270,61 +8084,21 @@ async function savePastedStudentList() {
 // === PASTE GRADES (Data Entry Section) ===
 
 // Toggle the paste score column in the student marks table (hidden by default)
-// Paste score header and cells are NOT pre-rendered — they are dynamically created/removed.
 function togglePasteGrades() {
+    const header = document.getElementById('pasteScoreHeader');
+    const cells = document.querySelectorAll('.paste-score-cell');
     const applyRow = document.getElementById('pasteApplyRow');
     const btn = document.querySelector('[onclick="togglePasteGrades()"]');
+    if (!header || cells.length === 0) return;
 
-    const existingCells = document.querySelectorAll('.paste-score-cell');
-    const isShowing = existingCells.length > 0;
-
-    if (isShowing) {
-        // Hide: remove all paste-score cells and header, show score column
-        existingCells.forEach(function(cell) { cell.remove(); });
-        const header = document.getElementById('pasteScoreHeader');
-        if (header) header.remove();
-        applyRow.style.display = 'none';
-        if (btn) { btn.textContent = 'Paste Grades'; btn.style.background = '#8e44ad'; }
-        // Show score column again
-        const scoreHeader = document.getElementById('scoreColumnHeader');
-        const scoreCells = document.querySelectorAll('.score-cell');
-        if (scoreHeader) scoreHeader.style.display = '';
-        scoreCells.forEach(function(cell) { cell.style.display = ''; });
-    } else {
-        // Show: create paste-score header and cells, hide score column
-        // Dynamically create the PASTE SCORE header <th>
-        const theadRow = document.querySelector('#dataEntryTable thead tr');
-        if (theadRow) {
-            const th = document.createElement('th');
-            th.id = 'pasteScoreHeader';
-            th.style.cssText = 'border:1px solid #8e44ad;padding:10px;background:#d7bde2;color:#6c3483;text-align:center;';
-            th.textContent = 'PASTE SCORE';
-            theadRow.appendChild(th);
-        }
-        applyRow.style.display = 'block';
-        if (btn) { btn.textContent = 'Hide Paste Grades'; btn.style.background = '#e74c3c'; }
-        // Hide score column
-        const scoreHeader = document.getElementById('scoreColumnHeader');
-        const scoreCells = document.querySelectorAll('.score-cell');
-        if (scoreHeader) scoreHeader.style.display = 'none';
-        scoreCells.forEach(function(cell) { cell.style.display = 'none'; });
-        // Dynamically create paste-score cells
-        const rows = document.querySelectorAll('#dataEntryTableBody tr');
-        rows.forEach(function(row, i) {
-            const td = document.createElement('td');
-            td.className = 'paste-score-cell';
-            td.style.cssText = 'border:2px solid #8e44ad;padding:8px 6px;text-align:center;background:#f5eef8;';
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.id = 'pasteScore_' + i;
-            input.placeholder = ' ';
-            input.style.cssText = 'padding:2px;text-align:center;border:none;background:transparent;color:#6c3483;font-weight:700;font-size:1em;width:100%;';
-            input.addEventListener('paste', (function(idx) {
-                return function(e) { distributePasteScores(e, idx); };
-            })(i));
-            td.appendChild(input);
-            row.appendChild(td);
-        });
+    const isHidden = header.style.display === 'none';
+    header.style.display = isHidden ? '' : 'none';
+    cells.forEach(function(cell) { cell.style.display = isHidden ? '' : 'none'; });
+    applyRow.style.display = isHidden ? 'block' : 'none';
+    if (btn) { btn.textContent = isHidden ? 'Hide Paste Grades' : 'Paste Grades'; btn.style.background = isHidden ? '#e74c3c' : '#8e44ad'; }
+    // Clear paste inputs when showing
+    if (isHidden) {
+        document.querySelectorAll('[id^="pasteScore_"]').forEach(function(inp) { inp.value = ''; });
     }
 }
 
@@ -8396,18 +8170,13 @@ function applyPasteColumnScores() {
     msg += ' Click Save to persist.';
     alert(msg);
 
-    // Remove paste column and reset button, show score column again
+    // Hide paste column and reset button
     const header = document.getElementById('pasteScoreHeader');
-    if (header) header.remove();
-    document.querySelectorAll('.paste-score-cell').forEach(function(cell) { cell.remove(); });
+    if (header) header.style.display = 'none';
+    document.querySelectorAll('.paste-score-cell').forEach(function(cell) { cell.style.display = 'none'; });
     document.getElementById('pasteApplyRow').style.display = 'none';
     var toggleBtn = document.querySelector('[onclick="togglePasteGrades()"]');
     if (toggleBtn) { toggleBtn.textContent = 'Paste Grades'; toggleBtn.style.background = '#8e44ad'; }
-    // Show score column again since paste column is now removed
-    const scoreHeader = document.getElementById('scoreColumnHeader');
-    const scoreCells = document.querySelectorAll('.score-cell');
-    if (scoreHeader) scoreHeader.style.display = '';
-    scoreCells.forEach(function(cell) { cell.style.display = ''; });
 }
 
 // === EDIT STUDENT NAMES ===
