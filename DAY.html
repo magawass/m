@@ -727,17 +727,17 @@ function saveSelectedSubjectsToRepo() {
         table-layout: fixed;
     }
 
-    /* Data entry column widths: Exam# 18%, Name 38%, Sex 8%, SNE 8%, Score 28% */
+    /* Data entry column widths: Exam# 16%, Name 34%, Sex 8%, SNE 8%, Score 34% */
     #dataEntryTable th:nth-child(1),
-    #dataEntryTable td:nth-child(1) { width: 18%; }
+    #dataEntryTable td:nth-child(1) { width: 16%; }
     #dataEntryTable th:nth-child(2),
-    #dataEntryTable td:nth-child(2) { width: 38%; }
+    #dataEntryTable td:nth-child(2) { width: 34%; }
     #dataEntryTable th:nth-child(3),
     #dataEntryTable td:nth-child(3) { width: 8%; }
     #dataEntryTable th:nth-child(4),
     #dataEntryTable td:nth-child(4) { width: 8%; }
     #dataEntryTable th:nth-child(5),
-    #dataEntryTable td:nth-child(5) { width: 28%; }
+    #dataEntryTable td:nth-child(5) { width: 34%; }
 
     /* Data entry cells: allow Name text to wrap, prevent overflow */
     #dataEntryTable td { word-wrap: break-word; overflow-wrap: break-word; }
@@ -970,27 +970,27 @@ function saveSelectedSubjectsToRepo() {
         }
         #dataEntryTable th,
         #dataEntryTable td {
-            padding: 3px 1px !important;
-            font-size: 0.7em !important;
+            padding: 4px 2px !important;
+            font-size: 0.8em !important;
             white-space: normal !important;
             overflow: hidden !important;
             text-overflow: unset !important;
         }
         #dataEntryTable th:nth-child(1),
-        #dataEntryTable td:nth-child(1) { width: 16% !important; }
+        #dataEntryTable td:nth-child(1) { width: 14% !important; }
         #dataEntryTable th:nth-child(2),
-        #dataEntryTable td:nth-child(2) { width: 40% !important; }
+        #dataEntryTable td:nth-child(2) { width: 36% !important; }
         #dataEntryTable th:nth-child(3),
         #dataEntryTable td:nth-child(3) { width: 8% !important; }
         #dataEntryTable th:nth-child(4),
         #dataEntryTable td:nth-child(4) { width: 8% !important; }
         #dataEntryTable th:nth-child(5),
-        #dataEntryTable td:nth-child(5) { width: 28% !important; }
+        #dataEntryTable td:nth-child(5) { width: 34% !important; }
         #dataEntryTable input[type="text"] {
             width: 100% !important;
             max-width: 100% !important;
-            padding: 2px 1px !important;
-            font-size: 0.85em !important;
+            padding: 3px 2px !important;
+            font-size: 0.95em !important;
             box-sizing: border-box !important;
         }
         /* No horizontal scroll for data entry table wrapper on mobile */
@@ -998,8 +998,8 @@ function saveSelectedSubjectsToRepo() {
             overflow-x: hidden !important;
         }
         /* Shorten header labels on mobile */
-        #dataEntryTable th:nth-child(1) { font-size: 0.6em !important; }
-        #dataEntryTable th:nth-child(5) { font-size: 0.7em !important; }
+        #dataEntryTable th:nth-child(1) { font-size: 0.7em !important; }
+        #dataEntryTable th:nth-child(5) { font-size: 0.8em !important; }
     }
 
     /* Desktop Table Adjustments */
