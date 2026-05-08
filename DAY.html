@@ -989,9 +989,12 @@ function saveSelectedSubjectsToRepo() {
         #dataEntryTable input[type="text"] {
             width: 100% !important;
             max-width: 100% !important;
-            padding: 3px 2px !important;
+            padding: 2px 1px !important;
             font-size: 0.95em !important;
             box-sizing: border-box !important;
+            border: none !important;
+            background: transparent !important;
+            border-radius: 0 !important;
         }
         /* No horizontal scroll for data entry table wrapper on mobile */
         #studentMarksPanel .table-wrapper {
@@ -5882,7 +5885,7 @@ async function showStudentMarksList() {
         const snVal = s["SN"] || '';
         const sneVisible = currentConfig && currentConfig.sneColumnVisible !== false;
         const row = document.createElement('tr');
-        const inputDisabled = isLocked ? 'readonly style="padding:6px;text-align:center;border:1px solid #e74c3c;border-radius:4px;background:#f5f5f5;color:#999;"' : 'oninput="updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" style="padding:6px;text-align:center;border:2px solid #e91e8c;border-radius:8px;background:#fce4ec;color:#c2185b;font-weight:700;font-size:1em;"';
+        const inputDisabled = isLocked ? 'readonly style="padding:2px;text-align:center;border:none;background:transparent;color:#999;width:100%;"' : 'oninput="updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" style="padding:2px;text-align:center;border:none;background:transparent;color:#c2185b;font-weight:700;font-size:1em;width:100%;"';
         row.innerHTML = `
             <td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#f3e5f5;font-weight:600;font-size:0.9em;">${examNo}</td>
             <td style="border:2px solid #6c3483;padding:8px 6px;text-align:left;background:#f5f5f5;font-size:0.9em;">${name}</td>
@@ -5892,7 +5895,7 @@ async function showStudentMarksList() {
                        id="sn_${i}" 
                        value="${snVal}" 
                        oninput="updateStudentSN('${form}', ${i}, this.value)"
-                       style="padding:4px;text-align:center;border:2px solid #6c3483;border-radius:6px;font-size:0.85em;background:#f3e5f5;"
+                       style="padding:2px;text-align:center;border:none;font-size:0.85em;background:transparent;width:100%;"
                        placeholder=" ">
             </td>` : ''}
             <td class="score-cell" style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#fce4ec;">
@@ -8315,7 +8318,7 @@ function togglePasteGrades() {
             input.type = 'text';
             input.id = 'pasteScore_' + i;
             input.placeholder = ' ';
-            input.style.cssText = 'padding:6px;text-align:center;border:2px solid #8e44ad;border-radius:8px;background:#fff;color:#6c3483;font-weight:700;font-size:1em;';
+            input.style.cssText = 'padding:2px;text-align:center;border:none;background:transparent;color:#6c3483;font-weight:700;font-size:1em;width:100%;';
             input.addEventListener('paste', (function(idx) {
                 return function(e) { distributePasteScores(e, idx); };
             })(i));
