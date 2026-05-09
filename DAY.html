@@ -1763,18 +1763,15 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <p id="voiceCurrentStudent" style="font-size:1.05em;color:#1a2a6c;font-weight:700;margin-top:4px;display:none;background:#d4edda;padding:6px 12px;border-radius:8px;border:2px solid #28a745;"></p>
     <p id="voiceHeardText" style="font-size:0.8em;color:#999;font-style:italic;margin-top:2px;"></p>
 
-    <!-- Paste Grades Per Subject (hidden by default) -->
-    <button onclick="togglePasteGrades()" class="small-btn" style="background:#8e44ad;color:#fff;max-width:200px;margin-top:10px;margin-bottom:0;font-size:0.9em;padding:10px;">Paste Grades</button>
-
     <div id="studentMarksPanel" class="hidden">
-        <div style="display:flex;max-height:500px;overflow-y:auto;margin-top:15px;border:1px solid #6c3483;border-radius:6px;">
-            <div class="table-wrapper" style="flex:1;min-width:0;margin-top:0;border:none;">
+        <div style="display:flex;margin-top:15px;border:1px solid #6c3483;border-radius:6px;">
+            <div class="table-wrapper" style="flex:1;min-width:0;margin-top:0;border:none;overflow:visible;">
                 <table id="dataEntryTable">
                     <thead>
                         <tr style="background:#ecf0f1;">
                             <th style="border:1px solid #cc6600;padding:10px;">Exam Number</th>
                             <th style="border:1px solid #cc6600;padding:10px;">Name</th>
-                            <th style="border:1px solid #cc6600;padding:10px;width:40px;">SEX</th>
+                            <th id="sexColumnHeader" style="border:1px solid #cc6600;padding:10px;width:40px;display:none;">SEX</th>
                             <th id="sneColumnHeader" style="border:1px solid #cc6600;padding:10px;width:30px;">SNE<br><span style="font-weight:normal;font-size:0.8em;">(SN)</span></th>
                             <th style="border:1px solid #cc6600;padding:10px;">Score</th>
                             <th id="pasteScoreHeader" style="border:1px solid #8e44ad;padding:10px;background:#d7bde2;color:#6c3483;display:none;text-align:center;">PASTE SCORE</th>
@@ -1906,6 +1903,12 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="savePastedStudentList()" style="background:#8e44ad;">Save Pasted List</button>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
+    <h3>Paste Grades</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Toggle the paste score column in the data entry table to bulk-paste grades for a subject.</p>
+    <!-- Paste Grades Per Subject (hidden by default) -->
+    <button onclick="togglePasteGrades()" class="small-btn" style="background:#8e44ad;color:#fff;max-width:200px;margin-top:10px;margin-bottom:0;font-size:0.9em;padding:10px;">Paste Grades</button>
+
+    <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Manual Student Entry</h3>
     <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Add individual students missed during CSV upload.</p>
     
@@ -2030,6 +2033,16 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 <p id="sneVisibilityStatus" style="font-size:11px; color:#2ecc71;"></p>
 <button onclick="handleSaveSNEConfig()" style="background:#28a745;">Save SNE Visibility</button>
+
+<hr style="margin: 20px 0; border: 1px solid #ccc;">
+<h3>Sex Column Visibility (Data Entry)</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Control whether the Sex column appears in the Data Entry scoring panel. This setting persists until you change it.</p>
+<div style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:10px;">
+    <input type="checkbox" id="sexVisibilityCheckbox" onchange="toggleSexVisibility()" style="width:20px; height:20px; margin:0;">
+    <label for="sexVisibilityCheckbox" style="margin:0; font-weight:bold;">Show Sex Column in Data Entry</label>
+</div>
+<p id="sexVisibilityStatus" style="font-size:11px; color:#e74c3c;"></p>
+<button onclick="handleSaveSexConfig()" style="background:#28a745;">Save Sex Visibility</button>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Delete Student from List</h3>
@@ -2558,6 +2571,7 @@ function getDefaultConfig() {
         hiddenSubjects: hiddenSubjects,
         passwordEnabled: true,
         sneColumnVisible: true,
+        sexColumnVisible: false,
         studentPasswords: {}
     };
 }
@@ -3392,6 +3406,7 @@ async function handleSaveConfig() {
         locks: currentConfig.locks || {},
         passwordEnabled: currentConfig.passwordEnabled,
         sneColumnVisible: currentConfig.sneColumnVisible !== undefined ? currentConfig.sneColumnVisible : true,
+        sexColumnVisible: currentConfig.sexColumnVisible !== undefined ? currentConfig.sexColumnVisible : false,
         setupPassword: currentConfig.setupPassword || null,
         studentPasswords: currentConfig.studentPasswords || {}
     };
@@ -4060,6 +4075,7 @@ async function openUploadsAuth() {
     populateClearSubjectSelect();
     updatePasswordAccessStatus();
     initSNEVisibilityUI();
+    initSexVisibilityUI();
     goToPage('uploadsPage');
 }
 
@@ -5796,12 +5812,13 @@ async function showStudentMarksList() {
         
         const snVal = s["SN"] || '';
         const sneVisible = currentConfig && currentConfig.sneColumnVisible !== false;
+        const sexVisible = currentConfig && currentConfig.sexColumnVisible !== false;
         const row = document.createElement('tr');
         const inputDisabled = isLocked ? 'readonly style="width:80px;padding:6px;text-align:center;border:1px solid #e74c3c;border-radius:4px;background:#f5f5f5;color:#999;"' : 'oninput="updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" style="width:80px;padding:6px;text-align:center;border:2px solid #e91e8c;border-radius:8px;background:#fce4ec;color:#c2185b;font-weight:700;font-size:1em;"';
         row.innerHTML = `
             <td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#f3e5f5;font-weight:600;font-size:0.9em;">${examNo}</td>
             <td style="border:2px solid #6c3483;padding:8px 6px;text-align:left;background:#f5f5f5;font-size:0.9em;">${name}</td>
-            <td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;width:40px;background:#ede7f6;font-weight:600;font-size:0.9em;">${sex}</td>
+            ${sexVisible ? `<td class="sex-cell" style="border:2px solid #6c3483;padding:8px 6px;text-align:center;width:40px;background:#ede7f6;font-weight:600;font-size:0.9em;">${sex}</td>` : ''}
             ${sneVisible ? `<td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;width:30px;background:#ede7f6;font-size:0.85em;">
                 <input type="text" 
                        id="sn_${i}" 
@@ -5847,6 +5864,8 @@ async function showStudentMarksList() {
 
     // Apply SNE column visibility to header
     applySNEColumnToTable();
+    // Apply Sex column visibility to header
+    applySexColumnToTable();
 
     // Voice mic now activates when user clicks "Show Voice Entry" button
 }
@@ -6658,6 +6677,57 @@ async function handleSaveSNEConfig() {
     currentConfig.sneColumnVisible = checkbox.checked;
     await handleSaveConfig();
     updateSNEVisibilityStatus();
+    // Immediately refresh data entry table if visible
+    const form = document.getElementById('dataClassSelect');
+    const subject = document.getElementById('dataSubjectSelect');
+    if (form && subject && form.value && subject.value) {
+        showStudentMarksList();
+    }
+}
+
+// --- SEX COLUMN VISIBILITY FUNCTIONS ---
+function toggleSexVisibility() {
+    const checkbox = document.getElementById('sexVisibilityCheckbox');
+    if (!currentConfig) return;
+    currentConfig.sexColumnVisible = checkbox.checked;
+    updateSexVisibilityStatus();
+}
+
+function updateSexVisibilityStatus() {
+    const status = document.getElementById('sexVisibilityStatus');
+    if (!status || !currentConfig) return;
+    if (currentConfig.sexColumnVisible !== false) {
+        status.textContent = 'Sex column is currently VISIBLE.';
+        status.style.color = '#2ecc71';
+    } else {
+        status.textContent = 'Sex column is currently INVISIBLE.';
+        status.style.color = '#e74c3c';
+    }
+}
+
+function initSexVisibilityUI() {
+    const checkbox = document.getElementById('sexVisibilityCheckbox');
+    if (!checkbox || !currentConfig) return;
+    checkbox.checked = currentConfig.sexColumnVisible !== false;
+    updateSexVisibilityStatus();
+}
+
+function applySexColumnToTable() {
+    const header = document.getElementById('sexColumnHeader');
+    if (!header) return;
+    const visible = currentConfig && currentConfig.sexColumnVisible !== false;
+    header.style.display = visible ? '' : 'none';
+}
+
+async function handleSaveSexConfig() {
+    if (!currentConfig) {
+        alert('Configuration not loaded. Please enter Authorization Code.');
+        return;
+    }
+    const checkbox = document.getElementById('sexVisibilityCheckbox');
+    currentConfig.sexColumnVisible = checkbox.checked;
+    await handleSaveConfig();
+    updateSexVisibilityStatus();
     // Immediately refresh data entry table if visible
     const form = document.getElementById('dataClassSelect');
     const subject = document.getElementById('dataSubjectSelect');
