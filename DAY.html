@@ -803,6 +803,42 @@ function saveSelectedSubjectsToRepo() {
         box-shadow: 0 0 0 3px black, 0 6px 20px rgba(0, 0, 0, 0.1);
     }
 
+    /* === OFFICIAL STAMP (hidden on screen, visible on print/download only) === */
+    #progressReport { position: relative; }
+
+    .reportStamp {
+        display: none;
+        position: absolute;
+        bottom: -30px;
+        right: 0px;
+        width: 340px;
+        height: auto;
+        transform: rotate(-18deg);
+        opacity: 0.4;
+        z-index: 10;
+        pointer-events: none;
+        text-align: center;
+        line-height: 1;
+    }
+    .reportStamp img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        position: relative;
+    }
+    .reportStampDate {
+        font-size: 13pt;
+        color: black;
+        font-weight: bold;
+        font-family: 'Times New Roman', Times, serif;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        text-align: center;
+    }
+
     #reportDetails div { color: black; }
 
     #summaryAndKeyWrapper {
@@ -1052,6 +1088,14 @@ function saveSelectedSubjectsToRepo() {
         #briefReport[style*="block"] td,
         #progressReport[style*="block"] th,
         #briefReport[style*="block"] th {
+            visibility: visible !important;
+        }
+
+        /* Show official stamp when printing/downloading */
+        .reportStamp,
+        .reportStamp *,
+        .reportStamp img {
+            display: block !important;
             visibility: visible !important;
         }
 
@@ -1686,8 +1730,13 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
         <p style="margin:5px 0;"><strong>NEXT TERM OPENS:</strong> <span id="reportNextTerm"></span>&nbsp;&nbsp;&nbsp;<strong>FEES:</strong> <span id="reportFees"></span></p>
     </div>
 
-    <div id="reportGradeKeySection" style="margin-top:10px; width:100%; text-align:left;">
+    <div id="reportGradeKeySection" style="margin-top:10px; width:100%; text-align:left; position:relative;">
         <div id="gradeKeyPlaceholder">
+        </div>
+        <!-- Official Stamp (hidden on screen, only visible on print/download) -->
+        <div class="reportStamp">
+            <img class="reportStampImg" src="" alt="Official Stamp">
+            <div class="reportStampDate"></div>
         </div>
     </div>
 
@@ -1840,6 +1889,27 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
     <label for="feesInput">Fees (Amount):</label>
     <input type="text" id="feesInput" placeholder="e.g. MK 85,000">
+
+    <hr style="margin: 20px 0; border: 1px solid #eee;">
+    <!-- === OFFICIAL STAMP UPLOAD === -->
+    <h3>Official Report Stamp</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Upload a school stamp image. It will appear on progress reports only when printing or saving as PDF. Not visible when viewing results on screen.</p>
+    <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px;">
+        <label for="stampToggleCheckbox" style="margin:0; font-weight:bold; cursor:pointer;">Show Stamp on Reports:</label>
+        <input type="checkbox" id="stampToggleCheckbox" checked onchange="toggleStampEnabled()" style="width:20px; height:20px; margin:0; cursor:pointer; accent-color:#27ae60;">
+        <span id="stampToggleStatus" style="font-weight:700; color:#27ae60; font-size:0.9em;">ON</span>
+    </div>
+    <input type="file" id="stampUploadInput" accept="image/*" style="max-width:300px;">
+    <div id="stampPreviewArea" style="margin-top:10px; text-align:center; display:none;">
+        <img id="stampPreviewImg" src="" alt="Stamp Preview" style="max-width:120px; max-height:120px; border:1px solid #ddd; border-radius:6px;">
+    </div>
+    <label for="stampDateInput" style="margin-top:10px;">Stamp Date:</label>
+    <input type="date" id="stampDateInput" style="max-width:200px;">
+    <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+        <button onclick="saveStampToConfig()" style="background:#27ae60; max-width:160px; margin:0; padding:10px 16px;">Save Stamp</button>
+        <button onclick="removeStampFromConfig()" style="background:#e74c3c; max-width:160px; margin:0; padding:10px 16px;">Remove Stamp</button>
+    </div>
+    <p id="stampSaveStatus" style="font-size:0.85em; margin-top:8px; color:#27ae60; display:none;"></p>
 
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <!-- --- SURGICAL FIX: SUBJECT VISIBILITY --- -->
@@ -2217,6 +2287,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
                 <button onclick="applyBatchRange()" class="small-btn" style="background:#2980b9; max-width:60px; margin:0; padding:5px 8px; font-size:0.85em;">Go</button>
             </div>
         </div>
+        <input type="text" id="batchSearchInput" placeholder="Search name or exam number..." onkeyup="filterBatchPrintList()" style="max-width:100%; margin-bottom:10px; font-size:0.85em;">
         <div id="batchStudentList" style="max-height:300px; overflow-y:auto; border:1px solid #ddd; border-radius:6px; text-align:left;"></div>
         <div style="display:flex; justify-content:center; gap:8px; margin-top:10px;">
             <button onclick="executeBatchPrint()" style="background:#27ae60; max-width:200px; margin:0; padding:10px 16px;">Print Selected</button>
@@ -3169,6 +3240,25 @@ async function initializeConfig(token) {
         document.getElementById('feesInput').value = currentConfig.fees || '';
     }
 
+    // Restore stamp upload UI from config
+    if(currentConfig.stampImage && document.getElementById('stampPreviewImg')) {
+        document.getElementById('stampPreviewImg').src = currentConfig.stampImage;
+        document.getElementById('stampPreviewArea').style.display = 'block';
+        _stampBase64 = currentConfig.stampImage;
+    }
+    if(document.getElementById('stampDateInput')) {
+        document.getElementById('stampDateInput').value = currentConfig.stampDate || '';
+    }
+    if(document.getElementById('stampToggleCheckbox')) {
+        var isEnabled = currentConfig.stampEnabled !== false;
+        document.getElementById('stampToggleCheckbox').checked = isEnabled;
+        var status = document.getElementById('stampToggleStatus');
+        if (status) {
+            status.textContent = isEnabled ? 'ON' : 'OFF';
+            status.style.color = isEnabled ? '#27ae60' : '#e74c3c';
+        }
+    }
+
     populateTeacherInputs();
     populateLockSubjects();
     populateVisibilitySubjects(); // Populate the visibility control
@@ -3408,7 +3498,10 @@ async function handleSaveConfig() {
         sneColumnVisible: currentConfig.sneColumnVisible !== undefined ? currentConfig.sneColumnVisible : true,
         sexColumnVisible: currentConfig.sexColumnVisible !== undefined ? currentConfig.sexColumnVisible : false,
         setupPassword: currentConfig.setupPassword || null,
-        studentPasswords: currentConfig.studentPasswords || {}
+        studentPasswords: currentConfig.studentPasswords || {},
+        stampImage: currentConfig.stampImage || '',
+        stampDate: currentConfig.stampDate || '',
+        stampEnabled: document.getElementById('stampToggleCheckbox').checked
     };
 
     ALL_CLASSES.forEach(form => {
@@ -4928,6 +5021,8 @@ async function loadResults(isStudentPortal) {
 
         document.getElementById('gradeKeyPlaceholder').innerHTML = getGradeKeyTableHTML(form);
 
+        _populateStampOnReport();
+
         updateLoadingPercent(100);
         hideLoading();
         goToPage('progressReport');
@@ -4956,11 +5051,18 @@ function openFullPdf() {
     showLoading();
     updateLoadingPercent(10);
 
+    // Populate and show stamp for capture
+    _populateStampOnReport();
+    _showReportStamps();
+
     html2canvas(element, {
         scale: 2,
         allowTaint: true,
         useCORS: true
     }).then(canvas => {
+        // Hide stamp after capture
+        _hideReportStamps();
+
         updateLoadingPercent(50);
         const { jsPDF } = window.jspdf;
         const imgData = canvas.toDataURL('image/png');
@@ -4979,6 +5081,7 @@ function openFullPdf() {
         updateLoadingPercent(100);
         hideLoading();
     }).catch(error => {
+        _hideReportStamps();
         console.error("Error generating PDF:", error);
         alert("Failed to generate PDF.");
         hideLoading();
@@ -7047,8 +7150,13 @@ async function generateAllProgressReports() {
         element.style.position = 'fixed';
         element.style.left = '-5000px';
 
+        // Populate and show stamp for capture
+        _populateStampOnReport();
+        _showReportStamps();
+
         try {
             const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+            _hideReportStamps();
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
                 orientation: 'portrait',
@@ -7060,6 +7168,7 @@ async function generateAllProgressReports() {
             const fileName = `${studentNumber}_${student["STUDENT'S NAME"].replace(/\s+/g, '_')}_Report.pdf`;
             pdf.save(fileName);
         } catch (err) {
+            _hideReportStamps();
             console.error(`Failed generating PDF for ${studentNumber}`, err);
         }
 
@@ -7079,6 +7188,164 @@ async function generateAllProgressReports() {
 
 // === BATCH PRINT PROGRESS REPORTS (SELECTED STUDENTS) ===
 let _batchPrintClassData = [];
+let _stampBase64 = null; // In-memory stamp image data
+
+// === STAMP SHOW/HIDE HELPERS (for PDF capture) ===
+function _showReportStamps() {
+    if (!currentConfig || currentConfig.stampEnabled === false) return;
+    document.querySelectorAll('.reportStamp').forEach(function(el) {
+        el.style.display = 'block';
+    });
+}
+function _hideReportStamps() {
+    document.querySelectorAll('.reportStamp').forEach(function(el) {
+        el.style.display = 'none';
+    });
+}
+function _populateStampOnReport() {
+    var stampImg = currentConfig && currentConfig.stampImage ? currentConfig.stampImage : '';
+    var stampDate = currentConfig && currentConfig.stampDate ? currentConfig.stampDate : '';
+    document.querySelectorAll('.reportStampImg').forEach(function(img) {
+        img.src = stampImg || '';
+    });
+    document.querySelectorAll('.reportStampDate').forEach(function(el) {
+        if (stampDate) {
+            var d = new Date(stampDate);
+            if (!isNaN(d)) {
+                var months = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+                el.textContent = d.getDate() + '  ' + months[d.getMonth()] + '  ' + d.getFullYear();
+            } else {
+                el.textContent = stampDate;
+            }
+        } else {
+            el.textContent = '';
+        }
+    });
+}
+
+// === STAMP UPLOAD HANDLER ===
+document.addEventListener('DOMContentLoaded', function() {
+    var stampInput = document.getElementById('stampUploadInput');
+    if (stampInput) {
+        stampInput.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('Please select a valid image file.');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                _stampBase64 = ev.target.result;
+                var preview = document.getElementById('stampPreviewImg');
+                var area = document.getElementById('stampPreviewArea');
+                if (preview && area) {
+                    preview.src = _stampBase64;
+                    area.style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+});
+
+async function saveStampToConfig() {
+    var token = getDecryptedToken();
+    if (!token) {
+        alert('Please enter your Authorization Code first.');
+        return;
+    }
+    var stampInput = document.getElementById('stampUploadInput');
+    var stampDateInput = document.getElementById('stampDateInput');
+    var stampImage = _stampBase64 || (currentConfig ? currentConfig.stampImage : '');
+    var stampDate = stampDateInput ? stampDateInput.value : '';
+
+    if (!stampImage) {
+        alert('Please upload a stamp image first.');
+        return;
+    }
+
+    showLoading();
+    updateLoadingPercent(20);
+
+    var newConfig = JSON.parse(JSON.stringify(currentConfig));
+    newConfig.stampImage = stampImage;
+    newConfig.stampDate = stampDate;
+
+    updateLoadingPercent(50);
+    var jsonContent = JSON.stringify(newConfig, null, 2);
+    var base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+    var commitMessage = 'Update official stamp configuration';
+
+    try {
+        var result = await commitFile(CONFIG_FILE, commitMessage, base64Content, configSha, token, 'PUT');
+        hideLoading();
+        if (result) {
+            configSha = result.content.sha;
+            currentConfig.stampImage = stampImage;
+            currentConfig.stampDate = stampDate;
+            var status = document.getElementById('stampSaveStatus');
+            if (status) {
+                status.textContent = 'Stamp saved successfully!';
+                status.style.display = 'block';
+                setTimeout(function() { status.style.display = 'none'; }, 4000);
+            }
+            alert('Stamp saved successfully!');
+        }
+    } catch (err) {
+        hideLoading();
+        console.error('Stamp save error:', err);
+        alert('Failed to save stamp. Please try again.');
+    }
+}
+
+async function removeStampFromConfig() {
+    var token = getDecryptedToken();
+    if (!token) {
+        alert('Please enter your Authorization Code first.');
+        return;
+    }
+    if (!confirm('Remove the official stamp from reports?')) return;
+
+    showLoading();
+    var newConfig = JSON.parse(JSON.stringify(currentConfig));
+    delete newConfig.stampImage;
+    delete newConfig.stampDate;
+
+    var jsonContent = JSON.stringify(newConfig, null, 2);
+    var base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+
+    try {
+        var result = await commitFile(CONFIG_FILE, 'Remove official stamp', base64Content, configSha, token, 'PUT');
+        hideLoading();
+        if (result) {
+            configSha = result.content.sha;
+            currentConfig.stampImage = '';
+            currentConfig.stampDate = '';
+            _stampBase64 = null;
+            document.getElementById('stampPreviewArea').style.display = 'none';
+            document.getElementById('stampUploadInput').value = '';
+            document.getElementById('stampDateInput').value = '';
+            alert('Stamp removed successfully.');
+        }
+    } catch (err) {
+        hideLoading();
+        alert('Failed to remove stamp.');
+    }
+}
+
+function toggleStampEnabled() {
+    var cb = document.getElementById('stampToggleCheckbox');
+    var status = document.getElementById('stampToggleStatus');
+    if (!cb || !status) return;
+    if (cb.checked) {
+        status.textContent = 'ON';
+        status.style.color = '#27ae60';
+    } else {
+        status.textContent = 'OFF';
+        status.style.color = '#e74c3c';
+    }
+}
 
 function _batchMsg(msg, isError) {
     const list = document.getElementById('batchStudentList');
@@ -7174,6 +7441,19 @@ function applyBatchRange() {
         const cb = document.querySelector('.batch-student-cb[data-idx="' + i + '"]');
         if (cb) cb.checked = true;
     }
+}
+
+function filterBatchPrintList() {
+    const query = (document.getElementById('batchSearchInput').value || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('#batchStudentList tbody tr');
+    rows.forEach(row => {
+        if (!query) { row.style.display = ''; return; }
+        const cells = row.querySelectorAll('td');
+        // td[1] = Exam No, td[3] = Student Name
+        const examNo = cells[1] ? cells[1].textContent.toLowerCase() : '';
+        const name = cells[3] ? cells[3].textContent.toLowerCase() : '';
+        row.style.display = (examNo.includes(query) || name.includes(query)) ? '' : 'none';
+    });
 }
 
 async function executeBatchPrint() {
@@ -7317,16 +7597,23 @@ async function executeBatchPrint() {
         document.getElementById('reportFees').textContent = currentConfig.fees || '-';
         document.getElementById('gradeKeyPlaceholder').innerHTML = getGradeKeyTableHTML(form);
 
+        // Populate stamp on report for cloning
+        _populateStampOnReport();
+
         // Show report, clone it into batch area, then hide again
         element.style.display = 'block';
         element.style.position = 'relative';
         element.style.left = '';
+        _showReportStamps();
         const clone = element.cloneNode(true);
+        _hideReportStamps();
         clone.removeAttribute('id');
         clone.className = 'progressReportClone';
         clone.style.display = 'block';
         clone.style.position = 'relative';
         clone.style.left = '';
+        // Keep stamps visible in clones (they will show via print CSS)
+        clone.querySelectorAll('.reportStamp').forEach(function(s) { s.style.display = 'block'; });
         batchArea.appendChild(clone);
         element.style.display = 'none';
     }
