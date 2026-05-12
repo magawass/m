@@ -827,13 +827,13 @@ function saveSelectedSubjectsToRepo() {
         position: relative;
     }
     .reportStampDate {
-        font-size: 13pt;
+        font-size: 14pt;
         color: black;
         font-weight: bold;
         font-family: 'Times New Roman', Times, serif;
         position: absolute;
         top: 50%;
-        left: 50%;
+        left: calc(50% - 1em);
         transform: translate(-50%, -50%);
         width: 100%;
         text-align: center;
@@ -2209,7 +2209,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <div id="archiveSearchResults" class="table-wrapper" style="margin-top:10px;"></div>
 
 <div id="archiveStudentDetail" class="hidden" style="margin-top:15px;">
-    <div id="archiveDetailContent" style="background:white;border:3px double black;outline:3px double black;outline-offset:3px;padding:25px 20px;width:95%;max-width:650px;margin:0 auto;color:black;">
+    <div id="archiveDetailContent" style="background:white;border:3px double black;outline:3px double black;outline-offset:3px;padding:25px 20px;width:95%;max-width:650px;margin:0 auto;color:black;position:relative;">
         <header id="archiveReportHeader" style="width:100%;text-align:center;">
             <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
             <h3 style="font-size:1.3em;margin:0 0 5px 0;color:black;">MAGAWA SECONDARY SCHOOL</h3>
@@ -2237,10 +2237,15 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
         </div>
         <div id="archiveSummaryInfo" style="margin-top:10px;text-align:left;font-size:9pt;color:black;"></div>
         <div id="archiveCommentsSection" style="margin-top:10px;text-align:left;width:100%;"></div>
-        <div id="archiveGradeKeySection" style="margin-top:10px;width:100%;text-align:left;"></div>
+        <div id="archiveGradeKeySection" style="margin-top:10px;width:100%;text-align:left;position:relative;">
+        </div>
+        <!-- Official Stamp (hidden on screen, only visible on PDF download) -->
+        <div class="reportStamp">
+            <img class="reportStampImg" src="" alt="Official Stamp">
+            <div class="reportStampDate"></div>
+        </div>
     </div>
     <div style="display:flex;justify-content:center;gap:10px;margin-top:15px;">
-        <button onclick="printArchiveDetail()" class="small-btn" style="background:#17a2b8;color:white;max-width:150px;">Print Result</button>
         <button onclick="saveArchiveDetailPdf()" class="small-btn" style="background:#17a2b8;color:white;max-width:150px;">Download PDF</button>
         <button onclick="closeArchiveDetail()" class="small-btn" style="background:#e74c3c;color:white;max-width:150px;">Close</button>
     </div>
@@ -4778,12 +4783,19 @@ function saveArchiveDetailPdf() {
     showLoading();
     updateLoadingPercent(10);
 
+    // Populate and show stamp for capture
+    _populateStampOnReport();
+    _showReportStamps();
+
     html2canvas(detailContent, {
         scale: 2,
         allowTaint: true,
         useCORS: true,
         backgroundColor: '#ffffff'
     }).then(canvas => {
+        // Hide stamp after capture
+        _hideReportStamps();
+
         updateLoadingPercent(50);
         const { jsPDF } = window.jspdf;
         const imgData = canvas.toDataURL('image/png');
@@ -4803,6 +4815,7 @@ function saveArchiveDetailPdf() {
         updateLoadingPercent(100);
         hideLoading();
     }).catch(err => {
+        _hideReportStamps();
         hideLoading();
         alert('PDF generation failed: ' + err.message);
     });
