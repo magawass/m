@@ -803,6 +803,42 @@ function saveSelectedSubjectsToRepo() {
         box-shadow: 0 0 0 3px black, 0 6px 20px rgba(0, 0, 0, 0.1);
     }
 
+    /* === OFFICIAL STAMP (hidden on screen, visible on print/download only) === */
+    #progressReport { position: relative; }
+
+    .reportStamp {
+        display: none;
+        position: absolute;
+        bottom: -30px;
+        right: 0px;
+        width: 340px;
+        height: auto;
+        transform: rotate(-18deg);
+        opacity: 0.4;
+        z-index: 10;
+        pointer-events: none;
+        text-align: center;
+        line-height: 1;
+    }
+    .reportStamp img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        position: relative;
+    }
+    .reportStampDate {
+        font-size: 14pt;
+        color: black;
+        font-weight: bold;
+        font-family: 'Times New Roman', Times, serif;
+        position: absolute;
+        top: 50%;
+        left: calc(50% - 1em);
+        transform: translate(-50%, -50%);
+        width: 100%;
+        text-align: center;
+    }
+
     #reportDetails div { color: black; }
 
     #summaryAndKeyWrapper {
@@ -858,6 +894,16 @@ function saveSelectedSubjectsToRepo() {
     }
 
     .hidden { display: none !important; }
+
+    /* Voice Control pulse animation for listening state */
+    @keyframes voicePulse {
+        0% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(142, 68, 173, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0); }
+    }
+    #voiceStartStopBtn[style*="e74c3c"] {
+        animation: voicePulse 1.2s infinite;
+    }
 
     /* Mobile Adjustments */
     @media (max-width: 480px) {
@@ -1042,6 +1088,14 @@ function saveSelectedSubjectsToRepo() {
         #briefReport[style*="block"] td,
         #progressReport[style*="block"] th,
         #briefReport[style*="block"] th {
+            visibility: visible !important;
+        }
+
+        /* Show official stamp when printing/downloading */
+        .reportStamp,
+        .reportStamp *,
+        .reportStamp img {
+            display: block !important;
             visibility: visible !important;
         }
 
@@ -1444,6 +1498,26 @@ function saveSelectedSubjectsToRepo() {
     }
 }
 
+/* SURGICAL FIX: Progress report results table horizontal scroll in portrait mode on mobile */
+@media (max-width: 480px) and (orientation: portrait) {
+    #progressReport .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        width: 100% !important;
+    }
+    #progressReport #resultsTable {
+        table-layout: auto !important;
+        width: max-content !important;
+        min-width: 100%;
+    }
+    #progressReport #resultsTable th,
+    #progressReport #resultsTable td {
+        white-space: nowrap !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+}
+
 /* Landscape mobile horizontal scroll for mark/grade sheets */
 @media (max-width: 900px) and (orientation: landscape) {
     #scoreSheetView .table-wrapper,
@@ -1510,7 +1584,7 @@ function saveSelectedSubjectsToRepo() {
 </div>
 
 <div id="initialPage" class="page">
-    <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawass Secondary School Logo" class="logo">
+    <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Secondary School Logo" class="logo">
     <h1><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL-ODL</p></h1>
     <h2>EXAM PORTAL</h2>
     <label for="selectedForm">Select Form / Sankhani Kalasi</label>
@@ -1522,9 +1596,9 @@ function saveSelectedSubjectsToRepo() {
       <option value="form4">Form 4</option>
     </select>
     <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
-    <input type="text" id="studentNumberInput" placeholder=" ">
+    <input type="text" id="studentNumberInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
-    <input type="password" id="passwordInput" placeholder="Here / Pano">
+    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off">
 
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
         <button onclick="loadResults(true)" style="width: 195px; max-width: 195px; margin-top: 0;">View Results/Onani Zotsatira</button>
@@ -1656,8 +1730,13 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
         <p style="margin:5px 0;"><strong>NEXT TERM OPENS:</strong> <span id="reportNextTerm"></span>&nbsp;&nbsp;&nbsp;<strong>FEES:</strong> <span id="reportFees"></span></p>
     </div>
 
-    <div id="reportGradeKeySection" style="margin-top:10px; width:100%; text-align:left;">
+    <div id="reportGradeKeySection" style="margin-top:10px; width:100%; text-align:left; position:relative;">
         <div id="gradeKeyPlaceholder">
+        </div>
+        <!-- Official Stamp (hidden on screen, only visible on print/download) -->
+        <div class="reportStamp">
+            <img class="reportStampImg" src="" alt="Official Stamp">
+            <div class="reportStampDate"></div>
         </div>
     </div>
 
@@ -1726,34 +1805,46 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
        readonly 
        style="background-color: #f8f9fa; color: #333; border: 1px solid #ddd; padding: 10px; border-radius: 5px; font-weight: bold;">
     <input type="text" id="dataSearchInput" placeholder="Search by name or exam number..." onkeyup="filterStudentMarks()" style="max-width:400px;margin-top:8px;">
-    
+
+    <!-- Voice Score Entry START/STOP -->
+    <button id="voiceStartStopBtn" onclick="toggleVoiceStartStop()" class="small-btn" style="background:#27ae60;color:white;max-width:220px;margin-top:10px;margin-bottom:0;font-size:1.2em;font-weight:800;padding:16px;">&#9654; START</button>
+    <p id="voiceStatus" style="font-size:0.82em;color:#999;margin-top:6px;">Click START to begin voice score entry.</p>
+    <p id="voiceCurrentStudent" style="font-size:1.05em;color:#1a2a6c;font-weight:700;margin-top:4px;display:none;background:#d4edda;padding:6px 12px;border-radius:8px;border:2px solid #28a745;"></p>
+    <p id="voiceHeardText" style="font-size:0.8em;color:#999;font-style:italic;margin-top:2px;"></p>
+
     <div id="studentMarksPanel" class="hidden">
-        <div class="table-wrapper" style="margin-top:15px;">
-            <table id="dataEntryTable">
-                <thead>
-                    <tr style="background:#ecf0f1;">
-                        <th style="border:1px solid #cc6600;padding:10px;">Exam Number</th>
-                        <th style="border:1px solid #cc6600;padding:10px;">Name</th>
-                        <th style="border:1px solid #cc6600;padding:10px;width:40px;">SEX</th>
-                        <th id="sneColumnHeader" style="border:1px solid #cc6600;padding:10px;width:30px;">SNE<br><span style="font-weight:normal;font-size:0.8em;">(SN)</span></th>
-                        <th style="border:1px solid #cc6600;padding:10px;">Score</th>
-                    </tr>
-                </thead>
-                <tbody id="dataEntryTableBody">
-                </tbody>
-            </table>
+        <div style="display:flex;margin-top:15px;border:1px solid #6c3483;border-radius:6px;">
+            <div class="table-wrapper" style="flex:1;min-width:0;margin-top:0;border:none;overflow:visible;">
+                <table id="dataEntryTable">
+                    <thead>
+                        <tr style="background:#ecf0f1;">
+                            <th style="border:1px solid #cc6600;padding:10px;">Exam Number</th>
+                            <th style="border:1px solid #cc6600;padding:10px;">Name</th>
+                            <th id="sexColumnHeader" style="border:1px solid #cc6600;padding:10px;width:40px;display:none;">SEX</th>
+                            <th id="sneColumnHeader" style="border:1px solid #cc6600;padding:10px;width:30px;">SNE<br><span style="font-weight:normal;font-size:0.8em;">(SN)</span></th>
+                            <th style="border:1px solid #cc6600;padding:10px;">Score</th>
+                            <th id="pasteScoreHeader" style="border:1px solid #8e44ad;padding:10px;background:#d7bde2;color:#6c3483;display:none;text-align:center;">PASTE SCORE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataEntryTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="pasteApplyRow" style="display:none;text-align:center;">
+            <button onclick="applyPasteColumnScores()" class="small-btn" style="background:#6c3483;color:#fff;max-width:180px;margin-top:8px;padding:8px;font-size:0.95em;">Apply Pasted Scores</button>
         </div>
     </div>
 
     <p id="dataEntryLockIndicator" style="display:none; margin-top: 15px;"></p>
-    <button onclick="saveSelectedSubjectsToRepo()">Save All Data to Cloud</button>
+    <button onclick="saveSelectedSubjectsToRepo()">Save</button>
     <button onclick="saveScoresAsExcel()" style="background: #28a745;">Export list as Excel</button>
     <button onclick="openScoreSheetView()">Mark Sheet</button>
     <p style="font-size:11px; margin-top: 15px; color: #e74c3c;">NOTE: Selection automatically loads students. Scores update marksheets in real-time as you type.</p>
 </div>
 
 <div id="scoreSheetView" class="page">
-    <h2 id="markSheetHeader">MAGAWA SECONDARY SCHOOL - Mark Sheet - <span id="markSheetForm"></span> - Term <span id="markSheetTerm"></span></h2>
+    <h2 id="markSheetHeader">MAGAWA SECONDARY SCHOOL-ODL - Mark Sheet - <span id="markSheetForm"></span> - Term <span id="markSheetTerm"></span></h2>
 <input type="text" id="scoreSearchInput" placeholder="Search student..." onkeyup="filterScoreSheet()" style="max-width:300px;">
 
     <button onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
@@ -1798,6 +1889,27 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
     <label for="feesInput">Fees (Amount):</label>
     <input type="text" id="feesInput" placeholder="e.g. MK 85,000">
+
+    <hr style="margin: 20px 0; border: 1px solid #eee;">
+    <!-- === OFFICIAL STAMP UPLOAD === -->
+    <h3>Official Report Stamp</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Upload a school stamp image. It will appear on progress reports only when printing or saving as PDF. Not visible when viewing results on screen.</p>
+    <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px;">
+        <label for="stampToggleCheckbox" style="margin:0; font-weight:bold; cursor:pointer;">Show Stamp on Reports:</label>
+        <input type="checkbox" id="stampToggleCheckbox" checked onchange="toggleStampEnabled()" style="width:20px; height:20px; margin:0; cursor:pointer; accent-color:#27ae60;">
+        <span id="stampToggleStatus" style="font-weight:700; color:#27ae60; font-size:0.9em;">ON</span>
+    </div>
+    <input type="file" id="stampUploadInput" accept="image/*" style="max-width:300px;">
+    <div id="stampPreviewArea" style="margin-top:10px; text-align:center; display:none;">
+        <img id="stampPreviewImg" src="" alt="Stamp Preview" style="max-width:120px; max-height:120px; border:1px solid #ddd; border-radius:6px;">
+    </div>
+    <label for="stampDateInput" style="margin-top:10px;">Stamp Date:</label>
+    <input type="date" id="stampDateInput" style="max-width:200px;">
+    <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+        <button onclick="saveStampToConfig()" style="background:#27ae60; max-width:160px; margin:0; padding:10px 16px;">Save Stamp</button>
+        <button onclick="removeStampFromConfig()" style="background:#e74c3c; max-width:160px; margin:0; padding:10px 16px;">Remove Stamp</button>
+    </div>
+    <p id="stampSaveStatus" style="font-size:0.85em; margin-top:8px; color:#27ae60; display:none;"></p>
 
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <!-- --- SURGICAL FIX: SUBJECT VISIBILITY --- -->
@@ -1847,6 +1959,26 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="uploadCSV()">Upload CSV</button>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
+    <h3>Paste Student List</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Paste student list with exam numbers below. One student per line. Format: <strong>ExamNumber, Name, Sex</strong> (comma, tab, or pipe separated). This will overwrite existing students for the selected class.</p>
+    <label for="pasteListClassSelect">Select Class:</label>
+    <select id="pasteListClassSelect">
+        <option value="">--Select Class--</option>
+        <option value="form1">Form 1</option>
+        <option value="form2">Form 2</option>
+        <option value="form3">Form 3</option>
+        <option value="form4">Form 4</option>
+    </select>
+    <textarea id="pasteStudentListArea" rows="6" placeholder="Paste here, e.g.:&#10;1001, John Banda, M&#10;1002, Mary Phiri, F&#10;1003, Peter Mwale, M" style="max-width:400px;font-size:0.85em;"></textarea>
+    <button onclick="savePastedStudentList()" style="background:#8e44ad;">Save Pasted List</button>
+
+    <hr style="margin: 20px 0; border: 1px solid #ccc;">
+    <h3>Paste Grades</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Toggle the paste score column in the data entry table to bulk-paste grades for a subject.</p>
+    <!-- Paste Grades Per Subject (hidden by default) -->
+    <button onclick="togglePasteGrades()" class="small-btn" style="background:#8e44ad;color:#fff;max-width:200px;margin-top:10px;margin-bottom:0;font-size:0.9em;padding:10px;">Paste Grades</button>
+
+    <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Manual Student Entry</h3>
     <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Add individual students missed during CSV upload.</p>
     
@@ -1866,8 +1998,8 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="overwriteStudentData()" style="background: #e67e22;">Overwrite Existing Student</button>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
-    <h3>Edit Student Names &amp; Sex</h3>
-    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Select a class to edit student names and sex in bulk.</p>
+    <h3>Edit Student Names, Exam Numbers &amp; Sex</h3>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Select a class to edit student names, exam numbers and sex in bulk.</p>
     <label for="editNamesClassSelect">Select Class:</label>
     <select id="editNamesClassSelect" onchange="loadEditNamesUI()">
         <option value="">--Select Class--</option>
@@ -1942,6 +2074,27 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <button onclick="savePasswordAccess()" style="background:#28a745;">Save Password Setting</button>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
+<h3>Student Password Generator</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Generate unique 4-digit passwords for each student. Students will use their individual password to view results.</p>
+
+<label for="passwordGenClassSelect">Select Class:</label>
+<select id="passwordGenClassSelect" onchange="loadPasswordTable()">
+    <option value="">-- Select Class --</option>
+    <option value="form1">Form 1</option>
+    <option value="form2">Form 2</option>
+    <option value="form3">Form 3</option>
+    <option value="form4">Form 4</option>
+</select>
+
+<button onclick="generateStudentPasswords()" style="background:#8e44ad;">Generate Passwords</button>
+<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:5px;">
+    <button onclick="printStudentPasswords()" class="small-btn" style="background:#28a745;max-width:180px;margin-top:5px;">Print Passwords</button>
+    <button onclick="resetStudentPasswords()" class="small-btn" style="background:#e74c3c;max-width:180px;margin-top:5px;">Reset All to 000</button>
+</div>
+<p id="passwordGenStatus" style="font-size:11px; color:#2ecc71;"></p>
+<div id="passwordGenTableContainer" style="margin-top:10px;max-height:400px;overflow-y:auto;"></div>
+
+<hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>SNE Column Visibility (Data Entry)</h3>
 <p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Control whether the SNE column appears in the Data Entry scoring panel. This setting persists until you change it.</p>
 <div style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:10px;">
@@ -1950,6 +2103,16 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 <p id="sneVisibilityStatus" style="font-size:11px; color:#2ecc71;"></p>
 <button onclick="handleSaveSNEConfig()" style="background:#28a745;">Save SNE Visibility</button>
+
+<hr style="margin: 20px 0; border: 1px solid #ccc;">
+<h3>Sex Column Visibility (Data Entry)</h3>
+<p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Control whether the Sex column appears in the Data Entry scoring panel. This setting persists until you change it.</p>
+<div style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:10px;">
+    <input type="checkbox" id="sexVisibilityCheckbox" onchange="toggleSexVisibility()" style="width:20px; height:20px; margin:0;">
+    <label for="sexVisibilityCheckbox" style="margin:0; font-weight:bold;">Show Sex Column in Data Entry</label>
+</div>
+<p id="sexVisibilityStatus" style="font-size:11px; color:#e74c3c;"></p>
+<button onclick="handleSaveSexConfig()" style="background:#28a745;">Save Sex Visibility</button>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Delete Student from List</h3>
@@ -2046,26 +2209,43 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <div id="archiveSearchResults" class="table-wrapper" style="margin-top:10px;"></div>
 
 <div id="archiveStudentDetail" class="hidden" style="margin-top:15px;">
-    <div id="archiveDetailContent" style="background:white;border:3px double black;outline:3px double black;outline-offset:3px;padding:25px 20px;width:95%;max-width:650px;margin:0 auto;color:black;">
-        <div id="archiveStudentInfo" style="text-align:left;margin-bottom:10px;font-size:11pt;color:black;"></div>
+    <div id="archiveDetailContent" style="background:white;border:3px double black;outline:3px double black;outline-offset:3px;padding:25px 20px;width:95%;max-width:650px;margin:0 auto;color:black;position:relative;">
+        <header id="archiveReportHeader" style="width:100%;text-align:center;">
+            <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
+            <h3 style="font-size:1.3em;margin:0 0 5px 0;color:black;">MAGAWA SECONDARY SCHOOL</h3>
+            <p style="margin:5px 0;font-size:14pt;"><strong>Private Bag 17,<br>MAGAWA, MCHINJI.</strong></p>
+        </header>
+        <hr style="border-top:2px solid black;margin:10px 0;">
+        <div style="text-align:center;">
+            <h2 style="margin:0;color:black;font-size:1.2em;"><strong>STUDENT PROGRESS REPORT</strong></h2>
+        </div>
+        <div id="archiveStudentInfo" style="text-align:left;margin-top:10px;font-size:11pt;color:black;"></div>
         <div class="table-wrapper">
             <table id="archiveResultsTable" style="width:100%;border-collapse:collapse;border:1px solid black;font-size:9pt;">
                 <thead>
                     <tr>
-                        <th style="border:1px solid black;padding:4px 3px;">SUBJECT</th>
-                        <th style="border:1px solid black;padding:4px 3px;">SCORE</th>
-                        <th style="border:1px solid black;padding:4px 3px;">GRADE</th>
-                        <th style="border:1px solid black;padding:4px 3px;">POSITION</th>
-                        <th style="border:1px solid black;padding:4px 3px;">STATUS</th>
+                        <th style="width:20%;border:1px solid black;padding:4px 3px;">SUBJECT</th>
+                        <th style="width:10%;border:1px solid black;padding:4px 3px;">SCORE</th>
+                        <th style="width:10%;border:1px solid black;padding:4px 3px;">GRADE</th>
+                        <th style="width:10%;border:1px solid black;padding:4px 3px;">POSITION</th>
+                        <th style="width:30%;border:1px solid black;padding:4px 3px;">REMARKS</th>
+                        <th style="width:20%;border:1px solid black;padding:4px 3px;">TEACHER</th>
                     </tr>
                 </thead>
                 <tbody id="archiveResultsBody"></tbody>
             </table>
         </div>
         <div id="archiveSummaryInfo" style="margin-top:10px;text-align:left;font-size:9pt;color:black;"></div>
+        <div id="archiveCommentsSection" style="margin-top:10px;text-align:left;width:100%;"></div>
+        <div id="archiveGradeKeySection" style="margin-top:10px;width:100%;text-align:left;position:relative;">
+        </div>
+        <!-- Official Stamp (hidden on screen, only visible on PDF download) -->
+        <div class="reportStamp">
+            <img class="reportStampImg" src="" alt="Official Stamp">
+            <div class="reportStampDate"></div>
+        </div>
     </div>
     <div style="display:flex;justify-content:center;gap:10px;margin-top:15px;">
-        <button onclick="printArchiveDetail()" class="small-btn" style="background:#17a2b8;color:white;max-width:150px;">Print Result</button>
         <button onclick="saveArchiveDetailPdf()" class="small-btn" style="background:#17a2b8;color:white;max-width:150px;">Download PDF</button>
         <button onclick="closeArchiveDetail()" class="small-btn" style="background:#e74c3c;color:white;max-width:150px;">Close</button>
     </div>
@@ -2112,6 +2292,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
                 <button onclick="applyBatchRange()" class="small-btn" style="background:#2980b9; max-width:60px; margin:0; padding:5px 8px; font-size:0.85em;">Go</button>
             </div>
         </div>
+        <input type="text" id="batchSearchInput" placeholder="Search name or exam number..." onkeyup="filterBatchPrintList()" style="max-width:100%; margin-bottom:10px; font-size:0.85em;">
         <div id="batchStudentList" style="max-height:300px; overflow-y:auto; border:1px solid #ddd; border-radius:6px; text-align:left;"></div>
         <div style="display:flex; justify-content:center; gap:8px; margin-top:10px;">
             <button onclick="executeBatchPrint()" style="background:#27ae60; max-width:200px; margin:0; padding:10px 16px;">Print Selected</button>
@@ -2126,7 +2307,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 
 <div id="gradesPage" class="page">
-    <h2 id="gradeSheetHeader">MAGAWA SECONDARY SCHOOL - Grade Sheet - <span id="gradeSheetForm"></span> - Term <span id="gradeSheetTerm"></span></h2>
+    <h2 id="gradeSheetHeader">MAGAWA SECONDARY SCHOOL-ODL- Grade Sheet - <span id="gradeSheetForm"></span> - Term <span id="gradeSheetTerm"></span></h2>
 <input type="text" id="gradeSearchInput" placeholder="Search student..." onkeyup="filterGradeSheet()" style="max-width:300px;">
 
     <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
@@ -2166,7 +2347,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 
 <div id="analysisPage" class="page">
-    <h2 id="analysisTitle">MAGAWA SECONDARY SCHOOL - Form 2 Class Analysis Report</h2>
+    <h2 id="analysisTitle">MAGAWA SECONDARY SCHOOL-ODL- Form 2 Class Analysis Report</h2>
     <button onclick="openAnalysisSelector()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
     <button onclick="printSheet('analysisPage')" class="small-btn" style="float: right; margin-top: 10px; max-width: 150px;">Print Analysis (Landscape)</button>
     <div id="analysisTableWrapper" class="table-wrapper"> </div>
@@ -2465,7 +2646,9 @@ function getDefaultConfig() {
         teachers: teachers,
         hiddenSubjects: hiddenSubjects,
         passwordEnabled: true,
-        sneColumnVisible: true
+        sneColumnVisible: true,
+        sexColumnVisible: false,
+        studentPasswords: {}
     };
 }
 
@@ -3026,7 +3209,8 @@ async function fetchConfig(token) {
             ...content,
             teachers: { ...defaultConfig.teachers, ...content.teachers },
             hiddenSubjects: content.hiddenSubjects || defaultConfig.hiddenSubjects,
-            gradeKeys: content.gradeKeys || defaultConfig.gradeKeys
+            gradeKeys: content.gradeKeys || defaultConfig.gradeKeys,
+            studentPasswords: content.studentPasswords || defaultConfig.studentPasswords
         };
 
         return { config: currentConfig, sha: configSha };
@@ -3061,9 +3245,236 @@ async function initializeConfig(token) {
         document.getElementById('feesInput').value = currentConfig.fees || '';
     }
 
+    // Restore stamp upload UI from config
+    if(currentConfig.stampImage && document.getElementById('stampPreviewImg')) {
+        document.getElementById('stampPreviewImg').src = currentConfig.stampImage;
+        document.getElementById('stampPreviewArea').style.display = 'block';
+        _stampBase64 = currentConfig.stampImage;
+    }
+    if(document.getElementById('stampDateInput')) {
+        document.getElementById('stampDateInput').value = currentConfig.stampDate || '';
+    }
+    if(document.getElementById('stampToggleCheckbox')) {
+        var isEnabled = currentConfig.stampEnabled !== false;
+        document.getElementById('stampToggleCheckbox').checked = isEnabled;
+        var status = document.getElementById('stampToggleStatus');
+        if (status) {
+            status.textContent = isEnabled ? 'ON' : 'OFF';
+            status.style.color = isEnabled ? '#27ae60' : '#e74c3c';
+        }
+    }
+
     populateTeacherInputs();
     populateLockSubjects();
     populateVisibilitySubjects(); // Populate the visibility control
+}
+
+// ============================================================
+// STUDENT PASSWORD GENERATOR
+// Generates unique 4-digit passwords per student per class
+// ============================================================
+
+function generateUniqueFourDigitPasswords(count) {
+    var passwords = [];
+    var used = {};
+    while (passwords.length < count) {
+        var pw = String(Math.floor(1000 + Math.random() * 9000));
+        if (!used[pw]) {
+            used[pw] = true;
+            passwords.push(pw);
+        }
+    }
+    return passwords;
+}
+
+async function generateStudentPasswords() {
+    var form = document.getElementById('passwordGenClassSelect').value;
+    if (!form) {
+        alert('Please select a class first.');
+        return;
+    }
+    var token = getDecryptedToken();
+    if (!token) {
+        alert('Authorization Code required. Please enter it in Admin Dashboard.');
+        return;
+    }
+    if (!confirm('Generate unique 4-digit passwords for ALL students in ' + form.toUpperCase().replace('FORM', 'Form ') + '? This will overwrite existing passwords for this class.')) {
+        return;
+    }
+    showLoading();
+    try {
+        var data = await fetchClassData(form);
+        if (!data || data.length === 0) {
+            alert('No students found in ' + form + '. Upload a CSV first.');
+            hideLoading();
+            return;
+        }
+        var passwords = generateUniqueFourDigitPasswords(data.length);
+        if (!currentConfig.studentPasswords) currentConfig.studentPasswords = {};
+        currentConfig.studentPasswords[form] = {};
+        for (var i = 0; i < data.length; i++) {
+            var examNo = data[i]['Exam Number'];
+            if (examNo) {
+                currentConfig.studentPasswords[form][examNo] = passwords[i];
+            }
+        }
+        displayPasswordTable(form);
+        await handleSaveConfig();
+        document.getElementById('passwordGenStatus').textContent = 'Passwords generated and saved for ' + data.length + ' students.';
+        document.getElementById('passwordGenStatus').style.color = '#2ecc71';
+    } catch (e) {
+        console.error('Password generation error:', e);
+        alert('Failed to generate passwords: ' + safeMsg(e));
+    } finally {
+        hideLoading();
+    }
+}
+
+async function displayPasswordTable(form) {
+    var container = document.getElementById('passwordGenTableContainer');
+    container.innerHTML = '';
+    if (!currentConfig.studentPasswords || !currentConfig.studentPasswords[form]) {
+        container.innerHTML = '<p style="font-size:0.85em; color:#999;">No passwords generated yet for this class.</p>';
+        return;
+    }
+    var token = getDecryptedToken();
+    var data = [];
+    if (currentClassData[form] && currentClassData[form].length > 0) {
+        data = currentClassData[form];
+    } else if (token) {
+        data = await fetchClassData(form);
+    }
+    var pwMap = currentConfig.studentPasswords[form];
+    var table = document.createElement('table');
+    table.style.cssText = 'width:100%;border-collapse:collapse;font-size:0.85em;border:1px solid #ccc;margin-top:10px;';
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    ['Exam Number', 'Student Name', 'Password'].forEach(function(h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        th.style.cssText = 'border:1px solid #ccc;padding:6px 8px;background:#ecf0f1;color:#2c3e50;text-align:center;';
+        hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    var sorted = data.slice().sort(function(a, b) { return (a['Exam Number'] || '').localeCompare(b['Exam Number'] || '', undefined, {numeric: true}); });
+    for (var i = 0; i < sorted.length; i++) {
+        var s = sorted[i];
+        var examNo = s['Exam Number'];
+        if (!examNo) continue;
+        var tr = document.createElement('tr');
+        var td1 = document.createElement('td');
+        td1.textContent = examNo;
+        td1.style.cssText = 'border:1px solid #ccc;padding:5px 8px;text-align:center;';
+        var td2 = document.createElement('td');
+        td2.textContent = s["STUDENT'S NAME"] || '-';
+        td2.style.cssText = 'border:1px solid #ccc;padding:5px 8px;text-align:left;';
+        var td3 = document.createElement('td');
+        td3.textContent = pwMap[examNo] || '-';
+        td3.style.cssText = 'border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:700;font-size:1.1em;color:#1a2a6c;letter-spacing:2px;';
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+        tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    container.innerHTML = '';
+    container.appendChild(table);
+}
+
+async function loadPasswordTable() {
+    var form = document.getElementById('passwordGenClassSelect').value;
+    if (!form) return;
+    var statusEl = document.getElementById('passwordGenStatus');
+    statusEl.textContent = '';
+    if (!currentConfig) {
+        await initializeConfig(null);
+    }
+    await displayPasswordTable(form);
+}
+
+// --- SURGICAL FIX: Print student passwords for a class ---
+function printStudentPasswords() {
+    var form = document.getElementById('passwordGenClassSelect').value;
+    if (!form) {
+        alert('Please select a class first.');
+        return;
+    }
+    var container = document.getElementById('passwordGenTableContainer');
+    var table = container ? container.querySelector('table') : null;
+    if (!table) {
+        alert('No password table to print. Generate passwords first.');
+        return;
+    }
+    var formDisplay = form.toUpperCase().replace('FORM', 'Form ');
+    var term = currentConfig ? currentConfig.term : '';
+    var year = currentConfig ? (currentConfig.year || '') : '';
+    var schoolName = 'MAGAWA SECONDARY SCHOOL';
+    var printWin = window.open('', '_blank', 'width=800,height=600');
+    printWin.document.write('<!DOCTYPE html><html><head><title>Student Passwords - ' + formDisplay + '</title>');
+    printWin.document.write('<style>');
+    printWin.document.write('body{font-family:Arial,sans-serif;padding:30px;color:#333;}');
+    printWin.document.write('h1{text-align:center;font-size:18px;margin-bottom:2px;}');
+    printWin.document.write('h2{text-align:center;font-size:14px;color:#555;font-weight:normal;margin-top:0;margin-bottom:15px;}');
+    printWin.document.write('table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}');
+    printWin.document.write('th,td{border:1px solid #333;padding:6px 10px;text-align:center;}');
+    printWin.document.write('th{background:#ecf0f1;font-weight:700;}');
+    printWin.document.write('td:nth-child(2){text-align:left;}');
+    printWin.document.write('td:nth-child(3){font-weight:700;font-size:15px;letter-spacing:3px;color:#1a2a6c;}');
+    printWin.document.write('p.note{font-size:10px;color:#888;margin-top:20px;text-align:center;}');
+    printWin.document.write('@media print{body{padding:15px;}h1{font-size:16px;}}');
+    printWin.document.write('</style></head><body>');
+    printWin.document.write('<h1>' + schoolName + '</h1>');
+    printWin.document.write('<h2>Student Passwords — ' + formDisplay + (term ? ' — Term ' + term : '') + (year ? ' — ' + year : '') + '</h2>');
+    printWin.document.write(table.outerHTML);
+    printWin.document.write('<p class="note">Keep this list secure. Each student must use their own 4-digit password to access results.</p>');
+    printWin.document.write('<div style="text-align:center;margin-top:15px;"><button onclick="window.print()" style="padding:8px 20px;font-size:14px;cursor:pointer;">Print This Page</button></div>');
+    printWin.document.write('</body></html>');
+    printWin.document.close();
+}
+
+// --- SURGICAL FIX: Reset all student passwords in a class to default 000 ---
+async function resetStudentPasswords() {
+    var form = document.getElementById('passwordGenClassSelect').value;
+    if (!form) {
+        alert('Please select a class first.');
+        return;
+    }
+    var token = getDecryptedToken();
+    if (!token) {
+        alert('Authorization Code required. Please enter it in Admin Dashboard.');
+        return;
+    }
+    if (!confirm('Reset ALL passwords for ' + form.toUpperCase().replace('FORM', 'Form ') + ' to default 000?\n\nStudents will use 000 to access their results until new passwords are generated.')) {
+        return;
+    }
+    showLoading();
+    try {
+        var data = await fetchClassData(form);
+        if (!data || data.length === 0) {
+            alert('No students found in ' + form + '. Upload a CSV first.');
+            hideLoading();
+            return;
+        }
+        if (!currentConfig.studentPasswords) currentConfig.studentPasswords = {};
+        currentConfig.studentPasswords[form] = {};
+        for (var i = 0; i < data.length; i++) {
+            var examNo = data[i]['Exam Number'];
+            if (examNo) {
+                currentConfig.studentPasswords[form][examNo] = '000';
+            }
+        }
+        await handleSaveConfig();
+        await displayPasswordTable(form);
+        document.getElementById('passwordGenStatus').textContent = 'All passwords reset to 000 for ' + data.length + ' students.';
+        document.getElementById('passwordGenStatus').style.color = '#e74c3c';
+    } catch (e) {
+        console.error('Password reset error:', e);
+        alert('Failed to reset passwords: ' + safeMsg(e));
+    } finally {
+        hideLoading();
+    }
 }
 
 async function handleSaveConfig() {
@@ -3090,7 +3501,12 @@ async function handleSaveConfig() {
         locks: currentConfig.locks || {},
         passwordEnabled: currentConfig.passwordEnabled,
         sneColumnVisible: currentConfig.sneColumnVisible !== undefined ? currentConfig.sneColumnVisible : true,
-        setupPassword: currentConfig.setupPassword || null
+        sexColumnVisible: currentConfig.sexColumnVisible !== undefined ? currentConfig.sexColumnVisible : false,
+        setupPassword: currentConfig.setupPassword || null,
+        studentPasswords: currentConfig.studentPasswords || {},
+        stampImage: currentConfig.stampImage || '',
+        stampDate: currentConfig.stampDate || '',
+        stampEnabled: document.getElementById('stampToggleCheckbox').checked
     };
 
     ALL_CLASSES.forEach(form => {
@@ -3667,6 +4083,7 @@ async function verifyAdmin() {
 }
 
 function openAdminHome() {
+    _stopRecognition(); // Deactivate mic when leaving any admin sub-page
     goToPage('adminHomePage');
 }
 
@@ -3756,11 +4173,12 @@ async function openUploadsAuth() {
     populateClearSubjectSelect();
     updatePasswordAccessStatus();
     initSNEVisibilityUI();
+    initSexVisibilityUI();
     goToPage('uploadsPage');
 }
 
 // --- ARCHIVE SECTION FUNCTIONS ---
-const ARCHIVE_REPO = 'm2';
+const ARCHIVE_REPO = 'm3';
 const ARCHIVE_API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${ARCHIVE_REPO}/contents/`;
 
 async function archiveExamData() {
@@ -4088,14 +4506,16 @@ function viewArchivedStudent(index) {
     const year = match.year;
     const allStudents = match.allStudents;
 
-    // Populate student info line
+    // Populate student info — same layout as front page progress report
     document.getElementById('archiveStudentInfo').innerHTML = `
-        <strong>${student["STUDENT'S NAME"] || '-'}</strong>&nbsp;&nbsp;
-        Exam No: <strong>${student["Exam Number"] || '-'}</strong>&nbsp;&nbsp;
-        Sex: <strong>${student["Sex"] || '-'}</strong>&nbsp;&nbsp;
-        Class: <strong>${form.toUpperCase().replace('FORM', 'Form ')}</strong>&nbsp;&nbsp;
-        Term: <strong>${term}</strong>&nbsp;&nbsp;
-        Year: <strong>${year}</strong>
+        <div style="margin:0 0 4px 0;font-size:11pt;color:black;line-height:1.6;">
+            <strong>NAME:</strong> <span>${student["STUDENT'S NAME"] || '-'}</span>&nbsp;&nbsp;
+            <strong>Exam No:</strong> <span>${student["Exam Number"] || '-'}</span>&nbsp;&nbsp;
+            <strong>SEX:</strong> <span>${student["Sex"] || '-'}</span>&nbsp;&nbsp;
+            <strong>FORM:</strong> <span>${form.toUpperCase().replace('FORM', 'Form ')}</span>&nbsp;&nbsp;
+            <strong>TERM:</strong> <span>${term}</span>&nbsp;&nbsp;
+            <strong>YEAR:</strong> <span>${year}</span>
+        </div>
     `;
 
     // Compute subject positions from all students in the archived file
@@ -4138,12 +4558,19 @@ function viewArchivedStudent(index) {
         const score = parseInt(rawScore);
         let grade = '-';
         let position = '-';
+        let remark = '-';
         let status = '-';
 
         if (!isNaN(score)) {
             const gr = getGradeAndRemark(form, score);
             grade = gr.grade;
+            remark = gr.remark;
             subjectCount++;
+
+            // Lower form remark override — same as front page progress report
+            if (isLowerForm) {
+                remark = lowerFormRemarkFromGrade(grade);
+            }
 
             // Position
             if (subjectPositions[sub] && subjectPositions[sub][studentExamNo] !== undefined) {
@@ -4160,13 +4587,17 @@ function viewArchivedStudent(index) {
             if (status === 'Pass') passCount++;
         }
 
+        // Teacher from config if available
+        const teacher = (currentConfig && currentConfig.teachers && currentConfig.teachers[form] && currentConfig.teachers[form][sub]) ? currentConfig.teachers[form][sub] : '';
+
         const row = document.createElement('tr');
         row.innerHTML = `
             <td style="border:1px solid black;padding:4px 3px;text-align:left;">${sub}</td>
             <td style="border:1px solid black;padding:4px 3px;text-align:center;">${rawScore}</td>
             <td style="border:1px solid black;padding:4px 3px;text-align:center;">${grade}</td>
             <td style="border:1px solid black;padding:4px 3px;text-align:center;">${position}</td>
-            <td style="border:1px solid black;padding:4px 3px;text-align:center;color:${status === 'Pass' ? 'green' : (status === 'Fail' ? 'red' : 'black')};font-weight:bold;">${status}</td>
+            <td style="border:1px solid black;padding:4px 3px;text-align:center;">${remark}</td>
+            <td style="border:1px solid black;padding:4px 3px;text-align:center;">${teacher}</td>
         `;
         tbody.appendChild(row);
     });
@@ -4253,22 +4684,66 @@ function viewArchivedStudent(index) {
     const studentRank = allStudentAggregates.find(x => x.examNo === studentExamNo);
     const positionInClass = studentRank ? studentRank.position : '-';
 
-    // Build summary based on form type
+    // --- SURGICAL FIX: Add AVERAGE/AGGREGATE last row to table (same as front page) ---
+    const isUpper = form === 'form3' || form === 'form4';
+    const lastRow = tbody.insertRow();
+    const labelCell = lastRow.insertCell();
+    labelCell.style.fontWeight = 'bold';
+    labelCell.style.border = '1px solid black';
+    labelCell.style.padding = '4px 3px';
+    labelCell.textContent = isUpper ? 'AGGREGATE' : 'AVERAGE (BEST 6)';
+    if (isUpper) {
+        const emptyScore = lastRow.insertCell();
+        emptyScore.style.border = '1px solid black';
+        emptyScore.style.padding = '4px 3px';
+        const aggCell = lastRow.insertCell();
+        aggCell.style.border = '1px solid black';
+        aggCell.style.padding = '4px 3px';
+        aggCell.style.textAlign = 'center';
+        aggCell.textContent = aggregate !== '-' ? aggregate : '-';
+    } else {
+        const avgCell = lastRow.insertCell();
+        avgCell.style.border = '1px solid black';
+        avgCell.style.padding = '4px 3px';
+        avgCell.style.textAlign = 'center';
+        avgCell.textContent = best6Total > 0 ? avgBest6 : '-';
+        const emptyGrade = lastRow.insertCell();
+        emptyGrade.style.border = '1px solid black';
+        emptyGrade.style.padding = '4px 3px';
+    }
+    for (var emp = 0; emp < 3; emp++) {
+        const emptyCell = lastRow.insertCell();
+        emptyCell.style.border = '1px solid black';
+        emptyCell.style.padding = '4px 3px';
+    }
+
+    // --- SURGICAL FIX: Summary in same format as front page progress report ---
     let summaryHTML = '';
     if (isLowerForm) {
         summaryHTML = `
-            <div style="margin-top:10px;text-align:left;font-size:9pt;color:black;line-height:1.8;">
-                <div>Total (Best 6): <strong>${best6Total}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Average: <strong>${avgBest6}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Position in Class: <strong>${positionInClass}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Status: <strong style="color:${statusColor};">${overallStatus}</strong></div>
+            <div style="margin-top:10px;font-size:9pt;color:black;">
+                <div>TOTAL SCORES: <strong>${best6Total}</strong>&nbsp;&nbsp;&nbsp;&nbsp;POSITION : <strong>${positionInClass}</strong>&nbsp;&nbsp;&nbsp;&nbsp;OUT OF: <strong>${allStudentAggregates.length}</strong>&nbsp;&nbsp;&nbsp;&nbsp;STATUS: <strong>${overallStatus}</strong></div>
             </div>
         `;
     } else {
         summaryHTML = `
-            <div style="margin-top:10px;text-align:left;font-size:9pt;color:black;line-height:1.8;">
-                <div>Aggregate: <strong>${aggregate}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Position in Class: <strong>${positionInClass}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Status: <strong style="color:${statusColor};">${overallStatus}</strong></div>
+            <div style="margin-top:10px;font-size:9pt;color:black;">
+                <div>POSITION : <strong>${positionInClass}</strong>&nbsp;&nbsp;&nbsp;&nbsp;OUT OF: <strong>${allStudentAggregates.length}</strong>&nbsp;&nbsp;&nbsp;&nbsp;STATUS: <strong>${overallStatus}</strong></div>
             </div>
         `;
     }
     document.getElementById('archiveSummaryInfo').innerHTML = summaryHTML;
+
+    // --- SURGICAL FIX: Comments section (matching front page layout) ---
+    const teacherComment = generateTeacherComment(form, student, best6Total > 0 ? parseFloat(avgBest6) : 0, 0, ALL_SUBJECTS.length);
+    const headComment = generateHeadComment(form, student, best6Total > 0 ? parseFloat(avgBest6) : 0, 0, ALL_SUBJECTS.length, positionInClass, allStudentAggregates.length);
+    document.getElementById('archiveCommentsSection').innerHTML = `
+        <p style="margin:5px 0;font-size:9pt;color:black;"><strong>FORM TEACHER'S COMMENT:</strong> <span style="font-style:italic;">${teacherComment}</span></p>
+        <p style="margin:5px 0;font-size:9pt;color:black;"><strong>HEADTEACHER'S COMMENT:</strong> <span style="font-style:italic;">${headComment}</span></p>
+    `;
+
+    // --- SURGICAL FIX: Grade key section (matching front page) ---
+    document.getElementById('archiveGradeKeySection').innerHTML = getGradeKeyTableHTML(form);
 
     document.getElementById('archiveStudentDetail').classList.remove('hidden');
     window._currentArchiveMatch = match;
@@ -4308,12 +4783,19 @@ function saveArchiveDetailPdf() {
     showLoading();
     updateLoadingPercent(10);
 
+    // Populate and show stamp for capture
+    _populateStampOnReport();
+    _showReportStamps();
+
     html2canvas(detailContent, {
         scale: 2,
         allowTaint: true,
         useCORS: true,
         backgroundColor: '#ffffff'
     }).then(canvas => {
+        // Hide stamp after capture
+        _hideReportStamps();
+
         updateLoadingPercent(50);
         const { jsPDF } = window.jspdf;
         const imgData = canvas.toDataURL('image/png');
@@ -4333,6 +4815,7 @@ function saveArchiveDetailPdf() {
         updateLoadingPercent(100);
         hideLoading();
     }).catch(err => {
+        _hideReportStamps();
         hideLoading();
         alert('PDF generation failed: ' + err.message);
     });
@@ -4353,7 +4836,7 @@ async function loadResults(isStudentPortal) {
     try {
         const form = document.getElementById('selectedForm').value;
         const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
-        const password = document.getElementById('passwordInput').value;
+        const password = document.getElementById('passwordInput').value.trim();
 
         if (!form || !studentNumber) {
             showFrontPagePopup('Please select a class, enter your exam number and password to view results.');
@@ -4373,13 +4856,14 @@ async function loadResults(isStudentPortal) {
             return;
         }
 
-        // When password is ENABLED, require correct password
+        // When password is ENABLED, require correct individual student password
         if (isStudentPortal && passwordRequired) {
             if (!password) {
                 showFrontPagePopup('Please enter your password.');
                 return;
             }
-            if (password !== '000') {
+            const studentPw = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
+            if (!studentPw || password !== (studentPw + '').trim()) {
                 showFrontPagePopup('Incorrect password.');
                 hideLoading();
                 return;
@@ -4400,7 +4884,7 @@ async function loadResults(isStudentPortal) {
             return;
         }
 
-        const student = data.find(s => s["Exam Number"] === studentNumber);
+        const student = data.find(s => (s["Exam Number"] + '').trim().toUpperCase() === studentNumber);
 
         if (!student) {
             showFrontPagePopup('Incorrect exam number.');
@@ -4414,12 +4898,14 @@ async function loadResults(isStudentPortal) {
             studentsWithMetrics.push({
                 examNo: s["Exam Number"],
                 metric: metrics.overallMetric,
-                rankable: metrics.rankable
+                rankable: metrics.rankable,
+                remark: metrics.overallRemark
             });
         }
 
         studentsWithMetrics.sort((a, b) => a.metric - b.metric);
         let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
+        rankableStudents = rankStudentsByGradeSheetOrder(rankableStudents);
         const totalRankableStudents = rankableStudents.length;
 
         const studentMetrics = await calculateStudentMetrics(student, form);
@@ -4515,10 +5001,8 @@ async function loadResults(isStudentPortal) {
         if (studentMetrics.rankable) {
             const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
             if (studentMetric) {
-                const metricValue = studentMetric.metric;
-                let actualRank = rankableStudents.findIndex(s => s.metric === metricValue) + 1;
-                positionNum = actualRank;
-                overallRank = actualRank;
+                positionNum = studentMetric.__pos;
+                overallRank = studentMetric.__pos;
             }
         }
 
@@ -4550,6 +5034,8 @@ async function loadResults(isStudentPortal) {
 
         document.getElementById('gradeKeyPlaceholder').innerHTML = getGradeKeyTableHTML(form);
 
+        _populateStampOnReport();
+
         updateLoadingPercent(100);
         hideLoading();
         goToPage('progressReport');
@@ -4578,11 +5064,18 @@ function openFullPdf() {
     showLoading();
     updateLoadingPercent(10);
 
+    // Populate and show stamp for capture
+    _populateStampOnReport();
+    _showReportStamps();
+
     html2canvas(element, {
         scale: 2,
         allowTaint: true,
         useCORS: true
     }).then(canvas => {
+        // Hide stamp after capture
+        _hideReportStamps();
+
         updateLoadingPercent(50);
         const { jsPDF } = window.jspdf;
         const imgData = canvas.toDataURL('image/png');
@@ -4601,6 +5094,7 @@ function openFullPdf() {
         updateLoadingPercent(100);
         hideLoading();
     }).catch(error => {
+        _hideReportStamps();
         console.error("Error generating PDF:", error);
         alert("Failed to generate PDF.");
         hideLoading();
@@ -4610,7 +5104,7 @@ function openFullPdf() {
 async function loadBriefResults() {
     const form = document.getElementById('selectedForm').value;
     const studentNumber = document.getElementById('studentNumberInput').value.trim().toUpperCase();
-    const password = document.getElementById('passwordInput').value;
+    const password = document.getElementById('passwordInput').value.trim();
 
     if (!form || !studentNumber) {
         showFrontPagePopup('Please select a class, enter your exam number and password to view results.');
@@ -4647,7 +5141,7 @@ async function loadBriefResults() {
         return;
     }
 
-    const student = data.find(s => s["Exam Number"] === studentNumber);
+    const student = data.find(s => (s["Exam Number"] + '').trim().toUpperCase() === studentNumber);
 
     if (!student) {
         showFrontPagePopup('Incorrect exam number.');
@@ -4655,9 +5149,12 @@ async function loadBriefResults() {
         return;
     }
 
-    if (passwordRequiredBrief && password !== '000') {
-        showFrontPagePopup('Incorrect password.');
-        return;
+    if (passwordRequiredBrief) {
+        const studentPwBrief = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
+        if (!studentPwBrief || password !== (studentPwBrief + '').trim()) {
+            showFrontPagePopup('Incorrect password.');
+            return;
+        }
     }
 
     const studentsWithMetrics = [];
@@ -4666,11 +5163,12 @@ async function loadBriefResults() {
         studentsWithMetrics.push({
             examNo: s["Exam Number"],
             metric: metrics.overallMetric,
-            rankable: metrics.rankable
+            rankable: metrics.rankable,
+            remark: metrics.overallRemark
         });
     }
     let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
-    rankableStudents.sort((a, b) => a.metric - b.metric);
+    rankableStudents = rankStudentsByGradeSheetOrder(rankableStudents);
     const totalRankableStudents = rankableStudents.length;
 
     const studentMetrics = await calculateStudentMetrics(student, form);
@@ -4712,9 +5210,7 @@ async function loadBriefResults() {
     if (studentMetrics.rankable) {
          const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
         if (studentMetric) {
-            const metricValue = studentMetric.metric;
-            let actualRank = rankableStudents.findIndex(s => s.metric === metricValue) + 1;
-            overallRank = `${actualRank}/${totalRankableStudents}`;
+            overallRank = studentMetric.__pos + '/' + totalRankableStudents;
         }
     }
     document.getElementById('briefReportPosition').textContent = overallRank;
@@ -4844,6 +5340,23 @@ async function calculateStudentMetrics(student, form){
     };
 }
 
+// === HELPER: Rank students the same way the grade sheet does (passed first, then failed) ===
+function rankStudentsByGradeSheetOrder(rankableStudents) {
+    var passed = rankableStudents.filter(function(s) { return s.remark === 'Pass'; });
+    var failed = rankableStudents.filter(function(s) { return s.remark !== 'Pass'; });
+    passed.sort(function(a, b) { return a.metric - b.metric; });
+    failed.sort(function(a, b) { return a.metric - b.metric; });
+    var combined = passed.concat(failed);
+    var lastMetric = null, lastPos = 0;
+    combined.forEach(function(s, i) {
+        var pos = (s.metric === lastMetric) ? lastPos : i + 1;
+        s.__pos = pos;
+        lastMetric = s.metric;
+        lastPos = pos;
+    });
+    return combined;
+}
+
 function openSheetsPage() {
     goToPage('sheetsPage');
 }
@@ -4864,6 +5377,7 @@ function openDataEntryPage() {
 }
 
 function openScoreSheetView() {
+    _stopRecognition(); // Deactivate mic when leaving data entry
     goToPage('scoreSheetView');
     document.getElementById('sheetClassSelect').value = '';
     document.getElementById('scoreSheetTableWrapper').innerHTML = '';
@@ -4986,9 +5500,27 @@ async function displayGradesSheet() {
         studentsWithMetrics.push({ student, metrics, examNo: student["Exam Number"] });
     }
 
-    // Calculate positions
+    // Calculate positions — passed students first, then failed students
     let rankableStudents = studentsWithMetrics.filter(s => s.metrics.rankable);
-    rankableStudents.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
+    
+    // Separate into passed and failed groups, each sorted by performance (best first)
+    let passedStudents = rankableStudents.filter(s => s.metrics.overallRemark === 'Pass');
+    let failedStudents = rankableStudents.filter(s => s.metrics.overallRemark !== 'Pass');
+    
+    passedStudents.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
+    failedStudents.sort((a, b) => a.metrics.overallMetric - b.metrics.overallMetric);
+    
+    // Combine: passed first, then failed; assign positions with tie handling
+    let combined = [...passedStudents, ...failedStudents];
+    let lastMetric = null, lastPos = 0;
+    combined.forEach((s, i) => {
+        const metricValue = s.metrics.overallMetric;
+        const pos = (metricValue === lastMetric) ? lastPos : i + 1;
+        s.__pos = pos;
+        s.__numericPos = pos;
+        lastMetric = metricValue;
+        lastPos = pos;
+    });
 
     studentsWithMetrics.forEach(({ student, metrics, examNo }) => {
         let position = '-';
@@ -4997,10 +5529,8 @@ async function displayGradesSheet() {
         if (metrics.rankable) {
              const studentMetric = rankableStudents.find(s => s.examNo === examNo);
              if (studentMetric) {
-                const metricValue = studentMetric.metrics.overallMetric;
-                let actualRank = rankableStudents.findIndex(s => s.metrics.overallMetric === metricValue) + 1;
-                position = `${actualRank}`;
-                numericPosition = actualRank;
+                position = `${studentMetric.__pos}`;
+                numericPosition = studentMetric.__numericPos;
             }
         }
         
@@ -5010,6 +5540,9 @@ async function displayGradesSheet() {
 
     // Cache for toggle re-use
     _gradeSheetData = { form, isUpperForm, studentsWithMetrics };
+
+    // Default sort by position
+    studentsWithMetrics.sort((a, b) => a.student.__numericPosition - b.student.__numericPosition);
 
     // Render table
     renderGradeSheetTable(form, isUpperForm, studentsWithMetrics);
@@ -5251,8 +5784,9 @@ async function displayAnalysisSheet(form) {
     const totalFailPercent = totalEntered > 0 ? ((totalFail / totalEntered) * 100).toFixed(1) : '0.0';
 
     html += `
-    <div style="display:flex;gap:10px;margin-top:15px;width:100%;">
-    <table id="analysisSummaryTable" style="width:50%;border-collapse:collapse;border:1px solid black;">
+    <div class="analysis-page2" style="page-break-before:always;margin-top:20px;width:100%;">
+    <h3 style="text-align:center;margin-bottom:10px;font-size:1em;color:#2c3e50;">Gender Performance Summary (Boys &amp; Girls)</h3>
+    <table id="analysisSummaryTable" style="width:100%;border-collapse:collapse;border:1px solid black;">
         <thead>
             <tr style="background:#ecf0f1;">
                 <th style="border:1px solid black;padding:6px;width:15%;"></th>
@@ -5290,7 +5824,8 @@ async function displayAnalysisSheet(form) {
             </tr>
         </tbody>
     </table>
-    <table id="analysisSNETable" style="width:50%;border-collapse:collapse;border:1px solid black;">
+    <h3 style="text-align:center;margin:20px 0 10px 0;font-size:1em;color:#2c3e50;">SNE (Special Needs Education) Performance Summary</h3>
+    <table id="analysisSNETable" style="width:100%;border-collapse:collapse;border:1px solid black;">
         <thead>
             <tr style="background:#ecf0f1;">
                 <th style="border:1px solid black;padding:6px;width:15%;"></th>
@@ -5393,25 +5928,33 @@ async function showStudentMarksList() {
         
         const snVal = s["SN"] || '';
         const sneVisible = currentConfig && currentConfig.sneColumnVisible !== false;
+        const sexVisible = currentConfig && currentConfig.sexColumnVisible !== false;
         const row = document.createElement('tr');
-        const inputDisabled = isLocked ? 'readonly style="width:80px;padding:6px;text-align:center;border:1px solid #e74c3c;border-radius:4px;background:#f5f5f5;color:#999;"' : 'oninput="updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" style="width:80px;padding:6px;text-align:center;border:1px solid #cc6600;border-radius:4px;"';
+        const inputDisabled = isLocked ? 'readonly style="width:80px;padding:6px;text-align:center;border:1px solid #e74c3c;border-radius:4px;background:#f5f5f5;color:#999;"' : 'oninput="updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" style="width:80px;padding:6px;text-align:center;border:2px solid #e91e8c;border-radius:8px;background:#fce4ec;color:#c2185b;font-weight:700;font-size:1em;"';
         row.innerHTML = `
-            <td style="border:1px solid #cc6600;padding:8px;text-align:center;">${examNo}</td>
-            <td style="border:1px solid #cc6600;padding:8px;text-align:left;">${name}</td>
-            <td style="border:1px solid #cc6600;padding:8px;text-align:center;width:40px;">${sex}</td>
-            ${sneVisible ? `<td style="border:1px solid #cc6600;padding:8px;text-align:center;width:30px;">
+            <td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#f3e5f5;font-weight:600;font-size:0.9em;">${examNo}</td>
+            <td style="border:2px solid #6c3483;padding:8px 6px;text-align:left;background:#f5f5f5;font-size:0.9em;">${name}</td>
+            ${sexVisible ? `<td class="sex-cell" style="border:2px solid #6c3483;padding:8px 6px;text-align:center;width:40px;background:#ede7f6;font-weight:600;font-size:0.9em;">${sex}</td>` : ''}
+            ${sneVisible ? `<td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;width:30px;background:#ede7f6;font-size:0.85em;">
                 <input type="text" 
                        id="sn_${i}" 
                        value="${snVal}" 
                        oninput="updateStudentSN('${form}', ${i}, this.value)"
-                       style="width:35px;padding:4px;text-align:center;border:1px solid #cc6600;border-radius:4px;font-size:0.85em;"
+                       style="width:35px;padding:4px;text-align:center;border:2px solid #6c3483;border-radius:6px;font-size:0.85em;background:#f3e5f5;"
                        placeholder=" ">
             </td>` : ''}
-            <td style="border:1px solid #cc6600;padding:8px;text-align:center;">
+            <td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#fce4ec;">
                 <input type="text" 
                        id="score_${i}" 
                        value="${val}" 
                        ${inputDisabled}
+                       placeholder=" ">
+            </td>
+            <td class="paste-score-cell" style="border:2px solid #8e44ad;padding:8px 6px;text-align:center;background:#f5eef8;display:none;">
+                <input type="text" 
+                       id="pasteScore_${i}" 
+                       onpaste="distributePasteScores(event, ${i})"
+                       style="width:80px;padding:6px;text-align:center;border:2px solid #8e44ad;border-radius:8px;background:#fff;color:#6c3483;font-weight:700;font-size:1em;"
                        placeholder=" ">
             </td>
         `;
@@ -5437,6 +5980,10 @@ async function showStudentMarksList() {
 
     // Apply SNE column visibility to header
     applySNEColumnToTable();
+    // Apply Sex column visibility to header
+    applySexColumnToTable();
+
+    // Voice mic now activates when user clicks "Show Voice Entry" button
 }
 
 function updateStudentScore(form, index, subject, value) {
@@ -5473,6 +6020,734 @@ function filterStudentMarks(){
     for (let row of rows) {
         row.style.display = row.innerText.toLowerCase().includes(searchText) ? '' : 'none';
     }
+}
+
+// ============================================================
+// VOICE SCORE ENTRY
+
+// Single START/STOP button for voice score entry
+// Default: voice is OFF, button shows START (green)
+var _voiceIsRunning = false;
+function toggleVoiceStartStop() {
+    var btn = document.getElementById('voiceStartStopBtn');
+    if (!btn) return;
+    if (_voiceIsRunning) {
+        // STOP: cancel voice entry
+        _cancelVoiceEntry();
+        _voiceIsRunning = false;
+        btn.innerHTML = '&#9654; START';
+        btn.style.background = '#27ae60';
+        _setVoiceStatus('Voice entry stopped. Click START to begin.', '#999');
+        _setVoiceHeard('');
+        document.getElementById('voiceCurrentStudent').style.display = 'none';
+    } else {
+        // START: begin voice exam number calling
+        _voiceIsRunning = true;
+        btn.innerHTML = '&#9632; STOP';
+        btn.style.background = '#e74c3c';
+        startVoiceExamNumber();
+    }
+}
+
+// Uses Web Speech API to call out exam numbers and scores
+// ============================================================
+
+var _voiceCurrentRow = null;    // The <tr> element currently highlighted
+var _voiceCurrentIndex = null;  // Index into currentClassData
+var _voiceRecognition = null;   // Active SpeechRecognition instance
+var _voiceMode = 'exam';        // 'exam' or 'score'
+var _voiceCallActive = false;   // Whether the Call Exam Number button has been activated (remains true until done)
+var _voiceScoreRetryCount = 0;  // Track retry attempts for score listening
+var _voiceScoreProcessed = false; // SURGICAL FIX: Track if onresult fired to prevent double-retry
+var _voiceScoreMaxRetries = 10; // Max retry attempts for score listening
+var _voiceLockedIndices = {};   // Row indices locked by voice entry this session (keyed by index) — only cleared on cancel
+var _suppressExamRestart = false; // Flag: when true, onend handler must NOT auto-restart exam listening
+var _sharedAudioCtx = null;    // Shared AudioContext to prevent double-sound glitches
+
+// --- Freeze scored rows during voice calling to prevent accidental overwrites ---
+function _freezeScoredRows(keepActiveIndex) {
+    var tbody = document.getElementById('dataEntryTableBody');
+    if (!tbody) return;
+    var rows = tbody.getElementsByTagName('tr');
+    for (var i = 0; i < rows.length; i++) {
+        var input = document.getElementById('score_' + i);
+        if (!input) continue;
+        if (i === keepActiveIndex) continue; // Keep current student's input editable
+        var shouldLock = false;
+        // Always lock voice-locked rows (scored during this voice session)
+        if (_voiceLockedIndices[i]) {
+            shouldLock = true;
+        }
+        // If the input already has a score value, freeze it
+        if (input.value && input.value.trim() !== '' && !input.readOnly) {
+            shouldLock = true;
+        }
+        if (shouldLock) {
+            input.readOnly = true;
+            input.tabIndex = -1; // Prevent keyboard tab focus
+            input.style.background = '#e8e8e8';
+            input.style.border = '1px solid #bbb';
+            input.style.color = '#777';
+            input.style.cursor = 'not-allowed';
+            input.setAttribute('data-voicelocked', 'true');
+        }
+    }
+}
+
+function _unfreezeAllRows() {
+    var form = document.getElementById('dataClassSelect').value;
+    var subject = document.getElementById('dataSubjectSelect').value;
+    // Check if this subject is locked for this class
+    var isLocked = currentConfig && currentConfig.locks && currentConfig.locks[form] && currentConfig.locks[form][subject];
+    var tbody = document.getElementById('dataEntryTableBody');
+    if (!tbody) return;
+    var rows = tbody.getElementsByTagName('tr');
+    for (var i = 0; i < rows.length; i++) {
+        var input = document.getElementById('score_' + i);
+        if (!input) continue;
+        if (isLocked) continue; // Keep locked subjects readonly
+        if (input.readOnly) {
+            input.readOnly = false;
+            input.tabIndex = 0; // Restore keyboard tab focus
+            input.style.background = '';
+            input.style.border = '1px solid #cc6600';
+            input.style.color = '';
+            input.style.cursor = '';
+            input.removeAttribute('data-voicelocked');
+            input.onfocus = null;
+        }
+    }
+}
+
+function _getAudioCtx() {
+    if (!_sharedAudioCtx) {
+        _sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (_sharedAudioCtx.state === 'suspended') {
+        _sharedAudioCtx.resume();
+    }
+    return _sharedAudioCtx;
+}
+
+// --- Sound 1: single beep — call exam number ---
+function _playSound1_CallExamNumber() {
+    try {
+        var ctx = _getAudioCtx();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 520;
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.25);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.35);
+    } catch (e) {}
+}
+
+// --- Sound 2: single dong — call score (ultra-short for faster transitions) ---
+function _playSound2_CallScore() {
+    try {
+        var ctx = _getAudioCtx();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 1047;
+        gain.gain.setValueAtTime(0.35, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.06);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.06);
+    } catch (e) {}
+}
+
+
+
+// --- Click blocker: prevents user from focusing/typing in voice-locked score inputs ---
+var _clickBlockerInstalled = false;
+function _installClickBlocker() {
+    if (_clickBlockerInstalled) return;
+    _clickBlockerInstalled = true;
+    document.addEventListener('click', function(e) {
+        var target = e.target;
+        if (target && target.getAttribute && target.getAttribute('data-voicelocked') === 'true') {
+            e.preventDefault();
+            e.stopPropagation();
+            target.blur();
+            _setVoiceStatus('Row locked. Click Cancel to unlock.', '#e67e22');
+        }
+    }, true);
+}
+
+function _removeClickBlocker() {
+    _clickBlockerInstalled = false;
+}
+
+// --- Cancel voice entry and reset buttons ---
+function _cancelVoiceEntry() {
+    _stopRecognition();
+    _voiceCallActive = false;
+    _voiceMode = 'exam';
+    _voiceCurrentIndex = null;
+    _voiceCurrentRow = null;
+    _voiceScoreRetryCount = 0;
+    _voiceLockedIndices = {}; // Clear voice-locked indices — editing is possible again
+    _highlightRow(null);
+    // Remove click blocker
+    _removeClickBlocker();
+    // Unfreeze all scored rows so editing is possible again
+    _unfreezeAllRows();
+    // Update START/STOP button to START state
+    var btn = document.getElementById('voiceStartStopBtn');
+    if (btn) {
+        _voiceIsRunning = false;
+        btn.innerHTML = '&#9654; START';
+        btn.style.background = '#27ae60';
+    }
+    document.getElementById('voiceCurrentStudent').style.display = 'none';
+    _setVoiceStatus('Voice entry stopped. Click START to begin.', '#999');
+    _setVoiceHeard('');
+}
+
+function _wordsToNumber(text) {
+    // Convert spoken number words into digit strings for accurate matching
+    var wordMap = {
+        'ZERO':'0','ZIRO':'0','OH':'0','O':'0','ONE':'1','WON':'1','TWO':'2','TOO':'2','TO':'2','THREE':'3','FREE':'3','TREE':'3',
+        'FOUR':'4','FOR':'4','FORE':'4','FIVE':'5','SIX':'6','SEVEN':'7','SEVREN':'7','SEVIN':'7',
+        'EIGHT':'8','ATE':'8','AIGHT':'8','NINE':'9','TEN':'10','ELEVEN':'11',
+        'TWELVE':'12','THIRTEEN':'13','FOURTEEN':'14','FIFTEEN':'15','SIXTEEN':'16','SEVENTEEN':'17',
+        'EIGHTEEN':'18','NINETEEN':'19','TWENTY':'20','TWENNY':'20','THIRTY':'30','FORTY':'40','FIFTY':'50',
+        'SIXTY':'60','SEVENTY':'70','EIGHTY':'80','NINETY':'90','HUNDRED':'100','THOUSAND':'1000'
+       };
+    var input = text.toUpperCase().trim();
+    // If it already contains digits, just strip non-digits and return
+    if (/[0-9]/.test(input)) {
+        return input.replace(/[^0-9]/g, '');
+    }
+    var words = input.split(/[\s,]+/).filter(function(w) { return w.length > 0; });
+
+    // DETECT DIGIT-BY-DIGIT MODE: if all words map to single digits (0-9), concatenate them
+    var allSingleDigits = true;
+    var digitChars = [];
+    for (var i = 0; i < words.length; i++) {
+        var w = words[i];
+        if (w === 'AND' || w === '&' || w === 'A') continue;
+        if (wordMap[w] !== undefined) {
+            var val = parseInt(wordMap[w], 10);
+            if (val >= 0 && val <= 9) {
+                digitChars.push(wordMap[w]);
+            } else {
+                allSingleDigits = false;
+                break;
+            }
+        } else {
+            allSingleDigits = false;
+            break;
+        }
+    }
+    // If 1+ single digits detected (e.g. "zero two five" -> "025" or "zero" -> "0"), return concatenated
+    if (allSingleDigits && digitChars.length >= 1) {
+        return digitChars.join('');
+    }
+
+    // COMPOUND NUMBER MODE: e.g. "twenty five" -> 25
+    var total = 0;
+    var current = 0;
+    for (var i = 0; i < words.length; i++) {
+        var w = words[i];
+        if (w === 'AND' || w === '&' || w === 'A') continue;
+        if (wordMap[w] !== undefined) {
+            var val = parseInt(wordMap[w], 10);
+            if (val === 100) {
+                current = (current === 0 ? 1 : current) * 100;
+            } else if (val === 1000) {
+                current = (current === 0 ? 1 : current) * 1000;
+                total += current;
+                current = 0;
+            } else if (val >= 20) {
+                current += val;
+            } else {
+                current += val;
+            }
+        }
+    }
+    total += current;
+    if (total === 0) return null;
+    return String(total);
+}
+
+function _getSpeechRecognition() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+        alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.');
+        return null;
+    }
+    var recognition = new SR();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    recognition.maxAlternatives = 5;
+    // --- NUMBER-ONLY GRAMMAR: restricts recognition to digits and number words only ---
+    try {
+        var SGL = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+        if (SGL) {
+            var grammarList = new SGL();
+            // CRITICAL: <digit> MUST include ALL number words (oh, zero, one, two, ..., nine)
+            // so that <digit> <digit> <digit> can match "oh two five" or "zero two five"
+            var numGrammar = '#JSGF V1.0; grammar numbers; '
+                + 'public <digit> = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | oh | zero | one | two | three | four | five | six | seven | eight | nine; '
+                + 'public <number> = '
+                // Multi-digit patterns FIRST so engine prefers matching all spoken digits
+                + '<digit> <digit> <digit> <digit> <digit> '
+                + '| <digit> <digit> <digit> <digit> '
+                + '| <digit> <digit> <digit> '
+                + '| <digit> <digit> '
+                + '| <digit> '
+                // Compound numbers second
+                + '| ten | eleven | twelve | thirteen | fourteen | fifteen | sixteen | seventeen | eighteen | nineteen '
+                + '| twenty | twenty one | twenty two | twenty three | twenty four | twenty five '
+                + '| twenty six | twenty seven | twenty eight | twenty nine '
+                + '| thirty | thirty one | thirty two | thirty three | thirty four | thirty five '
+                + '| thirty six | thirty seven | thirty eight | thirty nine '
+                + '| forty | forty one | forty two | forty three | forty four | forty five '
+                + '| forty six | forty seven | forty eight | forty nine '
+                + '| fifty | fifty one | fifty two | fifty three | fifty four | fifty five '
+                + '| fifty six | fifty seven | fifty eight | fifty nine '
+                + '| sixty | sixty one | sixty two | sixty three | sixty four | sixty five '
+                + '| sixty six | sixty seven | sixty eight | sixty nine '
+                + '| seventy | seventy one | seventy two | seventy three | seventy four | seventy five '
+                + '| seventy six | seventy seven | seventy eight | seventy nine '
+                + '| eighty | eighty one | eighty two | eighty three | eighty four | eighty five '
+                + '| eighty six | eighty seven | eighty eight | eighty nine '
+                + '| ninety | ninety one | ninety two | ninety three | ninety four | ninety five '
+                + '| ninety six | ninety seven | ninety eight | ninety nine '
+                + '| one hundred | one hundred and <number>;'
+            grammarList.addFromString(numGrammar, 100);
+            recognition.grammars = grammarList;
+        }
+    } catch (e) {
+        // Grammar not supported — recognition will work without grammar constraint
+        console.warn('Speech grammar not supported, falling back to default.', e);
+    }
+    return recognition;
+}
+
+function _setVoiceStatus(msg, color) {
+    var el = document.getElementById('voiceStatus');
+    if (el) { el.textContent = msg; el.style.color = color || '#555'; }
+}
+
+function _setVoiceHeard(msg) {
+    var el = document.getElementById('voiceHeardText');
+    if (el) { el.textContent = msg ? 'Heard: "' + msg + '"' : ''; }
+}
+
+function _highlightRow(index) {
+    // Clear previous highlight
+    var tbody = document.getElementById('dataEntryTableBody');
+    var rows = tbody ? tbody.getElementsByTagName('tr') : [];
+    for (var i = 0; i < rows.length; i++) {
+        rows[i].style.background = '';
+    }
+    if (index === null || index < 0 || !rows[index]) return;
+    // Highlight new row and scroll into view
+    rows[index].style.background = '#d4edda';
+    rows[index].scrollIntoView({ behavior: 'instant', block: 'center' });
+}
+
+function _stopRecognition() {
+    if (_voiceRecognition) {
+        try { _voiceRecognition.abort(); } catch(e) {}
+        _voiceRecognition = null;
+    }
+}
+
+// --- Manual retry: user clicks STOP then START to retry ---
+// --- Helper: start listening for score with auto-retry ---
+function _startScoreListening() {
+    _voiceMode = 'score';
+    _voiceScoreProcessed = false; // SURGICAL FIX: Reset flag for each new listening session
+    var scoreRecognition = _getSpeechRecognition();
+    if (!scoreRecognition) return;
+    _voiceRecognition = scoreRecognition;
+
+    var retryMsg = _voiceScoreRetryCount > 0 ? ' (' + _voiceScoreRetryCount + '/' + _voiceScoreMaxRetries + ')' : '';
+    _setVoiceStatus('Say score...' + retryMsg, '#e67e22');
+
+    scoreRecognition.onresult = function(event) {
+        // SURGICAL FIX: Mark that onresult fired so onend doesn't double-retry
+        _voiceScoreProcessed = true;
+        // Try all alternatives to find one that contains a number
+        var bestTranscript = '';
+        var bestNumeric = '';
+        for (var a = 0; a < event.results[0].length; a++) {
+            var raw = event.results[0][a].transcript.trim().toUpperCase();
+            var numStr = raw.replace(/[^0-9]/g, '');
+            var converted = _wordsToNumber(raw);
+            var hasDigits = numStr.length > 0;
+            var hasNumberWords = converted !== null;
+            if (hasDigits || hasNumberWords) {
+                bestTranscript = raw;
+                bestNumeric = hasDigits ? numStr : (converted || numStr);
+                break; // Use first alternative that contains a number
+            }
+            if (a === 0) bestTranscript = raw; // fallback to first result
+        }
+        // If no alternative had a clear number, try converting the best transcript
+        if (!bestNumeric) {
+            var converted = _wordsToNumber(bestTranscript);
+            bestNumeric = converted || bestTranscript;
+        }
+        _setVoiceHeard(bestTranscript);
+        // SURGICAL FIX: Removed _voiceScoreRetryCount = 0 from here — only reset on valid score
+        _applyVoiceScore(bestNumeric);
+    };
+
+    scoreRecognition.onerror = function(event) {
+        console.warn('Score speech error:', event.error);
+        if (event.error === 'not-allowed') {
+            _voiceCallActive = false;
+            _unfreezeAllRows(); // Unfreeze rows since calling is effectively stopped
+            _setVoiceStatus('Microphone access denied. Allow mic access in browser settings.', '#e74c3c');
+        }
+        // For 'no-speech', 'aborted', and other errors, stay silent — onend handles retry automatically
+        // Mic stays open, session continues uninterrupted
+    };
+
+    scoreRecognition.onend = function() {
+        // Only null out _voiceRecognition if it still points to THIS instance
+        // Prevents race condition when a newer recognition was already started
+        if (_voiceRecognition === scoreRecognition) {
+            _voiceRecognition = null;
+        }
+        // SURGICAL FIX: Only retry if onresult NEVER fired (no speech detected at all)
+        // If onresult did fire, _applyVoiceScore handles retrying — prevents double-retry race condition
+        if (_voiceMode === 'score' && _voiceCallActive && !_voiceScoreProcessed) {
+            // SURGICAL FIX: Check max retries — show "Score not responding" and return to exam mode
+            if (_voiceScoreRetryCount >= _voiceScoreMaxRetries) {
+                _setVoiceStatus('Score not responding. Returning to exam number...', '#e74c3c');
+                _voiceCurrentIndex = null;
+                document.getElementById('voiceCurrentStudent').style.display = 'none';
+                _setVoiceHeard('');
+                _highlightRow(null);
+                setTimeout(function() {
+                    if (_voiceCallActive) startVoiceExamNumber(true);
+                }, 1500);
+                return;
+            }
+            _voiceScoreRetryCount++;
+            if (_voiceScoreRetryCount <= 3) {
+                _setVoiceStatus('Say score... (' + _voiceScoreRetryCount + '/' + _voiceScoreMaxRetries + ')', '#e67e22');
+            } else {
+                _setVoiceStatus('Say score... (' + _voiceScoreRetryCount + '/' + _voiceScoreMaxRetries + ')', '#999');
+            }
+            // SURGICAL FIX: Increased delay from 10ms to 500ms to prevent rapid beep/message flashing
+            setTimeout(function() { _startScoreListening(); }, 500);
+        }
+    };
+
+    scoreRecognition.start();
+}
+
+function startVoiceExamNumber(silent) {
+    // SURGICAL FIX: If already active, clicking again cancels the entire voice session
+    if (_voiceCallActive && !silent) {
+        _cancelVoiceEntry();
+        return;
+    }
+
+    var form = document.getElementById('dataClassSelect').value;
+    var subject = document.getElementById('dataSubjectSelect').value;
+    if (!form || !subject) {
+        if (!silent) alert('Please select a Class and Subject first.');
+        return;
+    }
+    var panel = document.getElementById('studentMarksPanel');
+    if (panel && panel.classList.contains('hidden')) {
+        if (!silent) alert('No students loaded. Select class and subject to load students first.');
+        return;
+    }
+
+    _stopRecognition();
+    _voiceCallActive = true; // Mark as active — button stays active until done
+    _voiceMode = 'exam';
+    // Freeze rows that already have scores to prevent accidental overwrites
+    _freezeScoredRows(null);
+    // Add global click blocker on voice-locked inputs
+    _installClickBlocker();
+    var recognition = _getSpeechRecognition();
+    if (!recognition) return;
+    _voiceRecognition = recognition;
+
+    _setVoiceStatus('Listening for exam number... Speak now.', '#8e44ad');
+    _setVoiceHeard('');
+    document.getElementById('voiceCurrentStudent').style.display = 'none';
+    // Update START/STOP button to show STOP
+    var btn = document.getElementById('voiceStartStopBtn');
+    if (btn) {
+        _voiceIsRunning = true;
+        btn.innerHTML = '&#9632; STOP';
+        btn.style.background = '#e74c3c';
+    }
+    // SURGICAL FIX: Play Sound 1 (single beep) only on first click, not on auto-restart
+    if (!silent) _playSound1_CallExamNumber();
+
+    recognition.onresult = function(event) {
+        // Try all alternatives to find one that contains a number
+        var bestTranscript = '';
+        var bestNumeric = '';
+        for (var a = 0; a < event.results[0].length; a++) {
+            var raw = event.results[0][a].transcript.trim().toUpperCase();
+            var numStr = raw.replace(/[^0-9]/g, '');
+            var converted = _wordsToNumber(raw);
+            var hasDigits = numStr.length > 0;
+            var hasNumberWords = converted !== null;
+            if (hasDigits || hasNumberWords) {
+                bestTranscript = raw;
+                bestNumeric = hasDigits ? numStr : (converted || numStr);
+                break; // Use first alternative that contains a number
+            }
+            if (a === 0) bestTranscript = raw; // fallback to first result
+        }
+        // If no alternative had a clear number, try converting the best transcript
+        if (!bestNumeric) {
+            var converted = _wordsToNumber(bestTranscript);
+            bestNumeric = converted || bestTranscript;
+        }
+        _setVoiceHeard(bestTranscript);
+        _matchExamNumber(bestNumeric, form, subject);
+        // Do NOT reset button here — it stays active until calling is done
+    };
+
+    recognition.onerror = function(event) {
+        console.warn('Speech error:', event.error);
+        if (event.error === 'not-allowed') {
+            _setVoiceStatus('Microphone access denied. Allow mic access in browser settings.', '#e74c3c');
+        } else if (event.error === 'audio-capture') {
+            _setVoiceStatus('No microphone found. Check your device.', '#e67e22');
+        } else if (event.error === 'network') {
+            _setVoiceStatus('Network error. Still listening...', '#e67e22');
+        }
+        // For 'no-speech' and 'aborted', stay silent — onend restarts automatically
+        // Keep button active on ALL errors — do not reset _voiceCallActive
+    };
+
+    recognition.onend = function() {
+        // Only null out _voiceRecognition if it still points to THIS instance
+        // Prevents race condition when a newer recognition was already started
+        if (_voiceRecognition === recognition) {
+            _voiceRecognition = null;
+        }
+        // Keep listening for exam number — mic stays open until cancelled
+        // BUT do NOT restart if _suppressExamRestart is true (locked-row timeout already handling it)
+        if (_voiceMode === 'exam' && _voiceCallActive && !_suppressExamRestart) {
+            // Muted: don't show repetitive "still listening" messages
+            setTimeout(function() { startVoiceExamNumber(true); }, 10);
+        }
+    };
+
+    recognition.start();
+}
+
+function _matchExamNumber(transcript, form, subject) {
+    var students = currentClassData[form];
+    if (!students) return;
+
+    // Clean transcript: remove spaces, dots, dashes, common speech artifacts
+    var cleaned = transcript.replace(/[\s.\-_,]/g, '');
+
+    // Pad leading zeros for numeric comparison (e.g. '25' becomes '025' if exam numbers are 3-digit)
+    var cleanedPadded = cleaned;
+    if (/^[0-9]+$/.test(cleaned)) {
+        // Find the max digit length among all exam numbers
+        var maxDigits = 0;
+        for (var k = 0; k < students.length; k++) {
+            var rawExam = (students[k]['Exam Number'] || '').replace(/[^0-9]/g, '');
+            if (rawExam.length > maxDigits) maxDigits = rawExam.length;
+        }
+        if (maxDigits > cleaned.length) {
+            // Manual pad (padStart may not exist in older browsers)
+            var pad = '';
+            for (var p = cleaned.length; p < maxDigits; p++) pad += '0';
+            cleanedPadded = pad + cleaned;
+        }
+    }
+
+    // Try direct match first (with padded version too)
+    var matchIndex = -1;
+    for (var i = 0; i < students.length; i++) {
+        var examNo = (students[i]['Exam Number'] || '').toUpperCase().replace(/[\s.\-_,]/g, '');
+        if (cleaned === examNo || cleanedPadded === examNo) {
+            matchIndex = i;
+            break;
+        }
+    }
+
+    // Try partial match (spoken number might miss a prefix letter)
+    if (matchIndex === -1) {
+        for (var i = 0; i < students.length; i++) {
+            var examNo = (students[i]['Exam Number'] || '').toUpperCase().replace(/[\s.\-_,]/g, '');
+            if (examNo.length > 1 && (cleaned.length > 1 || cleanedPadded.length > 1)) {
+                // Check if transcript ends with the numeric part
+                var numPart = examNo.replace(/^[A-Z]+/, '');
+                if (numPart && (cleaned.indexOf(numPart) !== -1 || cleanedPadded.indexOf(numPart) !== -1)) {
+                    matchIndex = i;
+                    break;
+                }
+                // Check if transcript contains the full exam number (try both cleaned and padded)
+                if (cleaned.indexOf(examNo) !== -1 || examNo.indexOf(cleaned) !== -1 ||
+                    cleanedPadded.indexOf(examNo) !== -1 || examNo.indexOf(cleanedPadded) !== -1) {
+                    matchIndex = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (matchIndex === -1) {
+        _setVoiceStatus('Not found. Say again.', '#e74c3c');
+        _highlightRow(null);
+        return;
+    }
+
+    // Found the student
+    var student = students[matchIndex];
+    _voiceCurrentIndex = matchIndex;
+    _voiceCurrentRow = matchIndex;
+    _highlightRow(matchIndex);
+
+    var matchedInput = document.getElementById('score_' + matchIndex);
+
+    // --- LOCK CHECK: If this row already has a score, it is locked — skip and keep listening ---
+    if (matchedInput && matchedInput.value && matchedInput.value.trim() !== '') {
+        _setVoiceStatus(student['Exam Number'] + ' done (' + matchedInput.value.trim() + '). Next...', '#999');
+        // Prevent onend from auto-restarting — WE will handle the restart after the delay
+        _suppressExamRestart = true;
+        setTimeout(function() {
+            _highlightRow(null);
+            _suppressExamRestart = false;
+            if (_voiceCallActive) startVoiceExamNumber(true);
+        }, 800); // Faster skip delay
+        return;
+    }
+
+    // Unfreeze the matched student's score input so voice can enter/edit the score
+    if (matchedInput) {
+        matchedInput.readOnly = false;
+        matchedInput.tabIndex = 0; // Restore keyboard focus
+        matchedInput.style.background = '';
+        matchedInput.style.border = '1px solid #cc6600';
+        matchedInput.style.color = '';
+        matchedInput.style.cursor = '';
+        matchedInput.removeAttribute('data-voicelocked');
+        matchedInput.onfocus = null; // Remove focus blocker
+    }
+
+    var currentStudentEl = document.getElementById('voiceCurrentStudent');
+    currentStudentEl.textContent = student['Exam Number'] + ' — ' + (student["STUDENT'S NAME"] || 'Unknown');
+    currentStudentEl.style.display = 'block';
+
+    _setVoiceStatus('Calling score for ' + student['Exam Number'], '#2ecc71');
+    _setVoiceHeard('');
+
+    // Play Sound 2 to signal "Call Score"
+    _playSound2_CallScore();
+
+    // FAST TRANSITION: Immediately start listening for score (no delay)
+    _voiceScoreRetryCount = 0;
+    _startScoreListening();
+}
+
+function startVoiceScoreEntry() {
+    // SURGICAL FIX: This button is now a CANCEL button — stop and reset voice entry
+    _cancelVoiceEntry();
+}
+
+function _applyVoiceScore(transcript) {
+    // Extract numeric score from transcript
+    var scoreStr = transcript.replace(/[^0-9]/g, '');
+    var score = parseInt(scoreStr, 10);
+
+    // SURGICAL FIX: Check max retries BEFORE retrying — prevents infinite beep/message loop
+    if (_voiceScoreRetryCount >= _voiceScoreMaxRetries) {
+        _setVoiceStatus('Score not responding. Returning to exam number...', '#e74c3c');
+        _voiceCurrentIndex = null;
+        document.getElementById('voiceCurrentStudent').style.display = 'none';
+        _setVoiceHeard('');
+        _highlightRow(null);
+        // Return to exam number listening after a pause
+        setTimeout(function() {
+            if (_voiceCallActive) startVoiceExamNumber(true);
+        }, 1500);
+        return;
+    }
+
+    if (isNaN(score) || scoreStr === '') {
+        _voiceScoreRetryCount++;
+        _setVoiceStatus('Not heard. Say again... (' + _voiceScoreRetryCount + '/' + _voiceScoreMaxRetries + ')', '#e67e22');
+        // SURGICAL FIX: Increased delay from 10ms to 500ms to prevent rapid message/beep flashing
+        setTimeout(function() { _startScoreListening(); }, 500);
+        return;
+    }
+
+    if (score < 0 || score > 100) {
+        _voiceScoreRetryCount++;
+        _setVoiceStatus('Out of range (0-100). Say again... (' + _voiceScoreRetryCount + '/' + _voiceScoreMaxRetries + ')', '#e67e22');
+        // SURGICAL FIX: Increased delay from 10ms to 500ms to prevent rapid message/beep flashing
+        setTimeout(function() { _startScoreListening(); }, 500);
+        return;
+    }
+
+    var form = document.getElementById('dataClassSelect').value;
+    var subject = document.getElementById('dataSubjectSelect').value;
+
+    // SURGICAL FIX: Reset retry count only when a valid score is about to be entered
+    _voiceScoreRetryCount = 0;
+
+    // Set the score in the input
+    var scoreInput = document.getElementById('score_' + _voiceCurrentIndex);
+    if (scoreInput && !scoreInput.readOnly) {
+        scoreInput.value = score;
+        updateStudentScore(form, _voiceCurrentIndex, subject, String(score));
+    }
+
+    // Mark this row as voice-locked so it cannot be re-accessed until calling is cancelled
+    _voiceLockedIndices[_voiceCurrentIndex] = true;
+
+    // Lock the just-scored row so it can't be accidentally overwritten by misheard exam numbers
+    var justScoredInput = document.getElementById('score_' + _voiceCurrentIndex);
+    if (justScoredInput && justScoredInput.value && justScoredInput.value.trim() !== '') {
+        var form_check = document.getElementById('dataClassSelect').value;
+        var subject_check = document.getElementById('dataSubjectSelect').value;
+        var isLocked = currentConfig && currentConfig.locks && currentConfig.locks[form_check] && currentConfig.locks[form_check][subject_check];
+        if (!isLocked) {
+            justScoredInput.readOnly = true;
+            justScoredInput.tabIndex = -1; // Prevent keyboard tab focus
+            justScoredInput.style.background = '#e8e8e8';
+            justScoredInput.style.border = '1px solid #bbb';
+            justScoredInput.style.color = '#777';
+            justScoredInput.style.cursor = 'not-allowed';
+            justScoredInput.setAttribute('data-voicelocked', 'true');
+            // Block focus events on locked rows — user cannot click into them
+            justScoredInput.onfocus = function() { this.blur(); };
+        }
+    }
+
+    // Brief success status only
+    _setVoiceStatus(score + ' ✓', '#2ecc71');
+
+    // Auto-advance: prepare for next student
+    _voiceCurrentIndex = null;
+    document.getElementById('voiceCurrentStudent').style.display = 'none';
+    _setVoiceHeard('');
+
+    // FAST TRANSITION: Immediately loop back to listening for next exam number
+    // The call button stays active (_voiceCallActive remains true) since calling is not done
+    _highlightRow(null);
+    startVoiceExamNumber(true); // silent=true so it doesn't show alerts
 }
 
 // --- SNE COLUMN VISIBILITY FUNCTIONS ---
@@ -5518,6 +6793,57 @@ async function handleSaveSNEConfig() {
     currentConfig.sneColumnVisible = checkbox.checked;
     await handleSaveConfig();
     updateSNEVisibilityStatus();
+    // Immediately refresh data entry table if visible
+    const form = document.getElementById('dataClassSelect');
+    const subject = document.getElementById('dataSubjectSelect');
+    if (form && subject && form.value && subject.value) {
+        showStudentMarksList();
+    }
+}
+
+// --- SEX COLUMN VISIBILITY FUNCTIONS ---
+function toggleSexVisibility() {
+    const checkbox = document.getElementById('sexVisibilityCheckbox');
+    if (!currentConfig) return;
+    currentConfig.sexColumnVisible = checkbox.checked;
+    updateSexVisibilityStatus();
+}
+
+function updateSexVisibilityStatus() {
+    const status = document.getElementById('sexVisibilityStatus');
+    if (!status || !currentConfig) return;
+    if (currentConfig.sexColumnVisible !== false) {
+        status.textContent = 'Sex column is currently VISIBLE.';
+        status.style.color = '#2ecc71';
+    } else {
+        status.textContent = 'Sex column is currently INVISIBLE.';
+        status.style.color = '#e74c3c';
+    }
+}
+
+function initSexVisibilityUI() {
+    const checkbox = document.getElementById('sexVisibilityCheckbox');
+    if (!checkbox || !currentConfig) return;
+    checkbox.checked = currentConfig.sexColumnVisible !== false;
+    updateSexVisibilityStatus();
+}
+
+function applySexColumnToTable() {
+    const header = document.getElementById('sexColumnHeader');
+    if (!header) return;
+    const visible = currentConfig && currentConfig.sexColumnVisible !== false;
+    header.style.display = visible ? '' : 'none';
+}
+
+async function handleSaveSexConfig() {
+    if (!currentConfig) {
+        alert('Configuration not loaded. Please enter Authorization Code.');
+        return;
+    }
+    const checkbox = document.getElementById('sexVisibilityCheckbox');
+    currentConfig.sexColumnVisible = checkbox.checked;
+    await handleSaveConfig();
+    updateSexVisibilityStatus();
     // Immediately refresh data entry table if visible
     const form = document.getElementById('dataClassSelect');
     const subject = document.getElementById('dataSubjectSelect');
@@ -5704,11 +7030,12 @@ async function generateAllProgressReports() {
         studentsWithMetrics.push({
             examNo: s["Exam Number"],
             metric: metrics.overallMetric,
-            rankable: metrics.rankable
+            rankable: metrics.rankable,
+            remark: metrics.overallRemark
         });
     }
     let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
-    rankableStudents.sort((a, b) => a.metric - b.metric);
+    rankableStudents = rankStudentsByGradeSheetOrder(rankableStudents);
     const totalRankable = rankableStudents.length;
 
     // Iterate and Generate
@@ -5797,9 +7124,8 @@ async function generateAllProgressReports() {
         if (metrics.rankable) {
             const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
             if (studentMetric) {
-                const idx = rankableStudents.findIndex(s => s.metric === studentMetric.metric) + 1;
-                positionNum = idx;
-                overallRank = idx;
+                positionNum = studentMetric.__pos;
+                overallRank = studentMetric.__pos;
             }
         }
 
@@ -5837,8 +7163,13 @@ async function generateAllProgressReports() {
         element.style.position = 'fixed';
         element.style.left = '-5000px';
 
+        // Populate and show stamp for capture
+        _populateStampOnReport();
+        _showReportStamps();
+
         try {
             const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+            _hideReportStamps();
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
                 orientation: 'portrait',
@@ -5850,6 +7181,7 @@ async function generateAllProgressReports() {
             const fileName = `${studentNumber}_${student["STUDENT'S NAME"].replace(/\s+/g, '_')}_Report.pdf`;
             pdf.save(fileName);
         } catch (err) {
+            _hideReportStamps();
             console.error(`Failed generating PDF for ${studentNumber}`, err);
         }
 
@@ -5869,6 +7201,164 @@ async function generateAllProgressReports() {
 
 // === BATCH PRINT PROGRESS REPORTS (SELECTED STUDENTS) ===
 let _batchPrintClassData = [];
+let _stampBase64 = null; // In-memory stamp image data
+
+// === STAMP SHOW/HIDE HELPERS (for PDF capture) ===
+function _showReportStamps() {
+    if (!currentConfig || currentConfig.stampEnabled === false) return;
+    document.querySelectorAll('.reportStamp').forEach(function(el) {
+        el.style.display = 'block';
+    });
+}
+function _hideReportStamps() {
+    document.querySelectorAll('.reportStamp').forEach(function(el) {
+        el.style.display = 'none';
+    });
+}
+function _populateStampOnReport() {
+    var stampImg = currentConfig && currentConfig.stampImage ? currentConfig.stampImage : '';
+    var stampDate = currentConfig && currentConfig.stampDate ? currentConfig.stampDate : '';
+    document.querySelectorAll('.reportStampImg').forEach(function(img) {
+        img.src = stampImg || '';
+    });
+    document.querySelectorAll('.reportStampDate').forEach(function(el) {
+        if (stampDate) {
+            var d = new Date(stampDate);
+            if (!isNaN(d)) {
+                var months = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+                el.textContent = d.getDate() + '  ' + months[d.getMonth()] + '  ' + d.getFullYear();
+            } else {
+                el.textContent = stampDate;
+            }
+        } else {
+            el.textContent = '';
+        }
+    });
+}
+
+// === STAMP UPLOAD HANDLER ===
+document.addEventListener('DOMContentLoaded', function() {
+    var stampInput = document.getElementById('stampUploadInput');
+    if (stampInput) {
+        stampInput.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('Please select a valid image file.');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                _stampBase64 = ev.target.result;
+                var preview = document.getElementById('stampPreviewImg');
+                var area = document.getElementById('stampPreviewArea');
+                if (preview && area) {
+                    preview.src = _stampBase64;
+                    area.style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+});
+
+async function saveStampToConfig() {
+    var token = getDecryptedToken();
+    if (!token) {
+        alert('Please enter your Authorization Code first.');
+        return;
+    }
+    var stampInput = document.getElementById('stampUploadInput');
+    var stampDateInput = document.getElementById('stampDateInput');
+    var stampImage = _stampBase64 || (currentConfig ? currentConfig.stampImage : '');
+    var stampDate = stampDateInput ? stampDateInput.value : '';
+
+    if (!stampImage) {
+        alert('Please upload a stamp image first.');
+        return;
+    }
+
+    showLoading();
+    updateLoadingPercent(20);
+
+    var newConfig = JSON.parse(JSON.stringify(currentConfig));
+    newConfig.stampImage = stampImage;
+    newConfig.stampDate = stampDate;
+
+    updateLoadingPercent(50);
+    var jsonContent = JSON.stringify(newConfig, null, 2);
+    var base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+    var commitMessage = 'Update official stamp configuration';
+
+    try {
+        var result = await commitFile(CONFIG_FILE, commitMessage, base64Content, configSha, token, 'PUT');
+        hideLoading();
+        if (result) {
+            configSha = result.content.sha;
+            currentConfig.stampImage = stampImage;
+            currentConfig.stampDate = stampDate;
+            var status = document.getElementById('stampSaveStatus');
+            if (status) {
+                status.textContent = 'Stamp saved successfully!';
+                status.style.display = 'block';
+                setTimeout(function() { status.style.display = 'none'; }, 4000);
+            }
+            alert('Stamp saved successfully!');
+        }
+    } catch (err) {
+        hideLoading();
+        console.error('Stamp save error:', err);
+        alert('Failed to save stamp. Please try again.');
+    }
+}
+
+async function removeStampFromConfig() {
+    var token = getDecryptedToken();
+    if (!token) {
+        alert('Please enter your Authorization Code first.');
+        return;
+    }
+    if (!confirm('Remove the official stamp from reports?')) return;
+
+    showLoading();
+    var newConfig = JSON.parse(JSON.stringify(currentConfig));
+    delete newConfig.stampImage;
+    delete newConfig.stampDate;
+
+    var jsonContent = JSON.stringify(newConfig, null, 2);
+    var base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+
+    try {
+        var result = await commitFile(CONFIG_FILE, 'Remove official stamp', base64Content, configSha, token, 'PUT');
+        hideLoading();
+        if (result) {
+            configSha = result.content.sha;
+            currentConfig.stampImage = '';
+            currentConfig.stampDate = '';
+            _stampBase64 = null;
+            document.getElementById('stampPreviewArea').style.display = 'none';
+            document.getElementById('stampUploadInput').value = '';
+            document.getElementById('stampDateInput').value = '';
+            alert('Stamp removed successfully.');
+        }
+    } catch (err) {
+        hideLoading();
+        alert('Failed to remove stamp.');
+    }
+}
+
+function toggleStampEnabled() {
+    var cb = document.getElementById('stampToggleCheckbox');
+    var status = document.getElementById('stampToggleStatus');
+    if (!cb || !status) return;
+    if (cb.checked) {
+        status.textContent = 'ON';
+        status.style.color = '#27ae60';
+    } else {
+        status.textContent = 'OFF';
+        status.style.color = '#e74c3c';
+    }
+}
 
 function _batchMsg(msg, isError) {
     const list = document.getElementById('batchStudentList');
@@ -5966,6 +7456,19 @@ function applyBatchRange() {
     }
 }
 
+function filterBatchPrintList() {
+    const query = (document.getElementById('batchSearchInput').value || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('#batchStudentList tbody tr');
+    rows.forEach(row => {
+        if (!query) { row.style.display = ''; return; }
+        const cells = row.querySelectorAll('td');
+        // td[1] = Exam No, td[3] = Student Name
+        const examNo = cells[1] ? cells[1].textContent.toLowerCase() : '';
+        const name = cells[3] ? cells[3].textContent.toLowerCase() : '';
+        row.style.display = (examNo.includes(query) || name.includes(query)) ? '' : 'none';
+    });
+}
+
 async function executeBatchPrint() {
     const checked = document.querySelectorAll('.batch-student-cb:checked');
     if (checked.length === 0) {
@@ -5997,10 +7500,10 @@ async function executeBatchPrint() {
     const studentsWithMetrics = [];
     for (const s of allData) {
         const metrics = await calculateStudentMetrics(s, form);
-        studentsWithMetrics.push({ examNo: s["Exam Number"], metric: metrics.overallMetric, rankable: metrics.rankable });
+        studentsWithMetrics.push({ examNo: s["Exam Number"], metric: metrics.overallMetric, rankable: metrics.rankable, remark: metrics.overallRemark });
     }
     let rankableStudents = studentsWithMetrics.filter(s => s.rankable);
-    rankableStudents.sort((a, b) => a.metric - b.metric);
+    rankableStudents = rankStudentsByGradeSheetOrder(rankableStudents);
     const totalRankable = rankableStudents.length;
 
     // Create or reuse batch print area
@@ -6079,9 +7582,8 @@ async function executeBatchPrint() {
         if (metrics.rankable) {
             const studentMetric = rankableStudents.find(s => s.examNo === studentNumber);
             if (studentMetric) {
-                const idx = rankableStudents.findIndex(s => s.metric === studentMetric.metric) + 1;
-                positionNum = idx;
-                overallRank = idx;
+                positionNum = studentMetric.__pos;
+                overallRank = studentMetric.__pos;
             }
         }
 
@@ -6108,16 +7610,23 @@ async function executeBatchPrint() {
         document.getElementById('reportFees').textContent = currentConfig.fees || '-';
         document.getElementById('gradeKeyPlaceholder').innerHTML = getGradeKeyTableHTML(form);
 
+        // Populate stamp on report for cloning
+        _populateStampOnReport();
+
         // Show report, clone it into batch area, then hide again
         element.style.display = 'block';
         element.style.position = 'relative';
         element.style.left = '';
+        _showReportStamps();
         const clone = element.cloneNode(true);
+        _hideReportStamps();
         clone.removeAttribute('id');
         clone.className = 'progressReportClone';
         clone.style.display = 'block';
         clone.style.position = 'relative';
         clone.style.left = '';
+        // Keep stamps visible in clones (they will show via print CSS)
+        clone.querySelectorAll('.reportStamp').forEach(function(s) { s.style.display = 'block'; });
         batchArea.appendChild(clone);
         element.style.display = 'none';
     }
@@ -6491,7 +8000,9 @@ async function saveGradeRanges(form) {
             hiddenSubjects: currentConfig.hiddenSubjects || {},
             locks: currentConfig.locks || {},
             passwordEnabled: currentConfig.passwordEnabled,
-            sneColumnVisible: currentConfig.sneColumnVisible
+            sneColumnVisible: currentConfig.sneColumnVisible,
+            setupPassword: currentConfig.setupPassword || null,
+            studentPasswords: currentConfig.studentPasswords || {}
         };
 
         const jsonContent = JSON.stringify(saveConfig, null, 2);
@@ -6533,7 +8044,9 @@ async function instantSaveGradeConfigToGitHub() {
             hiddenSubjects: currentConfig.hiddenSubjects || {},
             locks: currentConfig.locks || {},
             passwordEnabled: currentConfig.passwordEnabled,
-            sneColumnVisible: currentConfig.sneColumnVisible
+            sneColumnVisible: currentConfig.sneColumnVisible,
+            setupPassword: currentConfig.setupPassword || null,
+            studentPasswords: currentConfig.studentPasswords || {}
         };
 
         const jsonContent = JSON.stringify(saveConfig, null, 2);
@@ -6674,7 +8187,7 @@ async function shareProgressReportOnWhatsApp() {
             await navigator.share({
                 files: [pdfFile],
                 title: `Progress Report - ${studentName}`,
-                text: `Here is the progress report for ${studentName} from Magawa Secondary School.`
+                text: `Here is the progress report for ${studentName} from Namitete Secondary School.`
             });
             console.log('Shared via WhatsApp or system share');
         } else {
@@ -6872,6 +8385,170 @@ async function overwriteStudentData() {
     }
 }
 
+// === PASTE STUDENT LIST (Uploads Section) ===
+async function savePastedStudentList() {
+    const form = document.getElementById('pasteListClassSelect').value;
+    const token = getDecryptedToken();
+    const text = document.getElementById('pasteStudentListArea').value.trim();
+
+    if (!form) { alert('Please select a Class.'); return; }
+    if (!token) { alert('Authorization Code required. Please enter it in Admin Dashboard.'); return; }
+    if (!text) { alert('Please paste a student list first.'); return; }
+
+    // Parse: support comma, tab, or pipe separation; one student per line
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    if (lines.length === 0) { alert('No valid lines found in the pasted text.'); return; }
+
+    const newStudents = [];
+    lines.forEach((line, i) => {
+        // Try comma, then tab, then pipe
+        let parts = line.includes('\t') ? line.split('\t') : line.includes('|') ? line.split('|') : line.split(',');
+        if (parts.length < 2) return;
+        const examNo = parts[0].trim();
+        const name = parts[1].trim();
+        const sex = parts.length >= 3 ? parts[2].trim().toUpperCase() : '';
+        if (!examNo || !name) return;
+        const student = {};
+        student["Exam Number"] = examNo;
+        student["STUDENT'S NAME"] = name;
+        student["Sex"] = (sex === 'M' || sex === 'F') ? sex : '';
+        student["Date of Birth"] = '';
+        student["SN"] = '';
+        ALL_SUBJECTS.forEach(s => { student[s] = ''; });
+        newStudents.push(student);
+    });
+
+    if (newStudents.length === 0) { alert('Could not parse any students. Use format: ExamNumber, Name, Sex (one per line).'); return; }
+
+    if (!confirm(`Parsed ${newStudents.length} student(s). This will OVERWRITE all existing students in ${form.toUpperCase()}. Continue?`)) return;
+
+    showLoading();
+    updateLoadingPercent(10);
+
+    try {
+        currentClassData[form] = newStudents;
+        updateLoadingPercent(50);
+
+        const fileName = `${form}.csv`;
+        const currentSha = await getCSVFileSha(form, token);
+        updateLoadingPercent(70);
+
+        const csvString = Papa.unparse(newStudents, { header: true, columns: ALL_HEADERS });
+        const base64Content = btoa(unescape(encodeURIComponent(csvString)));
+
+        const result = await commitFile(fileName, `Pasted ${newStudents.length} students into ${form}`, base64Content, currentSha, token, 'PUT');
+
+        hideLoading();
+        if (result) {
+            currentDataSha[form] = result.content.sha;
+            document.getElementById('pasteStudentListArea').value = '';
+            alert(`${newStudents.length} student(s) saved successfully to ${form.toUpperCase()}!`);
+        }
+    } catch (error) {
+        hideLoading();
+        console.error('Paste student list failed:', error);
+        alert(`Failed to save pasted list: ${safeMsg(error)}`);
+    }
+}
+
+// === PASTE GRADES (Data Entry Section) ===
+
+// Toggle the paste score column in the student marks table (hidden by default)
+function togglePasteGrades() {
+    const header = document.getElementById('pasteScoreHeader');
+    const cells = document.querySelectorAll('.paste-score-cell');
+    const applyRow = document.getElementById('pasteApplyRow');
+    const btn = document.querySelector('[onclick="togglePasteGrades()"]');
+    if (!header || cells.length === 0) return;
+
+    const isHidden = header.style.display === 'none';
+    header.style.display = isHidden ? '' : 'none';
+    cells.forEach(function(cell) { cell.style.display = isHidden ? '' : 'none'; });
+    applyRow.style.display = isHidden ? 'block' : 'none';
+    if (btn) { btn.textContent = isHidden ? 'Hide Paste Grades' : 'Paste Grades'; btn.style.background = isHidden ? '#e74c3c' : '#8e44ad'; }
+    // Clear paste inputs when showing
+    if (isHidden) {
+        document.querySelectorAll('[id^="pasteScore_"]').forEach(function(inp) { inp.value = ''; });
+    }
+}
+
+// When pasting into any paste-score input, detect multiple values and distribute across rows
+function distributePasteScores(event, startRow) {
+    var clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) return;
+    var pasted = clipboardData.getData('text');
+    // Split by newlines, tabs, or multiple spaces — handles paste from spreadsheets
+    var values = pasted.split(/[\r\n\t]+/).map(function(v) { return v.trim(); }).filter(function(v) { return v !== ''; });
+    if (values.length <= 1) return; // single value — let default paste happen
+
+    event.preventDefault();
+    // Count total paste-score inputs available
+    var totalInputs = document.querySelectorAll('[id^="pasteScore_"]').length;
+    for (var j = 0; j < values.length && (startRow + j) < totalInputs; j++) {
+        var inp = document.getElementById('pasteScore_' + (startRow + j));
+        if (inp) inp.value = values[j];
+    }
+}
+
+// Apply scores from the inline paste-score inputs directly into student data
+function applyPasteColumnScores() {
+    const form = document.getElementById('dataClassSelect').value;
+    const subject = document.getElementById('dataSubjectSelect').value;
+
+    if (!form || !subject) { alert('Please select a Class and Subject first.'); return; }
+
+    const students = currentClassData[form];
+    if (!students || students.length === 0) { alert('No students loaded.'); return; }
+
+    // Read scores from the inline paste-score inputs
+    let appliedCount = 0;
+    for (let i = 0; i < students.length; i++) {
+        const pasteInput = document.getElementById('pasteScore_' + i);
+        if (pasteInput) {
+            const val = pasteInput.value.trim();
+            if (val !== '') {
+                students[i][subject] = val;
+                const scoreInput = document.getElementById('score_' + i);
+                if (scoreInput && !scoreInput.readOnly) {
+                    scoreInput.value = val;
+                }
+                appliedCount++;
+            }
+        }
+    }
+
+    if (appliedCount === 0) { alert('No scores to apply. Enter scores in the PASTE SCORE column first.'); return; }
+
+    // Trigger real-time sync updates
+    const monitorSelect = document.getElementById('monitorClassSelect');
+    if (monitorSelect && monitorSelect.value === form) {
+        refreshSubjectMonitor(form);
+    }
+    const scoreSheetClass = document.getElementById('sheetClassSelect');
+    if (scoreSheetClass && scoreSheetClass.value === form && document.getElementById('scoreSheetView').style.display === 'block') {
+        displayScoreSheet();
+    }
+    const gradesClass = document.getElementById('gradesClassSelect');
+    if (gradesClass && gradesClass.value === form && document.getElementById('gradesPage').style.display === 'block') {
+        displayGradesSheet();
+    }
+
+    let msg = appliedCount + ' score(s) applied for ' + subject + '.';
+    if (appliedCount < students.length) {
+        msg += ' Note: only ' + appliedCount + ' of ' + students.length + ' students had pasted scores.';
+    }
+    msg += ' Click Save to persist.';
+    alert(msg);
+
+    // Hide paste column and reset button
+    const header = document.getElementById('pasteScoreHeader');
+    if (header) header.style.display = 'none';
+    document.querySelectorAll('.paste-score-cell').forEach(function(cell) { cell.style.display = 'none'; });
+    document.getElementById('pasteApplyRow').style.display = 'none';
+    var toggleBtn = document.querySelector('[onclick="togglePasteGrades()"]');
+    if (toggleBtn) { toggleBtn.textContent = 'Paste Grades'; toggleBtn.style.background = '#8e44ad'; }
+}
+
 // === EDIT STUDENT NAMES ===
 async function loadEditNamesUI() {
     const form = document.getElementById('editNamesClassSelect').value;
@@ -6897,14 +8574,14 @@ async function loadEditNamesUI() {
         }
 
         let html = '<table style="width:100%;border-collapse:collapse;font-size:0.85em;">';
-        html += '<thead><tr style="background:#ecf0f1;position:sticky;top:0;z-index:1;"><th style="border:1px solid #bbb;padding:6px;text-align:center;width:30%;">Exam No</th><th style="border:1px solid #bbb;padding:6px;text-align:center;width:15%;">Sex</th><th style="border:1px solid #bbb;padding:6px;text-align:center;">Student Name</th></tr></thead><tbody>';
+        html += '<thead><tr style="background:#ecf0f1;position:sticky;top:0;z-index:1;"><th style="border:1px solid #bbb;padding:6px;text-align:center;width:25%;">Exam No</th><th style="border:1px solid #bbb;padding:6px;text-align:center;width:12%;">Sex</th><th style="border:1px solid #bbb;padding:6px;text-align:center;">Student Name</th></tr></thead><tbody>';
 
         classData.forEach((student, index) => {
             const examNo = student["Exam Number"] || '';
             const name = student["STUDENT'S NAME"] || '';
             const sex = student["Sex"] || '-';
             html += `<tr style="background:${index % 2 === 0 ? '#fff' : '#f9f9f9'};">
-                <td style="border:1px solid #ddd;padding:5px 8px;text-align:center;font-weight:bold;">${examNo}</td>
+                <td style="border:1px solid #ddd;padding:5px 8px;text-align:center;"><input type="text" data-edit-examno="${index}" value="${examNo}" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;text-align:center;font-weight:bold;" /></td>
                 <td style="border:1px solid #ddd;padding:5px 8px;text-align:center;"><select data-examno-sex="${examNo}" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;text-align:center;"><option value="M"${sex==='M'?' selected':''}>M</option><option value="F"${sex==='F'?' selected':''}>F</option></select></td>
                 <td style="border:1px solid #ddd;padding:4px;"><input type="text" data-examno="${examNo}" value="${name.replace(/"/g, '&quot;')}" style="width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;" /></td>
             </tr>`;
@@ -6928,6 +8605,7 @@ async function saveEditedNames() {
 
     const inputs = document.querySelectorAll('#editNamesContainer input[data-examno]');
     const sexSelects = document.querySelectorAll('#editNamesContainer select[data-examno-sex]');
+    const examNoInputs = document.querySelectorAll('#editNamesContainer input[data-edit-examno]');
     if (inputs.length === 0) { alert('No students to update.'); return; }
 
     showLoading();
@@ -6939,6 +8617,7 @@ async function saveEditedNames() {
 
         let changesCount = 0;
         let sexChangesCount = 0;
+        let examNoChangesCount = 0;
         inputs.forEach(input => {
             const examNo = input.getAttribute('data-examno');
             const newName = input.value.trim();
@@ -6961,16 +8640,27 @@ async function saveEditedNames() {
             }
         });
 
-        if (changesCount === 0 && sexChangesCount === 0) {
+        // Save edited exam numbers
+        examNoInputs.forEach(examInput => {
+            const idx = parseInt(examInput.getAttribute('data-edit-examno'));
+            const newExamNo = examInput.value.trim();
+            if (!newExamNo || !classData[idx]) return;
+            if (classData[idx]["Exam Number"] !== newExamNo) {
+                classData[idx]["Exam Number"] = newExamNo;
+                examNoChangesCount++;
+            }
+        });
+
+        if (changesCount === 0 && sexChangesCount === 0 && examNoChangesCount === 0) {
             hideLoading();
-            alert('No name or sex changes detected.');
+            alert('No name, sex or exam number changes detected.');
             return;
         }
 
         currentClassData[form] = classData;
         updateLoadingPercent(60);
 
-        const totalChanges = changesCount + sexChangesCount;
+        const totalChanges = changesCount + sexChangesCount + examNoChangesCount;
         const commitMessage = `Edited ${totalChanges} student record(s) in ${form}`;
 
         const fileName = `${form}.csv`;
@@ -6988,6 +8678,7 @@ async function saveEditedNames() {
             let summaryParts = [];
             if (changesCount > 0) summaryParts.push(`${changesCount} name(s)`);
             if (sexChangesCount > 0) summaryParts.push(`${sexChangesCount} sex entry/entries`);
+            if (examNoChangesCount > 0) summaryParts.push(`${examNoChangesCount} exam number(s)`);
             alert(`${summaryParts.join(' and ')} updated successfully in ${form.toUpperCase()}!`);
             loadEditNamesUI();
         }
