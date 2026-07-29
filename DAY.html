@@ -765,6 +765,43 @@ function saveSelectedSubjectsToRepo() {
         margin-bottom: 5px;
     }
 
+    /* SURGICAL FIX: On screen, center the header to match archive view */
+    @media screen {
+        #progressReport #reportHeader {
+            display: block !important;
+            text-align: center !important;
+        }
+        #progressReport #reportHeader > img.logo {
+            display: block !important;
+            margin: 0 auto 10px auto !important;
+        }
+        #progressReport #reportHeaderCenter {
+            margin-left: 0 !important;
+        }
+        #progressReport #reportHeaderCenter div,
+        #progressReport #reportHeaderCenter h1,
+        #progressReport #reportHeaderCenter h1 p,
+        #progressReport #reportHeaderCenter p {
+            margin-left: 0 !important;
+        }
+    }
+    /* SURGICAL FIX: PDF capture class restores original flex-row header */
+    #progressReport._pdfCapture #reportHeader {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        margin-bottom: 5px !important;
+        text-align: left !important;
+    }
+    #progressReport._pdfCapture #reportHeader > img.logo {
+        margin: 0 0 10px 0 !important;
+    }
+    #progressReport._pdfCapture #reportHeaderCenter p,
+    #progressReport._pdfCapture #reportHeaderCenter h1 p {
+        margin-left: 3ch !important;
+    }
+
     #reportHeaderRight {
         text-align: center;
         flex: 1;
@@ -1116,6 +1153,23 @@ function saveSelectedSubjectsToRepo() {
         #progressReport, #briefReport {
             position: relative;
             overflow: visible !important;
+        }
+
+        /* SURGICAL FIX: Restore original flex-row header for individual print */
+        #progressReport #reportHeader {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
+            margin-bottom: 5px !important;
+            text-align: left !important;
+        }
+        #progressReport #reportHeader > img.logo {
+            margin: 0 0 10px 0 !important;
+        }
+        #progressReport #reportHeaderCenter p,
+        #progressReport #reportHeaderCenter h1 p {
+            margin-left: 3ch !important;
         }
 
         #resultsTable th, #resultsTable td,
@@ -5068,12 +5122,16 @@ function openFullPdf() {
     _populateStampOnReport();
     _showReportStamps();
 
+    // SURGICAL FIX: Temporarily restore original layout for PDF capture
+    element.classList.add('_pdfCapture');
+
     html2canvas(element, {
         scale: 2,
         allowTaint: true,
         useCORS: true
     }).then(canvas => {
-        // Hide stamp after capture
+        // Restore screen layout and hide stamp after capture
+        element.classList.remove('_pdfCapture');
         _hideReportStamps();
 
         updateLoadingPercent(50);
@@ -5094,6 +5152,8 @@ function openFullPdf() {
         updateLoadingPercent(100);
         hideLoading();
     }).catch(error => {
+        // Restore screen layout on error
+        element.classList.remove('_pdfCapture');
         _hideReportStamps();
         console.error("Error generating PDF:", error);
         alert("Failed to generate PDF.");
