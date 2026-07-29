@@ -902,6 +902,7 @@ function saveSelectedSubjectsToRepo() {
         font-size: 8pt;
         border: 1px solid black;
         margin: 0;
+        table-layout: fixed;
     }
 
     #reportGradeKeyTable th, #reportGradeKeyTable td {
@@ -911,6 +912,8 @@ function saveSelectedSubjectsToRepo() {
         background-color: white;
         vertical-align: middle;
         color: black;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     #gradeKeyTableNew {
@@ -919,6 +922,7 @@ function saveSelectedSubjectsToRepo() {
         border-collapse: collapse;
         font-size: 7.5pt;
         border: 1px solid black;
+        table-layout: fixed;
     }
 
     #gradeKeyTableNew th, #gradeKeyTableNew td {
@@ -928,6 +932,8 @@ function saveSelectedSubjectsToRepo() {
         background-color: white;
         vertical-align: middle;
         color: black;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .hidden { display: none !important; }
@@ -1558,6 +1564,7 @@ function saveSelectedSubjectsToRepo() {
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
         width: 100% !important;
+        max-width: 100% !important;
     }
     #progressReport #resultsTable {
         table-layout: auto !important;
@@ -1569,6 +1576,52 @@ function saveSelectedSubjectsToRepo() {
         white-space: nowrap !important;
         overflow: visible !important;
         text-overflow: clip !important;
+    }
+    /* SURGICAL FIX: Constrain grade key tables to fit inside the report frame on mobile */
+    #progressReport #reportGradeKeyTable {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+    }
+    #progressReport #reportGradeKeyTable th,
+    #progressReport #reportGradeKeyTable td {
+        padding: 1px 2px !important;
+        font-size: 6pt !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+    #progressReport #gradeKeyTableNew {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+    }
+    #progressReport #gradeKeyTableNew th,
+    #progressReport #gradeKeyTableNew td {
+        padding: 1px 2px !important;
+        font-size: 6pt !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+    /* SURGICAL FIX: Ensure all content inside progress report stays within the frame on mobile */
+    #progressReport #reportGradeKeySection,
+    #progressReport #reportCommentsSection,
+    #progressReport #summaryAndKeyWrapper,
+    #progressReport #reportDetails {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    }
+    #progressReport #gradeKeyPlaceholder {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+    #progressReport > * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 
