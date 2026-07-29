@@ -1584,10 +1584,10 @@ function saveSelectedSubjectsToRepo() {
         overflow: visible !important;
         text-overflow: clip !important;
     }
-    /* SURGICAL FIX: Constrain grade key tables to fit inside the report frame on mobile */
+    /* SURGICAL FIX: Grade key table stays at 50% width (ends in the middle) on mobile */
     #progressReport #reportGradeKeyTable {
-        width: 100% !important;
-        max-width: 100% !important;
+        width: 50% !important;
+        max-width: 50% !important;
         table-layout: fixed !important;
     }
     #progressReport #reportGradeKeyTable th,
@@ -1611,7 +1611,7 @@ function saveSelectedSubjectsToRepo() {
         overflow-wrap: break-word !important;
         white-space: normal !important;
     }
-    /* SURGICAL FIX: Ensure all content inside progress report stays within the frame on mobile */
+    /* SURGICAL FIX: Constrain content sections so nothing overflows horizontally on mobile */
     #progressReport #reportGradeKeySection,
     #progressReport #reportCommentsSection,
     #progressReport #summaryAndKeyWrapper,
@@ -1622,17 +1622,18 @@ function saveSelectedSubjectsToRepo() {
         box-sizing: border-box !important;
     }
     #progressReport #gradeKeyPlaceholder {
-        width: 100% !important;
-        max-width: 100% !important;
+        width: 50% !important;
+        max-width: 50% !important;
         overflow: hidden !important;
     }
     #progressReport > * {
         max-width: 100% !important;
         box-sizing: border-box !important;
     }
-    /* SURGICAL FIX: Clip progress report card so grade key stays inside on mobile */
+    /* SURGICAL FIX: Clip horizontal overflow only — keep buttons visible vertically */
     #progressReport {
-        overflow: hidden !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
     }
     /* Re-enable horizontal scroll ONLY for the results table-wrapper inside the clipped card */
     #progressReport .table-wrapper {
