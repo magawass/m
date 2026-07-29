@@ -785,6 +785,13 @@ function saveSelectedSubjectsToRepo() {
             margin-left: 0 !important;
         }
     }
+    /* SURGICAL FIX: PDF capture — ensure visible left/right borders for nice print appearance */
+    #progressReport._pdfCapture {
+        border: 3px solid black !important;
+        border-radius: 0 !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
     /* SURGICAL FIX: PDF capture class restores original flex-row header */
     #progressReport._pdfCapture #reportHeader {
         display: flex !important;
@@ -1622,6 +1629,15 @@ function saveSelectedSubjectsToRepo() {
     #progressReport > * {
         max-width: 100% !important;
         box-sizing: border-box !important;
+    }
+    /* SURGICAL FIX: Clip progress report card so grade key stays inside on mobile */
+    #progressReport {
+        overflow: hidden !important;
+    }
+    /* Re-enable horizontal scroll ONLY for the results table-wrapper inside the clipped card */
+    #progressReport .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 }
 
