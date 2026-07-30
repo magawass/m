@@ -1017,16 +1017,28 @@ function saveSelectedSubjectsToRepo() {
     }
 
     /* === SURGICAL FIX: Mobile — keep Print & Save (PDF) buttons inside progress report card frame ===
-       Only applies on mobile (max-width: 480px). Reduces the card's top margin (the "top border"
-       space above the card) and collapses the two <br> tags that follow the absolute-positioned
-       Back button, lifting the whole page up by 2 line-heights so the two action buttons fit
-       within the bordered card. No container widths, heights, or logic are touched. */
+       Only applies on mobile (max-width: 480px). Reduces the card's top margin AND padding-top
+       (the "top border" space above and inside the card), collapses the two <br> tags after the
+       absolute-positioned Back button, reduces the "MAGAWA SECONDARY SCHOOL" heading font size,
+       and tightens the gap between the logo and the school-name text. Together this lifts the
+       whole report (logo + heading + body) upward so the two action buttons sit within the
+       bordered card. No container widths, max-heights, or logic are touched. */
     @media (max-width: 480px) {
         #progressReport {
             margin-top: 0 !important;
+            padding-top: 5px !important;
         }
         #progressReport > br {
             display: none !important;
+        }
+        /* Tighten the gap between the logo and the MAGAWA SECONDARY SCHOOL heading */
+        #progressReport #reportHeader > img.logo {
+            margin-bottom: 2px !important;
+        }
+        /* Reduce the MAGAWA SECONDARY SCHOOL heading font size on mobile */
+        #progressReport #reportHeaderCenter h1,
+        #progressReport #reportHeaderCenter h1 p {
+            font-size: 16px !important;
         }
     }
 
