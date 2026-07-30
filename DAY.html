@@ -785,21 +785,20 @@ function saveSelectedSubjectsToRepo() {
             margin-left: 0 !important;
         }
     }
-    /* SURGICAL FIX: PDF capture class restores original flex-row header */
+    /* SURGICAL FIX: PDF capture class uses centered column header (logo top-center, text below) */
     #progressReport._pdfCapture #reportHeader {
         display: flex !important;
-        flex-direction: row !important;
+        flex-direction: column !important;
         align-items: center !important;
-        justify-content: flex-start !important;
+        justify-content: center !important;
         margin-bottom: 5px !important;
         text-align: center !important;
     }
     #progressReport._pdfCapture #reportHeader > img.logo {
-        margin: 0 10px 0 0 !important;
+        margin: 0 auto 10px auto !important;
         flex-shrink: 0 !important;
     }
-    /* SURGICAL FIX: Center school name in remaining space — remove margin-left: 3ch
-       that was pushing text to one side in PDF output */
+    /* SURGICAL FIX: Center school name — remove margin-left: 3ch from inline styles */
     #progressReport._pdfCapture #reportHeaderCenter {
         flex: 1 !important;
         display: flex !important;
@@ -807,8 +806,6 @@ function saveSelectedSubjectsToRepo() {
         align-items: center !important;
         justify-content: center !important;
         margin-left: 0 !important;
-        position: relative !important;
-        left: -105px !important;
     }
     #progressReport._pdfCapture #reportHeaderCenter p,
     #progressReport._pdfCapture #reportHeaderCenter h1 p {
@@ -900,35 +897,6 @@ function saveSelectedSubjectsToRepo() {
     }
     #progressReport._pdfCapture button {
         display: none !important;
-    }
-
-    /* MOBILE PDF CAPTURE: On mobile devices, keep the logo centered at the top
-       with the school name text below it (matching how it looks on screen),
-       instead of forcing the desktop side-by-side row layout. */
-    #progressReport._pdfCaptureMobile #reportHeader {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        text-align: center !important;
-        margin-bottom: 5px !important;
-    }
-    #progressReport._pdfCaptureMobile #reportHeader > img.logo {
-        margin: 0 auto 10px auto !important;
-        flex-shrink: 0 !important;
-    }
-    #progressReport._pdfCaptureMobile #reportHeaderCenter {
-        flex: 1 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        margin-left: 0 !important;
-    }
-    #progressReport._pdfCaptureMobile #reportHeaderCenter p,
-    #progressReport._pdfCaptureMobile #reportHeaderCenter h1 p {
-        margin-left: 0 !important;
-        text-align: center !important;
     }
 
     #reportHeaderRight {
@@ -5367,14 +5335,8 @@ function openFullPdf() {
     _populateStampOnReport();
     _showReportStamps();
 
-    // SURGICAL FIX: Temporarily restore layout for PDF capture.
-    // On mobile: add _pdfCaptureMobile to keep logo centered on top with text below.
-    // On desktop: use _pdfCapture only for side-by-side logo + text layout.
-    var isMobile = window.innerWidth <= 768;
+    // SURGICAL FIX: Temporarily restore centered layout for PDF capture.
     element.classList.add('_pdfCapture');
-    if (isMobile) {
-        element.classList.add('_pdfCaptureMobile');
-    }
 
     html2canvas(element, {
         scale: 2,
@@ -5382,7 +5344,7 @@ function openFullPdf() {
         useCORS: true
     }).then(canvas => {
         // Restore screen layout and hide stamp after capture
-        element.classList.remove('_pdfCapture', '_pdfCaptureMobile');
+        element.classList.remove('_pdfCapture');
         _hideReportStamps();
 
         updateLoadingPercent(50);
@@ -5404,7 +5366,7 @@ function openFullPdf() {
         hideLoading();
     }).catch(error => {
         // Restore screen layout on error
-        element.classList.remove('_pdfCapture', '_pdfCaptureMobile');
+        element.classList.remove('_pdfCapture');
         _hideReportStamps();
         console.error("Error generating PDF:", error);
         alert("Failed to generate PDF.");
