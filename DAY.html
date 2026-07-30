@@ -789,17 +789,29 @@ function saveSelectedSubjectsToRepo() {
     #progressReport._pdfCapture #reportHeader {
         display: flex !important;
         flex-direction: row !important;
-        align-items: flex-start !important;
+        align-items: center !important;
         justify-content: flex-start !important;
         margin-bottom: 5px !important;
-        text-align: left !important;
+        text-align: center !important;
     }
     #progressReport._pdfCapture #reportHeader > img.logo {
-        margin: 0 0 10px 0 !important;
+        margin: 0 10px 0 0 !important;
+        flex-shrink: 0 !important;
+    }
+    /* SURGICAL FIX: Center school name in remaining space — remove margin-left: 3ch
+       that was pushing text to one side in PDF output */
+    #progressReport._pdfCapture #reportHeaderCenter {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-left: 0 !important;
     }
     #progressReport._pdfCapture #reportHeaderCenter p,
     #progressReport._pdfCapture #reportHeaderCenter h1 p {
-        margin-left: 3ch !important;
+        margin-left: 0 !important;
+        text-align: center !important;
     }
 
     #reportHeaderRight {
@@ -950,7 +962,10 @@ function saveSelectedSubjectsToRepo() {
 
     /* Mobile Adjustments */
     @media (max-width: 480px) {
-        body { padding: 10px; }
+        /* SURGICAL FIX: Reduce scrollbar length on mobile Chrome.
+           100vh on Chrome mobile includes the address bar, making the body
+           taller than the visible area and creating excess scroll space. */
+        body { padding: 10px; min-height: auto !important; }
         .page { padding: 15px; width: 98%; }
         #progressReport, #briefReport { padding: 20px 10px; width: 98%; }
         
@@ -1025,8 +1040,8 @@ function saveSelectedSubjectsToRepo() {
        bordered card. No container widths, max-heights, or logic are touched. */
     @media (max-width: 480px) {
         #progressReport {
-            margin-top: -1 !important;
-            padding-top: -5px !important;
+            margin-top: 0 !important;
+            padding-top: 5px !important;
         }
         #progressReport > br {
             display: none !important;
@@ -1035,7 +1050,7 @@ function saveSelectedSubjectsToRepo() {
         #progressReport #reportHeader > img.logo {
             margin-bottom: 2px !important;
         }
-        /* Reduce the MAGAWA SECONDARY SCHOOL,Private Bag 17,MAGAWA,MCHINJI, heading font size on mobile */
+        /* Reduce the MAGAWA SECONDARY SCHOOL heading font size on mobile */
         #progressReport #reportHeaderCenter h1,
         #progressReport #reportHeaderCenter h1 p {
             font-size: 16px !important;
