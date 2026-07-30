@@ -1034,10 +1034,10 @@
   "stampDate": "2026-05-11",
   "stampEnabled": true,
   "reaccessHidden": false,
-  "hideReaccessSetup": false,
+  "hideReaccessSetup": true,
   "uploadToggles": {
-    "stamp": false,
-    "pasteStudent": false,
-    "passwordGen": false
+    "stamp": true,
+    "pasteStudent": true,
+    "passwordGen": true
   }
 }
