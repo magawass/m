@@ -814,6 +814,92 @@ function saveSelectedSubjectsToRepo() {
         text-align: center !important;
     }
 
+    /* SURGICAL FIX: On mobile, force desktop appearance during PDF capture.
+       Overrides all max-width:480px mobile rules so the downloaded PDF
+       always looks like the desktop version regardless of screen size. */
+    #progressReport._pdfCapture {
+        width: 794px !important;
+        max-width: 794px !important;
+        padding: 40px 40px 40px 40px !important;
+        margin-top: 20px !important;
+        padding-top: 40px !important;
+        max-height: none !important;
+    }
+    #progressReport._pdfCapture > br {
+        display: inline !important;
+    }
+    #progressReport._pdfCapture #reportHeader > img.logo {
+        width: 200px !important;
+        height: 100px !important;
+        margin-bottom: 10px !important;
+    }
+    #progressReport._pdfCapture #reportHeaderCenter h1,
+    #progressReport._pdfCapture #reportHeaderCenter h1 p {
+        font-size: 25px !important;
+    }
+    #progressReport._pdfCapture .info-row {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+    }
+    #progressReport._pdfCapture .info-row p {
+        width: auto !important;
+    }
+    #progressReport._pdfCapture .table-wrapper {
+        overflow: visible !important;
+        width: auto !important;
+        max-width: 100% !important;
+    }
+    #progressReport._pdfCapture #resultsTable {
+        table-layout: auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    #progressReport._pdfCapture #resultsTable th,
+    #progressReport._pdfCapture #resultsTable td {
+        white-space: normal !important;
+        padding: 4px 3px !important;
+        font-size: 9pt !important;
+    }
+    #progressReport._pdfCapture #summaryAndKeyWrapper {
+        flex-direction: row !important;
+    }
+    #progressReport._pdfCapture #reportSummary,
+    #progressReport._pdfCapture #gradeKeyPlaceholder {
+        width: auto !important;
+        margin-bottom: 0 !important;
+    }
+    #progressReport._pdfCapture #reportGradeKeyTable,
+    #progressReport._pdfCapture #gradeKeyTableNew {
+        width: auto !important;
+        max-width: 100% !important;
+        table-layout: auto !important;
+    }
+    #progressReport._pdfCapture #reportGradeKeyTable th,
+    #progressReport._pdfCapture #reportGradeKeyTable td,
+    #progressReport._pdfCapture #gradeKeyTableNew th,
+    #progressReport._pdfCapture #gradeKeyTableNew td {
+        padding: 2px !important;
+        font-size: 7.5pt !important;
+        white-space: normal !important;
+        word-wrap: normal !important;
+        overflow-wrap: normal !important;
+    }
+    #progressReport._pdfCapture #reportGradeKeySection,
+    #progressReport._pdfCapture #reportCommentsSection,
+    #progressReport._pdfCapture #summaryAndKeyWrapper,
+    #progressReport._pdfCapture #reportDetails,
+    #progressReport._pdfCapture #gradeKeyPlaceholder {
+        width: auto !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+    }
+    #progressReport._pdfCapture > * {
+        max-width: none !important;
+    }
+    #progressReport._pdfCapture button {
+        display: none !important;
+    }
+
     #reportHeaderRight {
         text-align: center;
         flex: 1;
