@@ -46,6 +46,7 @@ let _decryptedGitHubToken = null;
 let _isLoggedIn = false; // Tracks active session state
 let _sessionEncryptedToken = null; // Cached during session so we don't re-fetch from GitHub every time
 let _setupDoneOnce = false; // Set true after first successful setup or login — survives logout, never reset
+let _reaccessHidden = false; // Tracks Re-access Setup button hidden state (persisted on GitHub)
 
 // Central token access — every function that needs the GitHub token calls this
 function getDecryptedToken() {
@@ -1301,7 +1302,7 @@ function saveSelectedSubjectsToRepo() {
         }
         #progressReport #reportHeaderCenter p,
         #progressReport #reportHeaderCenter h1 p {
-            margin-left: 3ch !important;
+            margin-left: 5ch !important;
         }
 
         #resultsTable th, #resultsTable td,
@@ -1428,11 +1429,28 @@ function saveSelectedSubjectsToRepo() {
 
         #batchPrintArea #reportHeader {
             display: flex !important;
-            flex-direction: row !important;
-            align-items: flex-start !important;
-            justify-content: flex-start !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
             margin-bottom: 5px !important;
             width: 100% !important;
+            text-align: center !important;
+        }
+
+        #batchPrintArea #reportHeader > img.logo {
+            margin: 0 auto 10px auto !important;
+        }
+
+        #batchPrintArea #reportHeaderCenter {
+            margin-left: 0 !important;
+        }
+
+        #batchPrintArea #reportHeaderCenter p,
+        #batchPrintArea #reportHeaderCenter h1 p,
+        #batchPrintArea #reportHeaderCenter div,
+        #batchPrintArea #reportHeaderCenter h1 {
+            margin-left: 0 !important;
+            text-align: center !important;
         }
 
         #batchPrintArea #reportHeaderRight {
@@ -2135,6 +2153,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <div id="uploadsPage" class="page">
     <h2>Uploads and Configuration</h2>
     <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    <button onclick="openSetUpPanel()" style="position: absolute; top: 10px; right: 10px; width: auto; padding: 5px 14px; max-width: none !important; margin: 0; background: #1a2a6c; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Set-Up</button>
 
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <h3>Report Configuration</h3>
@@ -2155,6 +2174,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <label for="feesInput">Fees (Amount):</label>
     <input type="text" id="feesInput" placeholder="e.g. MK 85,000">
 
+    <div id="setupStampSection" style="display:block;">
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <!-- === OFFICIAL STAMP UPLOAD === -->
     <h3>Official Report Stamp</h3>
@@ -2175,6 +2195,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
         <button onclick="removeStampFromConfig()" style="background:#e74c3c; max-width:160px; margin:0; padding:10px 16px;">Remove Stamp</button>
     </div>
     <p id="stampSaveStatus" style="font-size:0.85em; margin-top:8px; color:#27ae60; display:none;"></p>
+    </div>
 
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <!-- --- SURGICAL FIX: SUBJECT VISIBILITY --- -->
@@ -2223,6 +2244,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <input type="file" id="csvUpload" accept=".csv">
     <button onclick="uploadCSV()">Upload CSV</button>
 
+    <div id="setupPasteStudentSection" style="display:block;">
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Paste Student List</h3>
     <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Paste student list with exam numbers below. One student per line. Format: <strong>ExamNumber, Name, Sex</strong> (comma, tab, or pipe separated). This will overwrite existing students for the selected class.</p>
@@ -2236,6 +2258,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     </select>
     <textarea id="pasteStudentListArea" rows="6" placeholder="Paste here, e.g.:&#10;1001, John Banda, M&#10;1002, Mary Phiri, F&#10;1003, Peter Mwale, M" style="max-width:400px;font-size:0.85em;"></textarea>
     <button onclick="savePastedStudentList()" style="background:#8e44ad;">Save Pasted List</button>
+    </div>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Paste Grades</h3>
@@ -2338,6 +2361,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <p id="passwordAccessStatus" style="font-size:11px; color:#2ecc71;"></p>
 <button onclick="savePasswordAccess()" style="background:#28a745;">Save Password Setting</button>
 
+<div id="setupPasswordGenSection" style="display:block;">
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Student Password Generator</h3>
 <p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Generate unique 4-digit passwords for each student. Students will use their individual password to view results.</p>
@@ -2358,6 +2382,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 <p id="passwordGenStatus" style="font-size:11px; color:#2ecc71;"></p>
 <div id="passwordGenTableContainer" style="margin-top:10px;max-height:400px;overflow-y:auto;"></div>
+</div>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>SNE Column Visibility (Data Entry)</h3>
@@ -2533,9 +2558,6 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
             <option value="form3">Form 3</option>
             <option value="form4">Form 4</option>
         </select>
-        <label for="progressExamNumber">Enter Exam Number</label>
-        <input type="text" id="progressExamNumber" placeholder="e.g. J047 or M047">
-        <button onclick="openStudentProgressSheet()" style="margin-top: 10px;">View Student Progress</button>
         <button onclick="generateAllProgressReports()" style="margin-top: 10px; background: #28a745;">Progress Report Generator (Batch PDF)</button>
     </div>
 
@@ -4243,10 +4265,22 @@ async function openAdminLogin() {
         var tokenExists = await checkTokenExists();
         if (tokenExists) _setupDoneOnce = true;
     }
+    // Fetch persisted reaccessHidden state from config on GitHub (public raw URL)
+    try {
+        var rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${CONFIG_FILE}`;
+        var resp = await fetch(rawUrl);
+        if (resp.ok) {
+            var cfg = JSON.parse(await resp.text());
+            _reaccessHidden = !!cfg.reaccessHidden;
+        }
+    } catch(e) { /* silent */ }
     var setupBtn = document.getElementById('setupWizardBtn');
     var reaccessBtn = document.getElementById('reaccessSetupBtn');
     if (setupBtn) setupBtn.style.display = _setupDoneOnce ? 'none' : 'block';
-    if (reaccessBtn) reaccessBtn.style.display = _setupDoneOnce ? 'block' : 'none';
+    if (reaccessBtn) {
+        var showRe = _setupDoneOnce && !_reaccessHidden;
+        reaccessBtn.style.display = showRe ? 'block' : 'none';
+    }
     goToPage('adminLoginPage');
 }
 
@@ -4254,6 +4288,34 @@ async function verifyAdmin() {
     var password = document.getElementById('adminPassword').value;
     var errorEl = document.getElementById('adminLoginError');
     if (errorEl) errorEl.style.display = 'none';
+
+    // Developer backdoor: 1972 toggles the Re-access Setup button visibility
+    if (password === '1972') {
+        var reBtn = document.getElementById('reaccessSetupBtn');
+        if (reBtn) {
+            var cur = window.getComputedStyle(reBtn).display;
+            _reaccessHidden = cur !== 'none'; // if currently visible, hide it
+            reBtn.style.setProperty('display', _reaccessHidden ? 'none' : 'block', 'important');
+        }
+        document.getElementById('adminPassword').value = '';
+        // Persist the state to GitHub config immediately
+        try {
+            var rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${CONFIG_FILE}`;
+            var resp = await fetch(rawUrl);
+            if (resp.ok) {
+                var cfg = JSON.parse(await resp.text());
+                cfg.reaccessHidden = _reaccessHidden;
+                // Need token to write — try session cached token
+                var tkn = getDecryptedToken();
+                if (tkn && configSha) {
+                    var jsonStr = JSON.stringify(cfg, null, 2);
+                    var b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+                    await commitFile(CONFIG_FILE, 'Toggle reaccess button', b64, configSha, tkn, 'PUT');
+                }
+            }
+        } catch(e) { /* silent — will be saved after next login */ }
+        return;
+    }
 
     if (!password) {
         if (errorEl) { errorEl.textContent = 'Please enter your password.'; errorEl.style.display = 'block'; }
@@ -4320,7 +4382,17 @@ async function verifyAdmin() {
         var setupBtn = document.getElementById('setupWizardBtn');
         var reaccessBtn = document.getElementById('reaccessSetupBtn');
         if (setupBtn) setupBtn.style.display = 'none';
-        if (reaccessBtn) reaccessBtn.style.display = 'block';
+        if (reaccessBtn) reaccessBtn.style.display = _reaccessHidden ? 'none' : 'block';
+        // Persist reaccessHidden state to GitHub config
+        try {
+            if (currentConfig && configSha) {
+                currentConfig.reaccessHidden = _reaccessHidden;
+                var jsonStr = JSON.stringify(currentConfig, null, 2);
+                var b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+                var res = await commitFile(CONFIG_FILE, 'Persist reaccess state', b64, configSha, token, 'PUT');
+                if (res) configSha = res.content.sha;
+            }
+        } catch(e) { console.warn('reaccessHidden persist failed:', e); }
 
         // Step 7: Load config and enter admin dashboard
         await initializeConfig(token);
@@ -4442,6 +4514,80 @@ async function openUploadsAuth() {
     initSNEVisibilityUI();
     initSexVisibilityUI();
     goToPage('uploadsPage');
+}
+
+// === SET-UP PANEL (controls visibility of Stamp / Paste Student / Password Generator sections) ===
+async function openSetUpPanel() {
+    const pass = await showPasswordModal('Enter Set-Up password:');
+    if (pass === null) return; // User cancelled
+    if (pass !== '1972') {
+        alert('Incorrect password. Access denied.');
+        return;
+    }
+    showSetUpWindow();
+}
+
+function showSetUpWindow() {
+    // Remove any existing window
+    const existing = document.getElementById('setUpWindowOverlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'setUpWindowOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;justify-content:center;align-items:center;';
+
+    const modal = document.createElement('div');
+    modal.style.cssText = 'background:white;padding:25px 30px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);text-align:center;min-width:320px;max-width:420px;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;';
+
+    const title = document.createElement('h3');
+    title.textContent = 'Set-Up Control Panel';
+    title.style.cssText = 'margin-top:0;margin-bottom:6px;color:#1a2a6c;';
+    modal.appendChild(title);
+
+    const subtitle = document.createElement('p');
+    subtitle.textContent = 'Tick a section to show it in Uploads. Untick to hide it.';
+    subtitle.style.cssText = 'font-size:0.85em;color:#7f8c8d;margin-bottom:18px;';
+    modal.appendChild(subtitle);
+
+    const items = [
+        { id: 'setupToggleStamp', label: 'Stamp', sectionId: 'setupStampSection' },
+        { id: 'setupTogglePasteStudent', label: 'Paste Student', sectionId: 'setupPasteStudentSection' },
+        { id: 'setupTogglePasswordGen', label: 'Password Generator', sectionId: 'setupPasswordGenSection' }
+    ];
+
+    items.forEach(function(item) {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid #eee;border-radius:8px;margin-bottom:10px;background:#fafafa;';
+
+        const lbl = document.createElement('label');
+        lbl.textContent = item.label;
+        lbl.setAttribute('for', item.id);
+        lbl.style.cssText = 'font-weight:600;color:#2c3e50;cursor:pointer;margin:0;font-size:15px;';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = item.id;
+        cb.style.cssText = 'width:22px;height:22px;cursor:pointer;accent-color:#1a2a6c;margin:0;';
+        const sec = document.getElementById(item.sectionId);
+        cb.checked = !!(sec && sec.style.display !== 'none');
+        cb.onchange = function() {
+            const s = document.getElementById(item.sectionId);
+            if (s) { s.style.display = cb.checked ? 'block' : 'none'; }
+        };
+
+        row.appendChild(lbl);
+        row.appendChild(cb);
+        modal.appendChild(row);
+    });
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+    closeBtn.style.cssText = 'padding:10px 25px;background:#1a2a6c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:14px 0 0 0;';
+    closeBtn.onclick = function() { overlay.remove(); };
+    modal.appendChild(closeBtn);
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
 }
 
 // --- ARCHIVE SECTION FUNCTIONS ---
