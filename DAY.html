@@ -785,6 +785,13 @@ function saveSelectedSubjectsToRepo() {
             margin-left: 0 !important;
         }
     }
+    /* SURGICAL FIX: PDF capture — ensure visible left/right borders for nice print appearance */
+    #progressReport._pdfCapture {
+        border: 3px solid black !important;
+        border-radius: 0 !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
     /* SURGICAL FIX: PDF capture class restores original flex-row header */
     #progressReport._pdfCapture #reportHeader {
         display: flex !important;
@@ -958,9 +965,12 @@ function saveSelectedSubjectsToRepo() {
         .info-row p { width: 100%; text-align: left !important; }
         .actions { flex-direction: column; gap: 15px; }
         .actions button { width: 100%; }
-        #summaryAndKeyWrapper { flex-direction: column; }
-        #reportSummary, #gradeKeyPlaceholder { width: 100% !important; margin-bottom: 15px; }
-        #gradeKeyPlaceholder { text-align: left; }
+        #summaryAndKeyWrapper {flex-wrap:wrap; flex-direction:row; align-items:flex-start;}
+        #reportSummary {width:100% !important; margin-bottom:12px;}
+        #gradeKeyPlaceholder {width:50% !important; text-align:left; margin-bottom:15px;}
+        #reportGradeKeyTable{width:100% !important;}
+        #progressReport, #briefReport{width:100% !important; max-width:100%; overflow:hidden;}
+        #progressReport button, #briefReport button{max-width:100%; width:100%;}
         .teacher-input-group { flex-direction: column; align-items: stretch; }
         .teacher-input-group label { flex-basis: auto; text-align: center !important; }
         .teacher-input-group input[type="text"] { flex-basis: auto; text-align: center !important; }
@@ -1577,10 +1587,10 @@ function saveSelectedSubjectsToRepo() {
         overflow: visible !important;
         text-overflow: clip !important;
     }
-    /* SURGICAL FIX: Constrain grade key tables to fit inside the report frame on mobile */
+    /* SURGICAL FIX: Grade key table stays at 50% width (ends in the middle) on mobile */
     #progressReport #reportGradeKeyTable {
-        width: 100% !important;
-        max-width: 100% !important;
+        width: 50% !important;
+        max-width: 50% !important;
         table-layout: fixed !important;
     }
     #progressReport #reportGradeKeyTable th,
@@ -1604,7 +1614,7 @@ function saveSelectedSubjectsToRepo() {
         overflow-wrap: break-word !important;
         white-space: normal !important;
     }
-    /* SURGICAL FIX: Ensure all content inside progress report stays within the frame on mobile */
+    /* SURGICAL FIX: Constrain content sections so nothing overflows horizontally on mobile */
     #progressReport #reportGradeKeySection,
     #progressReport #reportCommentsSection,
     #progressReport #summaryAndKeyWrapper,
@@ -1615,13 +1625,23 @@ function saveSelectedSubjectsToRepo() {
         box-sizing: border-box !important;
     }
     #progressReport #gradeKeyPlaceholder {
-        width: 100% !important;
-        max-width: 100% !important;
+        width: 50% !important;
+        max-width: 50% !important;
         overflow: hidden !important;
     }
     #progressReport > * {
         max-width: 100% !important;
         box-sizing: border-box !important;
+    }
+    /* SURGICAL FIX: Clip horizontal overflow only — keep buttons visible vertically */
+    #progressReport {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+    /* Re-enable horizontal scroll ONLY for the results table-wrapper inside the clipped card */
+    #progressReport .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 }
 
