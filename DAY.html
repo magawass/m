@@ -1671,6 +1671,36 @@ function saveSelectedSubjectsToRepo() {
     }
 }
 
+/* SURGICAL FIX: Admin Home & Sheets Overview - full button visibility on mobile */
+@media (max-width: 480px) {
+    #adminHomePage,
+    #sheetsPage {
+        padding-bottom: 30px !important;
+        overflow-y: visible !important;
+        min-height: 100vh !important;
+        height: auto !important;
+    }
+    
+    #adminHomePage button,
+    #sheetsPage button {
+        min-height: 48px !important;
+        font-size: 1em !important;
+        padding: 14px 16px !important;
+        touch-action: manipulation !important;
+    }
+    
+    #adminHomePage select,
+    #sheetsPage select {
+        font-size: 1em !important;
+        padding: 14px 12px !important;
+    }
+    
+    #adminHomePage .table-wrapper,
+    #sheetsPage .table-wrapper {
+        margin-bottom: 20px !important;
+    }
+}
+
 .teacher-input-group {
     display: flex;
     justify-content: space-between;
@@ -1707,12 +1737,12 @@ function saveSelectedSubjectsToRepo() {
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
     <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off">
 
-    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
-        <button onclick="loadResults(true)" style="width: 195px; max-width: 195px; margin-top: 0;">View Results/Onani Zotsatira</button>
-        
+    <!-- SURGICAL FIX: Front page buttons stacked for mobile visibility -->
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
+        <button onclick="loadResults(true)" style="width: 100%; max-width: 400px; margin-top: 0;">View Results / Onani Zotsatira</button>
+        <button onclick="openAdminLogin()" style="width: 100%; max-width: 400px;">ADMIN</button>
     </div>
 
-    <button onclick="openAdminLogin()">ADMIN</button>
     <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">Designed by CHIKUMBUTSO LUBAINI-0 994 039 325. All rights reserved.</p>
 
     <!-- Front Page Popup (only visible inside #initialPage) -->
@@ -1864,27 +1894,29 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="backToInitialPage()">Back</button>
 </div>
 
+<!-- SURGICAL FIX: Admin Home Page - stacked buttons for mobile visibility -->
 <div id="adminHomePage" class="page">
     <h2>EXAM MANAGEMENT SYSTEM</h2>
     <p style="font-size:0.85em; color:#27ae60; margin:10px 0 20px 0;">ACTIVE</p>
-    <button onclick="openDataEntryAuth()">DATA ENTRY</button>
-    <button onclick="openUploadsAuth()">FILE UPLOADS</button>
-    <button onclick="openSheetsPage()">PROGRESS,GRADE,DATA ANALYSIS SHEETS</button>
-    <button onclick="openSubjectEntryMonitor()">Subject Score Entry Monitor Below</button>
-   
-    <select id="monitorClassSelect" onchange="openSubjectEntryMonitor()">
-        <option value="">Collapsible</option>
-        <option value="form1">Form 1</option>
-        <option value="form2">Form 2</option>
-        <option value="form3">Form 3</option>
-        <option value="form4">Form 4</option>
-    </select>
-    
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 400px; margin: 0 auto;">
+        <button onclick="openDataEntryAuth()" style="width: 100%;">DATA ENTRY</button>
+        <button onclick="openUploadsAuth()" style="width: 100%;">FILE UPLOADS</button>
+        <button onclick="openSheetsPage()" style="width: 100%;">PROGRESS, GRADE, DATA ANALYSIS SHEETS</button>
+        <button onclick="openSubjectEntryMonitor()" style="width: 100%;">Subject Score Entry Monitor Below</button>
+       
+        <select id="monitorClassSelect" onchange="openSubjectEntryMonitor()" style="width: 100%; max-width: 400px;">
+            <option value="">Collapsible</option>
+            <option value="form1">Form 1</option>
+            <option value="form2">Form 2</option>
+            <option value="form3">Form 3</option>
+            <option value="form4">Form 4</option>
+        </select>
+    </div>
     
     <!-- Container for Subject Entry Monitor Table -->
     <div id="monitorTableContainer" class="table-wrapper" style="margin-top: 20px;"></div>
 
-    <button onclick="backToInitialPage()">Logout</button>
+    <button onclick="backToInitialPage()" style="max-width: 400px;">Logout</button>
 </div>
 
 <div id="dataEntryPage" class="page">
@@ -2360,6 +2392,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
 </div>
 
+<!-- SURGICAL FIX: Sheets Overview - stacked buttons for mobile visibility -->
 <div id="sheetsPage" class="page">
     <h2>Sheets Overview</h2>
     <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
@@ -2407,9 +2440,10 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
         </div>
     </div>
 
-    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; flex-wrap: wrap;">
-        <button onclick="openGradesPage()" style="width: 195px; max-width: 195px; margin: 5px;">View Grade Sheet</button>
-        <button onclick="openAnalysisSelector()" style="width: 195px; max-width: 195px; margin: 5px;">View Analysis</button>
+    <!-- SURGICAL FIX: Grade Sheet and Analysis buttons stacked for mobile -->
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
+        <button onclick="openGradesPage()" style="width: 100%; max-width: 400px; margin: 0;">View Grade Sheet</button>
+        <button onclick="openAnalysisSelector()" style="width: 100%; max-width: 400px; margin: 0;">View Analysis</button>
     </div>
 </div>
 
