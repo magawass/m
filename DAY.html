@@ -900,6 +900,35 @@ function saveSelectedSubjectsToRepo() {
         display: none !important;
     }
 
+    /* MOBILE PDF CAPTURE: On mobile devices, keep the logo centered at the top
+       with the school name text below it (matching how it looks on screen),
+       instead of forcing the desktop side-by-side row layout. */
+    #progressReport._pdfCaptureMobile #reportHeader {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        margin-bottom: 5px !important;
+    }
+    #progressReport._pdfCaptureMobile #reportHeader > img.logo {
+        margin: 0 auto 10px auto !important;
+        flex-shrink: 0 !important;
+    }
+    #progressReport._pdfCaptureMobile #reportHeaderCenter {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-left: 0 !important;
+    }
+    #progressReport._pdfCaptureMobile #reportHeaderCenter p,
+    #progressReport._pdfCaptureMobile #reportHeaderCenter h1 p {
+        margin-left: 0 !important;
+        text-align: center !important;
+    }
+
     #reportHeaderRight {
         text-align: center;
         flex: 1;
@@ -5336,8 +5365,14 @@ function openFullPdf() {
     _populateStampOnReport();
     _showReportStamps();
 
-    // SURGICAL FIX: Temporarily restore original layout for PDF capture
+    // SURGICAL FIX: Temporarily restore layout for PDF capture.
+    // On mobile: add _pdfCaptureMobile to keep logo centered on top with text below.
+    // On desktop: use _pdfCapture only for side-by-side logo + text layout.
+    var isMobile = window.innerWidth <= 768;
     element.classList.add('_pdfCapture');
+    if (isMobile) {
+        element.classList.add('_pdfCaptureMobile');
+    }
 
     html2canvas(element, {
         scale: 2,
@@ -5345,7 +5380,7 @@ function openFullPdf() {
         useCORS: true
     }).then(canvas => {
         // Restore screen layout and hide stamp after capture
-        element.classList.remove('_pdfCapture');
+        element.classList.remove('_pdfCapture', '_pdfCaptureMobile');
         _hideReportStamps();
 
         updateLoadingPercent(50);
@@ -5367,7 +5402,7 @@ function openFullPdf() {
         hideLoading();
     }).catch(error => {
         // Restore screen layout on error
-        element.classList.remove('_pdfCapture');
+        element.classList.remove('_pdfCapture', '_pdfCaptureMobile');
         _hideReportStamps();
         console.error("Error generating PDF:", error);
         alert("Failed to generate PDF.");
