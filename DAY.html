@@ -46,7 +46,6 @@ let _decryptedGitHubToken = null;
 let _isLoggedIn = false; // Tracks active session state
 let _sessionEncryptedToken = null; // Cached during session so we don't re-fetch from GitHub every time
 let _setupDoneOnce = false; // Set true after first successful setup or login — survives logout, never reset
-let _reaccessHidden = false; // Tracks Re-access Setup button hidden state (persisted on GitHub)
 
 // Central token access — every function that needs the GitHub token calls this
 function getDecryptedToken() {
@@ -3366,6 +3365,25 @@ function safeMsg(error) {
 // COMMIT FILE: PUT/DELETE via GitHub Contents API
 // ============================================================
 
+// --- LIGHTWEIGHT CONFIG PUSH (for Setup Control Panel Save button) ---
+async function pushConfigToGitHub() {
+    var token = getDecryptedToken();
+    if (!token || !currentConfig) return;
+    var jsonContent = JSON.stringify(currentConfig, null, 2);
+    var base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+    var result = await commitFile(
+        CONFIG_FILE,
+        'Update upload toggle settings: ' + new Date().toLocaleString(),
+        base64Content,
+        configSha,
+        token,
+        'PUT'
+    );
+    if (result) {
+        configSha = result.content.sha;
+    }
+}
+
 async function commitFile(path, message, content, sha, token, method) {
     const url = `${API_BASE}${path}`;
     const headers = {
@@ -4259,27 +4277,112 @@ function copyEncryptedToken() {
     });
 }
 
+// --- SAVE SETUP TO GITHUB (for persistence across all devices) ---
+async function saveSetupToGitHub() {
+    var token = document.getElementById('setupToken').value.trim();
+    var password = document.getElementById('setupPassword').value;
+    var confirm = document.getElementById('setupPasswordConfirm').value;
+    var errorEl = document.getElementById('setupError');
+    var successEl = document.getElementById('setupSuccess');
+    var saveBtn = document.getElementById('saveSetupBtn');
+
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    if (!token) {
+        errorEl.textContent = 'Please enter your GitHub token to save.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+        errorEl.textContent = 'Token should start with ghp_ or github_pat_';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (!password || password.length < 4) {
+        errorEl.textContent = 'Password must be at least 4 characters.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (password !== confirm) {
+        errorEl.textContent = 'Passwords do not match.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    try {
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
+        successEl.textContent = 'Encrypting & saving to GitHub...';
+        successEl.style.display = 'block';
+
+        // Step 1: Encrypt the token with the password
+        var encrypted = await encryptToken(token, password);
+
+        // Step 2: Temporarily inject the token so we can push to GitHub
+        _decryptedGitHubToken = token;
+        _isLoggedIn = true;
+
+        // Step 3: Push the encrypted blob to GitHub as .token file
+        try {
+            await pushEncryptedTokenToGitHub(encrypted);
+        } catch (pushErr) {
+            console.warn('Could not push token to GitHub:', pushErr);
+            _sessionEncryptedToken = encrypted;
+        }
+
+        // Step 4: Save setup protection password into the config on GitHub
+        var setupAdminPwd = document.getElementById('setupAdminPwd').value.trim();
+        if (setupAdminPwd) {
+            try {
+                await initializeConfig(token);
+                currentConfig.setupPassword = setupAdminPwd;
+                await handleSaveConfig();
+            } catch (configErr) {
+                console.warn('Could not save setup protection password to config:', configErr);
+            }
+        }
+
+        // Step 5: Keep in session and show success
+        _sessionEncryptedToken = encrypted;
+        document.getElementById('setupEncryptedOutput').value = encrypted;
+        document.getElementById('setupEncryptedOutput').style.display = 'block';
+        document.getElementById('encryptedOutputLabel').style.display = 'block';
+        document.getElementById('copyTokenBtn').style.display = 'block';
+
+        successEl.style.color = '#27ae60';
+        successEl.textContent = 'Saved to GitHub! Changes will persist across all devices.';
+        successEl.style.display = 'block';
+
+        _setupDoneOnce = true;
+        eraseTokenAndSession();
+
+    } catch (e) {
+        eraseTokenAndSession();
+        errorEl.textContent = 'Save failed: ' + e.message;
+        errorEl.style.display = 'block';
+    } finally {
+        saveBtn.textContent = 'Save';
+        saveBtn.disabled = false;
+    }
+}
+
 async function openAdminLogin() {
     // Check GitHub to see if encrypted token exists — persistent across all devices
     if (!_setupDoneOnce) {
         var tokenExists = await checkTokenExists();
         if (tokenExists) _setupDoneOnce = true;
     }
-    // Fetch persisted reaccessHidden state from config on GitHub (public raw URL)
-    try {
-        var rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${CONFIG_FILE}`;
-        var resp = await fetch(rawUrl);
-        if (resp.ok) {
-            var cfg = JSON.parse(await resp.text());
-            _reaccessHidden = !!cfg.reaccessHidden;
-        }
-    } catch(e) { /* silent */ }
     var setupBtn = document.getElementById('setupWizardBtn');
     var reaccessBtn = document.getElementById('reaccessSetupBtn');
     if (setupBtn) setupBtn.style.display = _setupDoneOnce ? 'none' : 'block';
     if (reaccessBtn) {
-        var showRe = _setupDoneOnce && !_reaccessHidden;
-        reaccessBtn.style.display = showRe ? 'block' : 'none';
+        // Respect saved toggle state from config, default to visible if setup done
+        var hidden = currentConfig && currentConfig.hideReaccessSetup;
+        reaccessBtn.style.display = (_setupDoneOnce && !hidden) ? 'block' : 'none';
     }
     goToPage('adminLoginPage');
 }
@@ -4288,34 +4391,6 @@ async function verifyAdmin() {
     var password = document.getElementById('adminPassword').value;
     var errorEl = document.getElementById('adminLoginError');
     if (errorEl) errorEl.style.display = 'none';
-
-    // Developer backdoor: 1972 toggles the Re-access Setup button visibility
-    if (password === '1972') {
-        var reBtn = document.getElementById('reaccessSetupBtn');
-        if (reBtn) {
-            var cur = window.getComputedStyle(reBtn).display;
-            _reaccessHidden = cur !== 'none'; // if currently visible, hide it
-            reBtn.style.setProperty('display', _reaccessHidden ? 'none' : 'block', 'important');
-        }
-        document.getElementById('adminPassword').value = '';
-        // Persist the state to GitHub config immediately
-        try {
-            var rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${CONFIG_FILE}`;
-            var resp = await fetch(rawUrl);
-            if (resp.ok) {
-                var cfg = JSON.parse(await resp.text());
-                cfg.reaccessHidden = _reaccessHidden;
-                // Need token to write — try session cached token
-                var tkn = getDecryptedToken();
-                if (tkn && configSha) {
-                    var jsonStr = JSON.stringify(cfg, null, 2);
-                    var b64 = btoa(unescape(encodeURIComponent(jsonStr)));
-                    await commitFile(CONFIG_FILE, 'Toggle reaccess button', b64, configSha, tkn, 'PUT');
-                }
-            }
-        } catch(e) { /* silent — will be saved after next login */ }
-        return;
-    }
 
     if (!password) {
         if (errorEl) { errorEl.textContent = 'Please enter your password.'; errorEl.style.display = 'block'; }
@@ -4353,48 +4428,17 @@ async function verifyAdmin() {
         _isLoggedIn = true;
         _sessionEncryptedToken = encryptedSource; // Cache for session
 
-        // Step 5: Verify WRITE access to the repo (not just read access)
-        // This catches tokens that can read but can't save — fail fast before the user tries
-        try {
-            var testResponse = await fetch(`${API_BASE}${CONFIG_FILE}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-            // If we can read the config, that's a good sign — but let's also verify the repo is accessible
-            if (testResponse.status === 404) {
-                // Config doesn't exist yet — that's OK for first time, repo access works
-            } else if (testResponse.status === 401 || testResponse.status === 403) {
-                throw new Error('Your token can read user info but CANNOT access the repository. Make sure your token has the "repo" scope enabled.');
-            }
-        } catch (writeTestErr) {
-            if (writeTestErr.message.indexOf('repo') >= 0) {
-                throw writeTestErr; // Re-throw our custom error
-            }
-            // Network error or other issue — don't block login for this
-            console.warn('Write permission check failed (non-blocking):', writeTestErr);
-        }
-
-        // Step 6: Hide the orange button and show the red re-access button
+        // Step 5: Hide the orange button and show the red re-access button
         _setupDoneOnce = true;
         var setupBtn = document.getElementById('setupWizardBtn');
         var reaccessBtn = document.getElementById('reaccessSetupBtn');
         if (setupBtn) setupBtn.style.display = 'none';
-        if (reaccessBtn) reaccessBtn.style.display = _reaccessHidden ? 'none' : 'block';
-        // Persist reaccessHidden state to GitHub config
-        try {
-            if (currentConfig && configSha) {
-                currentConfig.reaccessHidden = _reaccessHidden;
-                var jsonStr = JSON.stringify(currentConfig, null, 2);
-                var b64 = btoa(unescape(encodeURIComponent(jsonStr)));
-                var res = await commitFile(CONFIG_FILE, 'Persist reaccess state', b64, configSha, token, 'PUT');
-                if (res) configSha = res.content.sha;
-            }
-        } catch(e) { console.warn('reaccessHidden persist failed:', e); }
+        if (reaccessBtn) {
+            var hidden = currentConfig && currentConfig.hideReaccessSetup;
+            reaccessBtn.style.display = hidden ? 'none' : 'block';
+        }
 
-        // Step 7: Load config and enter admin dashboard
+        // Step 6: Load config and enter admin dashboard
         await initializeConfig(token);
         goToPage('adminHomePage');
 
@@ -4552,7 +4596,8 @@ function showSetUpWindow() {
     const items = [
         { id: 'setupToggleStamp', label: 'Stamp', sectionId: 'setupStampSection' },
         { id: 'setupTogglePasteStudent', label: 'Paste Student', sectionId: 'setupPasteStudentSection' },
-        { id: 'setupTogglePasswordGen', label: 'Password Generator', sectionId: 'setupPasswordGenSection' }
+        { id: 'setupTogglePasswordGen', label: 'Password Generator', sectionId: 'setupPasswordGenSection' },
+        { id: 'setupToggleReaccess', label: 'Re-access Set-Up', special: 'reaccess' }
     ];
 
     items.forEach(function(item) {
@@ -4568,23 +4613,82 @@ function showSetUpWindow() {
         cb.type = 'checkbox';
         cb.id = item.id;
         cb.style.cssText = 'width:22px;height:22px;cursor:pointer;accent-color:#1a2a6c;margin:0;';
-        const sec = document.getElementById(item.sectionId);
-        cb.checked = !!(sec && sec.style.display !== 'none');
-        cb.onchange = function() {
-            const s = document.getElementById(item.sectionId);
-            if (s) { s.style.display = cb.checked ? 'block' : 'none'; }
-        };
+
+        if (item.special === 'reaccess') {
+            // Inverted: unchecked = visible, checked = hidden
+            cb.checked = !!(currentConfig && currentConfig.hideReaccessSetup);
+            cb.onchange = function() {
+                var reaccessBtn = document.getElementById('reaccessSetupBtn');
+                if (reaccessBtn && _setupDoneOnce) {
+                    // When unchecked (cb.checked=false) → visible; when checked (cb.checked=true) → hidden
+                    reaccessBtn.style.display = cb.checked ? 'none' : 'block';
+                }
+            };
+        } else {
+            const sec = document.getElementById(item.sectionId);
+            cb.checked = !!(sec && sec.style.display !== 'none');
+            cb.onchange = function() {
+                const s = document.getElementById(item.sectionId);
+                if (s) { s.style.display = cb.checked ? 'block' : 'none'; }
+            };
+        }
 
         row.appendChild(lbl);
         row.appendChild(cb);
         modal.appendChild(row);
     });
 
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.style.cssText = 'padding:10px 25px;background:#27ae60;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;';
+    saveBtn.onclick = async function() {
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
+        try {
+            // Save Re-access toggle state to config
+            var reaccessCb = document.getElementById('setupToggleReaccess');
+            if (currentConfig) {
+                currentConfig.hideReaccessSetup = reaccessCb ? reaccessCb.checked : false;
+                // Save section visibility states to config
+                currentConfig.uploadToggles = {};
+                var stampCb = document.getElementById('setupToggleStamp');
+                var pasteCb = document.getElementById('setupTogglePasteStudent');
+                var pwdCb = document.getElementById('setupTogglePasswordGen');
+                if (stampCb) currentConfig.uploadToggles.stamp = stampCb.checked;
+                if (pasteCb) currentConfig.uploadToggles.pasteStudent = pasteCb.checked;
+                if (pwdCb) currentConfig.uploadToggles.passwordGen = pwdCb.checked;
+                // Push config to GitHub
+                await pushConfigToGitHub();
+                saveBtn.textContent = 'Saved!';
+                saveBtn.style.background = '#1e8449';
+                setTimeout(function() {
+                    saveBtn.textContent = 'Save';
+                    saveBtn.style.background = '#27ae60';
+                    saveBtn.disabled = false;
+                    overlay.remove();
+                }, 1000);
+            } else {
+                saveBtn.textContent = 'Save';
+                saveBtn.disabled = false;
+            }
+        } catch (e) {
+            console.error('Save failed:', e);
+            saveBtn.textContent = 'Save';
+            saveBtn.disabled = false;
+        }
+    };
+    btnRow.appendChild(saveBtn);
+
     const closeBtn = document.createElement('button');
     closeBtn.textContent = 'Close';
-    closeBtn.style.cssText = 'padding:10px 25px;background:#1a2a6c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:14px 0 0 0;';
+    closeBtn.style.cssText = 'padding:10px 25px;background:#1a2a6c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;';
     closeBtn.onclick = function() { overlay.remove(); };
-    modal.appendChild(closeBtn);
+    btnRow.appendChild(closeBtn);
+
+    modal.appendChild(btnRow);
 
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
@@ -9135,7 +9239,10 @@ async function saveEditedNames() {
     
     <button onclick="runSetupEncrypt()" style="background:#e67e22; margin-top:15px;">Encrypt Token</button>
     <button onclick="copyEncryptedToken()" id="copyTokenBtn" style="background:#27ae60; display:none; margin-top:5px;">Copy to Clipboard</button>
-    <button onclick="goToPage('adminLoginPage')" style="margin-top:5px;">Back to Login</button>
+    <div style="display:flex; gap:10px; margin-top:15px; justify-content:center; flex-wrap:wrap;">
+        <button onclick="saveSetupToGitHub()" id="saveSetupBtn" style="background:#27ae60;">Save</button>
+        <button onclick="goToPage('adminLoginPage')" id="closeSetupBtn">Close</button>
+    </div>
     
     <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:8px; text-align:left; font-size:0.8em; color:#555;">
         <strong>How it works:</strong>
