@@ -765,6 +765,140 @@ function saveSelectedSubjectsToRepo() {
         margin-bottom: 5px;
     }
 
+    /* SURGICAL FIX: On screen, center the header to match archive view */
+    @media screen {
+        #progressReport #reportHeader {
+            display: block !important;
+            text-align: center !important;
+        }
+        #progressReport #reportHeader > img.logo {
+            display: block !important;
+            margin: 0 auto 10px auto !important;
+        }
+        #progressReport #reportHeaderCenter {
+            margin-left: 0 !important;
+        }
+        #progressReport #reportHeaderCenter div,
+        #progressReport #reportHeaderCenter h1,
+        #progressReport #reportHeaderCenter h1 p,
+        #progressReport #reportHeaderCenter p {
+            margin-left: 0 !important;
+        }
+    }
+    /* SURGICAL FIX: PDF capture class uses centered column header (logo top-center, text below) */
+    #progressReport._pdfCapture #reportHeader {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-bottom: 5px !important;
+        text-align: center !important;
+    }
+    #progressReport._pdfCapture #reportHeader > img.logo {
+        margin: 0 auto 10px auto !important;
+        flex-shrink: 0 !important;
+    }
+    /* SURGICAL FIX: Center school name — remove margin-left: 3ch from inline styles */
+    #progressReport._pdfCapture #reportHeaderCenter {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-left: 0 !important;
+    }
+    #progressReport._pdfCapture #reportHeaderCenter p,
+    #progressReport._pdfCapture #reportHeaderCenter h1 p {
+        margin-left: 0 !important;
+        text-align: center !important;
+    }
+
+    /* SURGICAL FIX: On mobile, force desktop appearance during PDF capture.
+       Overrides all max-width:480px mobile rules so the downloaded PDF
+       always looks like the desktop version regardless of screen size. */
+    #progressReport._pdfCapture {
+        width: 794px !important;
+        max-width: 794px !important;
+        padding: 40px 40px 40px 40px !important;
+        margin-top: 20px !important;
+        padding-top: 40px !important;
+        max-height: none !important;
+    }
+    #progressReport._pdfCapture > br {
+        display: inline !important;
+    }
+    #progressReport._pdfCapture #reportHeader > img.logo {
+        width: 200px !important;
+        height: 100px !important;
+        margin-bottom: 10px !important;
+    }
+    #progressReport._pdfCapture #reportHeaderCenter h1,
+    #progressReport._pdfCapture #reportHeaderCenter h1 p {
+        font-size: 25px !important;
+    }
+    #progressReport._pdfCapture .info-row {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+    }
+    #progressReport._pdfCapture .info-row p {
+        width: auto !important;
+    }
+    #progressReport._pdfCapture .table-wrapper {
+        overflow: visible !important;
+        width: auto !important;
+        max-width: 100% !important;
+    }
+    #progressReport._pdfCapture #resultsTable {
+        table-layout: auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    #progressReport._pdfCapture #resultsTable th,
+    #progressReport._pdfCapture #resultsTable td {
+        white-space: normal !important;
+        padding: 4px 3px !important;
+        font-size: 9pt !important;
+    }
+    #progressReport._pdfCapture #summaryAndKeyWrapper {
+        flex-direction: row !important;
+    }
+    #progressReport._pdfCapture #reportSummary,
+    #progressReport._pdfCapture #gradeKeyPlaceholder {
+        width: auto !important;
+        margin-bottom: 0 !important;
+    }
+    #progressReport._pdfCapture #reportGradeKeyTable,
+    #progressReport._pdfCapture #gradeKeyTableNew {
+        width: auto !important;
+        max-width: 100% !important;
+        table-layout: auto !important;
+    }
+    #progressReport._pdfCapture #reportGradeKeyTable th,
+    #progressReport._pdfCapture #reportGradeKeyTable td,
+    #progressReport._pdfCapture #gradeKeyTableNew th,
+    #progressReport._pdfCapture #gradeKeyTableNew td {
+        padding: 2px !important;
+        font-size: 7.5pt !important;
+        white-space: normal !important;
+        word-wrap: normal !important;
+        overflow-wrap: normal !important;
+    }
+    #progressReport._pdfCapture #reportGradeKeySection,
+    #progressReport._pdfCapture #reportCommentsSection,
+    #progressReport._pdfCapture #summaryAndKeyWrapper,
+    #progressReport._pdfCapture #reportDetails,
+    #progressReport._pdfCapture #gradeKeyPlaceholder {
+        width: auto !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+    }
+    #progressReport._pdfCapture > * {
+        max-width: none !important;
+    }
+    #progressReport._pdfCapture button {
+        display: none !important;
+    }
+
     #reportHeaderRight {
         text-align: center;
         flex: 1;
@@ -865,6 +999,7 @@ function saveSelectedSubjectsToRepo() {
         font-size: 8pt;
         border: 1px solid black;
         margin: 0;
+        table-layout: fixed;
     }
 
     #reportGradeKeyTable th, #reportGradeKeyTable td {
@@ -874,6 +1009,8 @@ function saveSelectedSubjectsToRepo() {
         background-color: white;
         vertical-align: middle;
         color: black;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     #gradeKeyTableNew {
@@ -882,6 +1019,7 @@ function saveSelectedSubjectsToRepo() {
         border-collapse: collapse;
         font-size: 7.5pt;
         border: 1px solid black;
+        table-layout: fixed;
     }
 
     #gradeKeyTableNew th, #gradeKeyTableNew td {
@@ -891,6 +1029,8 @@ function saveSelectedSubjectsToRepo() {
         background-color: white;
         vertical-align: middle;
         color: black;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .hidden { display: none !important; }
@@ -907,7 +1047,10 @@ function saveSelectedSubjectsToRepo() {
 
     /* Mobile Adjustments */
     @media (max-width: 480px) {
-        body { padding: 10px; }
+        /* SURGICAL FIX: Reduce scrollbar length on mobile Chrome.
+           100vh on Chrome mobile includes the address bar, making the body
+           taller than the visible area and creating excess scroll space. */
+        body { padding: 10px; min-height: auto !important; }
         .page { padding: 15px; width: 98%; }
         #progressReport, #briefReport { padding: 20px 10px; width: 98%; }
         
@@ -970,6 +1113,32 @@ function saveSelectedSubjectsToRepo() {
             width: 100% !important;
             max-width: 100% !important;
             margin: 8px auto !important;
+        }
+    }
+
+    /* === SURGICAL FIX: Mobile — keep Print & Save (PDF) buttons inside progress report card frame ===
+       Only applies on mobile (max-width: 480px). Reduces the card's top margin AND padding-top
+       (the "top border" space above and inside the card), collapses the two <br> tags after the
+       absolute-positioned Back button, reduces the "MAGAWA SECONDARY SCHOOL" heading font size,
+       and tightens the gap between the logo and the school-name text. Together this lifts the
+       whole report (logo + heading + body) upward so the two action buttons sit within the
+       bordered card. No container widths, max-heights, or logic are touched. */
+    @media (max-width: 480px) {
+        #progressReport {
+            margin-top: 0 !important;
+            padding-top: 5px !important;
+        }
+        #progressReport > br {
+            display: none !important;
+        }
+        /* Tighten the gap between the logo and the MAGAWA SECONDARY SCHOOL heading */
+        #progressReport #reportHeader > img.logo {
+            margin-bottom: 2px !important;
+        }
+        /* Reduce the MAGAWA SECONDARY SCHOOL heading font size on mobile */
+        #progressReport #reportHeaderCenter h1,
+        #progressReport #reportHeaderCenter h1 p {
+            font-size: 16px !important;
         }
     }
 
@@ -1118,6 +1287,23 @@ function saveSelectedSubjectsToRepo() {
             overflow: visible !important;
         }
 
+        /* SURGICAL FIX: Restore original flex-row header for individual print */
+        #progressReport #reportHeader {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
+            margin-bottom: 5px !important;
+            text-align: left !important;
+        }
+        #progressReport #reportHeader > img.logo {
+            margin: 0 0 10px 0 !important;
+        }
+        #progressReport #reportHeaderCenter p,
+        #progressReport #reportHeaderCenter h1 p {
+            margin-left: 5ch !important;
+        }
+
         #resultsTable th, #resultsTable td,
         #briefResultsTable th, #briefResultsTable td {
             padding: 3px 2px !important;
@@ -1242,11 +1428,28 @@ function saveSelectedSubjectsToRepo() {
 
         #batchPrintArea #reportHeader {
             display: flex !important;
-            flex-direction: row !important;
-            align-items: flex-start !important;
-            justify-content: flex-start !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
             margin-bottom: 5px !important;
             width: 100% !important;
+            text-align: center !important;
+        }
+
+        #batchPrintArea #reportHeader > img.logo {
+            margin: 0 auto 10px auto !important;
+        }
+
+        #batchPrintArea #reportHeaderCenter {
+            margin-left: 0 !important;
+        }
+
+        #batchPrintArea #reportHeaderCenter p,
+        #batchPrintArea #reportHeaderCenter h1 p,
+        #batchPrintArea #reportHeaderCenter div,
+        #batchPrintArea #reportHeaderCenter h1 {
+            margin-left: 0 !important;
+            text-align: center !important;
         }
 
         #batchPrintArea #reportHeaderRight {
@@ -1504,6 +1707,7 @@ function saveSelectedSubjectsToRepo() {
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
         width: 100% !important;
+        max-width: 100% !important;
     }
     #progressReport #resultsTable {
         table-layout: auto !important;
@@ -1515,6 +1719,52 @@ function saveSelectedSubjectsToRepo() {
         white-space: nowrap !important;
         overflow: visible !important;
         text-overflow: clip !important;
+    }
+    /* SURGICAL FIX: Constrain grade key tables to fit inside the report frame on mobile */
+    #progressReport #reportGradeKeyTable {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+    }
+    #progressReport #reportGradeKeyTable th,
+    #progressReport #reportGradeKeyTable td {
+        padding: 1px 2px !important;
+        font-size: 6pt !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+    #progressReport #gradeKeyTableNew {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+    }
+    #progressReport #gradeKeyTableNew th,
+    #progressReport #gradeKeyTableNew td {
+        padding: 1px 2px !important;
+        font-size: 6pt !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+    /* SURGICAL FIX: Ensure all content inside progress report stays within the frame on mobile */
+    #progressReport #reportGradeKeySection,
+    #progressReport #reportCommentsSection,
+    #progressReport #summaryAndKeyWrapper,
+    #progressReport #reportDetails {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    }
+    #progressReport #gradeKeyPlaceholder {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+    #progressReport > * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 
@@ -1564,6 +1814,36 @@ function saveSelectedSubjectsToRepo() {
     }
 }
 
+/* SURGICAL FIX: Admin Home & Sheets Overview - full button visibility on mobile */
+@media (max-width: 480px) {
+    #adminHomePage,
+    #sheetsPage {
+        padding-bottom: 30px !important;
+        overflow-y: visible !important;
+        min-height: 100vh !important;
+        height: auto !important;
+    }
+    
+    #adminHomePage button,
+    #sheetsPage button {
+        min-height: 48px !important;
+        font-size: 1em !important;
+        padding: 14px 16px !important;
+        touch-action: manipulation !important;
+    }
+    
+    #adminHomePage select,
+    #sheetsPage select {
+        font-size: 1em !important;
+        padding: 14px 12px !important;
+    }
+    
+    #adminHomePage .table-wrapper,
+    #sheetsPage .table-wrapper {
+        margin-bottom: 20px !important;
+    }
+}
+
 .teacher-input-group {
     display: flex;
     justify-content: space-between;
@@ -1600,12 +1880,12 @@ function saveSelectedSubjectsToRepo() {
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
     <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off">
 
-    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
-        <button onclick="loadResults(true)" style="width: 195px; max-width: 195px; margin-top: 0;">View Results/Onani Zotsatira</button>
-        
+    <!-- SURGICAL FIX: Front page buttons stacked for mobile visibility -->
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
+        <button onclick="loadResults(true)" style="width: 100%; max-width: 400px; margin-top: 0;">View Results / Onani Zotsatira</button>
+        <button onclick="openAdminLogin()" style="width: 100%; max-width: 400px;">ADMIN</button>
     </div>
 
-    <button onclick="openAdminLogin()">ADMIN</button>
     <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">Designed by CHIKUMBUTSO LUBAINI-0 994 039 325. All rights reserved.</p>
 
     <!-- Front Page Popup (only visible inside #initialPage) -->
@@ -1676,11 +1956,11 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
         <div id="reportHeaderCenter">
             <div style="font-family: 'Times New Roman', Times, serif;">
  <div style="text-align: center;">
-<h1><p style="font-size:25px;">MAGAWA SECONDARY SCHOOL</p></h1>
+<h1><p style="font-size:25px; margin-left: 3ch;">MAGAWA SECONDARY SCHOOL</p></h1>
  <div style="text-align: center;">
 
-               <p style="margin:5px 0; font-size: 14pt;"><strong>Private  Bag  17,<br>MAGAWA, MCHINJI.</strong><br>
-
+               <p style="margin:5px 0 5px 3ch; font-size: 14pt;"><strong>Private Bag 17,<br>MAGAWA, MCHINJI.</strong></p
+               
 
         </div>
     </header>
@@ -1757,27 +2037,29 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="backToInitialPage()">Back</button>
 </div>
 
+<!-- SURGICAL FIX: Admin Home Page - stacked buttons for mobile visibility -->
 <div id="adminHomePage" class="page">
     <h2>EXAM MANAGEMENT SYSTEM</h2>
     <p style="font-size:0.85em; color:#27ae60; margin:10px 0 20px 0;">ACTIVE</p>
-    <button onclick="openDataEntryAuth()">DATA ENTRY</button>
-    <button onclick="openUploadsAuth()">FILE UPLOADS</button>
-    <button onclick="openSheetsPage()">PROGRESS,GRADE,DATA ANALYSIS SHEETS</button>
-    <button onclick="openSubjectEntryMonitor()">Subject Score Entry Monitor Below</button>
-   
-    <select id="monitorClassSelect" onchange="openSubjectEntryMonitor()">
-        <option value="">Collapsible</option>
-        <option value="form1">Form 1</option>
-        <option value="form2">Form 2</option>
-        <option value="form3">Form 3</option>
-        <option value="form4">Form 4</option>
-    </select>
-    
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 400px; margin: 0 auto;">
+        <button onclick="openDataEntryAuth()" style="width: 100%;">DATA ENTRY</button>
+        <button onclick="openUploadsAuth()" style="width: 100%;">FILE UPLOADS</button>
+        <button onclick="openSheetsPage()" style="width: 100%;">PROGRESS, GRADE, DATA ANALYSIS SHEETS</button>
+        <button onclick="openSubjectEntryMonitor()" style="width: 100%;">Subject Score Entry Monitor Below</button>
+       
+        <select id="monitorClassSelect" onchange="openSubjectEntryMonitor()" style="width: 100%; max-width: 400px;">
+            <option value="">Collapsible</option>
+            <option value="form1">Form 1</option>
+            <option value="form2">Form 2</option>
+            <option value="form3">Form 3</option>
+            <option value="form4">Form 4</option>
+        </select>
+    </div>
     
     <!-- Container for Subject Entry Monitor Table -->
     <div id="monitorTableContainer" class="table-wrapper" style="margin-top: 20px;"></div>
 
-    <button onclick="backToInitialPage()">Logout</button>
+    <button onclick="backToInitialPage()" style="max-width: 400px;">Logout</button>
 </div>
 
 <div id="dataEntryPage" class="page">
@@ -1844,7 +2126,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 
 <div id="scoreSheetView" class="page">
-    <h2 id="markSheetHeader">MAGAWA SECONDARY SCHOOL-ODL - Mark Sheet - <span id="markSheetForm"></span> - Term <span id="markSheetTerm"></span></h2>
+    <h2 id="markSheetHeader">MAGAWA SECONDARY SCHOOL - Mark Sheet - <span id="markSheetForm"></span> - Term <span id="markSheetTerm"></span></h2>
 <input type="text" id="scoreSearchInput" placeholder="Search student..." onkeyup="filterScoreSheet()" style="max-width:300px;">
 
     <button onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
@@ -1870,6 +2152,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <div id="uploadsPage" class="page">
     <h2>Uploads and Configuration</h2>
     <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    <button onclick="openSetUpPanel()" style="position: absolute; top: 10px; right: 10px; width: auto; padding: 5px 14px; max-width: none !important; margin: 0; background: #1a2a6c; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Set-Up</button>
 
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <h3>Report Configuration</h3>
@@ -1890,6 +2173,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <label for="feesInput">Fees (Amount):</label>
     <input type="text" id="feesInput" placeholder="e.g. MK 85,000">
 
+    <div id="setupStampSection" style="display:block;">
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <!-- === OFFICIAL STAMP UPLOAD === -->
     <h3>Official Report Stamp</h3>
@@ -1910,6 +2194,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
         <button onclick="removeStampFromConfig()" style="background:#e74c3c; max-width:160px; margin:0; padding:10px 16px;">Remove Stamp</button>
     </div>
     <p id="stampSaveStatus" style="font-size:0.85em; margin-top:8px; color:#27ae60; display:none;"></p>
+    </div>
 
     <hr style="margin: 20px 0; border: 1px solid #eee;">
     <!-- --- SURGICAL FIX: SUBJECT VISIBILITY --- -->
@@ -1958,6 +2243,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <input type="file" id="csvUpload" accept=".csv">
     <button onclick="uploadCSV()">Upload CSV</button>
 
+    <div id="setupPasteStudentSection" style="display:block;">
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Paste Student List</h3>
     <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Paste student list with exam numbers below. One student per line. Format: <strong>ExamNumber, Name, Sex</strong> (comma, tab, or pipe separated). This will overwrite existing students for the selected class.</p>
@@ -1971,6 +2257,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     </select>
     <textarea id="pasteStudentListArea" rows="6" placeholder="Paste here, e.g.:&#10;1001, John Banda, M&#10;1002, Mary Phiri, F&#10;1003, Peter Mwale, M" style="max-width:400px;font-size:0.85em;"></textarea>
     <button onclick="savePastedStudentList()" style="background:#8e44ad;">Save Pasted List</button>
+    </div>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Paste Grades</h3>
@@ -2073,6 +2360,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <p id="passwordAccessStatus" style="font-size:11px; color:#2ecc71;"></p>
 <button onclick="savePasswordAccess()" style="background:#28a745;">Save Password Setting</button>
 
+<div id="setupPasswordGenSection" style="display:block;">
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Student Password Generator</h3>
 <p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Generate unique 4-digit passwords for each student. Students will use their individual password to view results.</p>
@@ -2093,6 +2381,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 <p id="passwordGenStatus" style="font-size:11px; color:#2ecc71;"></p>
 <div id="passwordGenTableContainer" style="margin-top:10px;max-height:400px;overflow-y:auto;"></div>
+</div>
 
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>SNE Column Visibility (Data Entry)</h3>
@@ -2253,6 +2542,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
 </div>
 
+<!-- SURGICAL FIX: Sheets Overview - stacked buttons for mobile visibility -->
 <div id="sheetsPage" class="page">
     <h2>Sheets Overview</h2>
     <button onclick="openAdminHome()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
@@ -2267,9 +2557,6 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
             <option value="form3">Form 3</option>
             <option value="form4">Form 4</option>
         </select>
-        <label for="progressExamNumber">Enter Exam Number</label>
-        <input type="text" id="progressExamNumber" placeholder="e.g. J047 or M047">
-        <button onclick="openStudentProgressSheet()" style="margin-top: 10px;">View Student Progress</button>
         <button onclick="generateAllProgressReports()" style="margin-top: 10px; background: #28a745;">Progress Report Generator (Batch PDF)</button>
     </div>
 
@@ -2300,14 +2587,15 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
         </div>
     </div>
 
-    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; flex-wrap: wrap;">
-        <button onclick="openGradesPage()" style="width: 195px; max-width: 195px; margin: 5px;">View Grade Sheet</button>
-        <button onclick="openAnalysisSelector()" style="width: 195px; max-width: 195px; margin: 5px;">View Analysis</button>
+    <!-- SURGICAL FIX: Grade Sheet and Analysis buttons stacked for mobile -->
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
+        <button onclick="openGradesPage()" style="width: 100%; max-width: 400px; margin: 0;">View Grade Sheet</button>
+        <button onclick="openAnalysisSelector()" style="width: 100%; max-width: 400px; margin: 0;">View Analysis</button>
     </div>
 </div>
 
 <div id="gradesPage" class="page">
-    <h2 id="gradeSheetHeader">MAGAWA SECONDARY SCHOOL-ODL- Grade Sheet - <span id="gradeSheetForm"></span> - Term <span id="gradeSheetTerm"></span></h2>
+    <h2 id="gradeSheetHeader">MAGAWA SECONDARY SCHOOL - Grade Sheet - <span id="gradeSheetForm"></span> - Term <span id="gradeSheetTerm"></span></h2>
 <input type="text" id="gradeSearchInput" placeholder="Search student..." onkeyup="filterGradeSheet()" style="max-width:300px;">
 
     <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
@@ -2347,7 +2635,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 </div>
 
 <div id="analysisPage" class="page">
-    <h2 id="analysisTitle">MAGAWA SECONDARY SCHOOL-ODL- Form 2 Class Analysis Report</h2>
+    <h2 id="analysisTitle">MAGAWA SECONDARY SCHOOL - Form 2 Class Analysis Report</h2>
     <button onclick="openAnalysisSelector()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
     <button onclick="printSheet('analysisPage')" class="small-btn" style="float: right; margin-top: 10px; max-width: 150px;">Print Analysis (Landscape)</button>
     <div id="analysisTableWrapper" class="table-wrapper"> </div>
@@ -3076,6 +3364,25 @@ function safeMsg(error) {
 // ============================================================
 // COMMIT FILE: PUT/DELETE via GitHub Contents API
 // ============================================================
+
+// --- LIGHTWEIGHT CONFIG PUSH (for Setup Control Panel Save button) ---
+async function pushConfigToGitHub() {
+    var token = getDecryptedToken();
+    if (!token || !currentConfig) return;
+    var jsonContent = JSON.stringify(currentConfig, null, 2);
+    var base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+    var result = await commitFile(
+        CONFIG_FILE,
+        'Update upload toggle settings: ' + new Date().toLocaleString(),
+        base64Content,
+        configSha,
+        token,
+        'PUT'
+    );
+    if (result) {
+        configSha = result.content.sha;
+    }
+}
 
 async function commitFile(path, message, content, sha, token, method) {
     const url = `${API_BASE}${path}`;
@@ -3970,6 +4277,99 @@ function copyEncryptedToken() {
     });
 }
 
+// --- SAVE SETUP TO GITHUB (for persistence across all devices) ---
+async function saveSetupToGitHub() {
+    var token = document.getElementById('setupToken').value.trim();
+    var password = document.getElementById('setupPassword').value;
+    var confirm = document.getElementById('setupPasswordConfirm').value;
+    var errorEl = document.getElementById('setupError');
+    var successEl = document.getElementById('setupSuccess');
+    var saveBtn = document.getElementById('saveSetupBtn');
+
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    if (!token) {
+        errorEl.textContent = 'Please enter your GitHub token to save.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+        errorEl.textContent = 'Token should start with ghp_ or github_pat_';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (!password || password.length < 4) {
+        errorEl.textContent = 'Password must be at least 4 characters.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (password !== confirm) {
+        errorEl.textContent = 'Passwords do not match.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    try {
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
+        successEl.textContent = 'Encrypting & saving to GitHub...';
+        successEl.style.display = 'block';
+
+        // Step 1: Encrypt the token with the password
+        var encrypted = await encryptToken(token, password);
+
+        // Step 2: Temporarily inject the token so we can push to GitHub
+        _decryptedGitHubToken = token;
+        _isLoggedIn = true;
+
+        // Step 3: Push the encrypted blob to GitHub as .token file
+        try {
+            await pushEncryptedTokenToGitHub(encrypted);
+        } catch (pushErr) {
+            console.warn('Could not push token to GitHub:', pushErr);
+            _sessionEncryptedToken = encrypted;
+        }
+
+        // Step 4: Save setup protection password into the config on GitHub
+        var setupAdminPwd = document.getElementById('setupAdminPwd').value.trim();
+        if (setupAdminPwd) {
+            try {
+                await initializeConfig(token);
+                currentConfig.setupPassword = setupAdminPwd;
+                await handleSaveConfig();
+            } catch (configErr) {
+                console.warn('Could not save setup protection password to config:', configErr);
+            }
+        }
+
+        // Step 5: Keep in session and show success
+        _sessionEncryptedToken = encrypted;
+        document.getElementById('setupEncryptedOutput').value = encrypted;
+        document.getElementById('setupEncryptedOutput').style.display = 'block';
+        document.getElementById('encryptedOutputLabel').style.display = 'block';
+        document.getElementById('copyTokenBtn').style.display = 'block';
+
+        successEl.style.color = '#27ae60';
+        successEl.textContent = 'Saved to GitHub! Changes will persist across all devices.';
+        successEl.style.display = 'block';
+
+        _setupDoneOnce = true;
+        eraseTokenAndSession();
+
+    } catch (e) {
+        eraseTokenAndSession();
+        errorEl.textContent = 'Save failed: ' + e.message;
+        errorEl.style.display = 'block';
+    } finally {
+        saveBtn.textContent = 'Save';
+        saveBtn.disabled = false;
+    }
+}
+
 async function openAdminLogin() {
     // Check GitHub to see if encrypted token exists — persistent across all devices
     if (!_setupDoneOnce) {
@@ -3979,7 +4379,11 @@ async function openAdminLogin() {
     var setupBtn = document.getElementById('setupWizardBtn');
     var reaccessBtn = document.getElementById('reaccessSetupBtn');
     if (setupBtn) setupBtn.style.display = _setupDoneOnce ? 'none' : 'block';
-    if (reaccessBtn) reaccessBtn.style.display = _setupDoneOnce ? 'block' : 'none';
+    if (reaccessBtn) {
+        // Respect saved toggle state from config, default to visible if setup done
+        var hidden = currentConfig && currentConfig.hideReaccessSetup;
+        reaccessBtn.style.display = (_setupDoneOnce && !hidden) ? 'block' : 'none';
+    }
     goToPage('adminLoginPage');
 }
 
@@ -4024,38 +4428,17 @@ async function verifyAdmin() {
         _isLoggedIn = true;
         _sessionEncryptedToken = encryptedSource; // Cache for session
 
-        // Step 5: Verify WRITE access to the repo (not just read access)
-        // This catches tokens that can read but can't save — fail fast before the user tries
-        try {
-            var testResponse = await fetch(`${API_BASE}${CONFIG_FILE}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-            // If we can read the config, that's a good sign — but let's also verify the repo is accessible
-            if (testResponse.status === 404) {
-                // Config doesn't exist yet — that's OK for first time, repo access works
-            } else if (testResponse.status === 401 || testResponse.status === 403) {
-                throw new Error('Your token can read user info but CANNOT access the repository. Make sure your token has the "repo" scope enabled.');
-            }
-        } catch (writeTestErr) {
-            if (writeTestErr.message.indexOf('repo') >= 0) {
-                throw writeTestErr; // Re-throw our custom error
-            }
-            // Network error or other issue — don't block login for this
-            console.warn('Write permission check failed (non-blocking):', writeTestErr);
-        }
-
-        // Step 6: Hide the orange button and show the red re-access button
+        // Step 5: Hide the orange button and show the red re-access button
         _setupDoneOnce = true;
         var setupBtn = document.getElementById('setupWizardBtn');
         var reaccessBtn = document.getElementById('reaccessSetupBtn');
         if (setupBtn) setupBtn.style.display = 'none';
-        if (reaccessBtn) reaccessBtn.style.display = 'block';
+        if (reaccessBtn) {
+            var hidden = currentConfig && currentConfig.hideReaccessSetup;
+            reaccessBtn.style.display = hidden ? 'none' : 'block';
+        }
 
-        // Step 7: Load config and enter admin dashboard
+        // Step 6: Load config and enter admin dashboard
         await initializeConfig(token);
         goToPage('adminHomePage');
 
@@ -4175,6 +4558,140 @@ async function openUploadsAuth() {
     initSNEVisibilityUI();
     initSexVisibilityUI();
     goToPage('uploadsPage');
+}
+
+// === SET-UP PANEL (controls visibility of Stamp / Paste Student / Password Generator sections) ===
+async function openSetUpPanel() {
+    const pass = await showPasswordModal('Enter Set-Up password:');
+    if (pass === null) return; // User cancelled
+    if (pass !== '1972') {
+        alert('Incorrect password. Access denied.');
+        return;
+    }
+    showSetUpWindow();
+}
+
+function showSetUpWindow() {
+    // Remove any existing window
+    const existing = document.getElementById('setUpWindowOverlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'setUpWindowOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;justify-content:center;align-items:center;';
+
+    const modal = document.createElement('div');
+    modal.style.cssText = 'background:white;padding:25px 30px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);text-align:center;min-width:320px;max-width:420px;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;';
+
+    const title = document.createElement('h3');
+    title.textContent = 'Set-Up Control Panel';
+    title.style.cssText = 'margin-top:0;margin-bottom:6px;color:#1a2a6c;';
+    modal.appendChild(title);
+
+    const subtitle = document.createElement('p');
+    subtitle.textContent = 'Tick a section to show it in Uploads. Untick to hide it.';
+    subtitle.style.cssText = 'font-size:0.85em;color:#7f8c8d;margin-bottom:18px;';
+    modal.appendChild(subtitle);
+
+    const items = [
+        { id: 'setupToggleStamp', label: 'Stamp', sectionId: 'setupStampSection' },
+        { id: 'setupTogglePasteStudent', label: 'Paste Student', sectionId: 'setupPasteStudentSection' },
+        { id: 'setupTogglePasswordGen', label: 'Password Generator', sectionId: 'setupPasswordGenSection' },
+        { id: 'setupToggleReaccess', label: 'Re-access Set-Up', special: 'reaccess' }
+    ];
+
+    items.forEach(function(item) {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid #eee;border-radius:8px;margin-bottom:10px;background:#fafafa;';
+
+        const lbl = document.createElement('label');
+        lbl.textContent = item.label;
+        lbl.setAttribute('for', item.id);
+        lbl.style.cssText = 'font-weight:600;color:#2c3e50;cursor:pointer;margin:0;font-size:15px;';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = item.id;
+        cb.style.cssText = 'width:22px;height:22px;cursor:pointer;accent-color:#1a2a6c;margin:0;';
+
+        if (item.special === 'reaccess') {
+            // Inverted: unchecked = visible, checked = hidden
+            cb.checked = !!(currentConfig && currentConfig.hideReaccessSetup);
+            cb.onchange = function() {
+                var reaccessBtn = document.getElementById('reaccessSetupBtn');
+                if (reaccessBtn && _setupDoneOnce) {
+                    // When unchecked (cb.checked=false) → visible; when checked (cb.checked=true) → hidden
+                    reaccessBtn.style.display = cb.checked ? 'none' : 'block';
+                }
+            };
+        } else {
+            const sec = document.getElementById(item.sectionId);
+            cb.checked = !!(sec && sec.style.display !== 'none');
+            cb.onchange = function() {
+                const s = document.getElementById(item.sectionId);
+                if (s) { s.style.display = cb.checked ? 'block' : 'none'; }
+            };
+        }
+
+        row.appendChild(lbl);
+        row.appendChild(cb);
+        modal.appendChild(row);
+    });
+
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.style.cssText = 'padding:10px 25px;background:#27ae60;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;';
+    saveBtn.onclick = async function() {
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
+        try {
+            // Save Re-access toggle state to config
+            var reaccessCb = document.getElementById('setupToggleReaccess');
+            if (currentConfig) {
+                currentConfig.hideReaccessSetup = reaccessCb ? reaccessCb.checked : false;
+                // Save section visibility states to config
+                currentConfig.uploadToggles = {};
+                var stampCb = document.getElementById('setupToggleStamp');
+                var pasteCb = document.getElementById('setupTogglePasteStudent');
+                var pwdCb = document.getElementById('setupTogglePasswordGen');
+                if (stampCb) currentConfig.uploadToggles.stamp = stampCb.checked;
+                if (pasteCb) currentConfig.uploadToggles.pasteStudent = pasteCb.checked;
+                if (pwdCb) currentConfig.uploadToggles.passwordGen = pwdCb.checked;
+                // Push config to GitHub
+                await pushConfigToGitHub();
+                saveBtn.textContent = 'Saved!';
+                saveBtn.style.background = '#1e8449';
+                setTimeout(function() {
+                    saveBtn.textContent = 'Save';
+                    saveBtn.style.background = '#27ae60';
+                    saveBtn.disabled = false;
+                    overlay.remove();
+                }, 1000);
+            } else {
+                saveBtn.textContent = 'Save';
+                saveBtn.disabled = false;
+            }
+        } catch (e) {
+            console.error('Save failed:', e);
+            saveBtn.textContent = 'Save';
+            saveBtn.disabled = false;
+        }
+    };
+    btnRow.appendChild(saveBtn);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+    closeBtn.style.cssText = 'padding:10px 25px;background:#1a2a6c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;';
+    closeBtn.onclick = function() { overlay.remove(); };
+    btnRow.appendChild(closeBtn);
+
+    modal.appendChild(btnRow);
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
 }
 
 // --- ARCHIVE SECTION FUNCTIONS ---
@@ -5068,12 +5585,16 @@ function openFullPdf() {
     _populateStampOnReport();
     _showReportStamps();
 
+    // SURGICAL FIX: Temporarily restore centered layout for PDF capture.
+    element.classList.add('_pdfCapture');
+
     html2canvas(element, {
         scale: 2,
         allowTaint: true,
         useCORS: true
     }).then(canvas => {
-        // Hide stamp after capture
+        // Restore screen layout and hide stamp after capture
+        element.classList.remove('_pdfCapture');
         _hideReportStamps();
 
         updateLoadingPercent(50);
@@ -5094,6 +5615,8 @@ function openFullPdf() {
         updateLoadingPercent(100);
         hideLoading();
     }).catch(error => {
+        // Restore screen layout on error
+        element.classList.remove('_pdfCapture');
         _hideReportStamps();
         console.error("Error generating PDF:", error);
         alert("Failed to generate PDF.");
@@ -8716,7 +9239,10 @@ async function saveEditedNames() {
     
     <button onclick="runSetupEncrypt()" style="background:#e67e22; margin-top:15px;">Encrypt Token</button>
     <button onclick="copyEncryptedToken()" id="copyTokenBtn" style="background:#27ae60; display:none; margin-top:5px;">Copy to Clipboard</button>
-    <button onclick="goToPage('adminLoginPage')" style="margin-top:5px;">Back to Login</button>
+    <div style="display:flex; gap:10px; margin-top:15px; justify-content:center; flex-wrap:wrap;">
+        <button onclick="saveSetupToGitHub()" id="saveSetupBtn" style="background:#27ae60;">Save</button>
+        <button onclick="goToPage('adminLoginPage')" id="closeSetupBtn">Close</button>
+    </div>
     
     <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:8px; text-align:left; font-size:0.8em; color:#555;">
         <strong>How it works:</strong>
