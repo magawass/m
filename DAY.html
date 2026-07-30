@@ -965,12 +965,12 @@ function saveSelectedSubjectsToRepo() {
         .info-row p { width: 100%; text-align: left !important; }
         .actions { flex-direction: column; gap: 15px; }
         .actions button { width: 100%; }
-        #summaryAndKeyWrapper {flex-wrap:wrap; flex-direction:row; align-items:flex-start;}
-        #reportSummary {width:100% !important; margin-bottom:12px;}
-        #gradeKeyPlaceholder {width:50% !important; text-align:left; margin-bottom:15px;}
-        #reportGradeKeyTable{width:100% !important;}
-        #progressReport, #briefReport{width:100% !important; max-width:100%; overflow:hidden;}
-        #progressReport button, #briefReport button{max-width:100%; width:100%;}
+        #summaryAndKeyWrapper { display:flex; flex-direction:row; align-items:flex-start; gap:10px; flex-wrap:wrap; }
+        #reportSummary { width:48% !important; }
+        #gradeKeyPlaceholder { width:48% !important; text-align:left; }
+        #reportGradeKeyTable,#gradeKeyTableNew{width:100% !important;}
+        #progressReport{overflow:hidden !important;}
+        #progressReport button{max-width:100% !important;width:100% !important;}
         .teacher-input-group { flex-direction: column; align-items: stretch; }
         .teacher-input-group label { flex-basis: auto; text-align: center !important; }
         .teacher-input-group input[type="text"] { flex-basis: auto; text-align: center !important; }
