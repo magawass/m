@@ -1051,5 +1051,5 @@
   },
   "hideReaccessSetup": true,
   "useModifiedHeader": true,
-  "hideVoiceEntry": false
+  "hideVoiceEntry": true
 }
