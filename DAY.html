@@ -2263,11 +2263,13 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="savePastedStudentList()" style="background:#8e44ad;">Save Pasted List</button>
     </div>
 
+    <div id="setupPasteGradesSection" style="display:block;">
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Paste Grades</h3>
     <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px;">Toggle the paste score column in the data entry table to bulk-paste grades for a subject.</p>
     <!-- Paste Grades Per Subject (hidden by default) -->
     <button onclick="togglePasteGrades()" class="small-btn" style="background:#8e44ad;color:#fff;max-width:200px;margin-top:10px;margin-bottom:0;font-size:0.9em;padding:10px;">Paste Grades</button>
+    </div>
 
     <hr style="margin: 20px 0; border: 1px solid #ccc;">
     <h3>Manual Student Entry</h3>
@@ -3591,6 +3593,12 @@ async function initializeConfig(token) {
         if (pasteSec) pasteSec.style.display = t.pasteStudent !== false ? 'block' : 'none';
         var pwdSec = document.getElementById('setupPasswordGenSection');
         if (pwdSec) pwdSec.style.display = t.passwordGen !== false ? 'block' : 'none';
+        var pasteGradesSec = document.getElementById('setupPasteGradesSection');
+        if (pasteGradesSec) pasteGradesSec.style.display = t.pasteGrades !== false ? 'block' : 'none';
+    }
+    if (currentConfig.hideVoiceEntry) {
+        var voiceBtn = document.getElementById('voiceStartStopBtn');
+        if (voiceBtn) voiceBtn.style.display = 'none';
     }
     if (currentConfig.hideReaccessSetup) {
         var reaccessBtn = document.getElementById('reaccessSetupBtn');
@@ -3913,6 +3921,18 @@ async function uploadCSV() {
 
         const base64Content = fileContent.split(',')[1];
 
+        updateLoadingPercent(20);
+
+        // Validate names BEFORE uploading to GitHub
+        const csvText = decodeURIComponent(escape(atob(base64Content)));
+        var preCheckData = normalizeCSVData(csvText).filter(s => s && s["Exam Number"]);
+        var longNames = preCheckData.filter(s => (s["STUDENT'S NAME"] || '').length > 35);
+        if (longNames.length > 0) {
+            hideLoading();
+            alert('Upload rejected. ' + longNames.length + ' student(s) have names exceeding 35 characters.');
+            return;
+        }
+
         updateLoadingPercent(40);
 
         let sha = await getCSVFileSha(form, token);
@@ -3931,13 +3951,7 @@ async function uploadCSV() {
         hideLoading();
         if (result) {
             alert(`File ${fileName} uploaded/updated successfully!`);
-            // Parse and cache uploaded data in memory for instant access
-            try {
-                const csvText = decodeURIComponent(escape(atob(base64Content)));
-                currentClassData[form] = normalizeCSVData(csvText).filter(s => s && s["Exam Number"]);
-            } catch(e) {
-                currentClassData[form] = null;
-            }
+            currentClassData[form] = preCheckData;
             currentDataSha[form] = result.content.sha;
             refreshFileList();
             fileInput.value = '';
@@ -4621,7 +4635,9 @@ function showSetUpWindow() {
         { id: 'setupToggleStamp', label: 'Stamp', sectionId: 'setupStampSection', configKey: 'stamp' },
         { id: 'setupTogglePasteStudent', label: 'Paste Student', sectionId: 'setupPasteStudentSection', configKey: 'pasteStudent' },
         { id: 'setupTogglePasswordGen', label: 'Password Generator', sectionId: 'setupPasswordGenSection', configKey: 'passwordGen' },
-        { id: 'setupToggleReaccess', label: 'Re-access Set-Up', special: 'reaccess' }
+        { id: 'setupToggleReaccess', label: 'Re-access Set-Up', special: 'reaccess' },
+        { id: 'setupToggleVoiceEntry', label: 'Voice Entry', special: 'voiceEntry' },
+        { id: 'setupTogglePasteGrades', label: 'Paste Grades', sectionId: 'setupPasteGradesSection', configKey: 'pasteGrades' }
     ];
 
     items.forEach(function(item) {
@@ -4646,6 +4662,15 @@ function showSetUpWindow() {
                 if (reaccessBtn && _setupDoneOnce) {
                     // When unchecked (cb.checked=false) → visible; when checked (cb.checked=true) → hidden
                     reaccessBtn.style.display = cb.checked ? 'none' : 'block';
+                }
+            };
+        } else if (item.special === 'voiceEntry') {
+            // Inverted: unchecked = visible (START button shown), checked = hidden (START button hidden)
+            cb.checked = !!(currentConfig && currentConfig.hideVoiceEntry);
+            cb.onchange = function() {
+                var voiceBtn = document.getElementById('voiceStartStopBtn');
+                if (voiceBtn) {
+                    voiceBtn.style.display = cb.checked ? 'none' : 'block';
                 }
             };
         } else {
@@ -4689,6 +4714,11 @@ function showSetUpWindow() {
                 if (stampCb) currentConfig.uploadToggles.stamp = stampCb.checked;
                 if (pasteCb) currentConfig.uploadToggles.pasteStudent = pasteCb.checked;
                 if (pwdCb) currentConfig.uploadToggles.passwordGen = pwdCb.checked;
+                var pasteGradesCb = document.getElementById('setupTogglePasteGrades');
+                if (pasteGradesCb) currentConfig.uploadToggles.pasteGrades = pasteGradesCb.checked;
+                // Save Voice Entry toggle state to config
+                var voiceEntryCb = document.getElementById('setupToggleVoiceEntry');
+                if (voiceEntryCb) currentConfig.hideVoiceEntry = voiceEntryCb.checked;
                 // Push config to GitHub
                 await pushConfigToGitHub();
                 saveBtn.textContent = 'Saved!';
@@ -7458,6 +7488,7 @@ async function deleteStudentFromList() {
             return;
         }
 
+        if (replName.length > 35) { alert('Replacement name must not exceed 35 characters.'); return; }
         // Check replacement exam number doesn't already exist (unless same as deleted)
         if (replExamNo !== studentExamNo && classData.some(s => s["Exam Number"] === replExamNo)) {
             alert('A student with this Replacement Exam Number already exists.');
@@ -8353,6 +8384,7 @@ async function addStudentManually() {
     if (!token) { alert('Authorization Code required.'); return; }
     if (!form || !name || !examNo) { alert('Form, Name, and Exam Number are required.'); return; }
 
+    if (name.length > 35) { alert('Name must not exceed 35 characters.'); return; }
     showLoading();
     updateLoadingPercent(10);
 
@@ -8937,7 +8969,14 @@ async function overwriteStudentData() {
         }
 
         // Update student data
-        if (name) classData[studentIndex]["STUDENT'S NAME"] = name;
+        if (name) {
+            if (name.length > 35) {
+                hideLoading();
+                alert('Name must not exceed 35 characters.');
+                return;
+            }
+            classData[studentIndex]["STUDENT'S NAME"] = name;
+        }
         if (sex) classData[studentIndex]["Sex"] = sex;
         if (dob) classData[studentIndex]["Date of Birth"] = dob;
 
@@ -8985,6 +9024,18 @@ async function savePastedStudentList() {
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     if (lines.length === 0) { alert('No valid lines found in the pasted text.'); return; }
 
+    // Pre-check ALL names before processing
+    for (let pi = 0; pi < lines.length; pi++) {
+        let pparts = lines[pi].includes('       ') ? lines[pi].split('  ') : lines[pi].includes('|') ? lines[pi].split('|') : lines[pi].split(',');
+        if (pparts.length >= 2) {
+            let pname = pparts[1].trim();
+            if (pname.length > 35) {
+                alert('Rejected: name on line ' + (pi+1) + ' exceeds 35 characters.');
+                return;
+            }
+        }
+    }
+
     const newStudents = [];
     lines.forEach((line, i) => {
         // Try comma, then tab, then pipe
@@ -8992,6 +9043,10 @@ async function savePastedStudentList() {
         if (parts.length < 2) return;
         const examNo = parts[0].trim();
         const name = parts[1].trim();
+        if (name.length > 35) {
+            alert('Rejected: name exceeds 35 characters.');
+            return;
+        }
         const sex = parts.length >= 3 ? parts[2].trim().toUpperCase() : '';
         if (!examNo || !name) return;
         const student = {};
@@ -9169,7 +9224,7 @@ async function loadEditNamesUI() {
             html += `<tr style="background:${index % 2 === 0 ? '#fff' : '#f9f9f9'};">
                 <td style="border:1px solid #ddd;padding:5px 8px;text-align:center;"><input type="text" data-edit-examno="${index}" value="${examNo}" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;text-align:center;font-weight:bold;" /></td>
                 <td style="border:1px solid #ddd;padding:5px 8px;text-align:center;"><select data-examno-sex="${examNo}" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;text-align:center;"><option value="M"${sex==='M'?' selected':''}>M</option><option value="F"${sex==='F'?' selected':''}>F</option></select></td>
-                <td style="border:1px solid #ddd;padding:4px;"><input type="text" data-examno="${examNo}" value="${name.replace(/"/g, '&quot;')}" style="width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;" /></td>
+                <td style="border:1px solid #ddd;padding:4px;"><input type="text" data-examno="${examNo}" value="${name.replace(/"/g, '&quot;')}" oninput="if(this.value.length>35){alert('Name must not exceed 35 characters.');this.value=this.dataset.prev||'';}else{this.dataset.prev=this.value;}" style="width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:inherit;box-sizing:border-box;" /></td>
             </tr>`;
         });
 
@@ -9204,6 +9259,18 @@ async function saveEditedNames() {
         let changesCount = 0;
         let sexChangesCount = 0;
         let examNoChangesCount = 0;
+
+        // Pre-check ALL names before saving
+        let longNameFound = false;
+        inputs.forEach(function(input) {
+            if (input.value.trim().length > 35) longNameFound = true;
+        });
+        if (longNameFound) {
+            hideLoading();
+            alert('Name must not exceed 35 characters.');
+            return;
+        }
+
         inputs.forEach(input => {
             const examNo = input.getAttribute('data-examno');
             const newName = input.value.trim();
