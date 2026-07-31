@@ -1287,21 +1287,25 @@ function saveSelectedSubjectsToRepo() {
             overflow: visible !important;
         }
 
-        /* SURGICAL FIX: Restore original flex-row header for individual print */
+        /* SURGICAL FIX: Center header for print — logo top-center, text below */
         #progressReport #reportHeader {
             display: flex !important;
-            flex-direction: row !important;
-            align-items: flex-start !important;
-            justify-content: flex-start !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
             margin-bottom: 5px !important;
-            text-align: left !important;
+            text-align: center !important;
         }
         #progressReport #reportHeader > img.logo {
-            margin: 0 0 10px 0 !important;
+            margin: 0 auto 10px auto !important;
+        }
+        #progressReport #reportHeaderCenter {
+            margin-left: 0 !important;
         }
         #progressReport #reportHeaderCenter p,
         #progressReport #reportHeaderCenter h1 p {
-            margin-left: 5ch !important;
+            margin-left: 0 !important;
+            text-align: center !important;
         }
 
         #resultsTable th, #resultsTable td,
@@ -2570,6 +2574,9 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
             <button onclick="batchDeselectAll()" class="small-btn" style="background:#e74c3c; max-width:120px; margin:0; padding:8px 12px; font-size:0.85em;">Deselect All</button>
             <button onclick="batchSelectRange()" class="small-btn" style="background:#2980b9; max-width:120px; margin:0; padding:8px 12px; font-size:0.85em;">Select Range</button>
         </div>
+        <div style="margin-bottom:10px;">
+            <button onclick="viewBatchSelectedStudent()" class="small-btn" style="background:#e67e22; max-width:120px; margin:0; padding:8px 12px; font-size:0.85em;">View</button>
+        </div>
         <div id="batchRangeInputs" style="display:none; margin-bottom:10px;">
             <div style="display:flex; justify-content:center; gap:6px; align-items:center;">
                 <label style="margin:0; font-size:0.85em; font-weight:500;">From #</label>
@@ -3574,6 +3581,21 @@ async function initializeConfig(token) {
     populateTeacherInputs();
     populateLockSubjects();
     populateVisibilitySubjects(); // Populate the visibility control
+
+    // Restore Setup Control Panel toggle states from config (persists across devices)
+    if (currentConfig.uploadToggles) {
+        var t = currentConfig.uploadToggles;
+        var stampSec = document.getElementById('setupStampSection');
+        if (stampSec) stampSec.style.display = t.stamp !== false ? 'block' : 'none';
+        var pasteSec = document.getElementById('setupPasteStudentSection');
+        if (pasteSec) pasteSec.style.display = t.pasteStudent !== false ? 'block' : 'none';
+        var pwdSec = document.getElementById('setupPasswordGenSection');
+        if (pwdSec) pwdSec.style.display = t.passwordGen !== false ? 'block' : 'none';
+    }
+    if (currentConfig.hideReaccessSetup) {
+        var reaccessBtn = document.getElementById('reaccessSetupBtn');
+        if (reaccessBtn && _setupDoneOnce) reaccessBtn.style.display = 'none';
+    }
 }
 
 // ============================================================
@@ -3813,7 +3835,9 @@ async function handleSaveConfig() {
         studentPasswords: currentConfig.studentPasswords || {},
         stampImage: currentConfig.stampImage || '',
         stampDate: currentConfig.stampDate || '',
-        stampEnabled: document.getElementById('stampToggleCheckbox').checked
+        stampEnabled: document.getElementById('stampToggleCheckbox').checked,
+        uploadToggles: currentConfig.uploadToggles || {},
+        hideReaccessSetup: currentConfig.hideReaccessSetup || false
     };
 
     ALL_CLASSES.forEach(form => {
@@ -4594,9 +4618,9 @@ function showSetUpWindow() {
     modal.appendChild(subtitle);
 
     const items = [
-        { id: 'setupToggleStamp', label: 'Stamp', sectionId: 'setupStampSection' },
-        { id: 'setupTogglePasteStudent', label: 'Paste Student', sectionId: 'setupPasteStudentSection' },
-        { id: 'setupTogglePasswordGen', label: 'Password Generator', sectionId: 'setupPasswordGenSection' },
+        { id: 'setupToggleStamp', label: 'Stamp', sectionId: 'setupStampSection', configKey: 'stamp' },
+        { id: 'setupTogglePasteStudent', label: 'Paste Student', sectionId: 'setupPasteStudentSection', configKey: 'pasteStudent' },
+        { id: 'setupTogglePasswordGen', label: 'Password Generator', sectionId: 'setupPasswordGenSection', configKey: 'passwordGen' },
         { id: 'setupToggleReaccess', label: 'Re-access Set-Up', special: 'reaccess' }
     ];
 
@@ -4625,8 +4649,13 @@ function showSetUpWindow() {
                 }
             };
         } else {
-            const sec = document.getElementById(item.sectionId);
-            cb.checked = !!(sec && sec.style.display !== 'none');
+            // Read saved toggle state from config first, fall back to current DOM state
+            var savedToggles = currentConfig && currentConfig.uploadToggles ? currentConfig.uploadToggles : {};
+            var sectionId = item.sectionId;
+            var configKey = item.configKey || sectionId; // e.g. 'stamp', 'pasteStudent', 'passwordGen'
+            var savedValue = savedToggles[configKey];
+            var domVisible = document.getElementById(sectionId) && document.getElementById(sectionId).style.display !== 'none';
+            cb.checked = savedValue !== undefined ? savedValue : domVisible;
             cb.onchange = function() {
                 const s = document.getElementById(item.sectionId);
                 if (s) { s.style.display = cb.checked ? 'block' : 'none'; }
@@ -7990,6 +8019,40 @@ function filterBatchPrintList() {
         const name = cells[3] ? cells[3].textContent.toLowerCase() : '';
         row.style.display = (examNo.includes(query) || name.includes(query)) ? '' : 'none';
     });
+}
+
+async function viewBatchSelectedStudent() {
+    const checked = document.querySelectorAll('.batch-student-cb:checked');
+    if (checked.length === 0) {
+        _batchMsg('Please select a student to view.', true);
+        return;
+    }
+    if (checked.length > 1) {
+        _batchMsg('Please select only ONE student to view.', true);
+        return;
+    }
+    const idx = parseInt(checked[0].getAttribute('data-idx'));
+    const student = _batchPrintClassData[idx];
+    if (!student) {
+        _batchMsg('Student data not found.', true);
+        return;
+    }
+    const form = document.getElementById('progressClassSelect').value;
+    const examNumber = (student['Exam Number'] || '').trim().toUpperCase();
+
+    // Populate the hidden fields that loadResults reads from
+    document.getElementById('selectedForm').value = form;
+    document.getElementById('studentNumberInput').value = examNumber;
+
+    showLoading();
+    try {
+        lastCallingPage = 'sheetsPage';
+        await loadResults(false);
+    } catch (error) {
+        alert('Failed to load progress report.');
+    } finally {
+        hideLoading();
+    }
 }
 
 async function executeBatchPrint() {
