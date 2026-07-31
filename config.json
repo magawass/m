@@ -1046,8 +1046,10 @@
   "uploadToggles": {
     "stamp": false,
     "pasteStudent": false,
-    "passwordGen": false
+    "passwordGen": false,
+    "pasteGrades": false
   },
   "hideReaccessSetup": true,
-  "useModifiedHeader": true
+  "useModifiedHeader": true,
+  "hideVoiceEntry": false
 }
