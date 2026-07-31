@@ -1044,7 +1044,7 @@
   "stampDate": "2026-05-11",
   "stampEnabled": true,
   "uploadToggles": {
-    "stamp": true,
+    "stamp": false,
     "pasteStudent": false,
     "passwordGen": false
   },
