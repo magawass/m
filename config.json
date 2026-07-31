@@ -1039,5 +1039,14 @@
     "passwordGen": false,
     "reportHeader": true
   },
-  "hideReaccessSetup": true
+  "hideReaccessSetup": true,
+  "reportHeader": {
+    "design": 2,
+    "logo": "file:///D:/LUBA/DAY_17_fixed%20(8).html",
+    "row1": "KAWALE PRIVATE SECONDARY SCHOOL",
+    "row2": "P>O BOX 42",
+    "row3": "KAWALE, LILONGWE",
+    "fontSize": "14",
+    "logoSize": "100"
+  }
 }
