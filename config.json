@@ -1046,8 +1046,8 @@
   "uploadToggles": {
     "stamp": false,
     "pasteStudent": false,
-    "passwordGen": false,
-    "reportHeader": true
+    "passwordGen": false
   },
-  "hideReaccessSetup": true
+  "hideReaccessSetup": true,
+  "useModifiedHeader": true
 }
