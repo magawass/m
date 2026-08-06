@@ -116,16 +116,16 @@
   },
   "hiddenSubjects": {
     "form1": {
-      "Agriculture": false,
+      "Agriculture": true,
       "Bible Knowledge": false,
       "Biology": false,
       "Chemistry": false,
       "Chichewa": true,
       "English": false,
       "Geography": false,
-      "History": false,
-      "Mathematics": false,
-      "Physics": false,
+      "History": true,
+      "Mathematics": true,
+      "Physics": true,
       "Social/Life": false
     },
     "form2": {
