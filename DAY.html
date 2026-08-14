@@ -4078,6 +4078,19 @@ async function submitAndSaveScores() {
             return;
         }
 
+        // SURGICAL FIX: Auto-apply any pending paste-column values before saving, so
+        // pasted grades are persisted even if the user clicks Save without first clicking
+        // 'Apply Pasted Scores'. Done silently — no alerts, no hiding of the paste column.
+        for (var _i = 0; _i < classData.length; _i++) {
+            var _pasteInput = document.getElementById('pasteScore_' + _i);
+            if (_pasteInput) {
+                var _val = _pasteInput.value.trim();
+                if (_val !== '') {
+                    classData[_i][subject] = _val;
+                }
+            }
+        }
+
         updateLoadingPercent(60);
 
         const csvString = Papa.unparse(classData, {
@@ -4102,6 +4115,13 @@ async function submitAndSaveScores() {
 
             // Keep memory data intact (no reset)
             showStudentMarksList();
+
+            // SURGICAL FIX: Refresh ALL sheets showing this class so the pasted grades
+            // appear immediately everywhere — monitor, mark sheet, and grades sheet.
+            var _monitorSelect = document.getElementById('monitorClassSelect');
+            if (_monitorSelect && _monitorSelect.value === form) {
+                refreshSubjectMonitor(form);
+            }
 
             if (document.getElementById('sheetClassSelect').value === form) {
                 displayScoreSheet();
@@ -6564,6 +6584,19 @@ async function showStudentMarksList() {
     applySNEColumnToTable();
     // Apply Sex column visibility to header
     applySexColumnToTable();
+
+    // SURGICAL FIX: Preserve paste score column visibility when a class/subject is (re)selected.
+    // The table rebuild above resets every .paste-score-cell to display:none, which made the
+    // paste column disappear whenever the user changed the class. Re-apply the visible state
+    // here so the column stays open across reloads.
+    var _pasteHeader = document.getElementById('pasteScoreHeader');
+    if (_pasteHeader && _pasteHeader.style.display !== 'none') {
+        document.querySelectorAll('.paste-score-cell').forEach(function(cell) { cell.style.display = ''; });
+        var _applyRow = document.getElementById('pasteApplyRow');
+        if (_applyRow) _applyRow.style.display = 'block';
+        var _toggleBtn = document.querySelector('[onclick="togglePasteGrades()"]');
+        if (_toggleBtn) { _toggleBtn.textContent = 'Hide Paste Grades'; _toggleBtn.style.background = '#e74c3c'; }
+    }
 
     // Voice mic now activates when user clicks "Show Voice Entry" button
 }
