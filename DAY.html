@@ -1979,7 +1979,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <span><strong>NAME:</strong> <span id="reportStudentName"></span>&nbsp;&nbsp;
     <span><strong>Exam No:</strong> <span id="reportExamNo"></span>&nbsp;&nbsp;
     <span><strong>SEX:</strong> <span id="reportSex"></span>&nbsp;&nbsp;
-    <span><strong>FORM:</strong> <span id="reportForm"></span> &nbsp;&nbsp;
+    <span><strong>CLASS:</strong> <span id="reportForm"></span> &nbsp;&nbsp;
     <span><strong>TERM:</strong> <span id="reportTerm"></span>&nbsp;&nbsp;
     <span><strong>YEAR:</strong> <span id="reportYear"></span>
 </div>
@@ -9214,13 +9214,10 @@ function applyPasteColumnScores() {
     msg += ' Click Save to persist.';
     alert(msg);
 
-    // Hide paste column and reset button
-    const header = document.getElementById('pasteScoreHeader');
-    if (header) header.style.display = 'none';
-    document.querySelectorAll('.paste-score-cell').forEach(function(cell) { cell.style.display = 'none'; });
-    document.getElementById('pasteApplyRow').style.display = 'none';
-    var toggleBtn = document.querySelector('[onclick="togglePasteGrades()"]');
-    if (toggleBtn) { toggleBtn.textContent = 'Paste Grades'; toggleBtn.style.background = '#8e44ad'; }
+
+    // Keep paste column visible -- only hide via the "Hide Paste Grades" button in setup.
+    // Clear the paste inputs so the user can paste new values if needed.
+    document.querySelectorAll("[id^=\"pasteScore_\"]").forEach(function(inp) { inp.value = ""; });
 }
 
 // === EDIT STUDENT NAMES ===
