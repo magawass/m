@@ -1037,7 +1037,7 @@
     "stamp": false,
     "pasteStudent": false,
     "passwordGen": false,
-    "pasteGrades": true
+    "pasteGrades": false
   },
   "hideReaccessSetup": true,
   "hideVoiceEntry": false
