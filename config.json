@@ -120,12 +120,12 @@
       "Bible Knowledge": false,
       "Biology": false,
       "Chemistry": false,
-      "Chichewa": true,
+      "Chichewa": false,
       "English": false,
       "Geography": false,
-      "History": true,
-      "Mathematics": true,
-      "Physics": true,
+      "History": false,
+      "Mathematics": false,
+      "Physics": false,
       "Social/Life": false
     },
     "form2": {
