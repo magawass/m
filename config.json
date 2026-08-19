@@ -186,9 +186,10 @@
       "Social/Life": false
     },
     "form3": {
-      "Mathematics": false,
-      "Physics": false,
-      "Social/Life": false
+      "Mathematics": true,
+      "Physics": true,
+      "Social/Life": true,
+      "Chemistry": true
     },
     "form4": {
       "Agriculture": false,
