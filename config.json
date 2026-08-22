@@ -192,7 +192,12 @@
       "Mathematics": true,
       "Physics": true,
       "Social/Life": true,
-      "Chemistry": true
+      "Chemistry": true,
+      "Biology": true,
+      "English": true,
+      "Geography": false,
+      "History": true,
+      "Bible Knowledge": true
     },
     "form4": {
       "Agriculture": false,
