@@ -176,7 +176,10 @@
       "Chichewa": true,
       "History": true,
       "Physics": true,
-      "Mathematics": true
+      "Mathematics": true,
+      "Bible Knowledge": true,
+      "English": true,
+      "Geography": true
     },
     "form2": {
       "Bible Knowledge": false,
