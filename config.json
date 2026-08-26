@@ -213,7 +213,7 @@
       "Social/Life": false
     }
   },
-  "passwordEnabled": false,
+  "passwordEnabled": true,
   "sneColumnVisible": false,
   "sexColumnVisible": false,
   "setupPassword": "1972",
