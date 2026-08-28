@@ -8361,6 +8361,22 @@ async function refreshSubjectMonitor(form) {
     let enteredSubjects = [];
     let notEnteredSubjects = [];
 
+    // Helper: get per-subject entry percentage (>=70% treated as 100%)
+    function getSubjectPercent(sub) {
+        const totalStudents = data.length;
+        if (totalStudents === 0) return '0%';
+        let scoredCount = 0;
+        data.forEach(student => {
+            const score = student[sub] ? student[sub].toString().trim() : "";
+            if (score !== "" && score !== "-" && score.toUpperCase() !== "N" && score.toUpperCase() !== "X" && !isNaN(parseInt(score))) {
+                scoredCount++;
+            }
+        });
+        let rawPct = (scoredCount / totalStudents) * 100;
+        if (rawPct >= 70) rawPct = 100;
+        return rawPct.toFixed(0) + '%';
+    }
+
     // Logic: A subject is "Entered" if at least ONE student has a numeric score.
     ALL_SUBJECTS.forEach(sub => {
         const hasScore = data.some(student => {
@@ -8381,20 +8397,39 @@ async function refreshSubjectMonitor(form) {
         <table id="monitorTable" style="width:100%;border-collapse:collapse;margin-top:10px;border:2px solid #1a2a6c;background-color:white;">
         <thead>
             <tr style="background-color:#1a2a6c; color: white;">
-                <th style="border:1px solid #ddd;padding:12px;width:50%;">SUBJECTS ENTERED ✅</th>
-                <th style="border:1px solid #ddd;padding:12px;width:50%;">SUBJECTS NOT ENTERED ❌</th>
+                <th style="border:1px solid #ddd;padding:12px;">TEACHER</th>
+                <th style="border:1px solid #ddd;padding:12px;">SUBJECT ENTERED ✅</th>
+                <th style="border:1px solid #ddd;padding:12px;">PERCENT</th>
+                <th style="border:1px solid #ddd;padding:12px;">NOT ENTERED ❌</th>
+                <th style="border:1px solid #ddd;padding:12px;">TEACHER</th>
             </tr>
         </thead>
         <tbody>`;
 
-    const rowCount = Math.max(enteredSubjects.length, notEnteredSubjects.length);
-    if (rowCount === 0) {
-        html += `<tr><td colspan="2" style="padding:20px;text-align:center;">No subjects found for this class.</td></tr>`;
+    const totalSubjects = ALL_SUBJECTS.length;
+
+    if (totalSubjects === 0) {
+        html += `<tr><td colspan="5" style="padding:20px;text-align:center;">No subjects found for this class.</td></tr>`;
     } else {
-        for (let i = 0; i < rowCount; i++) {
+        for (let i = 0; i < Math.max(enteredSubjects.length, notEnteredSubjects.length); i++) {
+            const enteredSub = enteredSubjects[i] || '';
+            const notEnteredSub = notEnteredSubjects[i] || '';
+            // Get teacher for entered subject
+            let enteredTeacher = '';
+            if (enteredSub && currentConfig && currentConfig.teachers && currentConfig.teachers[form] && currentConfig.teachers[form][enteredSub]) {
+                enteredTeacher = currentConfig.teachers[form][enteredSub];
+            }
+            // Get teacher for not-entered subject
+            let notEnteredTeacher = '';
+            if (notEnteredSub && currentConfig && currentConfig.teachers && currentConfig.teachers[form] && currentConfig.teachers[form][notEnteredSub]) {
+                notEnteredTeacher = currentConfig.teachers[form][notEnteredSub];
+            }
             html += `<tr>
-                <td style="border:1px solid #ddd;padding:10px;text-align:center;color:green;font-weight:bold;">${enteredSubjects[i] || ''}</td>
-                <td style="border:1px solid #ddd;padding:10px;text-align:center;color:red;font-weight:bold;">${notEnteredSubjects[i] || ''}</td>
+                <td style="border:1px solid #ddd;padding:10px;text-align:center;">${enteredTeacher}</td>
+                <td style="border:1px solid #ddd;padding:10px;text-align:center;color:green;font-weight:bold;">${enteredSub}</td>
+                <td style="border:1px solid #ddd;padding:10px;text-align:center;font-weight:bold;">${enteredSub ? getSubjectPercent(enteredSub) : ''}</td>
+                <td style="border:1px solid #ddd;padding:10px;text-align:center;color:red;font-weight:bold;">${notEnteredSub}</td>
+                <td style="border:1px solid #ddd;padding:10px;text-align:center;">${notEnteredTeacher}</td>
             </tr>`;
         }
     }
