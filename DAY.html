@@ -8361,7 +8361,11 @@ async function refreshSubjectMonitor(form) {
     let enteredSubjects = [];
     let notEnteredSubjects = [];
 
-    // Helper: get per-subject entry percentage (>=70% treated as 100%)
+    // Subjects with 30% threshold in forms 3 and 4
+    const THIRTY_PCT_SUBJECTS = ['Bible Knowledge', 'Chemistry', 'Geography', 'History', 'Physics', 'Social/Life'];
+    const isForm3or4 = (form === 'form3' || form === 'form4');
+
+    // Helper: get per-subject entry percentage
     function getSubjectPercent(sub) {
         const totalStudents = data.length;
         if (totalStudents === 0) return '0%';
@@ -8373,7 +8377,12 @@ async function refreshSubjectMonitor(form) {
             }
         });
         let rawPct = (scoredCount / totalStudents) * 100;
-        if (rawPct >= 70) rawPct = 100;
+        // Apply threshold: 30% for specific subjects in form3/form4, 70% otherwise
+        let threshold = 70;
+        if (isForm3or4 && THIRTY_PCT_SUBJECTS.includes(sub)) {
+            threshold = 30;
+        }
+        if (rawPct >= threshold) rawPct = 100;
         return rawPct.toFixed(0) + '%';
     }
 
@@ -8424,10 +8433,16 @@ async function refreshSubjectMonitor(form) {
             if (notEnteredSub && currentConfig && currentConfig.teachers && currentConfig.teachers[form] && currentConfig.teachers[form][notEnteredSub]) {
                 notEnteredTeacher = currentConfig.teachers[form][notEnteredSub];
             }
+            let enteredPct = enteredSub ? getSubjectPercent(enteredSub) : '';
+            let pctColor = '';
+            if (enteredPct) {
+                let pctVal = parseInt(enteredPct);
+                if (pctVal <= 30) pctColor = 'color:red;';
+            }
             html += `<tr>
                 <td style="border:1px solid #ddd;padding:10px;text-align:center;">${enteredTeacher}</td>
                 <td style="border:1px solid #ddd;padding:10px;text-align:center;color:green;font-weight:bold;">${enteredSub}</td>
-                <td style="border:1px solid #ddd;padding:10px;text-align:center;font-weight:bold;">${enteredSub ? getSubjectPercent(enteredSub) : ''}</td>
+                <td style="border:1px solid #ddd;padding:10px;text-align:center;font-weight:bold;${pctColor}">${enteredPct}</td>
                 <td style="border:1px solid #ddd;padding:10px;text-align:center;color:red;font-weight:bold;">${notEnteredSub}</td>
                 <td style="border:1px solid #ddd;padding:10px;text-align:center;">${notEnteredTeacher}</td>
             </tr>`;
@@ -8435,9 +8450,81 @@ async function refreshSubjectMonitor(form) {
     }
 
     html += `</tbody></table>
+    <div style="margin-top:12px;text-align:center;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button onclick="saveMonitorAsPdf()" style="background-color:#1a2a6c;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);">Save as PDF</button>
+        <button onclick="sendMonitorPdfToWhatsApp()" style="background-color:#25D366;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);">Send to WhatsApp as PDF</button>
+    </div>
     <p style="font-size:10px; color:#7f8c8d; margin-top:5px;">*Monitor updates instantly as you type scores in the Data Entry section.</p>`;
     
     container.innerHTML = html;
+}
+
+// --- SHARED: Capture monitor table as PDF and return blob ---
+async function captureMonitorPdf() {
+    const table = document.getElementById('monitorTable');
+    if (!table) { alert('No monitor table found.'); return null; }
+    const heading = table.parentElement.querySelector('h3');
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;background:white;padding:20px;width:' + table.offsetWidth + 'px;';
+    if (heading) {
+        const h3clone = heading.cloneNode(true);
+        wrapper.appendChild(h3clone);
+    }
+    const tableClone = table.cloneNode(true);
+    wrapper.appendChild(tableClone);
+    document.body.appendChild(wrapper);
+    try {
+        const canvas = await html2canvas(wrapper, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: canvas.width > canvas.height ? 'l' : 'p', unit: 'px', format: [canvas.width, canvas.height] });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        return pdf;
+    } finally {
+        wrapper.remove();
+    }
+}
+
+// --- SAVE MONITOR AS PDF ---
+async function saveMonitorAsPdf() {
+    try {
+        const pdf = await captureMonitorPdf();
+        if (!pdf) return;
+        pdf.save('Realtime_Monitor.pdf');
+    } catch (e) {
+        alert('Error generating PDF: ' + e.message);
+    }
+}
+
+// --- SEND MONITOR PDF TO WHATSAPP ---
+async function sendMonitorPdfToWhatsApp() {
+    try {
+        const pdf = await captureMonitorPdf();
+        if (!pdf) return;
+        const pdfBlob = pdf.output('blob');
+        const pdfFile = new File([pdfBlob], 'Realtime_Monitor.pdf', { type: 'application/pdf' });
+        // Try Web Share API (attaches file directly to WhatsApp on mobile)
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+            await navigator.share({
+                title: 'Real-time Monitor',
+                text: 'Real-time Score Entry Monitor',
+                files: [pdfFile]
+            });
+            return;
+        }
+        // Fallback for desktop: download PDF + open WhatsApp so user can attach manually
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Realtime_Monitor.pdf';
+        a.click();
+        URL.revokeObjectURL(url);
+        const msg = encodeURIComponent('Real-time Score Entry Monitor - please attach the downloaded PDF');
+        window.open('https://wa.me/?text=' + msg, '_blank');
+    } catch (e) {
+        if (e.name === 'AbortError') return; // User cancelled share dialog
+        alert('Error sending PDF: ' + e.message);
+    }
 }
 
 // --- SURGICAL FIX: MANUAL STUDENT ENTRY LOGIC ---
