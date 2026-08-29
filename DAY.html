@@ -639,6 +639,13 @@ function saveSelectedSubjectsToRepo() {
         text-align: center;
     }
 
+    /* SURGICAL FIX: Prevent mobile browser auto-zoom on every password field.
+       iOS/Android browsers generally zoom focused form controls below 16px.
+       This changes only password-input font sizing; card/container dimensions remain untouched. */
+    input[type="password"] {
+        font-size: 16px !important;
+    }
+
     select, input:not([type="file"]):not([type="password"]), textarea {
         width: 100%;
         max-width: 400px;
@@ -4565,7 +4572,7 @@ function showPasswordModal(message) {
         const input = document.createElement('input');
         input.type = 'password';
         input.placeholder = 'Enter password';
-        input.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:14px;text-align:center;box-sizing:border-box;';
+        input.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:16px;text-align:center;box-sizing:border-box;';
 
         const btnRow = document.createElement('div');
         btnRow.style.cssText = 'display:flex;gap:10px;margin-top:15px;justify-content:center;';
