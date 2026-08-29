@@ -687,7 +687,7 @@ function saveSelectedSubjectsToRepo() {
         color: #fff;
         border: none;
         border-radius: 8px;
-   	cursor: pointer;
+        cursor: pointer;
         box-shadow: 0 7px 18px rgba(23,63,115,.30);
         font-size: 1.1em;
         font-weight: 600;
@@ -2034,7 +2034,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
 <div id="adminLoginPage" class="page">
     <h2 id="adminLabel">Enter Password</h2>
-    <input type="password" id="adminPassword" placeholder="" oninput="document.getElementById('adminLoginError').style.display='none'">
+    <input type="password" id="adminPassword" placeholder="" style="font-size:16px;" oninput="document.getElementById('adminLoginError').style.display='none'">
     <div id="adminLoginError" style="color:#e74c3c; font-size:0.9em; display:none; margin-top:8px;"></div>
     <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
     <button id="setupWizardBtn" onclick="openSetupWizard()" style="background:#e67e22; margin-top:10px;">First-Time Setup</button>
