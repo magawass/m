@@ -662,6 +662,13 @@ function saveSelectedSubjectsToRepo() {
         margin-right: auto;
     }
 
+    /* SURGICAL FIX: Front page password field zoom prevention - same as all other password fields */
+    #initialPage input[type="password"] {
+        font-size: 16px !important;
+        -webkit-text-size-adjust: 100% !important;
+        text-size-adjust: 100% !important;
+    }
+
     select, input:not([type="file"]):not([type="password"]), textarea {
         width: 100%;
         max-width: 400px;
@@ -1906,7 +1913,7 @@ function saveSelectedSubjectsToRepo() {
     <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
     <input type="text" id="studentNumberInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
-    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off" inputmode="text" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="document.querySelector('meta[name=viewport]').setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')" onblur="document.querySelector('meta[name=viewport]').setAttribute('content','width=device-width, initial-scale=1.0')">
+    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off">
 
     <!-- SURGICAL FIX: Front page buttons stacked for mobile visibility -->
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
