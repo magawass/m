@@ -644,6 +644,22 @@ function saveSelectedSubjectsToRepo() {
        This changes only password-input font sizing; card/container dimensions remain untouched. */
     input[type="password"] {
         font-size: 16px !important;
+        -webkit-text-size-adjust: 100% !important;
+        text-size-adjust: 100% !important;
+        width: 100%;
+        max-width: 400px;
+        padding: 12px;
+        margin-top: 5px;
+        border-radius: 8px;
+        border: 1px solid #cc6600;
+        background-color: #98FB9;
+        color: #333;
+        transition: border-color 0.3s;
+        font-family: inherit;
+        text-align: center;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     select, input:not([type="file"]):not([type="password"]), textarea {
@@ -1890,7 +1906,7 @@ function saveSelectedSubjectsToRepo() {
     <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
     <input type="text" id="studentNumberInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
-    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off" style="font-size:16px;">
+    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off">
 
     <!-- SURGICAL FIX: Front page buttons stacked for mobile visibility -->
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
@@ -2041,7 +2057,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
 <div id="adminLoginPage" class="page">
     <h2 id="adminLabel">Enter Password</h2>
-    <input type="password" id="adminPassword" placeholder="" style="font-size:16px;" oninput="document.getElementById('adminLoginError').style.display='none'">
+    <input type="password" id="adminPassword" placeholder="" oninput="document.getElementById('adminLoginError').style.display='none'">
     <div id="adminLoginError" style="color:#e74c3c; font-size:0.9em; display:none; margin-top:8px;"></div>
     <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
     <button id="setupWizardBtn" onclick="openSetupWizard()" style="background:#e67e22; margin-top:10px;">First-Time Setup</button>
