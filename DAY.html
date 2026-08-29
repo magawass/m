@@ -8402,15 +8402,15 @@ async function refreshSubjectMonitor(form) {
     });
 
     // Build the Monitor Table
-    let html = `<h3 style="margin-top:20px;color:#1a2a6c;text-align:center;">Real-time Monitor: ${form.toUpperCase()}</h3>
-        <table id="monitorTable" style="width:100%;border-collapse:collapse;margin-top:10px;border:2px solid #1a2a6c;background-color:white;">
+    let html = `<h3 style="margin-top:10px;color:#1a2a6c;text-align:center;font-size:clamp(13px,2.5vw,16px);">Real-time Monitor: ${form.toUpperCase()}</h3>
+        <table id="monitorTable" style="width:100%;border-collapse:collapse;margin-top:6px;border:2px solid #1a2a6c;background-color:white;font-size:clamp(10px,1.8vw,13px);">
         <thead>
             <tr style="background-color:#1a2a6c; color: white;">
-                <th style="border:1px solid #ddd;padding:12px;">TEACHER</th>
-                <th style="border:1px solid #ddd;padding:12px;">SUBJECT ENTERED ✅</th>
-                <th style="border:1px solid #ddd;padding:12px;">PERCENT</th>
-                <th style="border:1px solid #ddd;padding:12px;">NOT ENTERED ❌</th>
-                <th style="border:1px solid #ddd;padding:12px;">TEACHER</th>
+                <th style="border:1px solid #ddd;padding:6px 8px;">TEACHER</th>
+                <th style="border:1px solid #ddd;padding:6px 8px;">SUBJECT ENTERED ✅</th>
+                <th style="border:1px solid #ddd;padding:6px 8px;">PERCENT</th>
+                <th style="border:1px solid #ddd;padding:6px 8px;">NOT ENTERED ❌</th>
+                <th style="border:1px solid #ddd;padding:6px 8px;">TEACHER</th>
             </tr>
         </thead>
         <tbody>`;
@@ -8440,11 +8440,11 @@ async function refreshSubjectMonitor(form) {
                 if (pctVal <= 30) pctColor = 'color:red;';
             }
             html += `<tr>
-                <td style="border:1px solid #ddd;padding:10px;text-align:center;">${enteredTeacher}</td>
-                <td style="border:1px solid #ddd;padding:10px;text-align:center;color:green;font-weight:bold;">${enteredSub}</td>
-                <td style="border:1px solid #ddd;padding:10px;text-align:center;font-weight:bold;${pctColor}">${enteredPct}</td>
-                <td style="border:1px solid #ddd;padding:10px;text-align:center;color:red;font-weight:bold;">${notEnteredSub}</td>
-                <td style="border:1px solid #ddd;padding:10px;text-align:center;">${notEnteredTeacher}</td>
+                <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;">${enteredTeacher}</td>
+                <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;color:green;font-weight:bold;">${enteredSub}</td>
+                <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;font-weight:bold;${pctColor}">${enteredPct}</td>
+                <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;color:red;font-weight:bold;">${notEnteredSub}</td>
+                <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;">${notEnteredTeacher}</td>
             </tr>`;
         }
     }
