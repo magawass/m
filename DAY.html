@@ -1906,7 +1906,7 @@ function saveSelectedSubjectsToRepo() {
     <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
     <input type="text" id="studentNumberInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
-    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off" inputmode="text" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="document.querySelector('meta[name=viewport]').setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')" onblur="document.querySelector('meta[name=viewport]').setAttribute('content','width=device-width, initial-scale=1.0')">
+    <input type="text" id="passwordInput" placeholder="Here / Pano" autocomplete="off" inputmode="numeric" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="4" min="000" max="9999" style="-webkit-text-security:disc;text-security:disc;" onfocus="this.setAttribute('autocomplete','off')">
 
     <!-- SURGICAL FIX: Front page buttons stacked for mobile visibility -->
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
@@ -2057,7 +2057,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
 <div id="adminLoginPage" class="page">
     <h2 id="adminLabel">Enter Password</h2>
-    <input type="password" id="adminPassword" placeholder="" oninput="document.getElementById('adminLoginError').style.display='none'">
+    <input type="text" id="adminPassword" placeholder="" style="-webkit-text-security:disc;text-security:disc;" oninput="document.getElementById('adminLoginError').style.display='none'">
     <div id="adminLoginError" style="color:#e74c3c; font-size:0.9em; display:none; margin-top:8px;"></div>
     <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
     <button id="setupWizardBtn" onclick="openSetupWizard()" style="background:#e67e22; margin-top:10px;">First-Time Setup</button>
@@ -9525,16 +9525,16 @@ async function saveEditedNames() {
     <p style="font-size:0.85em; color:#7f8c8d; margin:10px 0 20px 0;">Encrypt your GitHub Personal Access Token with a password. The encrypted token will be embedded in this HTML file.</p>
     
     <label for="setupToken">GitHub Personal Access Token</label>
-    <input type="password" id="setupToken" placeholder="ghp_..." style="max-width:400px;">
+    <input type="text" id="setupToken" placeholder="ghp_..." style="max-width:400px;-webkit-text-security:disc;text-security:disc;">
     
     <label for="setupPassword">Choose a Password (for login)</label>
-    <input type="password" id="setupPassword" placeholder="" style="max-width:400px;">
+    <input type="text" id="setupPassword" placeholder="" style="max-width:400px;-webkit-text-security:disc;text-security:disc;">
     
     <label for="setupPasswordConfirm">Confirm Password</label>
-    <input type="password" id="setupPasswordConfirm" placeholder="" style="max-width:400px;">
+    <input type="text" id="setupPasswordConfirm" placeholder="" style="max-width:400px;-webkit-text-security:disc;text-security:disc;">
 
     <label for="setupAdminPwd">Setup Protection Password</label>
-    <input type="password" id="setupAdminPwd" placeholder="Password to re-access Setup later" style="max-width:400px;">
+    <input type="text" id="setupAdminPwd" placeholder="Password to re-access Setup later" style="max-width:400px;-webkit-text-security:disc;text-security:disc;">
     <p style="font-size:0.75em; color:#999; margin:5px 0 0 0;">This password lets you re-open Setup from the login page to change your token or password. Remember it.</p>
     
     <div id="setupError" style="color:#e74c3c; margin-top:10px; font-size:0.9em; display:none;"></div>
