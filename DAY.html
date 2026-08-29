@@ -550,7 +550,7 @@ function saveSelectedSubjectsToRepo() {
 
     /* Body - SURGICAL FIX: Align to flex-start and enable scrolling to prevent chopping */
     body {
-        background: #1e3a5f;
+        background: var(--card-bg);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         display: flex;
         justify-content: center;
@@ -615,7 +615,7 @@ function saveSelectedSubjectsToRepo() {
         padding: 30px;
         background: #FFFFFF;
         border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 18px 55px rgba(15, 23, 42, 0.30);
         margin: 20px auto;
         text-align: center;
         height: auto;
@@ -637,6 +637,13 @@ function saveSelectedSubjectsToRepo() {
         font-weight: 500;
         color: #2c3e50;
         text-align: center;
+    }
+
+    /* SURGICAL FIX: Prevent mobile browser auto-zoom on every password field.
+       iOS/Android browsers generally zoom focused form controls below 16px.
+       This changes only password-input font sizing; card/container dimensions remain untouched. */
+    input[type="password"] {
+        font-size: 16px !important;
     }
 
     select, input:not([type="file"]):not([type="password"]), textarea {
@@ -688,6 +695,7 @@ function saveSelectedSubjectsToRepo() {
         border: none;
         border-radius: 8px;
         cursor: pointer;
+        box-shadow: 0 7px 18px rgba(23,63,115,.30);
         font-size: 1.1em;
         font-weight: 600;
         transition: background 0.3s, transform 0.1s;
@@ -1869,7 +1877,7 @@ function saveSelectedSubjectsToRepo() {
 
 <div id="initialPage" class="page">
     <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png"   alt="Secondary School Logo" class="logo">
-    <h1><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL</p></h1>
+  <h1 style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL</p></h1>
     <h2>EXAM PORTAL</h2>
     <label for="selectedForm">Select Form / Sankhani Kalasi</label>
     <select id="selectedForm">
@@ -1882,7 +1890,7 @@ function saveSelectedSubjectsToRepo() {
     <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
     <input type="text" id="studentNumberInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
-    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off">
+    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off" style="font-size:16px;">
 
     <!-- SURGICAL FIX: Front page buttons stacked for mobile visibility -->
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
@@ -1890,7 +1898,7 @@ function saveSelectedSubjectsToRepo() {
         <button onclick="openAdminLogin()" style="width: 100%; max-width: 400px;">ADMIN</button>
     </div>
 
-    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">Designed by CHIKUMBUTSO LUBAINI-0 994 039 325. All rights reserved.</p>
+    <p style="font-size:11px; margin-top: 15px; color: #7f8c8d;">Designed by CHIKUMBUTSO LUBAINI-099 40 39 325. All rights reserved.</p>
 
     <!-- Front Page Popup (only visible inside #initialPage) -->
     <div id="frontPagePopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); z-index:99999; justify-content:center; align-items:center;">
@@ -2033,7 +2041,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
 <div id="adminLoginPage" class="page">
     <h2 id="adminLabel">Enter Password</h2>
-    <input type="password" id="adminPassword" placeholder="" oninput="document.getElementById('adminLoginError').style.display='none'">
+    <input type="password" id="adminPassword" placeholder="" style="font-size:16px;" oninput="document.getElementById('adminLoginError').style.display='none'">
     <div id="adminLoginError" style="color:#e74c3c; font-size:0.9em; display:none; margin-top:8px;"></div>
     <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
     <button id="setupWizardBtn" onclick="openSetupWizard()" style="background:#e67e22; margin-top:10px;">First-Time Setup</button>
@@ -4564,7 +4572,7 @@ function showPasswordModal(message) {
         const input = document.createElement('input');
         input.type = 'password';
         input.placeholder = 'Enter password';
-        input.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:14px;text-align:center;box-sizing:border-box;';
+        input.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:16px;text-align:center;box-sizing:border-box;';
 
         const btnRow = document.createElement('div');
         btnRow.style.cssText = 'display:flex;gap:10px;margin-top:15px;justify-content:center;';
@@ -8401,22 +8409,6 @@ async function refreshSubjectMonitor(form) {
         }
     });
 
-    // Shorten subject names for compact monitor display
-    const MONITOR_SHORT = {
-        'Agriculture': 'Agric',
-        'Biology': 'Bio',
-        'Mathematics': 'Mat',
-        'History': 'Hist',
-        'Geography': 'Geo',
-        'Physics': 'Phy',
-        'Chemistry': 'Chem',
-        'Social/Life': 'Soc',
-        'Bible Knowledge': 'B/K',
-        'Chichewa': 'Chic',
-        'English': 'Eng'
-    };
-    function shortSub(name) { return MONITOR_SHORT[name] || name; }
-
     // Build the Monitor Table
     let html = `<h3 style="margin-top:10px;color:#1a2a6c;text-align:center;font-size:clamp(13px,2.5vw,16px);">Real-time Monitor: ${form.toUpperCase()}</h3>
         <table id="monitorTable" style="width:100%;border-collapse:collapse;margin-top:6px;border:2px solid #1a2a6c;background-color:white;font-size:clamp(10px,1.8vw,13px);">
@@ -8457,9 +8449,9 @@ async function refreshSubjectMonitor(form) {
             }
             html += `<tr>
                 <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;">${enteredTeacher}</td>
-                <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;color:green;font-weight:bold;">${shortSub(enteredSub)}</td>
+                <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;color:green;font-weight:bold;">${enteredSub}</td>
                 <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;font-weight:bold;${pctColor}">${enteredPct}</td>
-                <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;color:red;font-weight:bold;">${shortSub(notEnteredSub)}</td>
+                <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;color:red;font-weight:bold;">${notEnteredSub}</td>
                 <td style="border:1px solid #ddd;padding:4px 6px;text-align:center;">${notEnteredTeacher}</td>
             </tr>`;
         }
