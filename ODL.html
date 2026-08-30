@@ -693,6 +693,17 @@ function saveSelectedSubjectsToRepo() {
         overflow-x: hidden;
     }
 
+    /* SURGICAL FIX: Fix mark sheet view (#scoreSheetView) search box on mobile.
+       Prevents auto-zoom when entering text into the search box. Card and container dimensions unchanged. */
+    #scoreSheetView {
+        touch-action: pan-y;
+        overscroll-behavior: contain;
+        position: relative;
+        left: 0;
+        right: 0;
+        overflow-x: hidden;
+    }
+
     /* Header/Logo */
     .logo { max-width: 150px; height: auto; margin-bottom: 10px; }
     h1, h2 { color: #34495e; margin: 5px 0; font-weight: 600; }
@@ -710,9 +721,10 @@ function saveSelectedSubjectsToRepo() {
 
     /* SURGICAL FIX: Prevent mobile browser auto-zoom on results page (#initialPage),
        admin login page (#adminLoginPage), upload page (#uploadsPage), data entry page
-       (#dataEntryPage), grade sheet page (#gradesPage), and sheets/batch-print page
-       (#sheetsPage). Chrome 64+ ignores maximum-scale=1.0 for accessibility. The ONLY
-       reliable fix: font-size >= 16px on ALL focusable form controls on the affected pages.
+       (#dataEntryPage), grade sheet page (#gradesPage), sheets/batch-print page
+       (#sheetsPage), and mark sheet search box (#scoreSheetView input only).
+       Chrome 64+ ignores maximum-scale=1.0 for accessibility. The ONLY reliable fix:
+       font-size >= 16px on ALL focusable form controls on the affected pages.
        Also includes buttons to prevent any zoom cascade. Card dimensions remain unchanged. */
     #initialPage select,
     #initialPage input:not([type="file"]),
@@ -738,6 +750,12 @@ function saveSelectedSubjectsToRepo() {
     #sheetsPage input:not([type="file"]),
     #sheetsPage textarea,
     #sheetsPage button {
+        font-size: 16px !important;
+    }
+
+    /* SURGICAL FIX: Search box only in mark sheet view — prevents Chrome/Opera auto-zoom.
+       Only input elements are targeted; select and button are NOT touched per user request. */
+    #scoreSheetView input:not([type="file"]) {
         font-size: 16px !important;
     }
 
@@ -9676,10 +9694,10 @@ async function saveEditedNames() {
     </div>
 </div>
 
-<!-- SURGICAL FIX: Force-rescale viewport if Chrome auto-zooms on form controls in #initialPage, #adminLoginPage, #uploadsPage, #dataEntryPage, #gradesPage, #sheetsPage -->
+<!-- SURGICAL FIX: Force-rescale viewport if Chrome auto-zooms on form controls in #initialPage, #adminLoginPage, #uploadsPage, #dataEntryPage, #gradesPage, #sheetsPage, #scoreSheetView -->
 <script>
 (function(){
-  var zoomPages=['initialPage','adminLoginPage','uploadsPage','dataEntryPage','gradesPage','sheetsPage'];
+  var zoomPages=['initialPage','adminLoginPage','uploadsPage','dataEntryPage','gradesPage','sheetsPage','scoreSheetView'];
   function isActiveZoomPage(){
     var active=document.querySelector('.page[style*="display: block"],.page[style*="display:block"]');
     return active&&zoomPages.indexOf(active.id)!==-1;
