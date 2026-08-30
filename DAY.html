@@ -1869,6 +1869,12 @@ function saveSelectedSubjectsToRepo() {
     }
 }
 
+/* === SURGICAL FIX: Suppress browser autofill/autocomplete suggestions on score entry inputs === */
+#dataEntryTableBody input[type="text"] {
+    -webkit-autocomplete: none !important;
+    autocomplete: off !important;
+}
+
 /* === MOBILE HORIZONTAL SCROLL FIX FOR MARK & GRADE SHEETS (SURGICAL) === */
 @media (max-width: 480px) {
     #scoreSheetView .table-wrapper,
@@ -4280,11 +4286,12 @@ async function submitAndSaveScores() {
         // SURGICAL FIX: Auto-apply any pending paste-column values before saving, so
         // pasted grades are persisted even if the user clicks Save without first clicking
         // 'Apply Pasted Scores'. Done silently — no alerts, no hiding of the paste column.
+        // SURGICAL FIX: Only accept 2-digit scores (0-99) or 100.
         for (var _i = 0; _i < classData.length; _i++) {
             var _pasteInput = document.getElementById('pasteScore_' + _i);
             if (_pasteInput) {
                 var _val = _pasteInput.value.trim();
-                if (_val !== '') {
+                if (_val !== '' && _isValidScore(_val)) {
                     classData[_i][subject] = _val;
                 }
             }
@@ -6731,7 +6738,7 @@ async function showStudentMarksList() {
         const sneVisible = currentConfig && currentConfig.sneColumnVisible !== false;
         const sexVisible = currentConfig && currentConfig.sexColumnVisible !== false;
         const row = document.createElement('tr');
-        const inputDisabled = isLocked ? 'readonly style="width:80px;padding:6px;text-align:center;border:1px solid #e74c3c;border-radius:4px;background:#f5f5f5;color:#999;"' : 'oninput="updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" style="width:80px;padding:6px;text-align:center;border:2px solid #e91e8c;border-radius:8px;background:#fce4ec;color:#c2185b;font-weight:700;font-size:1em;"';
+        const inputDisabled = isLocked ? 'readonly style="width:80px;padding:6px;text-align:center;border:1px solid #e74c3c;border-radius:4px;background:#f5f5f5;color:#999;"' : 'oninput="updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" onkeydown="_onScoreKeydown(event)" onblur="_clampScoreInput(this); updateStudentScore(\'' + form + '\', ' + i + ', \'' + subject + '\', this.value)" style="width:80px;padding:6px;text-align:center;border:2px solid #e91e8c;border-radius:8px;background:#fce4ec;color:#c2185b;font-weight:700;font-size:1em;"';
         row.innerHTML = `
             <td style="border:2px solid #6c3483;padding:8px 6px;text-align:center;background:#f3e5f5;font-weight:600;font-size:0.9em;">${examNo}</td>
             <td style="border:2px solid #6c3483;padding:8px 6px;text-align:left;background:#f5f5f5;font-size:0.9em;">${name}</td>
@@ -6741,6 +6748,7 @@ async function showStudentMarksList() {
                        id="sn_${i}" 
                        value="${snVal}" 
                        oninput="updateStudentSN('${form}', ${i}, this.value)"
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                        style="width:35px;padding:4px;text-align:center;border:2px solid #6c3483;border-radius:6px;font-size:0.85em;background:#f3e5f5;"
                        placeholder=" ">
             </td>` : ''}
@@ -6749,12 +6757,17 @@ async function showStudentMarksList() {
                        id="score_${i}" 
                        value="${val}" 
                        ${inputDisabled}
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="numeric"
                        placeholder=" ">
             </td>
             <td class="paste-score-cell" style="border:2px solid #8e44ad;padding:8px 6px;text-align:center;background:#f5eef8;display:none;">
                 <input type="text" 
                        id="pasteScore_${i}" 
                        onpaste="distributePasteScores(event, ${i})"
+                       oninput="if(!_isValidScore(this.value)){this.value=this.dataset.prev||'';_playSound_RejectScore();}else{this.dataset.prev=this.value;}"
+                       onkeydown="_onScoreKeydown(event)"
+                       onblur="_clampScoreInput(this)"
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="numeric"
                        style="width:80px;padding:6px;text-align:center;border:2px solid #8e44ad;border-radius:8px;background:#fff;color:#6c3483;font-weight:700;font-size:1em;"
                        placeholder=" ">
             </td>
@@ -6800,7 +6813,64 @@ async function showStudentMarksList() {
     // Voice mic now activates when user clicks "Show Voice Entry" button
 }
 
+function _isValidScore(v) {
+    // Allow: empty, N, X, - (special codes), or 2-digit numbers 0-99, or exactly 100
+    var t = v.trim();
+    if (t === '' || t === 'N' || t === 'X' || t === '-') return true;
+    var n = Number(t);
+    if (isNaN(n)) return false;
+    if (n < 0 || n > 100) return false;
+    // Must be at most 2 digits, or exactly 100
+    if (t === '100') return true;
+    if (/^\d{1,2}$/.test(t)) return true;
+    return false;
+}
+
+function _clampScoreInput(el) {
+    // Called on blur/change: silently clamp or revert invalid score entries
+    var v = el.value.trim();
+    if (v === '' || v === 'N' || v === 'X' || v === '-') return;
+    var n = Number(v);
+    if (isNaN(n) || n < 0) { el.value = ''; _playSound_RejectScore(); return; }
+    if (n > 100) { el.value = '100'; _playSound_RejectScore(); return; }
+    // Reject 3-digit values other than 100 (e.g. 101, 099)
+    if (v.length === 3 && v !== '100') { el.value = v.length > 3 ? '100' : String(parseInt(v, 10)); _playSound_RejectScore(); return; }
+    // Reject leading zeros for 2-digit numbers (e.g. 007, 01)
+    if (v !== '0' && v !== '100' && /^0\d/.test(v)) { el.value = String(parseInt(v, 10)); }
+    // Reject values like 1000, 1.5, etc.
+    if (v !== '100' && !/^\d{1,2}$/.test(v)) { el.value = String(parseInt(v, 10)); _playSound_RejectScore(); return; }
+}
+
+function _onScoreKeydown(e) {
+    // Block non-numeric keys except navigation/control — allows only 0-9 and special codes
+    var el = e.target;
+    var v = el.value;
+    // Allow: Backspace, Delete, Tab, Escape, Enter, Arrow keys, Home, End
+    var allowed = [8,46,9,27,13,37,38,39,40,36,35];
+    if (allowed.indexOf(e.keyCode) !== -1) return;
+    // Allow Ctrl+A/C/V/X/Z
+    if (e.ctrlKey || e.metaKey) return;
+    // Allow Shift for special codes N, X, -
+    if (e.shiftKey && (e.key === 'N' || e.key === 'X')) return;
+    if (e.key === '-') return;
+    // Block non-digit
+    if (e.key < '0' || e.key > '9') { e.preventDefault(); return; }
+    // Block 4th digit (max 3 digits for '100')
+    if (v.length >= 3 && el.selectionStart === el.selectionEnd) { e.preventDefault(); _playSound_RejectScore(); return; }
+    // Block 3rd digit if result would NOT be '100'
+    // Preview what the value would become after this keypress
+    var before = v.substring(0, el.selectionStart);
+    var after = v.substring(el.selectionEnd);
+    var preview = before + e.key + after;
+    if (preview.length === 3 && preview !== '100') {
+        e.preventDefault();
+        _playSound_RejectScore();
+        return;
+    }
+}
+
 function updateStudentScore(form, index, subject, value) {
+    if (!_isValidScore(value)) { _playSound_RejectScore(); return; }
     if (currentClassData[form] && currentClassData[form][index]) {
         currentClassData[form][index][subject] = value.trim();
         
@@ -6958,6 +7028,23 @@ function _playSound1_CallExamNumber() {
         gain.connect(ctx.destination);
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.35);
+    } catch (e) {}
+}
+
+// --- Sound: rejection buzz — invalid 3-digit score (not 100) ---
+function _playSound_RejectScore() {
+    try {
+        var ctx = _getAudioCtx();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = 200;
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.3);
     } catch (e) {}
 }
 
@@ -9497,11 +9584,13 @@ function applyPasteColumnScores() {
 
     // Read scores from the inline paste-score inputs
     let appliedCount = 0;
+    let skippedInvalid = 0;
     for (let i = 0; i < students.length; i++) {
         const pasteInput = document.getElementById('pasteScore_' + i);
         if (pasteInput) {
             const val = pasteInput.value.trim();
             if (val !== '') {
+                if (!_isValidScore(val)) { skippedInvalid++; continue; }
                 students[i][subject] = val;
                 const scoreInput = document.getElementById('score_' + i);
                 if (scoreInput && !scoreInput.readOnly) {
@@ -9512,7 +9601,8 @@ function applyPasteColumnScores() {
         }
     }
 
-    if (appliedCount === 0) { alert('No scores to apply. Enter scores in the PASTE SCORE column first.'); return; }
+    if (appliedCount === 0 && skippedInvalid === 0) { alert('No scores to apply. Enter scores in the PASTE SCORE column first.'); return; }
+    if (skippedInvalid > 0) { _playSound_RejectScore(); alert(skippedInvalid + ' invalid score(s) skipped. Scores must be 0-99 or 100.'); }
 
     // Trigger real-time sync updates
     const monitorSelect = document.getElementById('monitorClassSelect');
