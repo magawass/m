@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Magawa Secondary Portal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -622,7 +622,32 @@ function saveSelectedSubjectsToRepo() {
         overflow-x: hidden; /* Prevent container level scroll */
     }
 
-    #initialPage { display: block; text-align: center; }
+    #initialPage {
+        display: block;
+        text-align: center;
+        /* SURGICAL FIX: Fix card position on mobile — only vertical movement allowed.
+           touch-action:pan-y blocks pinch-zoom and horizontal pan on the card.
+           overscroll-behavior:contain stops elastic overscroll from triggering zoom.
+           position/left/right pins the card horizontally to the viewport.
+           Card dimensions (max-width) remain unchanged. */
+        touch-action: pan-y;
+        overscroll-behavior: contain;
+        position: relative;
+        left: 0;
+        right: 0;
+        overflow-x: hidden;
+    }
+
+    /* SURGICAL FIX: Fix admin login card on mobile — same treatment as #initialPage.
+       Only vertical movement, no horizontal drift or pinch-zoom on the card. */
+    #adminLoginPage {
+        touch-action: pan-y;
+        overscroll-behavior: contain;
+        position: relative;
+        left: 0;
+        right: 0;
+        overflow-x: hidden;
+    }
 
     /* Header/Logo */
     .logo { max-width: 150px; height: auto; margin-bottom: 10px; }
@@ -637,6 +662,45 @@ function saveSelectedSubjectsToRepo() {
         font-weight: 500;
         color: #2c3e50;
         text-align: center;
+    }
+
+    /* SURGICAL FIX: Prevent mobile browser auto-zoom on results page (#initialPage)
+       and admin login page (#adminLoginPage). Chrome 64+ ignores maximum-scale=1.0
+       for accessibility. The ONLY reliable fix: font-size >= 16px on ALL focusable
+       form controls on the affected pages. Also includes buttons to prevent any
+       zoom cascade. Card dimensions (max-width:400px) remain unchanged. */
+    #initialPage select,
+    #initialPage input:not([type="file"]),
+    #initialPage textarea,
+    #initialPage button,
+    #adminLoginPage select,
+    #adminLoginPage input:not([type="file"]),
+    #adminLoginPage textarea,
+    #adminLoginPage button {
+        font-size: 16px !important;
+    }
+
+    /* SURGICAL FIX (legacy): Prevent mobile browser auto-zoom on type="password" fields.
+       Kept as fallback. The actual password inputs use type="text" + -webkit-text-security:disc,
+       so they are covered by the #initialPage / #adminLoginPage rules above instead. */
+    input[type="password"] {
+        font-size: 16px !important;
+        -webkit-text-size-adjust: 100% !important;
+        text-size-adjust: 100% !important;
+        width: 100%;
+        max-width: 400px;
+        padding: 12px;
+        margin-top: 5px;
+        border-radius: 8px;
+        border: 1px solid #cc6600;
+        background-color: #98FB9;
+        color: #333;
+        transition: border-color 0.3s;
+        font-family: inherit;
+        text-align: center;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     select, input:not([type="file"]):not([type="password"]), textarea {
@@ -687,7 +751,7 @@ function saveSelectedSubjectsToRepo() {
         color: #fff;
         border: none;
         border-radius: 8px;
-   	cursor: pointer;
+        cursor: pointer;
         box-shadow: 0 7px 18px rgba(23,63,115,.30);
         font-size: 1.1em;
         font-weight: 600;
@@ -1870,10 +1934,10 @@ function saveSelectedSubjectsToRepo() {
 
 <div id="initialPage" class="page">
     <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png"   alt="Secondary School Logo" class="logo">
-  <h1 style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL-ODL</p></h1>
+  <h1 style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL</p></h1>
     <h2>EXAM PORTAL</h2>
     <label for="selectedForm">Select Form / Sankhani Kalasi</label>
-    <select id="selectedForm">
+    <select id="selectedForm" style="font-size:16px;">
       <option value="">-- Select Class --</option>
       <option value="form1">Form 1</option>
       <option value="form2">Form 2</option>
@@ -1881,9 +1945,9 @@ function saveSelectedSubjectsToRepo() {
       <option value="form4">Form 4</option>
     </select>
     <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
-    <input type="text" id="studentNumberInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    <input type="text" id="studentNumberInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="font-size:16px;">
     <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
-    <input type="password" id="passwordInput" placeholder="Here / Pano" autocomplete="off">
+    <input type="text" id="passwordInput" placeholder="Here / Pano" autocomplete="off" inputmode="numeric" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="4" min="000" max="9999" style="-webkit-text-security:disc;text-security:disc;font-size:16px;" onfocus="this.setAttribute('autocomplete','off')">
 
     <!-- SURGICAL FIX: Front page buttons stacked for mobile visibility -->
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
@@ -2034,7 +2098,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 
 <div id="adminLoginPage" class="page">
     <h2 id="adminLabel">Enter Password</h2>
-    <input type="password" id="adminPassword" placeholder="" oninput="document.getElementById('adminLoginError').style.display='none'">
+    <input type="text" id="adminPassword" placeholder="" style="-webkit-text-security:disc;text-security:disc;font-size:16px;" oninput="document.getElementById('adminLoginError').style.display='none'">
     <div id="adminLoginError" style="color:#e74c3c; font-size:0.9em; display:none; margin-top:8px;"></div>
     <button id="adminLoginBtn" onclick="verifyAdmin()">Login</button>
     <button id="setupWizardBtn" onclick="openSetupWizard()" style="background:#e67e22; margin-top:10px;">First-Time Setup</button>
@@ -2654,7 +2718,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <script>
 // --- GITHUB CONSTANTS ---
 const GITHUB_USER = 'magawass';
-const GITHUB_REPO = 'm1';
+const GITHUB_REPO = 'm';
 const CONFIG_FILE = 'config.json';
 // Admin password is now the decryption password — set during First-Time Setup
 // No hardcoded password stored in file
@@ -4565,7 +4629,7 @@ function showPasswordModal(message) {
         const input = document.createElement('input');
         input.type = 'password';
         input.placeholder = 'Enter password';
-        input.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:14px;text-align:center;box-sizing:border-box;';
+        input.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #cc6600;border-radius:8px;font-size:16px;text-align:center;box-sizing:border-box;';
 
         const btnRow = document.createElement('div');
         btnRow.style.cssText = 'display:flex;gap:10px;margin-top:15px;justify-content:center;';
@@ -4775,7 +4839,7 @@ function showSetUpWindow() {
 }
 
 // --- ARCHIVE SECTION FUNCTIONS ---
-const ARCHIVE_REPO = 'm3';
+const ARCHIVE_REPO = 'm2';
 const ARCHIVE_API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${ARCHIVE_REPO}/contents/`;
 
 async function archiveExamData() {
@@ -9502,16 +9566,16 @@ async function saveEditedNames() {
     <p style="font-size:0.85em; color:#7f8c8d; margin:10px 0 20px 0;">Encrypt your GitHub Personal Access Token with a password. The encrypted token will be embedded in this HTML file.</p>
     
     <label for="setupToken">GitHub Personal Access Token</label>
-    <input type="password" id="setupToken" placeholder="ghp_..." style="max-width:400px;">
+    <input type="text" id="setupToken" placeholder="ghp_..." style="max-width:400px;-webkit-text-security:disc;text-security:disc;font-size:16px;">
     
     <label for="setupPassword">Choose a Password (for login)</label>
-    <input type="password" id="setupPassword" placeholder="" style="max-width:400px;">
+    <input type="text" id="setupPassword" placeholder="" style="max-width:400px;-webkit-text-security:disc;text-security:disc;font-size:16px;">
     
     <label for="setupPasswordConfirm">Confirm Password</label>
-    <input type="password" id="setupPasswordConfirm" placeholder="" style="max-width:400px;">
+    <input type="text" id="setupPasswordConfirm" placeholder="" style="max-width:400px;-webkit-text-security:disc;text-security:disc;font-size:16px;">
 
     <label for="setupAdminPwd">Setup Protection Password</label>
-    <input type="password" id="setupAdminPwd" placeholder="Password to re-access Setup later" style="max-width:400px;">
+    <input type="text" id="setupAdminPwd" placeholder="Password to re-access Setup later" style="max-width:400px;-webkit-text-security:disc;text-security:disc;font-size:16px;">
     <p style="font-size:0.75em; color:#999; margin:5px 0 0 0;">This password lets you re-open Setup from the login page to change your token or password. Remember it.</p>
     
     <div id="setupError" style="color:#e74c3c; margin-top:10px; font-size:0.9em; display:none;"></div>
@@ -9550,6 +9614,70 @@ async function saveEditedNames() {
         <button onclick="closeHideSubjectPopup()" style="max-width:200px;">Done</button>
     </div>
 </div>
+
+<!-- SURGICAL FIX: Force-rescale viewport if Chrome auto-zooms on #initialPage or #adminLoginPage form controls -->
+<script>
+(function(){
+  var zoomPages=['initialPage','adminLoginPage'];
+  function isActiveZoomPage(){
+    var active=document.querySelector('.page[style*="display: block"],.page[style*="display:block"]');
+    return active&&zoomPages.indexOf(active.id)!==-1;
+  }
+  function resetZoom(){
+    if(!isActiveZoomPage())return;
+    var meta=document.querySelector('meta[name="viewport"]');
+    if(!meta)return;
+    var c=meta.content;
+    meta.content='width=device-width,initial-scale=1,maximum-scale=1.0';
+    requestAnimationFrame(function(){meta.content=c;});
+  }
+  function lockBody(){
+    if(isActiveZoomPage()){
+      document.body.style.overflowX='hidden';
+      document.body.style.position='relative';
+      document.body.style.left='0';
+      document.body.style.right='0';
+    }
+  }
+  // Reset on focus/blur of form controls in zoom-sensitive pages
+  document.addEventListener('focus',function(e){
+    var t=e.target;
+    if((t.tagName==='INPUT'||t.tagName==='SELECT'||t.tagName==='TEXTAREA')&&zoomPages.some(function(id){var p=t.closest('.page');return p&&p.id===id;})){
+      resetZoom();
+      lockBody();
+    }
+  },true);
+  document.addEventListener('blur',function(e){
+    var t=e.target;
+    if((t.tagName==='INPUT'||t.tagName==='SELECT'||t.tagName==='TEXTAREA')&&zoomPages.some(function(id){var p=t.closest('.page');return p&&p.id===id;})){
+      resetZoom();
+    }
+  },true);
+  // Listen to visualViewport resize and scroll events (real Chrome auto-zoom triggers)
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',function(){
+      if(isActiveZoomPage()){
+        resetZoom();
+        lockBody();
+      }
+    });
+    window.visualViewport.addEventListener('scroll',function(){
+      if(isActiveZoomPage()){
+        lockBody();
+      }
+    });
+  }
+  // Also catch page transitions via goToPage
+  var origGoToPage=window.goToPage;
+  if(origGoToPage){
+    window.goToPage=function(pageId){
+      origGoToPage(pageId);
+      lockBody();
+      resetZoom();
+    };
+  }
+})();
+</script>
 
 </body>
 </html>
