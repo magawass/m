@@ -1286,6 +1286,61 @@ function saveSelectedSubjectsToRepo() {
         }
     }
 
+    /* === SURGICAL FIX: Mobile vertical text-fitting for all .page card content ===
+       On viewports ≤480px, reduces font sizes and tightens margins/padding on text
+       elements inside .page cards so all content fits within the viewable area
+       without adding scrollbars. Card dimensions (width, max-width, padding) are
+       NOT changed. Only text sizing and spacing are adjusted. */
+    @media (max-width: 480px) {
+        /* --- Global text/spacing reductions for ALL .page cards --- */
+        .page h2 { font-size: 0.95em !important; margin-top: 4px !important; margin-bottom: 4px !important; }
+        .page h3 { font-size: 0.95em !important; margin-top: 4px !important; margin-bottom: 4px !important; }
+        .page label { margin-top: 6px !important; font-size: 0.85em !important; }
+        .page p { font-size: 0.85em !important; margin-top: 2px !important; margin-bottom: 2px !important; }
+        .page button { margin-top: 8px !important; padding: 8px 10px !important; font-size: 0.9em !important; }
+        .page table th,
+        .page table td { padding: 3px 2px !important; font-size: 0.7em !important; }
+        .page .table-wrapper { margin-top: 8px !important; }
+        .page hr { margin: 4px 0 !important; }
+        .page div[style*="margin-top: 15px"],
+        .page div[style*="margin-top: 20px"] { margin-top: 8px !important; }
+
+        /* --- Progress Report — densest card, needs extra compaction --- */
+        #progressReport { max-height: none !important; }
+        #progressReport #reportHeader > img.logo { width: 60px !important; height: auto !important; margin-bottom: 2px !important; }
+        #progressReport #reportHeaderCenter h1,
+        #progressReport #reportHeaderCenter h1 p { font-size: 12px !important; margin-left: 0 !important; }
+        #progressReport #reportHeaderCenter p { font-size: 9pt !important; margin: 1px 0 !important; }
+        #progressReport #reportHeaderRight h3 { font-size: 0.95em !important; margin: 0 0 2px 0 !important; }
+        #progressReport .info-row { gap: 0 !important; font-size: 9pt !important; line-height: 1.3 !important; }
+        #progressReport .info-row p,
+        #progressReport .info-row span { font-size: 9pt !important; }
+        #progressReport #reportDetails p { margin: 0 0 2px 0 !important; font-size: 9pt !important; }
+        #progressReport .table-wrapper { margin-top: 4px !important; }
+        #progressReport #resultsTable th,
+        #progressReport #resultsTable td { padding: 2px 1px !important; font-size: 8pt !important; }
+        #progressReport #summaryAndKeyWrapper { margin-top: 6px !important; font-size: 9pt !important; }
+        #progressReport #reportSummary { margin-bottom: 4px !important; font-size: 9pt !important; }
+        #progressReport #reportCommentsSection { margin-top: 6px !important; }
+        #progressReport #reportCommentsSection p { margin: 2px 0 !important; font-size: 9pt !important; }
+        #progressReport #reportGradeKeySection { margin-top: 6px !important; }
+        #progressReport #gradeKeyTableNew th,
+        #progressReport #gradeKeyTableNew td { padding: 1px !important; font-size: 7pt !important; }
+        #progressReport #reportGradeKeyTable th,
+        #progressReport #reportGradeKeyTable td { padding: 1px !important; font-size: 7pt !important; }
+        #progressReport button { margin-top: 4px !important; padding: 6px 8px !important; font-size: 0.8em !important; min-height: 36px !important; }
+        #progressReport > br { display: none !important; }
+
+        /* --- Brief Report — similar density to progress report --- */
+        #briefReport #briefReportHeader > img.logo { width: 60px !important; height: auto !important; }
+        #briefReport #briefReportHeaderRight h3 { font-size: 0.95em !important; margin: 0 0 2px 0 !important; }
+        #briefReport .table-wrapper { margin-top: 6px !important; }
+        #briefReport #briefReportDetails { margin-top: 8px !important; }
+        #briefReport #briefReportDetails p { margin: 0 0 2px 0 !important; font-size: 9pt !important; }
+        #briefReport #briefReportSummary { margin-top: 8px !important; }
+        #briefReport button { margin-top: 6px !important; padding: 6px 8px !important; font-size: 0.8em !important; min-height: 36px !important; }
+    }
+
     /* Desktop Table Adjustments */
     @media (min-width: 768px) {
         #scoreSheetView,
@@ -2013,7 +2068,7 @@ function saveSelectedSubjectsToRepo() {
 
 <div id="initialPage" class="page">
     <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png"   alt="Secondary School Logo" class="logo">
-  <h1 style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL-ODL</p></h1>
+  <h1 style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL</p></h1>
     <h2>EXAM PORTAL</h2>
     <label for="selectedForm">Select Form / Sankhani Kalasi</label>
     <select id="selectedForm" style="font-size:16px;">
@@ -2797,7 +2852,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <script>
 // --- GITHUB CONSTANTS ---
 const GITHUB_USER = 'magawass';
-const GITHUB_REPO = 'm1';
+const GITHUB_REPO = 'm';
 const CONFIG_FILE = 'config.json';
 // Admin password is now the decryption password — set during First-Time Setup
 // No hardcoded password stored in file
@@ -4918,7 +4973,7 @@ function showSetUpWindow() {
 }
 
 // --- ARCHIVE SECTION FUNCTIONS ---
-const ARCHIVE_REPO = 'm3';
+const ARCHIVE_REPO = 'm2';
 const ARCHIVE_API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${ARCHIVE_REPO}/contents/`;
 
 async function archiveExamData() {
