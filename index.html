@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magawa Secondary | Official Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script>
         // ============================================================
         // AES-256-GCM TOKEN ENCRYPTION SYSTEM
         // Military-grade encryption for GitHub token storage
         // ============================================================
 
-        const ENCRYPTED_TOKEN_STORED = 'p5q90ubfDedNUDOxnApzalFoR00LWya8EjRh9T2Mh6Iks/zGnL1ADFwuV7A7xb43t0nFLXJXhiAYViwKgWgU+uYk4EwB+NeB15b1NZ9xK78IHYb7pIyO9zmo6QZ7VfpQuatHKL5TYfHTi+3p1E8q0ya5WrkGXC9O0ET3xmRuZ0FzIkLGWUrVrF0=';
+        const ENCRYPTED_TOKEN_STORED = '34TelAUtPvTgBPlJ7wosUnCF1Ia9oRgFZ9qpXU2h9EWPb20zXaCSlAhzw6/pCUxq13A+AUK/2f7PAmZQD2GPfgjwNtQ5oKYzq3fteOMzGvBcYLGxk8CdLl5tdwqhJ/pURjgptt5MIyUCCOchk0/Ja4OzaZjKtf+VsO1P9LRlK7NfcUfIcfh4ukQ=';
 
         // In-memory ONLY — never persisted
         let _decryptedGitHubToken = null;
@@ -34,15 +35,13 @@
                 false,
                 ['deriveKey']
             );
-            return crypto.subtle.deriveKey(
-                {
+            return crypto.subtle.deriveKey({
                     name: 'PBKDF2',
                     salt: salt,
                     iterations: 600000,
                     hash: 'SHA-256'
                 },
-                keyMaterial,
-                { name: 'AES-GCM', length: 256 },
+                keyMaterial, { name: 'AES-GCM', length: 256 },
                 false,
                 ['encrypt', 'decrypt']
             );
@@ -54,8 +53,7 @@
             const salt = crypto.getRandomValues(new Uint8Array(16));
             const iv = crypto.getRandomValues(new Uint8Array(12));
             const key = await deriveKey(password, salt);
-            const ciphertext = await crypto.subtle.encrypt(
-                { name: 'AES-GCM', iv: iv },
+            const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv },
                 key,
                 enc.encode(plainToken)
             );
@@ -75,8 +73,7 @@
             const iv = combined.slice(16, 28);
             const ciphertext = combined.slice(28);
             const key = await deriveKey(password, salt);
-            const decrypted = await crypto.subtle.decrypt(
-                { name: 'AES-GCM', iv: iv },
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv },
                 key,
                 ciphertext
             );
@@ -118,9 +115,9 @@
             const statusEl = document.getElementById('tokenStatusIndicator');
             if (statusEl) {
                 statusEl.textContent = decrypted ? 'ACTIVE' : 'INACTIVE';
-                statusEl.className = decrypted
-                    ? 'text-xs font-semibold px-3 py-1.5 rounded-full ' + (window.getComputedStyle(statusEl).display === 'none' ? '' : '')
-                    : 'text-xs font-semibold px-3 py-1.5 rounded-full';
+                statusEl.className = decrypted ?
+                    'text-xs font-semibold px-3 py-1.5 rounded-full ' + (window.getComputedStyle(statusEl).display === 'none' ? '' : '') :
+                    'text-xs font-semibold px-3 py-1.5 rounded-full';
                 statusEl.style.background = decrypted ? '#dcfce7' : '#fef3c7';
                 statusEl.style.color = decrypted ? '#166534' : '#92400e';
             }
@@ -251,13 +248,15 @@
 
                 const okBtn = document.createElement('button');
                 okBtn.textContent = 'DECRYPT';
-                okBtn.style.cssText = 'padding:10px 25px;background:#1e3a5f;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:0;';
-                okBtn.onclick = () => { overlay.remove(); resolve(input.value); };
+                okBtn.style.cssText = 'padding:10px 25px;background:#374151;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:0;';
+                okBtn.onclick = () => { overlay.remove();
+                    resolve(input.value); };
 
                 const cancelBtn = document.createElement('button');
                 cancelBtn.textContent = 'Cancel';
                 cancelBtn.style.cssText = 'padding:10px 25px;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;width:auto;max-width:none;margin:0;';
-                cancelBtn.onclick = () => { overlay.remove(); resolve(null); };
+                cancelBtn.onclick = () => { overlay.remove();
+                    resolve(null); };
 
                 btnRow.appendChild(okBtn);
                 btnRow.appendChild(cancelBtn);
@@ -269,8 +268,10 @@
 
                 input.focus();
                 input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') { overlay.remove(); resolve(input.value); }
-                    if (e.key === 'Escape') { overlay.remove(); resolve(null); }
+                    if (e.key === 'Enter') { overlay.remove();
+                        resolve(input.value); }
+                    if (e.key === 'Escape') { overlay.remove();
+                        resolve(null); }
                 });
             });
         }
@@ -280,19 +281,19 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { 
-                        brandBlue: "#1e3a5f", 
-                        brandBlueDark: "#152c4a", 
-                        brandOlive: "#5c7c3b", 
+                    colors: {
+                        brandBlue: "#374151",
+                        brandBlueDark: "#1f2937",
+                        brandOlive: "#374151",
                         brandOrange: "#d97706",
                         brandGold: "#c9a227",
                         footerDark: "#0f172a",
-                        accent: "#3b82f6",
-                        surface: "#f8fafc",
-                        headerBg: "#1e3a5f"
+                        accent: "#374151",
+                        surface: "#ffffff",
+                        headerBg: "#374151"
                     },
                     fontFamily: {
-                        'display': ['Playfair Display', 'serif'],
+                        'display': ['Montserrat', 'sans-serif'],
                         'body': ['Inter', 'sans-serif']
                     }
                 }
@@ -305,13 +306,10 @@
             headerTitle: "WELCOME TO THE OFFICIAL STUDENT PORTAL",
             headerSub: "EST. 1990 | ENTER TO LEARN,DEPART TO SAVE",
             headerImg: "https://raw.githubusercontent.com/ChikumbutsoLubaini/Teacher-Assistant/main/school_building.jpg",
-            announcements: "",
             aboutText: "",
-            upcoming: "",
-            adverts: [], 
-            noticeBoard: [], 
-            mediaGallery: [], 
-            videos: [] 
+            noticeBoard: [],
+            mediaGallery: [],
+            videos: []
         };
 
         // --- Navigation Logic ---
@@ -335,7 +333,7 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const target = document.getElementById(pageId);
             if (target) target.classList.add('active');
-            window.scrollTo(0,0);
+            window.scrollTo(0, 0);
         }
 
         function openPortal(url) {
@@ -362,7 +360,7 @@
             } catch (error) {
                 console.log("Loading local fallback");
                 const local = localStorage.getItem('magawassAdminContent');
-                if(local) adminContent = JSON.parse(local);
+                if (local) adminContent = JSON.parse(local);
                 updateDisplayContent();
             }
         }
@@ -374,10 +372,8 @@
             if (heroEl) {
                 heroEl.style.backgroundImage = `url('${adminContent.headerImg || "https://raw.githubusercontent.com/ChikumbutsoLubaini/Teacher-Assistant/main/school_building.jpg"}')`;
             }
-            
-            document.getElementById('displayAnnouncement').innerText = adminContent.announcements || "No recent announcements.";
+
             document.getElementById('displayAboutText').innerText = adminContent.aboutText || "Magawa Secondary School is dedicated to excellence.";
-            document.getElementById('displayUpcoming').innerText = adminContent.upcoming || "No upcoming events scheduled.";
 
             const renderItems = (items) => (items || []).map(item => `
                 <div class="mb-4 bg-surface rounded-xl p-4 border border-gray-100 hover:shadow-md transition-shadow duration-300">
@@ -386,7 +382,6 @@
                 </div>
             `).join('');
 
-            document.getElementById('displayAdverts').innerHTML = renderItems(adminContent.adverts);
             document.getElementById('displayNoticeBoard').innerHTML = renderItems(adminContent.noticeBoard);
             document.getElementById('galleryDisplay').innerHTML = renderItems(adminContent.mediaGallery);
         }
@@ -395,7 +390,7 @@
         async function saveToGithub() {
             const btn = document.getElementById('saveBtn');
             const token = getDecryptedToken();
-            if(!token) return alert("Decrypt your token first (click 'Enter Password to Decrypt Token')");
+            if (!token) return alert("Decrypt your token first (click 'Enter Password to Decrypt Token')");
 
             btn.disabled = true;
             btn.innerHTML = "SAVING...";
@@ -414,14 +409,13 @@
                     adminContent.headerImg = headerImgData;
                 }
 
-                adminContent.announcements = document.getElementById('adminAnnounceInput').value;
                 adminContent.aboutText = document.getElementById('adminAboutInput').value;
-                adminContent.upcoming = document.getElementById('adminUpcomingInput').value;
 
                 const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
                 let sha = "";
                 const checkRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
-                if (checkRes.ok) { const d = await checkRes.json(); sha = d.sha; }
+                if (checkRes.ok) { const d = await checkRes.json();
+                    sha = d.sha; }
 
                 const finalJson = JSON.stringify(adminContent);
                 const base64Content = btoa(unescape(encodeURIComponent(finalJson)));
@@ -449,7 +443,7 @@
             const textInput = document.getElementById(`admin${type}Text`);
             const fileInput = document.getElementById(`admin${type}File`);
             let imgData = "";
-            
+
             if (fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
                 imgData = await new Promise(r => {
@@ -457,9 +451,9 @@
                     reader.readAsDataURL(fileInput.files[0]);
                 });
             }
-            
+
             const newItem = { text: textInput.value, image: imgData };
-            if(!adminContent[type]) adminContent[type] = [];
+            if (!adminContent[type]) adminContent[type] = [];
             adminContent[type].push(newItem);
             renderAdminLists();
             textInput.value = "";
@@ -471,9 +465,9 @@
         }
 
         function renderAdminLists() {
-            ['adverts', 'noticeBoard', 'mediaGallery'].forEach(type => {
+            ['noticeBoard', 'mediaGallery'].forEach(type => {
                 const el = document.getElementById(`admin${type}List`);
-                if(el) el.innerHTML = (adminContent[type] || []).map((item, idx) => `
+                if (el) el.innerHTML = (adminContent[type] || []).map((item, idx) => `
                     <div class="flex justify-between text-xs p-3 bg-red-50 rounded-lg mb-2 border border-red-100">
                         <span class="text-gray-700">${item.text || 'Item'}</span>
                         <button onclick="deleteItem('${type}', ${idx})" class="text-red-500 hover:text-red-700 font-semibold px-2">REMOVE</button>
@@ -522,8 +516,6 @@
                 document.getElementById('adminHeaderTitle').value = adminContent.headerTitle;
                 document.getElementById('adminHeaderSub').value = adminContent.headerSub;
                 document.getElementById('adminAboutInput').value = adminContent.aboutText;
-                document.getElementById('adminAnnounceInput').value = adminContent.announcements;
-                document.getElementById('adminUpcomingInput').value = adminContent.upcoming;
                 if (adminContent.headerImg) {
                     document.getElementById('adminHeaderImgThumb').src = adminContent.headerImg;
                     document.getElementById('adminHeaderImgPreview').style.display = 'block';
@@ -564,9 +556,9 @@
             document.getElementById('btnTabUploaded').classList.toggle('bg-red-100', tab === 'uploaded');
             document.getElementById('btnTabUploaded').classList.toggle('text-red-700', tab === 'uploaded');
             document.getElementById('btnTabUploaded').classList.toggle('border-red-300', tab === 'uploaded');
-            document.getElementById('btnTabSearch').classList.toggle('bg-blue-100', tab === 'search');
-            document.getElementById('btnTabSearch').classList.toggle('text-blue-700', tab === 'search');
-            document.getElementById('btnTabSearch').classList.toggle('border-blue-300', tab === 'search');
+            document.getElementById('btnTabSearch').classList.toggle('bg-gray-100', tab === 'search');
+            document.getElementById('btnTabSearch').classList.toggle('text-gray-700', tab === 'search');
+            document.getElementById('btnTabSearch').classList.toggle('border-gray-300', tab === 'search');
         }
 
         function playVideo(url, btnEl) {
@@ -605,9 +597,9 @@
                 const thumb = v.thumbnail || 'https://img.youtube.com/vi/' + extractYTId(v.url) + '/mqdefault.jpg';
                 return '<button onclick="playVideo(\'' + v.url + '\', this)" class="video-thumb-btn flex items-center gap-3 px-3 py-2 rounded-lg bg-white border border-gray-100 hover:bg-red-50 hover:border-red-200 transition-all text-left w-full">' +
                     '<img src="' + thumb + '" class="w-16 h-10 rounded object-cover flex-shrink-0" onerror="this.src=\'\'"/>' +
-                    '<span class="text-xs font-medium text-gray-700 truncate">' + (v.title || 'Video ' + (i+1)) + '</span>' +
+                    '<span class="text-xs font-medium text-gray-700 truncate">' + (v.title || 'Video ' + (i + 1)) + '</span>' +
                     '<i class="fas fa-play text-red-400 text-[10px] ml-auto flex-shrink-0"></i>' +
-                '</button>';
+                    '</button>';
             }).join('');
         }
 
@@ -622,7 +614,7 @@
             const query = document.getElementById('videoSearchInput').value.trim();
             const resultsEl = document.getElementById('searchResultsList');
             if (!query) { resultsEl.innerHTML = '<p class="text-xs text-gray-400 italic py-2">Enter a topic to search.</p>'; return; }
-            resultsEl.innerHTML = '<p class="text-xs text-blue-500 py-2"><i class="fas fa-spinner fa-spin mr-1"></i> Searching...</p>';
+            resultsEl.innerHTML = '<p class="text-xs text-gray-500 py-2"><i class="fas fa-spinner fa-spin mr-1"></i> Searching...</p>';
             try {
                 const res = await fetch('https://pipedapi.kavin.rocks/search?q=' + encodeURIComponent(query + ' educational tutorial learn') + '&filter=videos');
                 if (!res.ok) throw new Error('Search failed');
@@ -638,17 +630,17 @@
                     const title = (item.title || 'Untitled').replace(/"/g, '&quot;');
                     const uploader = item.uploaderName || '';
                     const duration = item.duration > 0 ? formatDuration(item.duration) : '';
-                    return '<button onclick="playSearchResult(\'' + videoId + '\', this)" class="search-result-item flex items-start gap-3 px-3 py-2.5 rounded-lg bg-white border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-all text-left w-full">' +
+                    return '<button onclick="playSearchResult(\'' + videoId + '\', this)" class="search-result-item flex items-start gap-3 px-3 py-2.5 rounded-lg bg-white border border-gray-100 hover:bg-gray-50 hover:border-gray-300 transition-all text-left w-full">' +
                         '<img src="' + thumb + '" class="w-24 h-14 rounded-lg object-cover flex-shrink-0"/>' +
                         '<div class="flex-1 min-w-0">' +
-                            '<p class="text-xs font-semibold text-gray-700 leading-tight line-clamp-2">' + title + '</p>' +
-                            '<div class="flex items-center gap-2 mt-1">' +
-                                (uploader ? '<span class="text-[10px] text-gray-400 truncate">' + uploader + '</span>' : '') +
-                                (duration ? '<span class="text-[10px] text-gray-400">' + duration + '</span>' : '') +
-                            '</div>' +
+                        '<p class="text-xs font-semibold text-gray-700 leading-tight line-clamp-2">' + title + '</p>' +
+                        '<div class="flex items-center gap-2 mt-1">' +
+                        (uploader ? '<span class="text-[10px] text-gray-400 truncate">' + uploader + '</span>' : '') +
+                        (duration ? '<span class="text-[10px] text-gray-400">' + duration + '</span>' : '') +
                         '</div>' +
-                        '<i class="fas fa-play-circle text-blue-400 text-lg mt-1 flex-shrink-0"></i>' +
-                    '</button>';
+                        '</div>' +
+                        '<i class="fas fa-play-circle text-gray-400 text-lg mt-1 flex-shrink-0"></i>' +
+                        '</button>';
                 }).join('');
             } catch (e) {
                 resultsEl.innerHTML = '<p class="text-xs text-red-400 py-2"><i class="fas fa-exclamation-triangle mr-1"></i> Search unavailable. Please try again later.</p>';
@@ -692,9 +684,9 @@
             if (!el) return;
             el.innerHTML = (adminContent.videos || []).map((v, idx) =>
                 '<div class="flex items-center gap-3 text-xs p-3 bg-red-50 rounded-lg mb-2 border border-red-100">' +
-                    '<i class="fas fa-video text-red-400"></i>' +
-                    '<span class="text-gray-700 flex-1 truncate">' + (v.title || v.url) + '</span>' +
-                    '<button onclick="deleteVideo(' + idx + ')" class="text-red-500 hover:text-red-700 font-semibold px-2">REMOVE</button>' +
+                '<i class="fas fa-video text-red-400"></i>' +
+                '<span class="text-gray-700 flex-1 truncate">' + (v.title || v.url) + '</span>' +
+                '<button onclick="deleteVideo(' + idx + ')" class="text-red-500 hover:text-red-700 font-semibold px-2">REMOVE</button>' +
                 '</div>'
             ).join('');
         }
@@ -736,15 +728,27 @@
     </script>
 
     <style>
-        * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f8fafc; color: #334155; }
+        * {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #ffffff;
+            color: #334155;
+        }
 
-        .page { display: none; }
-        .page.active { display: block; }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
 
         /* Unified Header Bar */
         .unified-header {
-            background: #152c4a;
+            background: #ffffff;
         }
 
         /* Hero Banner */
@@ -752,7 +756,7 @@
             height: 520px;
             background-size: cover;
             background-position: center;
-            background-color: #1e3a5f;
+            background-color: #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -761,34 +765,41 @@
         .hero-banner::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(30, 58, 95, 0.08) 0%, rgba(15, 23, 42, 0.05) 100%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.01) 100%);
         }
         .hero-banner::after {
             content: "";
             position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 240px;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 240px;
             background: linear-gradient(to top, rgba(236, 241, 247, 1) 0%, rgba(236, 241, 247, 0.7) 30%, transparent 100%);
             z-index: 2;
         }
-        .hero-banner.hero-has-bg .hero-overlay { display: block !important; }
+        .hero-banner.hero-has-bg .hero-overlay {
+            display: block !important;
+        }
 
         /* Portal wrapper with overlapping card */
         .portal-wrapper {
-            background: linear-gradient(180deg, rgba(236, 241, 247, 0) 0%, #e2e8f0 25%);
+            background: #ffffff;
             padding-bottom: 80px;
             display: flex;
             justify-content: center;
         }
         .main-card {
-            background: linear-gradient(145deg, #f0f4f8, #e8eef4);
+            background: #ffffff;
             width: 92%;
             max-width: 1200px;
             margin-top: -100px;
             padding: 50px;
             border-radius: 24px;
-            box-shadow:
-                0 25px 50px -12px rgba(0, 0, 0, 0.15),
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15),
                 0 0 0 1px rgba(255, 255, 255, 0.5);
             z-index: 10;
             position: relative;
@@ -796,16 +807,20 @@
         .main-card::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #1e3a5f, #5c7c3b, #d97706);
+            background: linear-gradient(90deg, #d97706, #c9a227, #d97706);
             border-radius: 24px 24px 0 0;
             z-index: 3;
         }
         .main-card::after {
             content: "";
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 100px;
             background: linear-gradient(to bottom, rgba(236, 241, 247, 1) 0%, rgba(236, 241, 247, 0.6) 40%, transparent 100%);
             border-radius: 24px 24px 0 0;
@@ -822,13 +837,16 @@
         .action-btn::before {
             content: "";
             position: absolute;
-            top: 0; left: -100%;
+            top: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s ease;
         }
-        .action-btn:hover::before { left: 100%; }
+        .action-btn:hover::before {
+            left: 100%;
+        }
         .action-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
@@ -846,7 +864,7 @@
             left: 0;
             width: 40px;
             height: 3px;
-            background: linear-gradient(90deg, #1e3a5f, #3b82f6);
+            background: linear-gradient(90deg, #374151, #6b7280);
             border-radius: 2px;
         }
 
@@ -863,36 +881,22 @@
             border-color: #cbd5e1;
         }
 
-        /* Distinct card: About Us - Deep navy blue */
+        /* SURGICAL FIX: Distinct card: About Us — matches Notice Board card structure (thin all-around border) while keeping orange identity */
         .card-about {
-            background: linear-gradient(145deg, #1e3a5f 0%, #152c4a 100%);
-            border: none;
-            border-left: 5px solid #3b82f6;
+            background: #ffffff;
+            border: 1px solid rgba(217, 119, 6, 0.2);
         }
         .card-about:hover {
-            box-shadow: 0 12px 35px -8px rgba(30, 58, 95, 0.4);
-            border-left-color: #60a5fa;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+            border-color: #d97706;
         }
         .card-about .section-title,
-        .card-about h3 { color: #93c5fd; }
-        .card-about p { color: rgba(255,255,255,0.8); }
-
-        /* Distinct card: Announcements - Warm amber/orange */
-        .card-announce {
-            background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%);
-            border: none;
-            border-left: 5px solid #d97706;
+        .card-about h3 {
+            color: #374151;
         }
-        .card-announce:hover {
-            box-shadow: 0 12px 35px -8px rgba(217, 119, 6, 0.2);
-            border-left-color: #f59e0b;
+        .card-about p {
+            color: #4b5563;
         }
-        .card-announce .card-icon-wrap {
-            background: linear-gradient(135deg, #d97706, #f59e0b);
-        }
-        .card-announce .card-icon-wrap i { color: white; }
-        .card-announce h3 { color: #92400e; }
-        .card-announce p { color: #78350f; }
 
         /* Distinct card: Gallery - Cool teal/cyan */
         .card-gallery {
@@ -907,37 +911,31 @@
         .card-gallery .card-icon-wrap {
             background: linear-gradient(135deg, #0d9488, #14b8a6);
         }
-        .card-gallery .card-icon-wrap i { color: white; }
-        .card-gallery h3 { color: #115e59; }
-
-        /* Distinct card: Upcoming Events - Rich green */
-        .card-upcoming {
-            background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%);
-            border: none;
-            border-left: 5px solid #16a34a;
+        .card-gallery .card-icon-wrap i {
+            color: white;
         }
-        .card-upcoming:hover {
-            box-shadow: 0 12px 35px -8px rgba(22, 163, 74, 0.2);
-            border-left-color: #22c55e;
+        .card-gallery h3 {
+            color: #115e59;
         }
-        .card-upcoming .card-icon-wrap {
-            background: linear-gradient(135deg, #16a34a, #22c55e);
-        }
-        .card-upcoming .card-icon-wrap i { color: white; }
-        .card-upcoming h3 { color: #14532d; }
-        .card-upcoming p { color: #166534; }
 
         /* Nav link hover underline */
-        .nav-link { position: relative; padding: 8px 0; }
+        .nav-link {
+            position: relative;
+            padding: 8px 0;
+        }
         .nav-link::after {
             content: "";
             position: absolute;
-            bottom: 0; left: 0;
-            width: 0; height: 2px;
-            background: #ffffff;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #374151;
             transition: width 0.3s ease;
         }
-        .nav-link:hover::after { width: 100%; }
+        .nav-link:hover::after {
+            width: 100%;
+        }
 
         /* Decorative dot pattern */
         .decorative-pattern {
@@ -948,25 +946,29 @@
         /* Welcome overlay */
         .welcome-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100vh;
-            background: #152c4a;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #ffffff;
             z-index: 999;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
-        .welcome-overlay.active { display: flex; }
+        .welcome-overlay.active {
+            display: flex;
+        }
         .welcome-content {
             text-align: center;
-            color: white;
+            color: #374151;
             max-width: 600px;
             padding: 40px;
         }
         .welcome-content h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 1rem;
         }
@@ -985,69 +987,162 @@
             margin-bottom: 12px;
             font-size: 14px;
             transition: all 0.2s ease;
-            background: #fafafa;
+            background: #ffffff;
         }
         .admin-input:focus {
             outline: none;
-            border-color: #3b82f6;
-            background: white;
+            border-color: #374151;
+            background: #ffffff;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         /* Portal container */
-        iframe { width: 100%; height: calc(100vh - 60px); border: none; }
+        iframe {
+            width: 100%;
+            height: calc(100vh - 60px);
+            border: none;
+        }
 
-        #portalContainer.active { 
-            display: block; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100vh; 
-            background: white; 
-            z-index: 1000; 
+        #portalContainer.active {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
         }
 
         /* Scroll animations */
-        .animate-on-scroll { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
-        .animate-in { opacity: 1; transform: translateY(0); }
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
         /* Mobile menu animation */
-        .mobile-menu-enter { animation: menuFade 0.2s ease; }
-        @keyframes menuFade { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+        .mobile-menu-enter {
+            animation: menuFade 0.2s ease;
+        }
+        @keyframes menuFade {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* Fade in up */
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeInUp 0.6s ease forwards; }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease forwards;
+        }
 
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
 
         /* Help Modal Content */
-        #helpModal .prose h3 { font-size: 0.95rem; margin-bottom: 0.5rem; }
-        #helpModal .prose p, #helpModal .prose li { font-size: 0.8rem; line-height: 1.5; }
-        #helpModal .prose ul { margin-bottom: 0.75rem; }
-        #helpModal .prose li { margin-bottom: 0.25rem; }
+        #helpModal .prose h3 {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+        #helpModal .prose p,
+        #helpModal .prose li {
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+        #helpModal .prose ul {
+            margin-bottom: 0.75rem;
+        }
+        #helpModal .prose li {
+            margin-bottom: 0.25rem;
+        }
 
         /* Mobile Responsive */
-        #mobileMenu.hidden { display: none; }
+        #mobileMenu.hidden {
+            display: none;
+        }
 
         @media (max-width: 768px) {
-            .unified-header { padding-left: 3%; padding-right: 3%; }
-            .unified-header .nav-right { display: none !important; }
-            .hero-banner { height: auto; min-height: 420px; padding-bottom: 100px; }
-            .hero-banner .relative.z-10 { padding-bottom: 20px; }
-            .main-card { margin-top: -60px; padding: 24px 16px; width: 96%; border-radius: 20px; }
-            .info-card { padding: 20px 16px; margin-bottom: 16px; }
-            .info-card h3 { font-size: 0.8rem; margin-bottom: 12px; }
-            .info-card p { font-size: 0.875rem; line-height: 1.6; }
-            .space-y-8 > * + * { margin-top: 1rem; }
-            footer .border-t { flex-direction: column; text-align: center; gap: 12px; }
-            footer .border-t p, footer .border-t button { text-align: center; justify-content: center; }
-            footer .text-right { text-align: center; margin-top: 24px; }
-            footer .text-right .flex { justify-content: center; }
-            .welcome-content h2 { font-size: 2rem; }
+            .unified-header {
+                padding-left: 3%;
+                padding-right: 3%;
+            }
+            .unified-header .nav-right {
+                display: none !important;
+            }
+            .hero-banner {
+                height: auto;
+                min-height: 420px;
+                padding-bottom: 100px;
+            }
+            .hero-banner .relative.z-10 {
+                padding-bottom: 20px;
+            }
+            .main-card {
+                margin-top: -60px;
+                padding: 24px 16px;
+                width: 96%;
+                border-radius: 20px;
+            }
+            .info-card {
+                padding: 20px 16px;
+                margin-bottom: 16px;
+            }
+            .info-card h3 {
+                font-size: 0.8rem;
+                margin-bottom: 12px;
+            }
+            .info-card p {
+                font-size: 0.875rem;
+                line-height: 1.6;
+            }
+            .space-y-8>*+* {
+                margin-top: 1rem;
+            }
+            footer .border-t {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+            footer .border-t p,
+            footer .border-t button {
+                text-align: center;
+                justify-content: center;
+            }
+            footer .text-right {
+                text-align: center;
+                margin-top: 24px;
+            }
+            footer .text-right .flex {
+                justify-content: center;
+            }
+            .welcome-content h2 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
@@ -1057,59 +1152,59 @@
     <header id="mainNav" class="unified-header px-[4%] py-3 flex justify-between items-center sticky top-0 z-50 shadow-lg">
         <!-- Left: Logo -->
         <div class="flex items-center gap-2.5 shrink-0">
-            <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Logo" class="w-9 h-9 rounded-lg object-cover border border-white/20">
+            <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Logo" class="w-14 h-14 object-contain">
             <div>
-                <h1 class="text-lg font-display font-bold tracking-tight leading-none text-white">MAGAWA SECONDARY</h1>
-                <p class="text-[8px] font-semibold text-white/50 tracking-[0.18em] uppercase">Official Portal</p>
+                <h1 class="text-lg font-display font-bold tracking-tight leading-none text-brandBlue">MAGAWA SECONDARY</h1>
+                <p class="text-[8px] font-semibold text-brandBlue/50 tracking-[0.18em] uppercase">Official Portal</p>
             </div>
         </div>
         <!-- Center: Nav Links (desktop only) -->
         <nav class="hidden lg:flex items-center space-x-5 text-[13px] font-semibold uppercase tracking-wide">
-            <button onclick="showPage('homePage')" class="nav-link text-white/90 hover:text-white transition-colors">Home</button>
-            <button onclick="showWelcome()" class="nav-link text-white/90 hover:text-white transition-colors">Student Portal</button>
-            <button onclick="showPage('adminLogin')" class="bg-white text-brandBlue px-5 py-2 rounded-full hover:bg-gray-100 transition-all hover:shadow-lg text-xs tracking-wider">Admin Login</button>
+            <button onclick="showPage('homePage')" class="nav-link text-gray-700 hover:text-brandBlue transition-colors">Home</button>
+            <button onclick="showWelcome()" class="nav-link text-gray-700 hover:text-brandBlue transition-colors">Student Portal</button>
+            <button onclick="showPage('adminLogin')" class="bg-brandBlue text-white px-5 py-2 rounded-full hover:bg-brandBlue/90 transition-all hover:shadow-lg text-xs tracking-wider">Admin Login</button>
         </nav>
         <!-- Right: Contact info (desktop only) -->
         <div class="nav-right hidden lg:flex items-center gap-4 text-[11px] shrink-0">
-            <a href="tel:+265884540628" class="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors">
+            <a href="tel:+265884540628" class="flex items-center gap-1.5 text-gray-500 hover:text-brandBlue transition-colors">
                 <i class="fas fa-phone-alt text-brandOrange text-[9px]"></i>
                 <span class="tracking-wide">+265 884 54 06 28</span>
             </a>
-            <span class="w-px h-3 bg-white/15"></span>
+            <span class="w-px h-3 bg-gray-300"></span>
             <div class="flex items-center gap-2">
-                <a href="#" class="w-5 h-5 bg-white/10 rounded flex items-center justify-center hover:bg-white/20 transition-colors"><i class="fab fa-facebook-f text-[9px]"></i></a>
-                <a href="#" class="w-5 h-5 bg-white/10 rounded flex items-center justify-center hover:bg-white/20 transition-colors"><i class="fab fa-twitter text-[9px]"></i></a>
-                <a href="#" class="w-5 h-5 bg-white/10 rounded flex items-center justify-center hover:bg-white/20 transition-colors"><i class="fab fa-instagram text-[9px]"></i></a>
+                <a href="#" class="w-5 h-5 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"><i class="fab fa-facebook-f text-[9px] text-gray-600"></i></a>
+                <a href="#" class="w-5 h-5 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"><i class="fab fa-twitter text-[9px] text-gray-600"></i></a>
+                <a href="#" class="w-5 h-5 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"><i class="fab fa-instagram text-[9px] text-gray-600"></i></a>
             </div>
         </div>
         <!-- Mobile: Hamburger -->
-        <button onclick="toggleMobileMenu()" class="lg:hidden text-white p-2">
+        <button onclick="toggleMobileMenu()" class="lg:hidden text-brandBlue p-2">
             <i class="fas fa-bars text-lg"></i>
         </button>
     </header>
 
     <!-- Mobile Menu Dropdown -->
-    <div id="mobileMenu" class="hidden lg:hidden bg-[#152c4a] px-[4%] py-4 border-t border-white/10 mobile-menu-enter">
+    <div id="mobileMenu" class="hidden lg:hidden bg-white px-[4%] py-4 border-t border-gray-200 mobile-menu-enter shadow-lg">
         <div class="flex flex-col space-y-2 text-sm font-semibold uppercase tracking-wide">
             <!-- Contact info at top of mobile menu -->
-            <div class="flex items-center justify-between pb-3 mb-2 border-b border-white/10">
-                <a href="tel:+265994039325" class="flex items-center gap-1.5 text-white/70 text-xs">
+            <div class="flex items-center justify-between pb-3 mb-2 border-b border-gray-200">
+                <a href="tel:+265994039325" class="flex items-center gap-1.5 text-gray-500 text-xs">
                     <i class="fas fa-phone-alt text-brandOrange text-[9px]"></i>
                     <span>+265 884 54 06 28</span>
                 </a>
                 <div class="flex items-center gap-2">
-                    <a href="#" class="w-6 h-6 bg-white/10 rounded flex items-center justify-center hover:bg-white/20 transition-colors"><i class="fab fa-facebook-f text-[10px]"></i></a>
-                    <a href="#" class="w-6 h-6 bg-white/10 rounded flex items-center justify-center hover:bg-white/20 transition-colors"><i class="fab fa-twitter text-[10px]"></i></a>
-                    <a href="#" class="w-6 h-6 bg-white/10 rounded flex items-center justify-center hover:bg-white/20 transition-colors"><i class="fab fa-instagram text-[10px]"></i></a>
+                    <a href="#" class="w-6 h-6 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"><i class="fab fa-facebook-f text-[10px] text-gray-600"></i></a>
+                    <a href="#" class="w-6 h-6 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"><i class="fab fa-twitter text-[10px] text-gray-600"></i></a>
+                    <a href="#" class="w-6 h-6 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"><i class="fab fa-instagram text-[10px] text-gray-600"></i></a>
                 </div>
             </div>
-            <button onclick="showPage('homePage'); toggleMobileMenu();" class="nav-link text-left text-white/90 hover:text-white transition-colors py-2.5">
-                <i class="fas fa-home mr-3 text-white/50 w-4"></i>Home
+            <button onclick="showPage('homePage'); toggleMobileMenu();" class="nav-link text-left text-gray-700 hover:text-brandBlue transition-colors py-2.5">
+                <i class="fas fa-home mr-3 text-gray-400 w-4"></i>Home
             </button>
-            <button onclick="showWelcome(); toggleMobileMenu();" class="nav-link text-left text-white/90 hover:text-white transition-colors py-2.5">
-                <i class="fas fa-laptop-code mr-3 text-white/50 w-4"></i>Student Portal
+            <button onclick="showWelcome(); toggleMobileMenu();" class="nav-link text-left text-gray-700 hover:text-brandBlue transition-colors py-2.5">
+                <i class="fas fa-laptop-code mr-3 text-gray-400 w-4"></i>Student Portal
             </button>
-            <button onclick="showPage('adminLogin'); toggleMobileMenu();" class="bg-white text-brandBlue px-6 py-2.5 rounded-full hover:bg-gray-100 transition-all hover:shadow-lg text-center text-xs tracking-wider mt-1">
+            <button onclick="showPage('adminLogin'); toggleMobileMenu();" class="bg-brandBlue text-white px-6 py-2.5 rounded-full hover:bg-brandBlue/90 transition-all hover:shadow-lg text-center text-xs tracking-wider mt-1">
                 Admin Login
             </button>
         </div>
@@ -1121,19 +1216,19 @@
 
             <!-- Hero Section -->
             <div id="heroSection" class="hero-banner">
-                <div class="hero-overlay absolute inset-0 bg-gradient-to-r from-brandBlue/55 via-brandBlue/40 to-brandBlue/20 z-[1]" style="display:none;"></div>
-                <div class="relative z-10 text-white text-center mt-24 px-6 max-w-4xl">
-                    <div class="inline-block mb-6 px-4 py-1.5 bg-white/10 backdrop-blur-sm rounded-full border border-white/20" style="text-shadow: 0 1px 8px rgba(0,0,0,0.3);">
-                        <span class="text-xs font-medium tracking-widest uppercase text-white/90">ESTABLISHED 1964</span>
+                <div class="hero-overlay absolute inset-0 bg-gradient-to-r from-gray-800/30 via-gray-800/20 to-gray-800/10 z-[1]" style="display:none;"></div>
+                <div class="relative z-10 text-gray-700 text-center mt-24 px-6 max-w-4xl">
+                    <div class="inline-block mb-6 px-4 py-1.5 bg-gray-100 rounded-full border border-gray-200">
+                        <span class="text-xs font-medium tracking-widest uppercase text-gray-500">ESTABLISHED 1964</span>
                     </div>
-                    <h2 id="displayHeaderTitle" class="font-display text-4xl md:text-6xl font-bold leading-tight text-brandOrange" style="text-shadow: 0 2px 20px rgba(0,0,0,0.4), 0 1px 6px rgba(0,0,0,0.3);">
-                    Welcome To The Official Student Portal
+                    <h2 id="displayHeaderTitle" class="font-display text-4xl md:text-6xl font-bold leading-tight text-brandOrange">
+                        Student Portal
                     </h2>
-                    <p id="displayHeaderSub" class="mt-4 text-base md:text-lg font-medium text-white/80 tracking-wide">
+                    <p id="displayHeaderSub" class="mt-4 text-base md:text-lg font-medium text-gray-500 tracking-wide">
                         ENTER TO LEARN, DEPART TO SERVE
                     </p>
                     <div class="mt-8 flex justify-center gap-4 flex-wrap">
-                        <button onclick="showWelcome()" class="bg-white text-brandBlue px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-all hover:shadow-xl">
+                        <button onclick="showWelcome()" class="bg-gray-800 text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-700 transition-all hover:shadow-xl">
                             <i class="fas fa-arrow-right mr-2"></i> Get Started/Yambani
                         </button>
                     </div>
@@ -1144,133 +1239,36 @@
             <div class="portal-wrapper">
                 <div class="main-card">
                     <div class="relative" style="z-index: 4;">
-                    <!-- Information Grid - 3 Columns -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Information Grid - 2 Columns (removed Announcements, Upcoming Events, Adverts) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-                        <!-- Column 1: About & Announcements -->
-                        <div class="space-y-8">
-                            <div class="info-card card-about animate-on-scroll">
-                                <div class="flex items-center gap-3 mb-6">
-                                    <div class="card-icon-wrap w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(59,130,246,0.25);">
-                                        <i class="fas fa-school text-blue-300"></i>
+                            <!-- Column 1: About -->
+                            <div class="space-y-8">
+                                <div class="info-card card-about animate-on-scroll">
+                                    <div class="flex items-center gap-3 mb-6">
+                                        <div class="card-icon-wrap w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(217, 119, 6, 0.15);">
+                                            <i class="fas fa-school text-orange-400"></i>
+                                        </div>
+                                        <h3 class="section-title text-sm font-bold uppercase tracking-widest mb-0">About Our School</h3>
                                     </div>
-                                    <h3 class="section-title text-sm font-bold uppercase tracking-widest mb-0">About Our School</h3>
+                                    <p id="displayAboutText" class="leading-relaxed text-sm"></p>
                                 </div>
-                                <p id="displayAboutText" class="leading-relaxed text-sm"></p>
                             </div>
 
-                            <div class="info-card card-announce animate-on-scroll">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="card-icon-wrap w-10 h-10 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-bullhorn"></i>
+                            <!-- Column 2: Notice Board -->
+                            <div class="space-y-8">
+                                <div class="info-card animate-on-scroll">
+                                    <div class="flex items-center gap-3 mb-6">
+                                        <div class="w-10 h-10 bg-brandOlive/10 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-thumbtack text-brandOlive"></i>
+                                        </div>
+                                        <h3 class="section-title text-sm font-bold uppercase tracking-widest text-brandOlive">Notice Board</h3>
                                     </div>
-                                    <h3 class="text-sm font-bold uppercase tracking-widest">Latest Announcements</h3>
-                                </div>
-                                <p id="displayAnnouncement" class="text-sm italic"></p>
-                            </div>
-                        </div>
-
-                        <!-- Column 2: Notice Board & Events -->
-                        <div class="space-y-8">
-                            <div class="info-card animate-on-scroll">
-                                <div class="flex items-center gap-3 mb-6">
-                                    <div class="w-10 h-10 bg-brandOlive/10 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-thumbtack text-brandOlive"></i>
-                                    </div>
-                                    <h3 class="section-title text-sm font-bold uppercase tracking-widest text-brandOlive">Notice Board</h3>
-                                </div>
-                                <div id="displayNoticeBoard" class="space-y-4"></div>
-                            </div>
-
-                            <div class="info-card card-upcoming animate-on-scroll">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="card-icon-wrap w-10 h-10 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-calendar-alt"></i>
-                                    </div>
-                                    <h3 class="text-sm font-bold uppercase tracking-widest">Upcoming Events</h3>
-                                </div>
-                                <p id="displayUpcoming" class="text-sm font-medium"></p>
-                            </div>
-                        </div>
-
-                        <!-- Column 3: Gallery & Adverts -->
-                        <div class="space-y-8">
-                            <div class="info-card card-gallery animate-on-scroll">
-                                <div class="flex items-center gap-3 mb-6">
-                                    <div class="card-icon-wrap w-10 h-10 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-images"></i>
-                                    </div>
-                                    <h3 class="section-title text-sm font-bold uppercase tracking-widest mb-0">Media Gallery</h3>
-                                </div>
-                                <div id="galleryDisplay" class="grid grid-cols-1 gap-4"></div>
-                            </div>
-
-                            <div class="info-card bg-gradient-to-br from-purple-50 to-white border-purple-100 animate-on-scroll">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-ad text-purple-600"></i>
-                                    </div>
-                                    <h3 class="text-sm font-bold uppercase tracking-widest text-purple-600">Adverts</h3>
-                                </div>
-                                <div id="displayAdverts"></div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-
-                    <!-- Videos Card -->
-                    <div class="mt-10 animate-on-scroll">
-                        <div class="info-card bg-gradient-to-br from-red-50 to-white border-red-100">
-                            <div class="flex items-center justify-between mb-5">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center shadow-md shadow-red-500/20">
-                                        <i class="fas fa-video text-white text-sm"></i>
-                                    </div>
-                                    <h3 class="text-sm font-bold uppercase tracking-widest text-red-700">Videos</h3>
-                                </div>
-                                <div class="flex gap-1 bg-gray-100 rounded-lg p-0.5">
-                                    <button id="btnTabUploaded" onclick="switchVideoTab('uploaded')" class="px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider transition-all bg-red-100 text-red-700 border border-red-300">
-                                        <i class="fas fa-upload mr-1"></i> Uploaded
-                                    </button>
-                                    <button id="btnTabSearch" onclick="switchVideoTab('search')" class="px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider transition-all text-gray-500 border border-transparent">
-                                        <i class="fas fa-search mr-1"></i> Search
-                                    </button>
+                                    <div id="displayNoticeBoard" class="space-y-4"></div>
                                 </div>
                             </div>
 
-                            <!-- Video Player -->
-                            <div class="relative w-full rounded-xl overflow-hidden border border-red-100 shadow-sm" style="aspect-ratio:16/9; max-height:380px;">
-                                <iframe id="homeVideoPlayer" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display:none;"></iframe>
-                                <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 text-white">
-                                    <div class="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mb-4 border border-white/20">
-                                        <i class="fas fa-play text-2xl text-red-400 ml-1"></i>
-                                    </div>
-                                    <p class="text-sm text-white/70 font-medium">Select a video to play</p>
-                                </div>
-                            </div>
 
-                            <!-- Uploaded Videos Tab -->
-                            <div id="videoTabUploaded" class="mt-4">
-                                <div id="uploadedVideosList" class="flex flex-col gap-2 max-h-[220px] overflow-y-auto">
-                                    <p class="text-xs text-gray-400 italic py-2">No videos uploaded yet. Admin can add videos from the Content Editor.</p>
-                                </div>
-                            </div>
-
-                            <!-- Search Videos Tab -->
-                            <div id="videoTabSearch" class="mt-4 hidden">
-                                <div class="flex gap-2 mb-3">
-                                    <div class="relative flex-1">
-                                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                                        <input type="text" id="videoSearchInput" placeholder="Search educational videos & tutorials..." class="admin-input pl-9 mb-0 text-sm" onkeydown="if(event.key==='Enter')searchEducationalVideos()">
-                                    </div>
-                                    <button onclick="searchEducationalVideos()" class="bg-blue-500 text-white px-4 rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors flex-shrink-0">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                                <p class="text-[10px] text-gray-400 mb-2"><i class="fas fa-info-circle mr-1"></i> Results are filtered for educational content and tutorials.</p>
-                                <div id="searchResultsList" class="flex flex-col gap-2 max-h-[220px] overflow-y-auto">
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1282,14 +1280,14 @@
             <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 px-6 py-12">
                 <div class="max-w-md w-full animate-fade-in">
                     <div class="bg-white p-10 rounded-3xl shadow-2xl border border-gray-100 text-center relative overflow-hidden">
-                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brandBlue via-brandOlive to-brandOrange"></div>
-                        <div class="w-20 h-20 bg-brandBlue/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-user-shield text-3xl text-brandBlue"></i>
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brandOrange via-brandGold to-brandOrange"></div>
+                        <div class="w-20 h-20 bg-brandOrange/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-user-shield text-3xl text-brandOrange"></i>
                         </div>
-                        <h2 class="text-2xl font-display font-bold mb-2 text-brandBlue">Admin Access</h2>
+                        <h2 class="text-2xl font-display font-bold mb-2 text-gray-800">Admin Access</h2>
                         <p class="text-gray-500 text-sm mb-8">Enter your credentials to continue</p>
                         <input type="password" id="adminPass" placeholder="Enter Password" class="admin-input text-center text-lg tracking-widest">
-                        <button onclick="authenticateAdmin()" class="w-full bg-brandBlue text-white py-4 rounded-xl font-bold hover:bg-brandBlue/90 transition-all mt-4 shadow-lg shadow-brandBlue/20 hover:shadow-xl hover:shadow-brandBlue/30">
+                        <button onclick="authenticateAdmin()" class="w-full bg-gray-800 text-white py-4 rounded-xl font-bold hover:bg-gray-700 transition-all mt-4 shadow-lg shadow-gray-800/20 hover:shadow-xl hover:shadow-gray-800/30">
                             <i class="fas fa-lock-open mr-2"></i> LOG IN
                         </button>
                         <button id="firstTimeSetupBtn" onclick="openSetupWizard()" class="w-full bg-orange-500 text-white py-4 rounded-xl font-bold hover:bg-orange-600 transition-all mt-3 shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30">
@@ -1308,16 +1306,16 @@
             <div class="max-w-6xl mx-auto">
                 <div class="flex justify-between items-center mb-10">
                     <div>
-                        <h2 class="text-3xl font-display font-bold text-brandBlue">Content Editor</h2>
+                        <h2 class="text-3xl font-display font-bold text-gray-800">Content Editor</h2>
                         <p class="text-gray-500 text-sm mt-1">____________________</p>
                     </div>
-                    <button onclick="showPage('homePage')" class="flex items-center gap-2 text-gray-500 font-semibold hover:text-brandBlue transition-colors">
+                    <button onclick="showPage('homePage')" class="flex items-center gap-2 text-gray-500 font-semibold hover:text-gray-800 transition-colors">
                         <i class="fas fa-arrow-left"></i> Back
                     </button>
                 </div>
 
                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 mb-8 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-emerald-500"></div>
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gray-700 to-gray-500"></div>
                     <div class="flex flex-col md:flex-row gap-4 items-end">
                         <div class="flex-1">
                             <label class="text-xs font-bold text-red-600 block mb-2 uppercase tracking-wider">
@@ -1327,7 +1325,7 @@
                                 <span id="tokenStatusIndicator" class="text-xs font-semibold px-3 py-1.5 rounded-full" style="background:#dcfce7;color:#166534;">  </span>
                             </div>
                         </div>
-                        <button id="saveBtn" onclick="saveToGithub()" class="w-full md:w-auto bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-green-500/25 transition-all">
+                        <button id="saveBtn" onclick="saveToGithub()" class="w-full md:w-auto bg-gray-800 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-gray-800/25 transition-all">
                             <i class="fas fa-cloud-upload-alt mr-2"></i> PUBLISH ALL CHANGES
                         </button>
                     </div>
@@ -1336,7 +1334,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
                         <h3 class="font-bold mb-6 pb-3 border-b border-gray-100 text-sm uppercase tracking-widest text-gray-700 flex items-center gap-2">
-                            <i class="fas fa-edit text-brandBlue"></i> General Content
+                            <i class="fas fa-edit text-gray-600"></i> General Content
                         </h3>
                         <div class="space-y-4">
                             <div>
@@ -1357,14 +1355,6 @@
                                 <label class="text-xs font-bold block mb-2 uppercase tracking-wider text-gray-600">About Us Text</label>
                                 <textarea id="adminAboutInput" class="admin-input h-32 resize-none"></textarea>
                             </div>
-                            <div>
-                                <label class="text-xs font-bold block mb-2 uppercase tracking-wider text-gray-600">Announcements</label>
-                                <textarea id="adminAnnounceInput" class="admin-input h-24 resize-none"></textarea>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold block mb-2 uppercase tracking-wider text-gray-600">Upcoming Events</label>
-                                <textarea id="adminUpcomingInput" class="admin-input h-24 resize-none"></textarea>
-                            </div>
                         </div>
                     </div>
 
@@ -1378,12 +1368,12 @@
                                     <label class="text-xs font-bold block mb-2 uppercase tracking-wider text-gray-600">Add Notice</label>
                                     <input type="text" id="adminnoticeBoardText" placeholder="Notice Headline" class="admin-input">
                                     <input type="file" id="adminnoticeBoardFile" class="text-xs mb-3 block text-gray-500">
-                                    <button onclick="addItem('noticeBoard')" class="bg-brandBlue text-white px-5 py-2 text-sm rounded-lg font-semibold hover:bg-brandBlue/90 transition-colors">
+                                    <button onclick="addItem('noticeBoard')" class="bg-gray-800 text-white px-5 py-2 text-sm rounded-lg font-semibold hover:bg-gray-700 transition-colors">
                                         <i class="fas fa-plus mr-1"></i> Add Notice
                                     </button>
                                     <div id="adminnoticeBoardList" class="mt-4 max-h-40 overflow-y-auto"></div>
                                 </div>
-                                
+
                                 <div class="bg-surface p-4 rounded-xl">
                                     <label class="text-xs font-bold block mb-2 uppercase tracking-wider text-gray-600">Add to Gallery</label>
                                     <input type="text" id="adminmediaGalleryText" placeholder="Gallery Caption" class="admin-input">
@@ -1416,85 +1406,72 @@
     <!-- ===== WELCOME OVERLAY (Student Portal Launcher) ===== -->
     <div id="welcomeOverlay" class="welcome-overlay">
         <div class="welcome-content animate-fade-in">
-            <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Logo" class="w-24 h-24 rounded-full object-cover mx-auto mb-8 border-2 border-white/20 shadow-lg shadow-black/20">
-            <h2>WELCOME TO MAGAWA</h2>
-            <p><p style="color:  gold;">Your journey to academic excellence begins here. Select a portal to continue.</p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                <button onclick="openPortal('https://magawass.github.io/m/DAY.html')" class="action-btn bg-brandBlue text-white px-5 py-3 rounded-xl font-semibold hover:bg-brandBlue/90 transition-all shadow-lg shadow-brandBlue/20 flex items-center justify-center gap-2">
-                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    EXAMS DAY
+            <h2>WELCOME</h2>
+            <p><p style="color: #1e3a5f;">Your journey to academic excellence begins here. Select a portal to continue.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                    <button onclick="openPortal('https://magawass.github.io/m/DAY.html')" class="action-btn bg-gray-800 text-white px-5 py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all shadow-lg shadow-gray-800/20 flex items-center justify-center gap-2">
+                        <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        EXAMS DAY
+                    </button>
+                    <button onclick="openPortal('https://magawass.github.io/m/ODL.html')" class="action-btn bg-brandOlive text-white px-5 py-3 rounded-xl font-semibold hover:bg-brandOlive/90 transition-all shadow-lg shadow-brandOlive/20 flex items-center justify-center gap-2">
+                        <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        EXAMS ODL
+                    </button>
+                </div>
+                <button onclick="closeWelcome()" class="mt-6 text-gray-400 hover:text-gray-700 transition-colors text-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Home
                 </button>
-                <button onclick="openPortal('https://magawass.github.io/m/ODL.html')" class="action-btn bg-brandOlive text-white px-5 py-3 rounded-xl font-semibold hover:bg-brandOlive/90 transition-all shadow-lg shadow-brandOlive/20 flex items-center justify-center gap-2">
-                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-desktop"></i>
-                    </div>
-                    EXAMS ODL
-                </button>
-            </div>
-            <button onclick="closeWelcome()" class="mt-6 text-white/60 hover:text-white transition-colors text-sm">
-                <i class="fas fa-arrow-left mr-1"></i> Back to Home
-            </button>
         </div>
     </div>
 
     <!-- ===== PORTAL CONTAINER (Iframe Overlay) ===== -->
     <div id="portalContainer" class="hidden">
-        <div class="p-4 flex justify-between items-center text-white shadow-lg" style="background: #152c4a;">
+        <div class="p-4 flex justify-between items-center text-gray-800 shadow-lg" style="background: #ffffff;">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-school"></i>
                 </div>
                 <span class="font-bold text-sm uppercase tracking-widest">MAGAWA OFFICIAL PORTAL</span>
             </div>
-            <button onclick="showPage('homePage')" class="bg-red-500 hover:bg-red-600 px-5 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
-                <i class="fas fa-times"></i> EXIT PORTAL
+            <button onclick="showPage('homePage')" class="bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 px-5 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> Back
             </button>
         </div>
         <iframe src=""></iframe>
     </div>
 
     <!-- ===== FOOTER ===== -->
-    <footer id="mainFooter" class="bg-footerDark text-gray-400 py-8 px-[5%]">
+    <footer id="mainFooter" class="bg-white text-gray-500 py-8 px-[5%] border-t border-gray-200">
         <div class="max-w-6xl mx-auto w-full">
             <div class="flex flex-col md:flex-row justify-between items-start w-full">
                 <div class="shrink-0">
-                    <div class="flex items-center gap-3 mb-3">
-                        <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" alt="Magawa Logo" class="w-9 h-9 rounded-xl object-cover border border-white/15">
-                        <h3 class="text-xl font-display font-bold text-white">Magawa Secondary School</h3>
-                    </div>
-                    <p class="text-gray-500 text-sm mb-4">Enter to learn, depart to serve</p>
                     <div class="flex gap-3">
-                        <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors">
-                            <i class="fab fa-facebook-f text-white text-sm"></i>
+                        <a href="#" class="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <i class="fab fa-facebook-f text-gray-600 text-sm"></i>
                         </a>
-                        <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors">
-                            <i class="fab fa-twitter text-white text-sm"></i>
+                        <a href="#" class="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <i class="fab fa-twitter text-gray-600 text-sm"></i>
                         </a>
-                        <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors">
-                            <i class="fab fa-instagram text-white text-sm"></i>
+                        <a href="#" class="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <i class="fab fa-instagram text-gray-600 text-sm"></i>
                         </a>
-                    </div>
-                </div>
-                <div class="text-right shrink-0 mt-6 md:mt-0">
-                    <p class="text-white font-semibold uppercase tracking-widest text-sm mb-4">Contact Office</p>
-                    <div class="space-y-2 text-sm">
-                        <p class="flex items-center justify-end gap-2">
-                            <span><span class="text-brandOrange font-semibold">+265 884 54 06 28</span></span>
-                        </p>
-                        <p class="flex items-center justify-end gap-2">
-                            <span>magawasecondary@gmail.com</span>
-                        </p>
                     </div>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-6 pt-6 flex flex-col md:flex-row justify-between items-center w-full text-center md:text-left">
-                <p class="text-gray-500 text-sm shrink-0 w-full md:w-auto">&copy; 2026 All Rights Reserved.</p>
+            <div class="border-t border-gray-200 mt-6 pt-6 flex flex-col md:flex-row justify-between items-center w-full text-center md:text-left">
+                <div class="flex flex-col items-center gap-2 text-sm shrink-0">
+                    <span class="text-gray-800 font-semibold uppercase tracking-widest text-xs">Contact Office</span>
+                    <span class="text-gray-500"><span class="text-brandOrange font-semibold">+265 884 54 06 28</span></span>
+                    <span class="text-gray-500">magawasecondary@gmail.com</span>
+                </div>
                 <button onclick="showHelpModal()" class="text-brandOrange font-semibold hover:text-brandOrange/80 transition-colors text-sm flex items-center gap-2 justify-center md:justify-start my-3 md:my-0">
                     <i class="fas fa-question-circle"></i> Help
                 </button>
-                <p class="text-sm shrink-0 w-full md:w-auto">Designed by <span class="text-brandOrange font-semibold">CHIKUMBUTSO LUBAINI - 099 40 39 325</span></p>
+                <p class="text-sm shrink-0 w-full md:w-auto">Designed by <span class="text-brandOrange font-semibold">CHIKU LUBAINI - 099 40 39 325</span></p>
             </div>
         </div>
     </footer>
@@ -1502,7 +1479,7 @@
     <!-- ===== HELP MODAL ===== -->
     <div id="helpModal" class="fixed inset-0 bg-black/70 z-[1000] hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-            <div class="bg-brandBlue p-6 flex justify-between items-center">
+            <div class="bg-gray-800 p-6 flex justify-between items-center">
                 <h2 class="text-2xl font-display font-bold text-white">Portal User Manual</h2>
                 <button onclick="closeHelpModal()" class="text-white/80 hover:text-white transition-colors">
                     <i class="fas fa-times text-2xl"></i>
@@ -1510,7 +1487,7 @@
             </div>
             <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
                 <div class="prose prose-sm max-w-none text-gray-700">
-                    <h3 class="text-lg font-bold text-brandBlue mb-3">1. Magawa Secondary Portal (Front Page)</h3>
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">1. Magawa Secondary Portal (Front Page)</h3>
                     <p class="mb-4">The front page is designed for students, parents, guardians and sponsors to access exam results quickly.</p>
                     <p class="mb-2"><strong>How to View Results:</strong></p>
                     <ul class="list-disc pl-5 mb-4 space-y-1">
@@ -1585,7 +1562,7 @@
                     <button onclick="runSetupEncrypt()" class="w-full bg-orange-500 text-white py-3.5 rounded-xl font-bold hover:bg-orange-600 transition-all mt-4 shadow-lg shadow-orange-500/20">
                         <i class="fas fa-lock mr-2"></i> Encrypt Token
                     </button>
-                    <button onclick="copyEncryptedToken()" id="copyTokenBtn" class="w-full bg-green-500 text-white py-3.5 rounded-xl font-bold hover:bg-green-600 transition-all mt-3" style="display:none;">
+                    <button onclick="copyEncryptedToken()" id="copyTokenBtn" class="w-full bg-gray-700 text-white py-3.5 rounded-xl font-bold hover:bg-gray-600 transition-all mt-3" style="display:none;">
                         <i class="fas fa-copy mr-2"></i> Copy to Clipboard
                     </button>
                     <button onclick="closeSetupWizard()" class="mt-4 text-gray-400 text-sm hover:text-gray-600 transition-colors">
