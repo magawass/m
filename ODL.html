@@ -2079,6 +2079,69 @@ function saveSelectedSubjectsToRepo() {
     border-bottom: 1px solid #f0f0f0;
 }
 
+/* === Maneb Exams Analyzer Styles === */
+.grade-a { color: #16a34a; font-weight: 700; }
+.grade-b { color: #2563eb; font-weight: 700; }
+.grade-c { color: #f59e0b; font-weight: 700; }
+.grade-d { color: #8b5cf6; font-weight: 700; }
+.grade-f { color: #dc2626; font-weight: 700; }
+.grade-ab { color: #6b7280; font-weight: 700; font-style: italic; }
+.maneb-stat-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.maneb-stat-card { background: #fff; border-radius: 8px; padding: 16px; border: 1px solid #d1d5db; box-shadow: 0 2px 6px rgba(0,0,0,.04); text-align: center; }
+.maneb-stat-card .maneb-stat-value { font-size: 1.8rem; font-weight: 800; color: #1a3a5c; }
+.maneb-stat-card .maneb-stat-label { font-size: .78rem; color: #6b7280; margin-top: 4px; font-weight: 500; }
+.maneb-stat-card.accent .maneb-stat-value { color: #e8913a; }
+.maneb-stat-card.success .maneb-stat-value { color: #16a34a; }
+.maneb-stat-card.danger .maneb-stat-value { color: #dc2626; }
+.maneb-pass-fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 768px) { .maneb-pass-fail-grid { grid-template-columns: 1fr; } }
+.maneb-teachers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 10px; }
+.maneb-teacher-input-group { display: flex; flex-direction: column; gap: 4px; }
+.maneb-teacher-input-group input { border: 2px solid #d1d5db; border-radius: 6px; padding: 6px 10px; font-size: .82rem; background: #fafbfc; }
+.maneb-teacher-input-group input:focus { outline: none; border-color: #e8913a; background: #fff; }
+.maneb-teacher-input-group span { font-size: .72rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+.maneb-btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.maneb-btn { padding: 10px 22px; border: none; border-radius: 8px; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 6px; }
+.maneb-btn-primary { background: #e8913a; color: #fff; }
+.maneb-btn-primary:hover { background: #d07a28; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(232,145,58,.3); }
+.maneb-btn-secondary { background: #1a3a5c; color: #fff; }
+.maneb-btn-secondary:hover { background: #2c5f8a; transform: translateY(-1px); }
+.maneb-btn-danger { background: #dc2626; color: #fff; }
+.maneb-btn-danger:hover { background: #b91c1c; }
+.maneb-btn-sm { padding: 7px 14px; font-size: .78rem; }
+.maneb-status-bar { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; font-size: .82rem; font-weight: 500; margin-top: 12px; }
+.maneb-status-bar.success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.maneb-status-bar.error { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+.maneb-status-bar.info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+.maneb-format-hint { background: #f0f7ff; border: 1px dashed #93c5fd; border-radius: 8px; padding: 12px 16px; margin-top: 10px; font-size: .78rem; color: #6b7280; line-height: 1.6; }
+.maneb-format-hint code { background: #e0ecff; padding: 1px 5px; border-radius: 4px; font-size: .76rem; color: #1a3a5c; }
+.maneb-section-title { font-size: 1.05rem; font-weight: 700; color: #1a3a5c; margin: 20px 0 10px; padding-left: 10px; border-left: 4px solid #e8913a; }
+.maneb-results-section { display: none; }
+.maneb-results-section.visible { display: block; }
+.maneb-export-btns { display: flex; gap: 8px; }
+.maneb-summary-section .maneb-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.05); padding: 20px 22px; margin-bottom: 20px; border: 1px solid #d1d5db; }
+.maneb-summary-section .maneb-card h3 { font-size: 1.05rem; color: #1a3a5c; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #e8913a; display: flex; align-items: center; gap: 8px; }
+/* Maneb print styles */
+@media print {
+  .maneb-no-print { display: none !important; }
+  .maneb-results-section .maneb-card:not(#manebFinalSummaryCard) { display: none !important; }
+  #manebFinalSummaryCard { display: block !important; box-shadow: none; border: none; padding: 0; margin: 0; }
+  #manebFinalSummaryCard h3 { display: none; }
+  #manebFinalSummaryActions { display: none !important; }
+  .maneb-final-summary-title { text-align: center; font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #000; display: block !important; }
+  #manebFinalSummaryTableWrap, #manebFinalGenderTableWrap { border: 1px solid #333; }
+  #manebFinalSummaryTableWrap table, #manebFinalGenderTableWrap table { font-size: .76rem; }
+  #manebFinalSummaryTableWrap table thead th, #manebFinalGenderTableWrap table thead th { background: #d9d9d9 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #manebFinalSummaryTableWrap table tbody tr:nth-child(even) { background: #f2f2f2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .grade-a, .grade-b, .grade-c, .grade-d, .grade-f, .grade-ab { color: #000 !important; font-weight: 700; font-style: normal; }
+}
+/* Maneb Analyzer — scoped table data styling */
+#manebAnalyzerPage .table-wrapper { border: 1px solid #999; border-radius: 6px; }
+#manebAnalyzerPage .table-wrapper table { width: 100%; border-collapse: collapse; }
+#manebAnalyzerPage .table-wrapper table thead th { background: #d9d9d9; color: #000; padding: 8px 10px; text-align: center; font-weight: 600; white-space: nowrap; border: 1px solid #999; }
+#manebAnalyzerPage .table-wrapper table tbody td { padding: 7px 10px; text-align: center; border: 1px solid #bbb; }
+#manebAnalyzerPage .table-wrapper table tbody tr:nth-child(even) { background: #f2f2f2; }
+#manebAnalyzerPage .table-wrapper table tbody tr:last-child td { border-bottom: none; }
 </style>
 </head>
 <body>
@@ -2838,6 +2901,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
         <button onclick="openGradesPage()" style="width: 100%; max-width: 400px; margin: 0;">View Grade Sheet</button>
         <button onclick="openAnalysisSelector()" style="width: 100%; max-width: 400px; margin: 0;">View Analysis</button>
+        <button onclick="openManebAnalyzer()" style="width: 100%; max-width: 400px; margin: 0;">Maneb Exams Analyzer</button>
     </div>
 </div>
 
@@ -2886,6 +2950,83 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="openAnalysisSelector()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
     <button onclick="printSheet('analysisPage')" class="small-btn" style="float: right; margin-top: 10px; max-width: 150px;">Print Analysis (Landscape)</button>
     <div id="analysisTableWrapper" class="table-wrapper"> </div>
+</div>
+
+<div id="manebAnalyzerPage" class="page">
+    <h2 style="margin-bottom:8px;">Maneb Exams Analyzer</h2>
+    <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:12px;margin-top:10px;">
+        <label style="display:flex;align-items:center;gap:5px;margin:0;cursor:pointer;font-weight:600;font-size:.88rem;">
+            <input type="radio" name="manebExamType" value="JCE" checked onchange="manebOnExamTypeChange()"> JCE Results
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;margin:0;cursor:pointer;font-weight:600;font-size:.88rem;">
+            <input type="radio" name="manebExamType" value="MSCE" onchange="manebOnExamTypeChange()"> MSCE Results
+        </label>
+    </div>
+
+    <label for="manebDataInput" style="display:block;font-weight:600;margin-bottom:5px;font-size:.85rem;color:#1d1d1f;">Paste student data below (tab-separated or comma-separated):</label>
+    <textarea id="manebDataInput" rows="10" placeholder="EXAMINATION NUMBER&#9;SEX&#9;P/D&#9;NAME(SURNAME FIRST)&#9;AGR&#9;BIO&#9;BKN&#9;CHE&#9;CHI&#9;ENG&#9;GEO&#9;HIS&#9;MAT&#9;PHY&#9;SOC&#9;RESULT&#10;1001&#9;M&#9;D&#9;Smith John&#9;A&#9;B&#9;C&#9;A&#9;B&#9;A&#9;C&#9;B&#9;A&#9;B&#9;C&#9;A&#9;PASS&#10;1002&#9;F&#9;D&#9;Jane Mary&#9;B&#9;C&#9;A&#9;F&#9;B&#9;C&#9;D&#9;B&#9;F&#9;C&#9;A&#9;B&#9;PASS&#10;..." style="width:100%;border:2px solid #d1d5db;border-radius:8px;padding:12px;font-family:Consolas,Courier New,monospace;font-size:.8rem;line-height:1.4;resize:vertical;background:#fafbfc;"></textarea>
+    <div class="maneb-format-hint">
+        <strong>Expected columns (in order):</strong><br>
+        <code>EXAMINATION NUMBER</code> <code>SEX</code> (M/F) <code>P/D</code> <code>NAME(SURNAME FIRST)</code>
+        <code>AGR</code> <code>BIO</code> <code>BKN</code> <code>CHE</code> <code>CHI</code> <code>ENG</code>
+        <code>GEO</code> <code>HIS</code> <code>MAT</code> <code>PHY</code> <code>SOC</code> <code>RESULT</code><br>
+        <span id="manebFormatHintGrades">Grades: <strong>A, B, C, D</strong> = Pass &nbsp;|&nbsp; <strong>F</strong> = Fail &nbsp;|&nbsp; <strong>AB</strong> = Absent</span><br>
+        First row can be a header row (it will be auto-detected and skipped).
+    </div>
+
+    <label style="display:block;font-weight:600;margin-top:16px;margin-bottom:5px;font-size:.85rem;color:#1d1d1f;">Assign a teacher's name to each subject:</label>
+    <div class="maneb-teachers-grid" id="manebTeachersGrid"></div>
+
+    <div class="maneb-btn-row">
+        <button class="maneb-btn maneb-btn-primary" onclick="manebAnalyzeData()">🔍 Analyze Data</button>
+        <button class="maneb-btn maneb-btn-secondary" onclick="manebSaveData()">💾 Save Data Locally</button>
+        <button class="maneb-btn maneb-btn-secondary" onclick="manebLoadData()">📂 Load Saved Data</button>
+        <button class="maneb-btn maneb-btn-danger" onclick="manebClearAll()">🗑️ Clear All</button>
+    </div>
+    <div id="manebStatusBar" class="maneb-status-bar" style="display:none;"></div>
+
+    <div id="manebResultsSection" class="maneb-results-section">
+        <div class="maneb-stat-cards" id="manebQuickStats"></div>
+        <div class="maneb-summary-section">
+            <div class="maneb-card">
+                <h3><span>📊</span> Pass / Fail Percentage by Gender</h3>
+                <div class="maneb-pass-fail-grid" id="manebGenderPercentages"></div>
+            </div>
+        </div>
+        <div class="maneb-summary-section">
+            <div class="maneb-card">
+                <h3><span>🚫</span> Absent (AB) Students</h3>
+                <div id="manebAbsentSection"></div>
+            </div>
+        </div>
+        <div class="maneb-summary-section">
+            <div class="maneb-card" id="manebFinalSummaryCard">
+                <h3><span>🎓</span> Final Summary</h3>
+                <div id="manebFinalSummaryActions" class="maneb-no-print" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                    <button class="maneb-btn maneb-btn-primary maneb-btn-sm" onclick="manebPrintFinalSummary()">🖨️ Print</button>
+                    <button class="maneb-btn maneb-btn-secondary maneb-btn-sm" onclick="manebDownloadPDF()">📄 Download as PDF</button>
+                </div>
+                <div id="manebFinalSummaryContent"></div>
+            </div>
+        </div>
+        <div class="maneb-summary-section">
+            <div class="maneb-card" id="manebChimendeFinancialCard">
+                <h3><span>💰</span> Chimende Financial Table</h3>
+                <div class="maneb-no-print" style="display:flex;gap:16px;margin-bottom:14px;align-items:center;flex-wrap:wrap;">
+                    <label style="display:flex;align-items:center;gap:5px;font-weight:600;font-size:.85rem;">Rate for A (K): <input type="text" id="manebRateA" value="2000.00" style="width:100px;border:2px solid #d1d5db;border-radius:6px;padding:5px 8px;font-size:.82rem;text-align:right;" oninput="manebUpdateChimendeFinancial()"></label>
+                    <label style="display:flex;align-items:center;gap:5px;font-weight:600;font-size:.85rem;">Rate for B (K): <input type="text" id="manebRateB" value="1000.00" style="width:100px;border:2px solid #d1d5db;border-radius:6px;padding:5px 8px;font-size:.82rem;text-align:right;" oninput="manebUpdateChimendeFinancial()"></label>
+                    <label id="manebRateCLabel" style="display:none;align-items:center;gap:5px;font-weight:600;font-size:.85rem;">Rate for 3 (K): <input type="text" id="manebRateC" value="500.00" style="width:100px;border:2px solid #d1d5db;border-radius:6px;padding:5px 8px;font-size:.82rem;text-align:right;" oninput="manebUpdateChimendeFinancial()"></label>
+                </div>
+                <div id="manebChimendeFinancialActions" class="maneb-no-print" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                    <button class="maneb-btn maneb-btn-primary maneb-btn-sm" onclick="manebPrintChimendeFinancial()">🖨️ Print</button>
+                    <button class="maneb-btn maneb-btn-secondary maneb-btn-sm" onclick="manebDownloadChimendeFinancialPDF()">📄 Download as PDF</button>
+                </div>
+                <div id="manebChimendeFinancialContent"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -6795,6 +6936,347 @@ async function displayAnalysisSheet(form) {
     </div>`;
 
     wrapper.innerHTML = html;
+}
+
+// === MANEB EXAMS ANALYZER (from RESULTS_ANALYSIS_PROGRAM_2) ===
+const MANEB_SUBJECTS = ['AGR','BIO','BKN','CHE','CHI','ENG','GEO','HIS','MAT','PHY','SOC'];
+let MANEB_GRADES, MANEB_PASS_GRADES, MANEB_FAIL_GRADES;
+const MANEB_ABSENT = 'AB';
+
+function manebSetExamConfig(examType) {
+    if (examType === 'MSCE') {
+        MANEB_GRADES = ['1','2','3','4','5','6','7','8','9','AB'];
+        MANEB_PASS_GRADES = ['1','2','3','4','5','6','7','8'];
+        MANEB_FAIL_GRADES = ['9'];
+    } else {
+        MANEB_GRADES = ['A','B','C','D','F','AB'];
+        MANEB_PASS_GRADES = ['A','B','C','D'];
+        MANEB_FAIL_GRADES = ['F'];
+    }
+}
+
+function manebGetExamType() {
+    var el = document.querySelector('input[name="manebExamType"]:checked');
+    return el ? el.value : 'JCE';
+}
+
+function manebGradeClass(g) {
+    if (g === 'AB') return 'grade-ab';
+    if (manebGetExamType() === 'JCE') {
+        return 'grade-' + g.toLowerCase();
+    }
+    var n = parseInt(g);
+    if (n <= 2) return 'grade-a';
+    if (n <= 4) return 'grade-b';
+    if (n <= 6) return 'grade-c';
+    if (n <= 8) return 'grade-d';
+    return 'grade-f';
+}
+
+function manebOnExamTypeChange() {
+    var type = manebGetExamType();
+    manebSetExamConfig(type);
+    var hint = document.getElementById('manebFormatHintGrades');
+    if (hint) {
+        if (type === 'MSCE') {
+            hint.innerHTML = 'Grades: <strong>1, 2, 3, 4, 5, 6, 7, 8</strong> = Pass &nbsp;|&nbsp; <strong>9</strong> = Fail &nbsp;|&nbsp; <strong>AB</strong> = Absent';
+        } else {
+            hint.innerHTML = 'Grades: <strong>A, B, C, D</strong> = Pass &nbsp;|&nbsp; <strong>F</strong> = Fail &nbsp;|&nbsp; <strong>AB</strong> = Absent';
+        }
+    }
+    var resultsSection = document.getElementById('manebResultsSection');
+    if (resultsSection) resultsSection.classList.remove('visible');
+    var clearIds = ['manebQuickStats','manebFinalSummaryContent','manebGenderPercentages','manebAbsentSection','manebChimendeFinancialContent'];
+    clearIds.forEach(function(id) { var el = document.getElementById(id); if (el) el.innerHTML = ''; });
+    window._manebLastAnalysis = null;
+    var rateCLabel = document.getElementById('manebRateCLabel');
+    if (rateCLabel) rateCLabel.style.display = (type === 'MSCE') ? 'flex' : 'none';
+}
+
+manebSetExamConfig('JCE');
+const MANEB_COL_NAMES = ['EXAMINATION NUMBER','SEX','P/D','NAME(SURNAME FIRST)'].concat(MANEB_SUBJECTS).concat(['RESULT']);
+
+function manebInitTeachersGrid() {
+    var grid = document.getElementById('manebTeachersGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    MANEB_SUBJECTS.forEach(function(sub) {
+        var div = document.createElement('div');
+        div.className = 'maneb-teacher-input-group';
+        div.innerHTML = '<span>' + sub + '</span><input type="text" id="manebTeacher_' + sub + '" placeholder="Teacher name">';
+        grid.appendChild(div);
+    });
+    var savedTeachers = localStorage.getItem('manebAnalyzer_teachers');
+    if (savedTeachers) {
+        try {
+            var t = JSON.parse(savedTeachers);
+            MANEB_SUBJECTS.forEach(function(sub) { if (t[sub]) document.getElementById('manebTeacher_'+sub).value = t[sub]; });
+        } catch(e) {}
+    }
+}
+
+function manebParseData(text) {
+    var lines = text.trim().split('\n').filter(function(l) { return l.trim().length > 0; });
+    if (lines.length === 0) return { error: 'No data found. Please paste student data.' };
+    var firstLine = lines[0];
+    var tabCount = (firstLine.match(/\t/g)||[]).length;
+    var commaCount = (firstLine.match(/,/g)||[]).length;
+    var delim = tabCount >= commaCount ? '\t' : ',';
+    var startIdx = 0;
+    var firstFields = lines[0].split(delim).map(function(f) { return f.trim().toUpperCase(); });
+    var headerKeywords = ['EXAM','NUMBER','SEX','NAME','SURNAME','AGR','BIO','ENG','MAT'];
+    var matchCount = firstFields.filter(function(f) { return headerKeywords.some(function(k) { return f.includes(k); }); }).length;
+    if (matchCount >= 3) startIdx = 1;
+    var students = [];
+    var errors = [];
+    for (var i = startIdx; i < lines.length; i++) {
+        var fields = lines[i].split(delim).map(function(f) { return f.trim(); });
+        if (fields.length < 17) {
+            errors.push('Row ' + (i+1) + ': Expected 17 columns, got ' + fields.length);
+            continue;
+        }
+        var student = { examNo: fields[0], sex: fields[1].toUpperCase(), pd: fields[2], name: fields[3], subjects: {}, result: fields[16].toUpperCase() };
+        MANEB_SUBJECTS.forEach(function(sub, idx) { student.subjects[sub] = fields[4 + idx].toUpperCase().trim(); });
+        var invalidGrades = MANEB_SUBJECTS.filter(function(s) { return !MANEB_GRADES.includes(student.subjects[s]) && student.subjects[s] !== ''; });
+        if (invalidGrades.length > 0) { errors.push('Row ' + (i+1) + ' (' + student.examNo + '): Invalid grade(s) in ' + invalidGrades.join(', ')); }
+        students.push(student);
+    }
+    return { students: students, errors: errors, delim: delim === '\t' ? 'Tab' : 'Comma' };
+}
+
+function manebAnalyzeData() {
+    var text = document.getElementById('manebDataInput').value;
+    if (!text.trim()) { manebShowStatus('Please paste data before analyzing.', 'error'); return; }
+    var parsed = manebParseData(text);
+    if (parsed.error) { manebShowStatus(parsed.error, 'error'); return; }
+    var students = parsed.students, errors = parsed.errors;
+    if (students.length === 0) { manebShowStatus('No valid student records found.', 'error'); return; }
+    if (errors.length > 0) { console.warn('Parse warnings:', errors); }
+    manebSetExamConfig(manebGetExamType());
+    var gradeDist = {};
+    MANEB_SUBJECTS.forEach(function(sub) { var dist = {}; MANEB_GRADES.forEach(function(g) { dist[g] = 0; }); gradeDist[sub] = dist; });
+    students.forEach(function(s) { MANEB_SUBJECTS.forEach(function(sub) { var g = s.subjects[sub] || 'AB'; if (gradeDist[sub][g] !== undefined) gradeDist[sub][g]++; else gradeDist[sub]['AB']++; }); });
+    var boysPassed = 0, boysFailed = 0, girlsPassed = 0, girlsFailed = 0, boysTotal = 0, girlsTotal = 0;
+    students.forEach(function(s) {
+        if (s.sex === 'M') boysTotal++; else if (s.sex === 'F') girlsTotal++;
+        MANEB_SUBJECTS.forEach(function(sub) {
+            var g = s.subjects[sub];
+            if (s.sex === 'M') { if (MANEB_PASS_GRADES.includes(g)) boysPassed++; else if (MANEB_FAIL_GRADES.includes(g)) boysFailed++; }
+            else if (s.sex === 'F') { if (MANEB_PASS_GRADES.includes(g)) girlsPassed++; else if (MANEB_FAIL_GRADES.includes(g)) girlsFailed++; }
+        });
+    });
+    var boysPassPct = (boysPassed + boysFailed) > 0 ? ((boysPassed / (boysPassed + boysFailed)) * 100).toFixed(1) : '0.0';
+    var boysFailPct = (boysPassed + boysFailed) > 0 ? ((boysFailed / (boysPassed + boysFailed)) * 100).toFixed(1) : '0.0';
+    var girlsPassPct = (girlsPassed + girlsFailed) > 0 ? ((girlsPassed / (girlsPassed + girlsFailed)) * 100).toFixed(1) : '0.0';
+    var girlsFailPct = (girlsPassed + girlsFailed) > 0 ? ((girlsFailed / (girlsPassed + girlsFailed)) * 100).toFixed(1) : '0.0';
+    var subjectPassFail = {};
+    MANEB_SUBJECTS.forEach(function(sub) { subjectPassFail[sub] = { passed: 0, failed: 0, total: 0 }; });
+    students.forEach(function(s) { MANEB_SUBJECTS.forEach(function(sub) { var g = s.subjects[sub]; subjectPassFail[sub].total++; if (MANEB_PASS_GRADES.includes(g)) subjectPassFail[sub].passed++; else if (MANEB_FAIL_GRADES.includes(g)) subjectPassFail[sub].failed++; }); });
+    var totalAbsentStudents = 0, absentStudents = [];
+    var subjectAbsent = {};
+    MANEB_SUBJECTS.forEach(function(sub) { subjectAbsent[sub] = 0; });
+    students.forEach(function(s) {
+        var studentAbsent = false;
+        MANEB_SUBJECTS.forEach(function(sub) { if (s.subjects[sub] === 'AB') { subjectAbsent[sub]++; studentAbsent = true; } });
+        if (studentAbsent) { totalAbsentStudents++; absentStudents.push(s); }
+    });
+    window._manebLastAnalysis = { students: students, gradeDist: gradeDist, subjectPassFail: subjectPassFail, subjectAbsent: subjectAbsent, boysTotal: boysTotal, girlsTotal: girlsTotal, boysPassed: boysPassed, boysFailed: boysFailed, girlsPassed: girlsPassed, girlsFailed: girlsFailed, boysPassPct: boysPassPct, boysFailPct: boysFailPct, girlsPassPct: girlsPassPct, girlsFailPct: girlsFailPct };
+    manebRenderQuickStats(students, boysTotal, girlsTotal, totalAbsentStudents);
+    manebRenderGenderPercentages(boysPassed, boysFailed, girlsPassed, girlsFailed, boysPassPct, boysFailPct, girlsPassPct, girlsFailPct);
+    manebRenderAbsent(totalAbsentStudents, subjectAbsent, absentStudents);
+    manebRenderFinalSummary(window._manebLastAnalysis);
+    manebRenderChimendeFinancialTable(gradeDist);
+    document.getElementById('manebResultsSection').classList.add('visible');
+    manebShowStatus('Analysis complete! ' + students.length + ' students processed across ' + MANEB_SUBJECTS.length + ' subjects.' + (errors.length ? ' (' + errors.length + ' warnings)' : ''), 'success');
+    setTimeout(function() { document.getElementById('manebResultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+}
+
+function manebRenderQuickStats(students, boys, girls, absent) {
+    var total = students.length;
+    var passResult = students.filter(function(s) { return s.result === 'PASS'; }).length;
+    var failResult = students.filter(function(s) { return s.result === 'FAIL'; }).length;
+    document.getElementById('manebQuickStats').innerHTML =
+        '<div class="maneb-stat-card"><div class="maneb-stat-value">' + total + '</div><div class="maneb-stat-label">Total Students</div></div>' +
+        '<div class="maneb-stat-card"><div class="maneb-stat-value">' + boys + '</div><div class="maneb-stat-label">Boys</div></div>' +
+        '<div class="maneb-stat-card"><div class="maneb-stat-value">' + girls + '</div><div class="maneb-stat-label">Girls</div></div>' +
+        '<div class="maneb-stat-card accent"><div class="maneb-stat-value">' + MANEB_SUBJECTS.length + '</div><div class="maneb-stat-label">Subjects</div></div>' +
+        '<div class="maneb-stat-card success"><div class="maneb-stat-value">' + passResult + '</div><div class="maneb-stat-label">Passed (Overall)</div></div>' +
+        '<div class="maneb-stat-card danger"><div class="maneb-stat-value">' + failResult + '</div><div class="maneb-stat-label">Failed (Overall)</div></div>' +
+        '<div class="maneb-stat-card"><div class="maneb-stat-value">' + absent + '</div><div class="maneb-stat-label">Students with Absences</div></div>';
+}
+
+function manebRenderGenderPercentages(bp, bf, gp, gf, bpp, bfp, gpp, gfp) {
+    document.getElementById('manebGenderPercentages').innerHTML =
+        '<div style="background:#eff6ff;border-radius:10px;padding:18px;border:1px solid #bfdbfe;">' +
+            '<h4 style="color:#2563eb;margin-bottom:12px;font-size:.95rem;">\ud83d\udc66 Boys Pass/Fail Percentage</h4>' +
+            '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px;"><span>Pass</span><strong class="grade-a">' + bpp + '%</strong></div><div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;"><div style="background:#16a34a;height:100%;width:' + bpp + '%;border-radius:6px;transition:width .5s;"></div></div></div>' +
+            '<div><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px;"><span>Fail</span><strong class="grade-f">' + bfp + '%</strong></div><div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;"><div style="background:#dc2626;height:100%;width:' + bfp + '%;border-radius:6px;transition:width .5s;"></div></div></div>' +
+            '<p style="font-size:.72rem;color:#6b7280;margin-top:8px;">Based on ' + (bp + bf) + ' graded entries (excl. AB)</p>' +
+        '</div>' +
+        '<div style="background:#fef2f2;border-radius:10px;padding:18px;border:1px solid #fca5a5;">' +
+            '<h4 style="color:#dc2626;margin-bottom:12px;font-size:.95rem;">\ud83d\udc67 Girls Pass/Fail Percentage</h4>' +
+            '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px;"><span>Pass</span><strong class="grade-a">' + gpp + '%</strong></div><div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;"><div style="background:#16a34a;height:100%;width:' + gpp + '%;border-radius:6px;transition:width .5s;"></div></div></div>' +
+            '<div><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px;"><span>Fail</span><strong class="grade-f">' + gfp + '%</strong></div><div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;"><div style="background:#dc2626;height:100%;width:' + gfp + '%;border-radius:6px;transition:width .5s;"></div></div></div>' +
+            '<p style="font-size:.72rem;color:#6b7280;margin-top:8px;">Based on ' + (gp + gf) + ' graded entries (excl. AB)</p>' +
+        '</div>';
+}
+
+function manebRenderAbsent(totalAbsent, subjectAbsent, absentStudents) {
+    var html = '<div class="maneb-stat-cards" style="margin-bottom:16px;"><div class="maneb-stat-card danger"><div class="maneb-stat-value">' + totalAbsent + '</div><div class="maneb-stat-label">Students Absent in At Least One Subject</div></div></div>';
+    html += '<div class="table-wrapper" style="margin-bottom:16px;"><table><thead><tr><th>Subject</th>';
+    MANEB_SUBJECTS.forEach(function(sub) { html += '<th>' + sub + '</th>'; });
+    html += '<th>Total</th></tr></thead><tbody><tr><td style="font-weight:700;text-align:left;padding-left:14px;">Absent Count</td>';
+    var totalAbs = 0;
+    MANEB_SUBJECTS.forEach(function(sub) { html += '<td class="grade-ab">' + subjectAbsent[sub] + '</td>'; totalAbs += subjectAbsent[sub]; });
+    html += '<td style="font-weight:700;">' + totalAbs + '</td></tr></tbody></table></div>';
+    if (absentStudents.length > 0) {
+        html += '<p style="font-size:.85rem;font-weight:600;margin-bottom:6px;">Students with Absences:</p><div class="table-wrapper"><table><thead><tr><th>Exam No</th><th>Name</th><th>Sex</th><th>Absent Subjects</th></tr></thead><tbody>';
+        absentStudents.forEach(function(s) { var absentSubs = MANEB_SUBJECTS.filter(function(sub) { return s.subjects[sub] === 'AB'; }); html += '<tr><td>' + s.examNo + '</td><td style="text-align:left;">' + s.name + '</td><td>' + s.sex + '</td><td class="grade-ab">' + absentSubs.join(', ') + '</td></tr>'; });
+        html += '</tbody></table></div>';
+    }
+    document.getElementById('manebAbsentSection').innerHTML = html;
+}
+
+function manebRenderFinalSummary(a) {
+    var examType = manebGetExamType();
+    var examLabel = examType === 'MSCE' ? 'MSCE' : 'JCE';
+    var displayGrades = examType === 'MSCE' ? ['1','2','3'] : ['A','B','C','D','F'];
+    var html = '<div class="maneb-final-summary-title" style="text-align:center;font-size:.95rem;font-weight:700;margin-bottom:12px;color:#1a3a5c;">MAGAWA SECONDARY SCHOOL - 2026 ' + examLabel + ' RESULTS SUMMARY</div>';
+    html += '<div class="table-wrapper" id="manebFinalSummaryTableWrap"><table><thead><tr><th>Subject</th>';
+    displayGrades.forEach(function(g) { html += '<th class="' + manebGradeClass(g) + '">' + g + '</th>'; });
+    html += '<th style="color:#000;">Passed</th><th style="color:#000;">Failed</th><th class="grade-ab">AB</th><th>Pass Rate</th></tr></thead><tbody>';
+    MANEB_SUBJECTS.forEach(function(sub) {
+        var gd = a.gradeDist[sub], pf = a.subjectPassFail[sub];
+        var graded = pf.passed + pf.failed;
+        var rate = graded > 0 ? ((pf.passed / graded) * 100).toFixed(1) + '%' : '\u2014';
+        html += '<tr><td style="font-weight:700;text-align:left;padding-left:14px;">' + sub + '</td>';
+        displayGrades.forEach(function(g) { html += '<td class="' + manebGradeClass(g) + '">' + (gd[g] || 0) + '</td>'; });
+        html += '<td style="font-weight:700;color:#16a34a;">' + pf.passed + '</td><td style="font-weight:700;color:#dc2626;">' + pf.failed + '</td><td class="grade-ab">' + (gd['AB'] || 0) + '</td><td>' + rate + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    var boysPassedOverall = a.students.filter(function(s) { return s.sex === 'M' && s.result === 'PASS'; }).length;
+    var boysFailedOverall = a.students.filter(function(s) { return s.sex === 'M' && s.result === 'FAIL'; }).length;
+    var girlsPassedOverall = a.students.filter(function(s) { return s.sex === 'F' && s.result === 'PASS'; }).length;
+    var girlsFailedOverall = a.students.filter(function(s) { return s.sex === 'F' && s.result === 'FAIL'; }).length;
+    var boysPassPctOverall = a.boysTotal > 0 ? ((boysPassedOverall / a.boysTotal) * 100).toFixed(1) : '0.0';
+    var boysFailPctOverall = a.boysTotal > 0 ? ((boysFailedOverall / a.boysTotal) * 100).toFixed(1) : '0.0';
+    var girlsPassPctOverall = a.girlsTotal > 0 ? ((girlsPassedOverall / a.girlsTotal) * 100).toFixed(1) : '0.0';
+    var girlsFailPctOverall = a.girlsTotal > 0 ? ((girlsFailedOverall / a.girlsTotal) * 100).toFixed(1) : '0.0';
+    html += '<div style="margin-top:16px;text-align:center;font-weight:700;font-size:.9rem;color:#1a3a5c;">Gender Performance Summary (Boys & Girls)</div>';
+    html += '<div class="table-wrapper" id="manebFinalGenderTableWrap"><table><thead><tr><th>Sex</th><th>Entered</th><th>Passed</th><th>Pass %</th><th>Failed</th><th>Fail %</th></tr></thead><tbody>';
+    html += '<tr><td style="font-weight:700;">Boys</td><td>' + a.boysTotal + '</td><td class="grade-a">' + boysPassedOverall + '</td><td>' + boysPassPctOverall + '%</td><td class="grade-f">' + boysFailedOverall + '</td><td>' + boysFailPctOverall + '%</td></tr>';
+    html += '<tr><td style="font-weight:700;">Girls</td><td>' + a.girlsTotal + '</td><td class="grade-a">' + girlsPassedOverall + '</td><td>' + girlsPassPctOverall + '%</td><td class="grade-f">' + girlsFailedOverall + '</td><td>' + girlsFailPctOverall + '%</td></tr>';
+    html += '</tbody></table></div>';
+    document.getElementById('manebFinalSummaryContent').innerHTML = html;
+}
+
+function manebPrintFinalSummary() { window.print(); }
+
+function manebDownloadPDF() {
+    var el = document.getElementById('manebFinalSummaryContent');
+    if (!el || !el.innerHTML.trim()) { manebShowStatus('No data to download. Run analysis first.', 'error'); return; }
+    var win = window.open('', '_blank');
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>.</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;padding:24px;color:#000;}.maneb-final-summary-title{text-align:center;font-size:1.1rem;font-weight:700;margin-bottom:14px;}.table-wrapper{overflow-x:auto;margin-top:10px;border:1px solid #333;}table{width:100%;border-collapse:collapse;font-size:.78rem;}table thead th{background:#d9d9d9;color:#000;padding:10px 12px;text-align:center;font-weight:600;white-space:nowrap;border:1px solid #333;}table tbody td{padding:8px 12px;text-align:center;border:1px solid #999;}table tbody tr:nth-child(even){background:#f2f2f2;}.grade-a,.grade-b,.grade-c,.grade-d,.grade-f,.grade-ab{color:#000;font-weight:700;font-style:normal;}@media print{body{padding:0;}}</style></head><body>' + el.innerHTML + '<script>setTimeout(function(){window.print();},500);<\/script></body></html>');
+    win.document.close();
+}
+
+function manebSaveData() {
+    var data = document.getElementById('manebDataInput').value;
+    var teachers = {};
+    MANEB_SUBJECTS.forEach(function(sub) { teachers[sub] = document.getElementById('manebTeacher_'+sub).value; });
+    localStorage.setItem('manebAnalyzer_data', data);
+    localStorage.setItem('manebAnalyzer_teachers', JSON.stringify(teachers));
+    manebShowStatus('Data and teacher assignments saved to local storage!', 'success');
+}
+
+function manebLoadData() {
+    var data = localStorage.getItem('manebAnalyzer_data');
+    var teachers = localStorage.getItem('manebAnalyzer_teachers');
+    if (!data) { manebShowStatus('No saved data found on this computer.', 'error'); return; }
+    document.getElementById('manebDataInput').value = data;
+    if (teachers) { try { var t = JSON.parse(teachers); MANEB_SUBJECTS.forEach(function(sub) { if (t[sub]) document.getElementById('manebTeacher_'+sub).value = t[sub]; }); } catch(e) {} }
+    manebShowStatus('Data loaded from local storage! Click "Analyze Data" to process it.', 'info');
+}
+
+function manebClearAll() {
+    if (!confirm('Are you sure you want to clear all data, teacher names, and results?')) return;
+    document.getElementById('manebDataInput').value = '';
+    MANEB_SUBJECTS.forEach(function(sub) { document.getElementById('manebTeacher_'+sub).value = ''; });
+    document.getElementById('manebResultsSection').classList.remove('visible');
+    document.getElementById('manebQuickStats').innerHTML = '';
+    document.getElementById('manebFinalSummaryContent').innerHTML = '';
+    document.getElementById('manebGenderPercentages').innerHTML = '';
+    document.getElementById('manebAbsentSection').innerHTML = '';
+    document.getElementById('manebChimendeFinancialContent').innerHTML = '';
+    localStorage.removeItem('manebAnalyzer_data');
+    localStorage.removeItem('manebAnalyzer_teachers');
+    window._manebLastAnalysis = null;
+    manebShowStatus('All data cleared.', 'info');
+}
+
+function manebShowStatus(msg, type) {
+    var bar = document.getElementById('manebStatusBar');
+    bar.className = 'maneb-status-bar ' + type;
+    bar.textContent = msg;
+    bar.style.display = 'flex';
+    setTimeout(function() { bar.style.display = 'none'; }, 6000);
+}
+
+function manebRenderChimendeFinancialTable(gradeDist) {
+    var rateAVal = parseFloat(document.getElementById('manebRateA').value) || 0;
+    var rateBVal = parseFloat(document.getElementById('manebRateB').value) || 0;
+    var rateCVal = parseFloat(document.getElementById('manebRateC').value) || 0;
+    var isMSCE = manebGetExamType() === 'MSCE';
+    var bestGrade = isMSCE ? '1' : 'A';
+    var secondGrade = isMSCE ? '2' : 'B';
+    var thirdGrade = isMSCE ? '3' : null;
+    var rateAStr = 'K' + rateAVal.toFixed(2), rateBStr = 'K' + rateBVal.toFixed(2), rateCStr = 'K' + rateCVal.toFixed(2);
+    var rateCLabel = document.getElementById('manebRateCLabel');
+    if (rateCLabel) rateCLabel.style.display = isMSCE ? 'flex' : 'none';
+    var headerCols, colCount;
+    if (isMSCE) { headerCols = '<th>Subject</th><th>Teacher</th><th>1</th><th>Rate</th><th>Total 1</th><th>2</th><th>Rate</th><th>Total 2</th><th>3</th><th>Rate</th><th>Total 3</th><th>Total Amount</th>'; colCount = 11; }
+    else { headerCols = '<th>Subject</th><th>Teacher</th><th>A</th><th>Rate</th><th>Total A</th><th>B</th><th>Rate</th><th>Total B</th><th>Total Amount</th>'; colCount = 8; }
+    var html = '<div class="table-wrapper" id="manebChimendeFinancialTableWrap"><table><thead><tr>' + headerCols + '</tr></thead><tbody>';
+    var grandTotal = 0;
+    MANEB_SUBJECTS.forEach(function(sub) {
+        var teacher = document.getElementById('manebTeacher_'+sub) ? document.getElementById('manebTeacher_'+sub).value : ''; if (!teacher) teacher = '\u2014';
+        var gd = gradeDist[sub];
+        var countA = (gd[bestGrade] || 0), countB = (gd[secondGrade] || 0);
+        var totalA = countA * rateAVal, totalB = countB * rateBVal, totalAmount = totalA + totalB;
+        html += '<tr><td style="font-weight:700;text-align:left;padding-left:14px;">' + sub + '</td><td>' + teacher + '</td><td>' + countA + '</td><td>' + rateAStr + '</td><td style="font-weight:700;">K' + totalA.toFixed(2) + '</td><td>' + countB + '</td><td>' + rateBStr + '</td><td style="font-weight:700;">K' + totalB.toFixed(2) + '</td>';
+        if (isMSCE) { var countC = (gd[thirdGrade] || 0), totalC = countC * rateCVal; totalAmount += totalC; html += '<td>' + countC + '</td><td>' + rateCStr + '</td><td style="font-weight:700;">K' + totalC.toFixed(2) + '</td>'; }
+        html += '<td style="font-weight:700;color:#1a3a5c;">K' + totalAmount.toFixed(2) + '</td></tr>';
+        grandTotal += totalAmount;
+    });
+    html += '<tr style="background:#1e3a5f;color:#fff;font-weight:700;"><td colspan="' + colCount + '" style="text-align:right;padding-right:14px;">GRAND TOTAL</td><td>K' + grandTotal.toFixed(2) + '</td></tr></tbody></table></div>';
+    document.getElementById('manebChimendeFinancialContent').innerHTML = html;
+}
+
+function manebUpdateChimendeFinancial() {
+    if (!window._manebLastAnalysis || !window._manebLastAnalysis.gradeDist) return;
+    manebRenderChimendeFinancialTable(window._manebLastAnalysis.gradeDist);
+}
+
+function manebPrintChimendeFinancial() {
+    var el = document.getElementById('manebChimendeFinancialContent');
+    if (!el || !el.innerHTML.trim()) { manebShowStatus('No data to print. Run analysis first.', 'error'); return; }
+    var win = window.open('', '_blank');
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Chimende Financial Table</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;padding:24px;color:#000;}.table-wrapper{overflow-x:auto;margin-top:10px;border:1px solid #333;}table{width:100%;border-collapse:collapse;font-size:.8rem;}table thead th{background:#d9d9d9;color:#000;padding:10px 12px;text-align:center;font-weight:600;white-space:nowrap;border:1px solid #333;}table tbody td{padding:8px 12px;text-align:center;border:1px solid #999;}table tbody tr:nth-child(even){background:#f2f2f2;}table tbody tr:last-child{background:#ccc;font-weight:700;}@media print{body{padding:0;}}</style></head><body><div style="text-align:center;font-size:1rem;font-weight:700;margin-bottom:12px;color:#000;">MAGAWA EXAM DEPARTMENT-CHIMENDE</div>' + el.innerHTML + '<script>setTimeout(function(){window.print();},500);<\/script></body></html>');
+    win.document.close();
+}
+
+function manebDownloadChimendeFinancialPDF() {
+    var el = document.getElementById('manebChimendeFinancialContent');
+    if (!el || !el.innerHTML.trim()) { manebShowStatus('No data to download. Run analysis first.', 'error'); return; }
+    var win = window.open('', '_blank');
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>  .  </title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;padding:24px;color:#000;}.table-wrapper{overflow-x:auto;margin-top:10px;border:1px solid #333;}table{width:100%;border-collapse:collapse;font-size:.8rem;}table thead th{background:#d9d9d9;color:#000;padding:10px 12px;text-align:center;font-weight:600;white-space:nowrap;border:1px solid #333;}table tbody td{padding:8px 12px;text-align:center;border:1px solid #999;}table tbody tr:nth-child(even){background:#f2f2f2;}table tbody tr:last-child{background:#ccc;font-weight:700;}@media print{body{padding:0;}}</style></head><body><div style="text-align:center;font-size:1rem;font-weight:700;margin-bottom:12px;color:#000;">MAGAWA EXAM DEPARTMENT-CHIMENDE</div>' + el.innerHTML + '<script>setTimeout(function(){window.print();},500);<\/script></body></html>');
+    win.document.close();
+}
+
+// === Maneb Analyzer Navigation ===
+function openManebAnalyzer() {
+    goToPage('manebAnalyzerPage');
+    manebInitTeachersGrid();
 }
 
 async function openStudentProgressSheet() {
