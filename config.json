@@ -213,8 +213,8 @@
       "Social/Life": false
     }
   },
-  "dayPasswordEnabled": false,
-  "odlPasswordEnabled": false,
+  "dayPasswordEnabled": true,
+  "odlPasswordEnabled": true,
   "sneColumnVisible": false,
   "sexColumnVisible": false,
   "setupPassword": "1972",
