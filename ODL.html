@@ -2074,7 +2074,7 @@ function saveSelectedSubjectsToRepo() {
 
 <div id="initialPage" class="page">
     <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png"   alt="Secondary School Logo" class="logo">
-  <h1 style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL-ODL</p></h1>
+  <h1 style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL</p></h1>
     <h2>EXAM PORTAL</h2>
     <label for="selectedForm">Select Form / Sankhani Kalasi</label>
     <select id="selectedForm" style="font-size:16px;">
@@ -2246,10 +2246,20 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <button onclick="backToInitialPage()">Back</button>
 </div>
 
+<!-- SECTION SELECTOR: ODL or DAY -->
+<div id="sectionSelectorPage" class="page">
+    <h2>Select Section</h2>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 400px; margin: 0 auto;">
+        <button onclick="setActiveSection('DAY'); goToPage('adminHomePage')" style="width: 100%;">DAY</button>
+        <button onclick="setActiveSection('ODL'); goToPage('adminHomePage')" style="width: 100%;">ODL</button>
+    </div>
+    <button onclick="backToInitialPage()" style="max-width: 400px;">Logout</button>
+</div>
+
 <!-- SURGICAL FIX: Admin Home Page - stacked buttons for mobile visibility -->
 <div id="adminHomePage" class="page">
     <h2>EXAM MANAGEMENT SYSTEM</h2>
-    <p style="font-size:0.85em; color:#27ae60; margin:10px 0 20px 0;">ACTIVE</p>
+    <p style="font-size:0.85em; color:#27ae60; margin:10px 0 20px 0;">ACTIVE <span id="sectionIndicator" style="color:#2980b9;"></span></p>
     <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 400px; margin: 0 auto;">
         <button onclick="openDataEntryAuth()" style="width: 100%;">DATA ENTRY</button>
         <button onclick="openUploadsAuth()" style="width: 100%;">FILE UPLOADS</button>
@@ -2268,7 +2278,10 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <!-- Container for Subject Entry Monitor Table -->
     <div id="monitorTableContainer" class="table-wrapper" style="margin-top: 20px;"></div>
 
-    <button onclick="backToInitialPage()" style="max-width: 400px;">Logout</button>
+    <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 400px; margin: 0 auto;">
+        <button onclick="backToInitialPage()" style="max-width: 400px;">Logout</button>
+        <button onclick="goToPage('sectionSelectorPage')" style="max-width: 400px; background: #2980b9; margin-top: 10px; font-size: 0.85em; padding: 10px;">Change Section</button>
+    </div>
 </div>
 
 <div id="dataEntryPage" class="page">
@@ -2858,7 +2871,27 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <script>
 // --- GITHUB CONSTANTS ---
 const GITHUB_USER = 'magawass';
-const GITHUB_REPO = 'm1';
+// --- SECTION SELECTOR: ODL vs DAY ---
+let _activeSection = 'DAY'; // Default section
+
+function setActiveSection(section) {
+    _activeSection = section;
+    if (section === 'DAY') {
+        GITHUB_REPO = 'm';
+        ARCHIVE_REPO = 'm2';
+    } else if (section === 'ODL') {
+        GITHUB_REPO = 'm1';
+        ARCHIVE_REPO = 'm3';
+    }
+    API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
+    ARCHIVE_API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${ARCHIVE_REPO}/contents/`;
+    currentClassData = {};
+    currentDataSha = {};
+    var indicator = document.getElementById('sectionIndicator');
+    if (indicator) indicator.textContent = '• ' + section;
+}
+
+let GITHUB_REPO = 'm';
 const CONFIG_FILE = 'config.json';
 // Admin password is now the decryption password — set during First-Time Setup
 // No hardcoded password stored in file
@@ -2890,7 +2923,7 @@ const BASE_HEADERS = ["STUDENT'S NAME", "Exam Number", "Sex", "Date of Birth", "
 const ALL_HEADERS = [...BASE_HEADERS, ...ALL_SUBJECTS];
 const ALL_CLASSES = ['form1', 'form2', 'form3', 'form4'];
 const DEFAULT_TEACHER = '-';
-const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
+let API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
 
 // --- SURGICAL FIX: Case-insensitive CSV header normalization ---
 const ALL_HEADERS_LOWER_MAP = {};
@@ -4704,7 +4737,7 @@ async function verifyAdmin() {
 
         // Step 6: Load config and enter admin dashboard
         await initializeConfig(token);
-        goToPage('adminHomePage');
+        goToPage('sectionSelectorPage');
 
     } catch (e) {
         console.error('Login failed:', e);
@@ -4980,8 +5013,8 @@ function showSetUpWindow() {
 }
 
 // --- ARCHIVE SECTION FUNCTIONS ---
-const ARCHIVE_REPO = 'm3';
-const ARCHIVE_API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${ARCHIVE_REPO}/contents/`;
+let ARCHIVE_REPO = 'm2';
+let ARCHIVE_API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${ARCHIVE_REPO}/contents/`;
 
 async function archiveExamData() {
     const token = getDecryptedToken();
@@ -9842,7 +9875,7 @@ async function saveEditedNames() {
 <!-- SURGICAL FIX: Force-rescale viewport if Chrome auto-zooms on form controls in #initialPage, #adminLoginPage, #uploadsPage, #dataEntryPage, #gradesPage, #sheetsPage, #scoreSheetView -->
 <script>
 (function(){
-  var zoomPages=['initialPage','adminLoginPage','uploadsPage','dataEntryPage','gradesPage','sheetsPage','scoreSheetView'];
+  var zoomPages=['initialPage','adminLoginPage','sectionSelectorPage','uploadsPage','dataEntryPage','gradesPage','sheetsPage','scoreSheetView'];
   function isActiveZoomPage(){
     var active=document.querySelector('.page[style*="display: block"],.page[style*="display:block"]');
     return active&&zoomPages.indexOf(active.id)!==-1;
