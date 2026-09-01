@@ -332,14 +332,21 @@ function toggleSubjectLock() {
     }
 }
 
-function togglePasswordAccess() {
+function toggleDayPasswordAccess() {
     if (!currentConfig) {
         alert('Configuration not loaded. Please enter Authorization Code.');
         return;
     }
-    
-    currentConfig.passwordEnabled = !currentConfig.passwordEnabled;
-    
+    currentConfig.dayPasswordEnabled = !currentConfig.dayPasswordEnabled;
+    updatePasswordAccessStatus();
+}
+
+function toggleOdlPasswordAccess() {
+    if (!currentConfig) {
+        alert('Configuration not loaded. Please enter Authorization Code.');
+        return;
+    }
+    currentConfig.odlPasswordEnabled = !currentConfig.odlPasswordEnabled;
     updatePasswordAccessStatus();
 }
 
@@ -353,15 +360,25 @@ async function savePasswordAccess() {
 }
 
 function updatePasswordAccessStatus() {
-    const status = document.getElementById('passwordAccessStatus');
-    if (!status) return;
-    
-    if (currentConfig.passwordEnabled !== false) {
-        status.textContent = 'Password access is currently ENABLED.';
-        status.style.color = '#2ecc71';
-    } else {
-        status.textContent = 'Password access is currently DISABLED.';
-        status.style.color = '#e74c3c';
+    const dayStatus = document.getElementById('dayPasswordAccessStatus');
+    const odlStatus = document.getElementById('odlPasswordAccessStatus');
+    if (dayStatus) {
+        if (currentConfig.dayPasswordEnabled !== false) {
+            dayStatus.textContent = 'DAY results access is currently ENABLED.';
+            dayStatus.style.color = '#2ecc71';
+        } else {
+            dayStatus.textContent = 'DAY results access is currently DISABLED.';
+            dayStatus.style.color = '#e74c3c';
+        }
+    }
+    if (odlStatus) {
+        if (currentConfig.odlPasswordEnabled !== false) {
+            odlStatus.textContent = 'ODL results access is currently ENABLED.';
+            odlStatus.style.color = '#2ecc71';
+        } else {
+            odlStatus.textContent = 'ODL results access is currently DISABLED.';
+            odlStatus.style.color = '#e74c3c';
+        }
     }
 }
 
@@ -2091,7 +2108,8 @@ function saveSelectedSubjectsToRepo() {
 
     <!-- SURGICAL FIX: Front page buttons stacked for mobile visibility -->
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
-        <button onclick="loadResults(true)" style="width: 100%; max-width: 400px; margin-top: 0;">View Results / Onani Zotsatira</button>
+
+    <button onclick="loadResults(true)" style="width: 100%; max-width: 400px; margin-top: 0;">View Results / Onani Zotsatira</button>
         <button onclick="openAdminLogin()" style="width: 100%; max-width: 400px;">ADMIN</button>
     </div>
 
@@ -2580,9 +2598,11 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
 <h3>Portal Access Control</h3>
 <p style="font-size:0.9em; color:#7f8c8d; margin-bottom:10px;">Enable or disable password requirement on the exam portal front page.</p>
-<button onclick="togglePasswordAccess()" id="passwordAccessBtn">Toggle Password Access</button>
-<p id="passwordAccessStatus" style="font-size:11px; color:#2ecc71;"></p>
-<button onclick="savePasswordAccess()" style="background:#28a745;">Save Password Setting</button>
+<button onclick="toggleDayPasswordAccess()" id="dayPasswordAccessBtn">Toggle DAY Password Access</button>
+<p id="dayPasswordAccessStatus" style="font-size:11px; color:#2ecc71;"></p>
+<button onclick="toggleOdlPasswordAccess()" id="odlPasswordAccessBtn">Toggle ODL Password Access</button>
+<p id="odlPasswordAccessStatus" style="font-size:11px; color:#2ecc71;"></p>
+<button onclick="savePasswordAccess()" style="background:#28a745;">Save Password Settings</button>
 
 <div id="setupPasswordGenSection" style="display:block;">
 <hr style="margin: 20px 0; border: 1px solid #ccc;">
@@ -2891,6 +2911,21 @@ function setActiveSection(section) {
     if (indicator) indicator.textContent = '• ' + section;
 }
 
+// Helper: switch section and clear cached class data so fresh data loads from correct repo
+function _switchToSection(section) {
+    setActiveSection(section);
+    currentClassData = {};
+    currentDataSha = {};
+}
+
+// Auto-detect section from exam number prefix: J0 → DAY, J8 → ODL
+function _detectSection(examNumber) {
+    const upper = (examNumber + '').trim().toUpperCase();
+    if (upper.startsWith('J0')) return 'DAY';
+    if (upper.startsWith('J8')) return 'ODL';
+    return null; // cannot determine
+}
+
 let GITHUB_REPO = 'm';
 const CONFIG_FILE = 'config.json';
 // Admin password is now the decryption password — set during First-Time Setup
@@ -3180,7 +3215,8 @@ function getDefaultConfig() {
         gradeKeys: gradeKeys,
         teachers: teachers,
         hiddenSubjects: hiddenSubjects,
-        passwordEnabled: true,
+        dayPasswordEnabled: true,
+        odlPasswordEnabled: true,
         sneColumnVisible: true,
         sexColumnVisible: false,
         studentPasswords: {}
@@ -4074,7 +4110,8 @@ async function handleSaveConfig() {
         teachers: {},
         hiddenSubjects: currentConfig.hiddenSubjects || {},
         locks: currentConfig.locks || {},
-        passwordEnabled: currentConfig.passwordEnabled,
+        dayPasswordEnabled: currentConfig.dayPasswordEnabled !== undefined ? currentConfig.dayPasswordEnabled : (currentConfig.passwordEnabled !== false),
+        odlPasswordEnabled: currentConfig.odlPasswordEnabled !== undefined ? currentConfig.odlPasswordEnabled : (currentConfig.passwordEnabled !== false),
         sneColumnVisible: currentConfig.sneColumnVisible !== undefined ? currentConfig.sneColumnVisible : true,
         sexColumnVisible: currentConfig.sexColumnVisible !== undefined ? currentConfig.sexColumnVisible : false,
         setupPassword: currentConfig.setupPassword || null,
@@ -5674,7 +5711,7 @@ async function loadResults(isStudentPortal) {
         const password = document.getElementById('passwordInput').value.trim();
 
         if (!form || !studentNumber) {
-            showFrontPagePopup('Please select a class, enter your exam number and password to view results.');
+            showFrontPagePopup('Please enter your exam number and password to view results.');
             return;
         }
 
@@ -5682,27 +5719,57 @@ async function loadResults(isStudentPortal) {
             await initializeConfig(null);
         }
 
-        const passwordRequired = currentConfig.passwordEnabled !== false;
+        if (isStudentPortal) {
+            // Auto-detect section from exam number
+            const detectedSection = _detectSection(studentNumber);
 
-        // When password is DISABLED, deny access regardless of whether password is entered or not
-        if (isStudentPortal && !passwordRequired) {
-            showFrontPagePopup('Results not yet out.');
-            document.getElementById('passwordInput').value = '';
-            return;
-        }
-
-        // When password is ENABLED, require correct individual student password
-        if (isStudentPortal && passwordRequired) {
             if (!password) {
                 showFrontPagePopup('Please enter your password.');
                 return;
             }
-            const studentPw = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
-            if (!studentPw || password !== (studentPw + '').trim()) {
-                showFrontPagePopup('Incorrect password.');
+
+            // Try detected section first, then fallback to current section
+            let sectionsToTry = [];
+            if (detectedSection) {
+                sectionsToTry.push(detectedSection);
+                // If both DAY and ODL could have the same exam number, try the other section as fallback
+                const otherSection = detectedSection === 'DAY' ? 'ODL' : 'DAY';
+                sectionsToTry.push(otherSection);
+            } else {
+                // Cannot auto-detect — try current active section first, then the other
+                sectionsToTry.push(_activeSection);
+                sectionsToTry.push(_activeSection === 'DAY' ? 'ODL' : 'DAY');
+            }
+
+            let passwordMatched = false;
+            let matchedSection = null;
+
+            for (const section of sectionsToTry) {
+                _switchToSection(section);
+                await initializeConfig(null);
+
+                const sectionUnlocked = section === 'DAY'
+                    ? currentConfig.dayPasswordEnabled !== false
+                    : currentConfig.odlPasswordEnabled !== false;
+
+                if (!sectionUnlocked) continue;
+
+                const studentPw = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
+                if (studentPw && password === (studentPw + '').trim()) {
+                    passwordMatched = true;
+                    matchedSection = section;
+                    break;
+                }
+            }
+
+            if (!passwordMatched) {
+                showFrontPagePopup('Incorrect exam number or password.');
+                document.getElementById('passwordInput').value = '';
                 hideLoading();
                 return;
             }
+
+            // Already switched to matchedSection repo and loaded its config in the loop
         }
 
         showLoading();
@@ -5948,7 +6015,7 @@ async function loadBriefResults() {
     const password = document.getElementById('passwordInput').value.trim();
 
     if (!form || !studentNumber) {
-        showFrontPagePopup('Please select a class, enter your exam number and password to view results.');
+        showFrontPagePopup('Please enter your exam number and password to view results.');
         return;
     }
 
@@ -5956,17 +6023,45 @@ async function loadBriefResults() {
         await initializeConfig(null);
     }
 
-    const passwordRequiredBrief = currentConfig.passwordEnabled !== false;
-
-    // SURGICAL FIX: When disabled, deny access whether password entered or not
-    if (passwordRequiredBrief === false) {
-        showFrontPagePopup('Results not yet out.');
-        document.getElementById('passwordInput').value = '';
+    if (!password) {
+        showFrontPagePopup('Please enter your password.');
         return;
     }
 
-    if (passwordRequiredBrief && !password) {
-        showFrontPagePopup('Please enter your password.');
+    // Auto-detect section from exam number — same logic as loadResults
+    const detectedSection = _detectSection(studentNumber);
+    let sectionsToTry = [];
+    if (detectedSection) {
+        sectionsToTry.push(detectedSection);
+        sectionsToTry.push(detectedSection === 'DAY' ? 'ODL' : 'DAY');
+    } else {
+        sectionsToTry.push(_activeSection);
+        sectionsToTry.push(_activeSection === 'DAY' ? 'ODL' : 'DAY');
+    }
+
+    let matchedSection = null;
+
+    for (const section of sectionsToTry) {
+        _switchToSection(section);
+        await initializeConfig(null);
+
+        const sectionUnlocked = section === 'DAY'
+            ? currentConfig.dayPasswordEnabled !== false
+            : currentConfig.odlPasswordEnabled !== false;
+
+        if (!sectionUnlocked) continue;
+
+        // Check if student exists and password matches in this section
+        const studentPwBrief = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
+        if (studentPwBrief && password === (studentPwBrief + '').trim()) {
+            matchedSection = section;
+            break;
+        }
+    }
+
+    if (!matchedSection) {
+        showFrontPagePopup('Incorrect exam number or password.');
+        document.getElementById('passwordInput').value = '';
         return;
     }
 
@@ -5990,14 +6085,7 @@ async function loadBriefResults() {
         return;
     }
 
-    if (passwordRequiredBrief) {
-        const studentPwBrief = currentConfig.studentPasswords && currentConfig.studentPasswords[form] && currentConfig.studentPasswords[form][studentNumber];
-        if (!studentPwBrief || password !== (studentPwBrief + '').trim()) {
-            showFrontPagePopup('Incorrect password.');
-            return;
-        }
-    }
-
+    // Password already validated in the loop above; no redundant check needed
     const studentsWithMetrics = [];
     for (const s of data) {
         const metrics = await calculateStudentMetrics(s, form);
@@ -9091,7 +9179,8 @@ async function saveGradeRanges(form) {
             teachers: currentConfig.teachers || {},
             hiddenSubjects: currentConfig.hiddenSubjects || {},
             locks: currentConfig.locks || {},
-            passwordEnabled: currentConfig.passwordEnabled,
+            dayPasswordEnabled: currentConfig.dayPasswordEnabled !== undefined ? currentConfig.dayPasswordEnabled : (currentConfig.passwordEnabled !== false),
+            odlPasswordEnabled: currentConfig.odlPasswordEnabled !== undefined ? currentConfig.odlPasswordEnabled : (currentConfig.passwordEnabled !== false),
             sneColumnVisible: currentConfig.sneColumnVisible,
             setupPassword: currentConfig.setupPassword || null,
             studentPasswords: currentConfig.studentPasswords || {}
@@ -9135,7 +9224,8 @@ async function instantSaveGradeConfigToGitHub() {
             teachers: currentConfig.teachers || {},
             hiddenSubjects: currentConfig.hiddenSubjects || {},
             locks: currentConfig.locks || {},
-            passwordEnabled: currentConfig.passwordEnabled,
+            dayPasswordEnabled: currentConfig.dayPasswordEnabled !== undefined ? currentConfig.dayPasswordEnabled : (currentConfig.passwordEnabled !== false),
+            odlPasswordEnabled: currentConfig.odlPasswordEnabled !== undefined ? currentConfig.odlPasswordEnabled : (currentConfig.passwordEnabled !== false),
             sneColumnVisible: currentConfig.sneColumnVisible,
             setupPassword: currentConfig.setupPassword || null,
             studentPasswords: currentConfig.studentPasswords || {}
