@@ -688,6 +688,31 @@ function saveSelectedSubjectsToRepo() {
         overflow-x: hidden;
     }
 
+    /* SURGICAL FIX (mobile name scrolling in data entry):
+       Because #dataEntryPage sets overflow-x:hidden it becomes a scroll container,
+       and `overscroll-behavior: contain` then blocked VERTICAL scroll chaining to the
+       page/document. Result: dragging over the student-names table did not scroll the
+       list up/down on touch devices. Keep horizontal containment (the original
+       anti-drift/anti-pinch intent) but let the vertical axis chain to the page
+       scroller. No card or container dimensions are changed. */
+    #dataEntryPage {
+        overscroll-behavior-x: contain;
+        overscroll-behavior-y: auto;
+    }
+
+    /* Allow vertical touch panning to start from anywhere inside the names/score table
+       (rows, cells and the wrappers around them) instead of being swallowed there. */
+    #dataEntryPage #studentMarksPanel,
+    #dataEntryPage #studentMarksPanel > div,
+    #dataEntryPage #studentMarksPanel .table-wrapper,
+    #dataEntryPage #dataEntryTable,
+    #dataEntryPage #dataEntryTableBody,
+    #dataEntryPage #dataEntryTableBody tr,
+    #dataEntryPage #dataEntryTableBody td {
+        touch-action: pan-y;
+        overscroll-behavior-y: auto;
+    }
+
     /* SURGICAL FIX: Fix grade sheet page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when searching or selecting. Card dimensions unchanged. */
     #gradesPage {
