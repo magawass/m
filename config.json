@@ -213,7 +213,7 @@
       "Social/Life": false
     }
   },
-  "dayPasswordEnabled": false,
+  "dayPasswordEnabled": true,
   "odlPasswordEnabled": true,
   "sneColumnVisible": false,
   "sexColumnVisible": false,
