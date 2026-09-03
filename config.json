@@ -171,14 +171,14 @@
   "locks": {
     "form1": {
       "Agriculture": false,
-      "Biology": true,
-      "Chemistry": true,
-      "Chichewa": true,
+      "Biology": false,
+      "Chemistry": false,
+      "Chichewa": false,
       "History": false,
-      "Physics": true,
-      "Mathematics": true,
-      "Bible Knowledge": true,
-      "English": true,
+      "Physics": false,
+      "Mathematics": false,
+      "Bible Knowledge": false,
+      "English": false,
       "Geography": false
     },
     "form2": {
