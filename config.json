@@ -189,15 +189,16 @@
       "Social/Life": false
     },
     "form3": {
-      "Mathematics": true,
-      "Physics": true,
-      "Social/Life": true,
-      "Chemistry": true,
-      "Biology": true,
-      "English": true,
+      "Mathematics": false,
+      "Physics": false,
+      "Social/Life": false,
+      "Chemistry": false,
+      "Biology": false,
+      "English": false,
       "Geography": false,
-      "History": true,
-      "Bible Knowledge": true
+      "History": false,
+      "Bible Knowledge": false,
+      "Chichewa": false
     },
     "form4": {
       "Agriculture": false,
