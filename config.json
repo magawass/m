@@ -1048,7 +1048,7 @@
   "uploadToggles": {
     "stamp": true,
     "pasteStudent": false,
-    "passwordGen": false,
+    "passwordGen": true,
     "pasteGrades": false
   },
   "hideReaccessSetup": true,
