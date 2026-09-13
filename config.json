@@ -217,7 +217,7 @@
   "dayPasswordEnabled": true,
   "odlPasswordEnabled": true,
   "sneColumnVisible": false,
-  "sexColumnVisible": false,
+  "sexColumnVisible": true,
   "setupPassword": "1972",
   "studentPasswords": {
     "form1": {
