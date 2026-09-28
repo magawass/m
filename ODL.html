@@ -688,31 +688,6 @@ function saveSelectedSubjectsToRepo() {
         overflow-x: hidden;
     }
 
-    /* SURGICAL FIX (mobile name scrolling in data entry):
-       Because #dataEntryPage sets overflow-x:hidden it becomes a scroll container,
-       and `overscroll-behavior: contain` then blocked VERTICAL scroll chaining to the
-       page/document. Result: dragging over the student-names table did not scroll the
-       list up/down on touch devices. Keep horizontal containment (the original
-       anti-drift/anti-pinch intent) but let the vertical axis chain to the page
-       scroller. No card or container dimensions are changed. */
-    #dataEntryPage {
-        overscroll-behavior-x: contain;
-        overscroll-behavior-y: auto;
-    }
-
-    /* Allow vertical touch panning to start from anywhere inside the names/score table
-       (rows, cells and the wrappers around them) instead of being swallowed there. */
-    #dataEntryPage #studentMarksPanel,
-    #dataEntryPage #studentMarksPanel > div,
-    #dataEntryPage #studentMarksPanel .table-wrapper,
-    #dataEntryPage #dataEntryTable,
-    #dataEntryPage #dataEntryTableBody,
-    #dataEntryPage #dataEntryTableBody tr,
-    #dataEntryPage #dataEntryTableBody td {
-        touch-action: pan-y;
-        overscroll-behavior-y: auto;
-    }
-
     /* SURGICAL FIX: Fix grade sheet page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when searching or selecting. Card dimensions unchanged. */
     #gradesPage {
@@ -2178,26 +2153,35 @@ function saveSelectedSubjectsToRepo() {
 </div>
 
 <div id="initialPage" class="page">
-  <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" alt="School Logo">
+    <img src="https://raw.githubusercontent.com/magawass/m/main/logo.png"   alt="Secondary School Logo" class="logo">
   <h1 style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"><p style="font-size:28px;">MAGAWA SECONDARY SCHOOL</p></h1>
     <h2>EXAM PORTAL</h2>
     <label for="selectedForm">Select Form / Sankhani Kalasi</label>
-    <select id="selectedForm" style="font-size:16px;">
+    <select id="selectedForm" style="font-size:16px;" onchange="onResultsClassOrSchoolChange()">
       <option value="">-- Select Class --</option>
       <option value="form1">Form 1</option>
       <option value="form2">Form 2</option>
       <option value="form3">Form 3</option>
       <option value="form4">Form 4</option>
     </select>
-    <label for="studentNumberInput">Enter Exam Number / Lowetsani nambala ya mayeso</label>
-    <input type="text" id="studentNumberInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="font-size:16px;">
-    <label for="passwordInput">Enter Password / Lembani nambala ya chinsinsi</label>
-    <input type="text" id="passwordInput" placeholder="Here / Pano" autocomplete="off" inputmode="numeric" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="4" min="000" max="9999" style="-webkit-text-security:disc;text-security:disc;font-size:16px;" onfocus="this.setAttribute('autocomplete','off')">
+    <label for="resultsSchoolSelect">Select School / Sankhani Sukulu</label>
+    <select id="resultsSchoolSelect" style="font-size:16px;" onchange="onResultsClassOrSchoolChange()">
+      <option value="">-- Select School --</option>
+      <option value="DAY">DAY</option>
+      <option value="ODL">ODL</option>
+    </select>
+    <!-- Student list container: appears automatically when class + school selected -->
+    <div id="resultsStudentListContainer" style="display:none; margin-top:15px; text-align:left; width:100%; max-width:400px; margin-left:auto; margin-right:auto;">
+      <input type="text" id="resultsStudentSearch" placeholder="Search name or number..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="font-size:16px; width:100%; max-width:400px; padding:10px; border:1px solid #cc6600; border-radius:8px; background-color:#98FB9; color:#333; text-align:left; display:block; margin-bottom:8px;" oninput="filterResultsStudentList()">
+      <div id="resultsStudentList" style="max-height:260px; overflow-y:auto; border:1px solid #ddd; border-radius:8px; padding:4px;"></div>
+      <p id="resultsStudentListLoading" style="font-size:0.85em; color:#7f8c8d; text-align:center; display:none;">Loading students...</p>
+    </div>
+    <!-- Hidden fields that loadResults reads from (populated programmatically) -->
+    <input type="hidden" id="studentNumberInput" value="">
+    <input type="hidden" id="passwordInput" value="">
 
     <!-- SURGICAL FIX: Front page buttons stacked for mobile visibility -->
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; width: 100%;">
-
-    <button onclick="loadResults(true)" style="width: 100%; max-width: 400px; margin-top: 0;">View Results / Onani Zotsatira</button>
         <button onclick="openAdminLogin()" style="width: 100%; max-width: 400px;">ADMIN</button>
     </div>
 
@@ -3912,20 +3896,22 @@ async function fetchClassData(form) {
                 }
             });
             if (!response.ok) {
-                console.warn(`CSV file for ${form} not found via API (status ${response.status}).`);
+                console.warn(`CSV file for ${form} not found via API (status ${response.status}). No current data available.`);
                 return [];
+            } else {
+                const data = await response.json();
+                // FIX: GitHub API wraps base64 with newlines — strip them before decoding
+                csv = atob(data.content.replace(/\n/g, ''));
             }
-            const data = await response.json();
-            // FIX: GitHub API wraps base64 with newlines — strip them before decoding
-            csv = atob(data.content.replace(/\n/g, ''));
         } else {
             // Fallback to raw URL for public repos without token
             const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${form}.csv`);
             if (!response.ok) {
-                console.warn(`CSV file for ${form} not found.`);
+                console.warn(`CSV file for ${form} not found. No current data available.`);
                 return [];
+            } else {
+                csv = await response.text();
             }
-            csv = await response.text();
         }
         const data = normalizeCSVData(csv).filter(s => s && s["Exam Number"]);
         currentClassData[form] = data;
@@ -3937,6 +3923,52 @@ async function fetchClassData(form) {
     } finally {
         hideLoading();
     }
+}
+
+// --- ARCHIVE FALLBACK: Find the most recent archived CSV for a given form ---
+async function _fetchFromArchive(form, token) {
+    // Build candidate filenames: form{N}_{year}_Term{term}.csv
+    // Try current config term/year first, then go backwards
+    const year = currentConfig ? (currentConfig.year || '2026') : '2026';
+    const term = currentConfig ? (currentConfig.term || '2') : '2';
+    const yearNum = parseInt(year) || 2026;
+    const termNum = parseInt(term) || 2;
+
+    const candidates = [];
+    // Current year: current term down to 1
+    for (let t = termNum; t >= 1; t--) {
+        candidates.push(`${form}_${yearNum}_Term${t}.csv`);
+    }
+    // Previous year: term 3 down to 1
+    for (let t = 3; t >= 1; t--) {
+        candidates.push(`${form}_${yearNum - 1}_Term${t}.csv`);
+    }
+
+    for (const fileName of candidates) {
+        try {
+            if (token) {
+                const resp = await fetch(`${ARCHIVE_API_BASE}${fileName}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                if (resp.ok) {
+                    const d = await resp.json();
+                    console.log(`Found ${form} data in archive: ${fileName}`);
+                    return atob(d.content.replace(/\n/g, ''));
+                }
+            } else {
+                const resp = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${ARCHIVE_REPO}/main/${fileName}`);
+                if (resp.ok) {
+                    console.log(`Found ${form} data in archive: ${fileName}`);
+                    return await resp.text();
+                }
+            }
+        } catch (e) { /* try next candidate */ }
+    }
+    console.warn(`No archived data found for ${form} in ${ARCHIVE_REPO}.`);
+    return null;
 }
 
 async function fetchConfig(token) {
@@ -5869,6 +5901,160 @@ function openDataEntryAuth() {
     openDataEntryPage();
 }
 
+// === RESULTS PAGE: Student list with password + View per row ===
+let _resultsStudentData = []; // cached student data for the selected class+school
+let _resultsSelectedSchool = null; // the school the user selected in the results dropdown
+let _resultsCurrentIdx = 0; // current position when displaying one student at a time
+
+async function onResultsClassOrSchoolChange() {
+    const form = document.getElementById('selectedForm').value;
+    const school = document.getElementById('resultsSchoolSelect').value;
+    const container = document.getElementById('resultsStudentListContainer');
+    const listEl = document.getElementById('resultsStudentList');
+    const loadingEl = document.getElementById('resultsStudentListLoading');
+    const searchEl = document.getElementById('resultsStudentSearch');
+
+    if (!form || !school) {
+        container.style.display = 'none';
+        _resultsStudentData = [];
+        _resultsSelectedSchool = null;
+        return;
+    }
+
+    _resultsSelectedSchool = school;
+    _resultsCurrentIdx = 0;
+    container.style.display = 'block';
+    listEl.innerHTML = '';
+    loadingEl.style.display = 'block';
+    searchEl.value = '';
+
+    try {
+        // Switch to the selected school's repo, then fetch student CSV
+        // exactly like the batch print progress report does it:
+        //   _switchToSection → fetchClassData(form)
+        // No initializeConfig needed here — it is only for password validation
+        // and will be called lazily by viewResultForRow when a student clicks View.
+        _switchToSection(school);
+        const classData = await fetchClassData(form);
+
+        if (!classData || classData.length === 0) {
+            listEl.innerHTML = '<p style="padding:10px;text-align:center;color:#e74c3c;font-size:0.85em;">No students found for this class.</p>';
+            loadingEl.style.display = 'none';
+            _resultsStudentData = [];
+            return;
+        }
+
+        // Sort students alphabetically by name
+        _resultsStudentData = classData.slice().sort((a, b) => {
+            const nameA = (a["STUDENT'S NAME"] || '').trim().toLowerCase();
+            const nameB = (b["STUDENT'S NAME"] || '').trim().toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+
+        loadingEl.style.display = 'none';
+        renderResultsStudentList();
+    } catch (error) {
+        listEl.innerHTML = '<p style="padding:10px;text-align:center;color:#e74c3c;font-size:0.85em;">Failed to load students.</p>';
+        loadingEl.style.display = 'none';
+        _resultsStudentData = [];
+    }
+}
+
+function _getFilteredResultsStudents() {
+    const searchTerm = (document.getElementById('resultsStudentSearch').value || '').trim().toLowerCase();
+    let filtered = _resultsStudentData;
+    if (searchTerm) {
+        filtered = _resultsStudentData.filter(s => {
+            const name = (s["STUDENT'S NAME"] || '').trim().toLowerCase();
+            const examNo = (s["Exam Number"] || '').trim().toLowerCase();
+            return name.includes(searchTerm) || examNo.includes(searchTerm);
+        });
+    }
+    return filtered;
+}
+
+function renderResultsStudentList() {
+    const listEl = document.getElementById('resultsStudentList');
+    const filtered = _getFilteredResultsStudents();
+
+    if (filtered.length === 0) {
+        listEl.innerHTML = '<p style="padding:10px;text-align:center;color:#7f8c8d;font-size:0.85em;">No matching students found.</p>';
+        return;
+    }
+
+    // Clamp index
+    if (_resultsCurrentIdx >= filtered.length) _resultsCurrentIdx = filtered.length - 1;
+    if (_resultsCurrentIdx < 0) _resultsCurrentIdx = 0;
+
+    const student = filtered[_resultsCurrentIdx];
+    const origIndex = _resultsStudentData.indexOf(student);
+    const name = (student["STUDENT'S NAME"] || '').trim();
+    const examNo = (student["Exam Number"] || '').trim();
+
+    let html = '';
+    // Navigation row: Prev  counter  Next
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;">';
+    html += '  <button onclick="navResultsStudent(-1)" style="padding:6px 14px;font-size:0.9em;font-weight:600;white-space:nowrap;' + (_resultsCurrentIdx <= 0 ? 'opacity:0.4;pointer-events:none;' : '') + '">&#9664; Prev</button>';
+    html += '  <span style="font-size:0.85em;color:#555;">' + (_resultsCurrentIdx + 1) + ' / ' + filtered.length + '</span>';
+    html += '  <button onclick="navResultsStudent(1)" style="padding:6px 14px;font-size:0.9em;font-weight:600;white-space:nowrap;' + (_resultsCurrentIdx >= filtered.length - 1 ? 'opacity:0.4;pointer-events:none;' : '') + '">Next &#9654;</button>';
+    html += '</div>';
+
+    // Single student row: name + pin input + View button
+    html += '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid #eee;flex-wrap:nowrap;">';
+    html += '  <span style="flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:inherit;">' + name + '</span>';
+    html += '  <input type="text" id="rpw_' + origIndex + '" inputmode="numeric" maxlength="4" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Pin" style="-webkit-text-security:disc;text-security:disc;font-size:16px;width:70px;min-width:60px;padding:8px 6px;border:1px solid #cc6600;border-radius:6px;background-color:#98FB9;color:#333;text-align:center;flex:0 0 auto;">';
+    html += '  <button onclick="viewResultForRow(' + origIndex + ')" style="display:inline-block;width:auto;max-width:none;margin-top:0;padding:8px 16px;font-size:0.95em;font-weight:600;white-space:nowrap;flex:0 0 auto;">View</button>';
+    html += '</div>';
+
+    listEl.innerHTML = html;
+}
+
+function navResultsStudent(direction) {
+    const filtered = _getFilteredResultsStudents();
+    if (filtered.length === 0) return;
+    _resultsCurrentIdx += direction;
+    if (_resultsCurrentIdx < 0) _resultsCurrentIdx = 0;
+    if (_resultsCurrentIdx >= filtered.length) _resultsCurrentIdx = filtered.length - 1;
+    renderResultsStudentList();
+}
+
+function filterResultsStudentList() {
+    _resultsCurrentIdx = 0;
+    renderResultsStudentList();
+}
+
+async function viewResultForRow(studentIndex) {
+    const student = _resultsStudentData[studentIndex];
+    if (!student) {
+        showFrontPagePopup('Student not found.');
+        return;
+    }
+    const examNo = (student["Exam Number"] || '').trim().toUpperCase();
+    const pwInput = document.getElementById('rpw_' + studentIndex);
+    const password = pwInput ? pwInput.value.trim() : '';
+
+    if (!password) {
+        showFrontPagePopup('Please enter your password.');
+        return;
+    }
+
+    // Populate the hidden fields that loadResults reads from
+    document.getElementById('studentNumberInput').value = examNo;
+    document.getElementById('passwordInput').value = password;
+
+    // loadResults will auto-detect section from exam number, but since user already
+    // selected a school, we ensure the section is set correctly before calling
+    if (_resultsSelectedSchool) {
+        _switchToSection(_resultsSelectedSchool);
+        await initializeConfig(null);
+    }
+
+    await loadResults(true);
+
+    // Clear the password field after attempt
+    if (pwInput) pwInput.value = '';
+}
+
 // SURGICAL FIX - Password logic when disabled
 async function loadResults(isStudentPortal) {
     try {
@@ -6117,6 +6303,10 @@ async function loadResults(isStudentPortal) {
 function handleProgressBack() {
     if (lastCallingPage === 'initialPage') {
         goToPage('initialPage');
+        // Refresh student list if class and school are already selected
+        if (document.getElementById('selectedForm').value && document.getElementById('resultsSchoolSelect').value) {
+            onResultsClassOrSchoolChange();
+        }
     } else if (lastCallingPage === 'sheetsPage') {
         goToPage('sheetsPage');
     }
@@ -6332,6 +6522,10 @@ async function loadBriefResults() {
 
 function handleBriefBack() {
     goToPage('initialPage');
+    // Refresh student list if class and school are already selected
+    if (document.getElementById('selectedForm').value && document.getElementById('resultsSchoolSelect').value) {
+        onResultsClassOrSchoolChange();
+    }
 }
 
 async function calculateStudentMetrics(student, form){
@@ -10535,3 +10729,4 @@ async function saveEditedNames() {
 
 </body>
 </html>
+
