@@ -565,7 +565,11 @@ function saveSelectedSubjectsToRepo() {
     /* Global Reset and Box Sizing */
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Body - SURGICAL FIX: Align to flex-start and enable scrolling to prevent chopping */
+    /* Body - SURGICAL FIX: Align to flex-start and enable scrolling to prevent chopping.
+       SCROLL FIX v2: overflow-y removed from body — body must NEVER be its own scroll
+       container. A nested body scroller swallows touch swipes on mobile browsers, so
+       scrolling appears dead unless the user drags the thin edge scrollbar. The page
+       now scrolls naturally via the viewport, which works on every mobile browser. */
     body {
         background: var(--card-bg);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -574,7 +578,6 @@ function saveSelectedSubjectsToRepo() {
         align-items: flex-start;
         min-height: 100vh;
         padding: 20px;
-        overflow-y: auto;
     }
 
     /* --- Loading Indicator Styles --- */
@@ -648,7 +651,6 @@ function saveSelectedSubjectsToRepo() {
            overscroll-behavior:contain stops elastic overscroll from triggering zoom.
            position/left/right pins the card horizontally to the viewport.
            Card dimensions (max-width) remain unchanged. */
-        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -659,7 +661,6 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix admin login card on mobile — same treatment as #initialPage.
        Only vertical movement, no horizontal drift or pinch-zoom on the card. */
     #adminLoginPage {
-        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -670,7 +671,6 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix upload page on mobile — same treatment as #initialPage and #adminLoginPage.
        Only vertical movement, no horizontal drift or pinch-zoom on the card. */
     #uploadsPage {
-        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -681,7 +681,6 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix data entry page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when entering scores. Card dimensions unchanged. */
     #dataEntryPage {
-        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -692,7 +691,6 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix grade sheet page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when searching or selecting. Card dimensions unchanged. */
     #gradesPage {
-        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -703,7 +701,6 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix sheets/batch-print page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when using batch print controls. Card dimensions unchanged. */
     #sheetsPage {
-        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -714,7 +711,6 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix mark sheet view (#scoreSheetView) search box on mobile.
        Prevents auto-zoom when entering text into the search box. Card and container dimensions unchanged. */
     #scoreSheetView {
-        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -1392,12 +1388,13 @@ function saveSelectedSubjectsToRepo() {
         color: black;
     }
 
-    /* Force progress sheet to fit on ONE A4 page */
-    #progressReport {
-        padding: 20px 20px !important;
-        max-height: 1123px !important;
-        overflow: visible !important;
-    }
+    /* SCROLL FIX v2: The "Force progress sheet to fit on ONE A4 page" rule that used
+       to sit here was accidentally GLOBAL (outside its print media query). It clamped
+       #progressReport to max-height:1123px on phone screens, the card clipped its
+       content, body became a nested scroll container, and touch scrolling broke on
+       the progress report page. The rule now lives inside @media print (its intended
+       scope), so on screens the mobile max-height:none override applies again and the
+       page flows and scrolls naturally. */
 
     /* SURGICAL FIX: Remove scrollbar from table-wrapper inside progress/brief reports */
     #progressReport .table-wrapper,
@@ -1424,6 +1421,13 @@ function saveSelectedSubjectsToRepo() {
 
     /* A4 Printing Styles - SURGICAL FIX: Equal margins 2cm top, 1cm left/right, 1cm bottom */
     @media print {
+        /* SCROLL FIX v2: moved here from global scope — "fit on ONE A4 page" is a print rule */
+        #progressReport {
+            padding: 20px 20px !important;
+            max-height: 1123px !important;
+            overflow: visible !important;
+        }
+
         html, body {
             height: 100% !important;
             margin: 0 !important;
@@ -2145,39 +2149,27 @@ function saveSelectedSubjectsToRepo() {
 #manebAnalyzerPage .table-wrapper table tbody tr:last-child td { border-bottom: none; }
 </style>
 
-<!-- SURGICAL FIX: Enable scrolling on every page across mobile screens — by finger-swipe
-     on the content (not only by dragging the side scrollbars), while keeping existing
-     page/card dimensions, widths, spacing, and layout unchanged. -->
+<!-- SURGICAL FIX v2: Scrolling on every page across mobile screens — by finger-swipe on
+     the content. The viewport (html) is the ONLY page-level scroller; body and .page
+     cards are plain flowing boxes with no overflow/touch-action of their own, so touch
+     gestures always reach the viewport scroller. Existing page/card dimensions, widths,
+     spacing, and layout unchanged. -->
 <style id="all-mobile-pages-vertical-scroll-fix">
   html {
     min-height: 100%;
     height: auto !important;
     overflow-x: hidden;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y !important;
   }
 
   body {
     min-height: 100vh;
     height: auto !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-y !important;
     overscroll-behavior-y: auto;
   }
 
-  /* Include the per-page ID selectors so this rule beats the earlier
-     #initialPage/#gradesPage/... touch-action rules on specificity and
-     finger-swipe vertical scrolling works on every page (not only via the
-     scroll bar). Pages themselves don't scroll horizontally, so pan-y. */
-  body .page,
-  #initialPage, #adminLoginPage, #sectionSelectorPage, #uploadsPage,
-  #dataEntryPage, #gradesPage, #sheetsPage, #scoreSheetView {
+  body .page {
     height: auto !important;
     overflow-y: visible !important;
-    touch-action: pan-y !important;
     overscroll-behavior-y: auto;
   }
 
