@@ -642,12 +642,13 @@ function saveSelectedSubjectsToRepo() {
     #initialPage {
         display: block;
         text-align: center;
-        /* SURGICAL FIX: Fix card position on mobile — only vertical movement allowed.
-           touch-action:pan-y blocks pinch-zoom and horizontal pan on the card.
+        /* SURGICAL FIX: Fix card position on mobile.
+           touch-action:pan-x pan-y lets finger-swipes scroll the content by touch
+           (not only via the side scrollbars) while still blocking pinch-zoom.
            overscroll-behavior:contain stops elastic overscroll from triggering zoom.
            position/left/right pins the card horizontally to the viewport.
            Card dimensions (max-width) remain unchanged. */
-        touch-action: pan-y;
+        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -658,7 +659,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix admin login card on mobile — same treatment as #initialPage.
        Only vertical movement, no horizontal drift or pinch-zoom on the card. */
     #adminLoginPage {
-        touch-action: pan-y;
+        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -669,7 +670,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix upload page on mobile — same treatment as #initialPage and #adminLoginPage.
        Only vertical movement, no horizontal drift or pinch-zoom on the card. */
     #uploadsPage {
-        touch-action: pan-y;
+        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -680,7 +681,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix data entry page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when entering scores. Card dimensions unchanged. */
     #dataEntryPage {
-        touch-action: pan-y;
+        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -691,7 +692,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix grade sheet page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when searching or selecting. Card dimensions unchanged. */
     #gradesPage {
-        touch-action: pan-y;
+        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -702,7 +703,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix sheets/batch-print page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when using batch print controls. Card dimensions unchanged. */
     #sheetsPage {
-        touch-action: pan-y;
+        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -713,7 +714,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix mark sheet view (#scoreSheetView) search box on mobile.
        Prevents auto-zoom when entering text into the search box. Card and container dimensions unchanged. */
     #scoreSheetView {
-        touch-action: pan-y;
+        touch-action: pan-x pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -2144,8 +2145,9 @@ function saveSelectedSubjectsToRepo() {
 #manebAnalyzerPage .table-wrapper table tbody tr:last-child td { border-bottom: none; }
 </style>
 
-<!-- SURGICAL FIX: Enable vertical scrolling on every page across mobile screens.
-     Keeps existing page/card dimensions, widths, spacing, and layout unchanged. -->
+<!-- SURGICAL FIX: Enable scrolling on every page across mobile screens — by finger-swipe
+     on the content (not only by dragging the side scrollbars), while keeping existing
+     page/card dimensions, widths, spacing, and layout unchanged. -->
 <style id="all-mobile-pages-vertical-scroll-fix">
   html {
     min-height: 100%;
@@ -2161,15 +2163,30 @@ function saveSelectedSubjectsToRepo() {
     overflow-x: hidden !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-y;
+    touch-action: pan-x pan-y;
     overscroll-behavior-y: auto;
   }
 
   body .page {
     height: auto !important;
     overflow-y: visible !important;
-    touch-action: pan-y;
+    touch-action: pan-x pan-y;
     overscroll-behavior-y: auto;
+  }
+
+  /* SURGICAL FIX: Inner scroll containers (wide mark/grade/result tables, student
+     lists, popup lists) — explicitly allow finger-swiping in any direction so they
+     scroll by touch, not only by dragging their scrollbars. Momentum scrolling
+     enabled for iOS. Dimensions and overflow behavior unchanged. */
+  .table-wrapper,
+  #resultsStudentList,
+  #editNamesContainer,
+  #passwordGenTableContainer,
+  #batchStudentList,
+  #subjectHideCheckboxList,
+  #subjectHidePopupBox {
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
   }
 </style>
 
@@ -10759,5 +10776,4 @@ async function saveEditedNames() {
 
 </body>
 </html>
-
 
