@@ -2143,6 +2143,33 @@ function saveSelectedSubjectsToRepo() {
 #manebAnalyzerPage .table-wrapper table tbody tr:nth-child(even) { background: #f2f2f2; }
 #manebAnalyzerPage .table-wrapper table tbody tr:last-child td { border-bottom: none; }
 </style>
+
+  <!-- SURGICAL FIX: Restore native vertical touch scrolling on Android 8+.
+       This changes scroll behavior only; it does not alter page/card dimensions or layout. -->
+  <style id="android-vertical-scroll-fix">
+    html {
+      height: auto !important;
+      min-height: 100% !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    body {
+      height: auto !important;
+      min-height: 100vh !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y;
+      overscroll-behavior-y: auto;
+    }
+    body > .page,
+    body > #progressReport,
+    body > #briefReport {
+      touch-action: pan-y;
+    }
+  </style>
+
 </head>
 <body>
 <div id="loadingOverlay" style="display: none; opacity: 0; visibility: hidden;">
