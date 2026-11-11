@@ -2045,6 +2045,40 @@ function saveSelectedSubjectsToRepo() {
     }
 }
 
+/* === SURGICAL FIX: PERSISTENT SUBJECT-NAME HEADER ROW (MARK & GRADE SHEETS) ===
+   Keeps the header row (POS / Name / subject names / Total / Remark) pinned to the
+   top of the sheet while the student list is scrolled up, so the column titles never
+   disappear. Applies on all screens and orientations (phone, tablet, desktop).
+   Cross-browser: sticky is declared on BOTH <thead> (honoured by Chrome 91+) and on
+   each <th> cell (honoured by older Chrome / older Android WebView that only support
+   sticky on table cells), with the -webkit-sticky fallback for legacy WebKit-based
+   Chrome/Android. Scoped to screen only so printing is untouched. */
+@media screen {
+    #scoreSheetView #scoreSheetTableWrapper,
+    #gradesPage #gradesSheetTableWrapper {
+        max-height: calc(100vh - 180px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    #scoreSheetView #scoresTable thead,
+    #gradesPage #gradesTable thead {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+    }
+    #scoreSheetView #scoresTable thead th,
+    #gradesPage #gradesTable thead th {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #ecf0f1;
+        background-clip: padding-box;
+        box-shadow: inset 0 1px 0 #000, inset 0 -1px 0 #000;
+    }
+}
+
 /* SURGICAL FIX: Admin Home & Sheets Overview - full button visibility on mobile */
 @media (max-width: 480px) {
     #adminHomePage,
