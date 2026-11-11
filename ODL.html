@@ -565,11 +565,7 @@ function saveSelectedSubjectsToRepo() {
     /* Global Reset and Box Sizing */
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Body - SURGICAL FIX: Align to flex-start and enable scrolling to prevent chopping.
-       SCROLL FIX v2: overflow-y removed from body — body must NEVER be its own scroll
-       container. A nested body scroller swallows touch swipes on mobile browsers, so
-       scrolling appears dead unless the user drags the thin edge scrollbar. The page
-       now scrolls naturally via the viewport, which works on every mobile browser. */
+    /* Body - SURGICAL FIX: Align to flex-start and enable scrolling to prevent chopping */
     body {
         background: var(--card-bg);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -578,6 +574,7 @@ function saveSelectedSubjectsToRepo() {
         align-items: flex-start;
         min-height: 100vh;
         padding: 20px;
+        overflow-y: auto;
     }
 
     /* --- Loading Indicator Styles --- */
@@ -645,12 +642,12 @@ function saveSelectedSubjectsToRepo() {
     #initialPage {
         display: block;
         text-align: center;
-        /* SURGICAL FIX: Fix card position on mobile.
-           touch-action:pan-x pan-y lets finger-swipes scroll the content by touch
-           (not only via the side scrollbars) while still blocking pinch-zoom.
+        /* SURGICAL FIX: Fix card position on mobile — only vertical movement allowed.
+           touch-action:pan-y blocks pinch-zoom and horizontal pan on the card.
            overscroll-behavior:contain stops elastic overscroll from triggering zoom.
            position/left/right pins the card horizontally to the viewport.
            Card dimensions (max-width) remain unchanged. */
+        touch-action: pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -661,6 +658,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix admin login card on mobile — same treatment as #initialPage.
        Only vertical movement, no horizontal drift or pinch-zoom on the card. */
     #adminLoginPage {
+        touch-action: pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -671,6 +669,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix upload page on mobile — same treatment as #initialPage and #adminLoginPage.
        Only vertical movement, no horizontal drift or pinch-zoom on the card. */
     #uploadsPage {
+        touch-action: pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -681,6 +680,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix data entry page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when entering scores. Card dimensions unchanged. */
     #dataEntryPage {
+        touch-action: pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -691,6 +691,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix grade sheet page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when searching or selecting. Card dimensions unchanged. */
     #gradesPage {
+        touch-action: pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -701,6 +702,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix sheets/batch-print page on mobile — same treatment as #initialPage.
        Prevents auto-zoom when using batch print controls. Card dimensions unchanged. */
     #sheetsPage {
+        touch-action: pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -711,6 +713,7 @@ function saveSelectedSubjectsToRepo() {
     /* SURGICAL FIX: Fix mark sheet view (#scoreSheetView) search box on mobile.
        Prevents auto-zoom when entering text into the search box. Card and container dimensions unchanged. */
     #scoreSheetView {
+        touch-action: pan-y;
         overscroll-behavior: contain;
         position: relative;
         left: 0;
@@ -1388,13 +1391,12 @@ function saveSelectedSubjectsToRepo() {
         color: black;
     }
 
-    /* SCROLL FIX v2: The "Force progress sheet to fit on ONE A4 page" rule that used
-       to sit here was accidentally GLOBAL (outside its print media query). It clamped
-       #progressReport to max-height:1123px on phone screens, the card clipped its
-       content, body became a nested scroll container, and touch scrolling broke on
-       the progress report page. The rule now lives inside @media print (its intended
-       scope), so on screens the mobile max-height:none override applies again and the
-       page flows and scrolls naturally. */
+    /* Force progress sheet to fit on ONE A4 page */
+    #progressReport {
+        padding: 20px 20px !important;
+        max-height: 1123px !important;
+        overflow: visible !important;
+    }
 
     /* SURGICAL FIX: Remove scrollbar from table-wrapper inside progress/brief reports */
     #progressReport .table-wrapper,
@@ -1421,13 +1423,6 @@ function saveSelectedSubjectsToRepo() {
 
     /* A4 Printing Styles - SURGICAL FIX: Equal margins 2cm top, 1cm left/right, 1cm bottom */
     @media print {
-        /* SCROLL FIX v2: moved here from global scope — "fit on ONE A4 page" is a print rule */
-        #progressReport {
-            padding: 20px 20px !important;
-            max-height: 1123px !important;
-            overflow: visible !important;
-        }
-
         html, body {
             height: 100% !important;
             margin: 0 !important;
@@ -2045,59 +2040,6 @@ function saveSelectedSubjectsToRepo() {
     }
 }
 
-/* === SURGICAL FIX: PERSISTENT SUBJECT-NAME HEADER ROW (MARK & GRADE SHEETS) ===
-   Keeps the header row (POS / Name / subject names / Total / Remark) pinned to the
-   top of the sheet while the student list is scrolled up, so the column titles never
-   disappear. Applies on all screens and orientations (phone, tablet, desktop).
-   Cross-browser: sticky is declared on BOTH <thead> (honoured by Chrome 91+) and on
-   each <th> cell (honoured by older Chrome / older Android WebView that only support
-   sticky on table cells), with the -webkit-sticky fallback for legacy WebKit-based
-   Chrome/Android. Scoped to screen only so printing is untouched. */
-@media screen {
-    #scoreSheetView #scoreSheetTableWrapper,
-    #gradesPage #gradesSheetTableWrapper {
-        max-height: calc(100vh - 180px);
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    #scoreSheetView #scoresTable thead,
-    #gradesPage #gradesTable thead {
-        position: -webkit-sticky;
-        position: sticky;
-        top: 0;
-        z-index: 20;
-    }
-    #scoreSheetView #scoresTable thead th,
-    #gradesPage #gradesTable thead th {
-        position: -webkit-sticky;
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        background: #ecf0f1;
-        background-clip: padding-box;
-        box-shadow: inset 0 1px 0 #000, inset 0 -1px 0 #000;
-    }
-}
-
-/* === SURGICAL FIX: AUTO-HIDE SHEET CONTROLS WHILE SCROLLING (MARK & GRADE SHEETS) ===
-   While the mark/grade sheet list is scrolled away from the top, the search box, the
-   class selector and its label, and the action buttons collapse out of flow to give
-   more viewing space. The Back button (.sheet-keep) always stays. Only visibility is
-   toggled via the .sheet-scrolling flag — no element dimensions are changed. Simple
-   :not() selectors are used so old & new Chrome and all Android browsers honour it. */
-#scoreSheetView.sheet-scrolling button:not(.sheet-keep),
-#scoreSheetView.sheet-scrolling input:not(.sheet-keep),
-#scoreSheetView.sheet-scrolling select:not(.sheet-keep),
-#scoreSheetView.sheet-scrolling textarea:not(.sheet-keep),
-#scoreSheetView.sheet-scrolling label:not(.sheet-keep),
-#gradesPage.sheet-scrolling button:not(.sheet-keep),
-#gradesPage.sheet-scrolling input:not(.sheet-keep),
-#gradesPage.sheet-scrolling select:not(.sheet-keep),
-#gradesPage.sheet-scrolling textarea:not(.sheet-keep),
-#gradesPage.sheet-scrolling label:not(.sheet-keep) {
-    display: none !important;
-}
-
 /* SURGICAL FIX: Admin Home & Sheets Overview - full button visibility on mobile */
 @media (max-width: 480px) {
     #adminHomePage,
@@ -2201,58 +2143,6 @@ function saveSelectedSubjectsToRepo() {
 #manebAnalyzerPage .table-wrapper table tbody tr:nth-child(even) { background: #f2f2f2; }
 #manebAnalyzerPage .table-wrapper table tbody tr:last-child td { border-bottom: none; }
 </style>
-
-<!-- SURGICAL FIX v2: Scrolling on every page across mobile screens — by finger-swipe on
-     the content. The viewport (html) is the ONLY page-level scroller; body and .page
-     cards are plain flowing boxes with no overflow/touch-action of their own, so touch
-     gestures always reach the viewport scroller. Existing page/card dimensions, widths,
-     spacing, and layout unchanged. -->
-<style id="all-mobile-pages-vertical-scroll-fix">
-  html {
-    min-height: 100%;
-    height: auto !important;
-    overflow-x: hidden;
-    /* SURGICAL FIX: allow finger-swipe vertical scrolling anywhere on the viewport,
-       not just by dragging the scrollbar. pan-x pan-y keeps horizontal table panning
-       working too. Honoured by old & new Chrome and all Android browsers/WebViews. */
-    touch-action: pan-x pan-y;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  body {
-    min-height: 100vh;
-    height: auto !important;
-    overscroll-behavior-y: auto;
-    /* SURGICAL FIX: touch-swipe anywhere on the body scrolls the page. */
-    touch-action: pan-x pan-y;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  body .page {
-    height: auto !important;
-    overflow-y: visible !important;
-    overscroll-behavior-y: auto;
-    /* SURGICAL FIX: touching anywhere on a page card scrolls the viewport by swipe. */
-    touch-action: pan-x pan-y;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* SURGICAL FIX: Inner scroll containers (wide mark/grade/result tables, student
-     lists, popup lists) — explicitly allow finger-swiping in any direction so they
-     scroll by touch, not only by dragging their scrollbars. Momentum scrolling
-     enabled for iOS. Dimensions and overflow behavior unchanged. */
-  .table-wrapper,
-  #resultsStudentList,
-  #editNamesContainer,
-  #passwordGenTableContainer,
-  #batchStudentList,
-  #subjectHideCheckboxList,
-  #subjectHidePopupBox {
-    touch-action: pan-x pan-y;
-    -webkit-overflow-scrolling: touch;
-  }
-</style>
-
 </head>
 <body>
 <div id="loadingOverlay" style="display: none; opacity: 0; visibility: hidden;">
@@ -2551,7 +2441,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <h2 id="markSheetHeader">MAGAWA SECONDARY SCHOOL - Mark Sheet - <span id="markSheetForm"></span> - Term <span id="markSheetTerm"></span></h2>
 <input type="text" id="scoreSearchInput" placeholder="Search student..." onkeyup="filterScoreSheet()" style="max-width:300px;">
 
-    <button class="sheet-keep" onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    <button onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
 
     <label for="sheetClassSelect">Select Class/Form</label>
     <select id="sheetClassSelect" onchange="displayScoreSheet()">
@@ -3028,7 +2918,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <h2 id="gradeSheetHeader">MAGAWA SECONDARY SCHOOL - Grade Sheet - <span id="gradeSheetForm"></span> - Term <span id="gradeSheetTerm"></span></h2>
 <input type="text" id="gradeSearchInput" placeholder="Search student..." onkeyup="filterGradeSheet()" style="max-width:300px;">
 
-    <button class="sheet-keep" onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
 
     <label for="gradesClassSelect">Select Class/Form</label>
     <select id="gradesClassSelect" onchange="displayGradesSheet()">
@@ -10834,49 +10724,6 @@ async function saveEditedNames() {
       resetZoom();
     };
   }
-})();
-</script>
-
-<script>
-/* === SURGICAL FIX: auto-hide mark/grade sheet controls while scrolling ===
-   Adds the .sheet-scrolling flag to the active sheet page when its list is scrolled
-   away from the top (either the page viewport or the inner table scroll box), and
-   clears it when back at the top or when the sheet is (re)opened/re-rendered.
-   Only toggles a CSS class — no dimensions are changed. */
-(function(){
-  var THRESHOLD = 8;
-  function winTop(){ return window.pageYOffset || document.documentElement.scrollTop || 0; }
-  function visible(el){ return el && el.offsetParent !== null; }
-  function update(page, wrap){
-    if(!page){ return; }
-    var t = wrap ? wrap.scrollTop : 0;
-    var scrolled = Math.max(t, winTop());
-    if(scrolled > THRESHOLD){ page.classList.add('sheet-scrolling'); }
-    else { page.classList.remove('sheet-scrolling'); }
-  }
-  function init(){
-    var pairs = [
-      { page: document.getElementById('scoreSheetView'), wrap: document.getElementById('scoreSheetTableWrapper'), opens: ['openScoreSheetView','displayScoreSheet'] },
-      { page: document.getElementById('gradesPage'), wrap: document.getElementById('gradesSheetTableWrapper'), opens: ['openGradesPage','displayGradesSheet'] }
-    ];
-    pairs.forEach(function(p){
-      if(p.wrap){ p.wrap.addEventListener('scroll', function(){ update(p.page, p.wrap); }, { passive: true }); }
-      p.opens.forEach(function(fn){
-        if(typeof window[fn] === 'function'){
-          var orig = window[fn];
-          window[fn] = function(){
-            if(p.page){ p.page.classList.remove('sheet-scrolling'); }
-            return orig.apply(this, arguments);
-          };
-        }
-      });
-    });
-    window.addEventListener('scroll', function(){
-      pairs.forEach(function(p){ if(visible(p.page)){ update(p.page, p.wrap); } });
-    }, { passive: true });
-  }
-  if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); }
-  else { init(); }
 })();
 </script>
 
