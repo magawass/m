@@ -2193,18 +2193,29 @@ function saveSelectedSubjectsToRepo() {
     min-height: 100%;
     height: auto !important;
     overflow-x: hidden;
+    /* SURGICAL FIX: allow finger-swipe vertical scrolling anywhere on the viewport,
+       not just by dragging the scrollbar. pan-x pan-y keeps horizontal table panning
+       working too. Honoured by old & new Chrome and all Android browsers/WebViews. */
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
   }
 
   body {
     min-height: 100vh;
     height: auto !important;
     overscroll-behavior-y: auto;
+    /* SURGICAL FIX: touch-swipe anywhere on the body scrolls the page. */
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
   }
 
   body .page {
     height: auto !important;
     overflow-y: visible !important;
     overscroll-behavior-y: auto;
+    /* SURGICAL FIX: touching anywhere on a page card scrolls the viewport by swipe. */
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* SURGICAL FIX: Inner scroll containers (wide mark/grade/result tables, student
