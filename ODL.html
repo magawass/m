@@ -2079,6 +2079,25 @@ function saveSelectedSubjectsToRepo() {
     }
 }
 
+/* === SURGICAL FIX: AUTO-HIDE SHEET CONTROLS WHILE SCROLLING (MARK & GRADE SHEETS) ===
+   While the mark/grade sheet list is scrolled away from the top, the search box, the
+   class selector and its label, and the action buttons collapse out of flow to give
+   more viewing space. The Back button (.sheet-keep) always stays. Only visibility is
+   toggled via the .sheet-scrolling flag — no element dimensions are changed. Simple
+   :not() selectors are used so old & new Chrome and all Android browsers honour it. */
+#scoreSheetView.sheet-scrolling button:not(.sheet-keep),
+#scoreSheetView.sheet-scrolling input:not(.sheet-keep),
+#scoreSheetView.sheet-scrolling select:not(.sheet-keep),
+#scoreSheetView.sheet-scrolling textarea:not(.sheet-keep),
+#scoreSheetView.sheet-scrolling label:not(.sheet-keep),
+#gradesPage.sheet-scrolling button:not(.sheet-keep),
+#gradesPage.sheet-scrolling input:not(.sheet-keep),
+#gradesPage.sheet-scrolling select:not(.sheet-keep),
+#gradesPage.sheet-scrolling textarea:not(.sheet-keep),
+#gradesPage.sheet-scrolling label:not(.sheet-keep) {
+    display: none !important;
+}
+
 /* SURGICAL FIX: Admin Home & Sheets Overview - full button visibility on mobile */
 @media (max-width: 480px) {
     #adminHomePage,
@@ -2532,7 +2551,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <h2 id="markSheetHeader">MAGAWA SECONDARY SCHOOL - Mark Sheet - <span id="markSheetForm"></span> - Term <span id="markSheetTerm"></span></h2>
 <input type="text" id="scoreSearchInput" placeholder="Search student..." onkeyup="filterScoreSheet()" style="max-width:300px;">
 
-    <button onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    <button class="sheet-keep" onclick="openDataEntryPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
 
     <label for="sheetClassSelect">Select Class/Form</label>
     <select id="sheetClassSelect" onchange="displayScoreSheet()">
@@ -3009,7 +3028,7 @@ src="https://raw.githubusercontent.com/magawass/m/main/logo.png" class="logo" al
     <h2 id="gradeSheetHeader">MAGAWA SECONDARY SCHOOL - Grade Sheet - <span id="gradeSheetForm"></span> - Term <span id="gradeSheetTerm"></span></h2>
 <input type="text" id="gradeSearchInput" placeholder="Search student..." onkeyup="filterGradeSheet()" style="max-width:300px;">
 
-    <button onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
+    <button class="sheet-keep" onclick="openSheetsPage()" style="position: absolute; top: 10px; left: 10px; width: auto; padding: 5px 10px; max-width: none !important; margin: 0;">Back</button>
 
     <label for="gradesClassSelect">Select Class/Form</label>
     <select id="gradesClassSelect" onchange="displayGradesSheet()">
@@ -10815,6 +10834,49 @@ async function saveEditedNames() {
       resetZoom();
     };
   }
+})();
+</script>
+
+<script>
+/* === SURGICAL FIX: auto-hide mark/grade sheet controls while scrolling ===
+   Adds the .sheet-scrolling flag to the active sheet page when its list is scrolled
+   away from the top (either the page viewport or the inner table scroll box), and
+   clears it when back at the top or when the sheet is (re)opened/re-rendered.
+   Only toggles a CSS class — no dimensions are changed. */
+(function(){
+  var THRESHOLD = 8;
+  function winTop(){ return window.pageYOffset || document.documentElement.scrollTop || 0; }
+  function visible(el){ return el && el.offsetParent !== null; }
+  function update(page, wrap){
+    if(!page){ return; }
+    var t = wrap ? wrap.scrollTop : 0;
+    var scrolled = Math.max(t, winTop());
+    if(scrolled > THRESHOLD){ page.classList.add('sheet-scrolling'); }
+    else { page.classList.remove('sheet-scrolling'); }
+  }
+  function init(){
+    var pairs = [
+      { page: document.getElementById('scoreSheetView'), wrap: document.getElementById('scoreSheetTableWrapper'), opens: ['openScoreSheetView','displayScoreSheet'] },
+      { page: document.getElementById('gradesPage'), wrap: document.getElementById('gradesSheetTableWrapper'), opens: ['openGradesPage','displayGradesSheet'] }
+    ];
+    pairs.forEach(function(p){
+      if(p.wrap){ p.wrap.addEventListener('scroll', function(){ update(p.page, p.wrap); }, { passive: true }); }
+      p.opens.forEach(function(fn){
+        if(typeof window[fn] === 'function'){
+          var orig = window[fn];
+          window[fn] = function(){
+            if(p.page){ p.page.classList.remove('sheet-scrolling'); }
+            return orig.apply(this, arguments);
+          };
+        }
+      });
+    });
+    window.addEventListener('scroll', function(){
+      pairs.forEach(function(p){ if(visible(p.page)){ update(p.page, p.wrap); } });
+    }, { passive: true });
+  }
+  if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); }
+  else { init(); }
 })();
 </script>
 
